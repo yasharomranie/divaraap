@@ -14,6 +14,11 @@ use function Laravel\Ai\agent;
 
 class QuickListingCategorySuggester
 {
+    private function explanationLanguage(): string
+    {
+        return app()->getLocale();
+    }
+
     public function suggestFromImage(UploadedFile $image): array
     {
         $provider = (string) config('quick-listing.ai_provider', 'openai');
@@ -25,9 +30,9 @@ class QuickListingCategorySuggester
                 'detected' => false,
                 'category_id' => null,
                 'confidence' => null,
-                'reason' => 'AI provider key is missing.',
+                'reason' => __('panel::messages.category_auto_unavailable'),
                 'alternatives' => [],
-                'error' => 'AI provider key is missing.',
+                'error' => __('panel::messages.category_auto_unavailable'),
             ];
         }
 
@@ -38,9 +43,9 @@ class QuickListingCategorySuggester
                 'detected' => false,
                 'category_id' => null,
                 'confidence' => null,
-                'reason' => 'No active categories available.',
+                'reason' => __('panel::messages.category_none'),
                 'alternatives' => [],
-                'error' => 'No active categories available.',
+                'error' => __('panel::messages.category_none'),
             ];
         }
 
@@ -52,7 +57,7 @@ class QuickListingCategorySuggester
 
         try {
             $response = agent(
-                instructions: 'You are an e-commerce listing assistant. Classify the product image into the best matching category ID from the provided catalog. Never invent IDs.',
+                instructions: 'You are an e-commerce listing assistant. Classify the product image into the best matching category ID from the provided catalog. Never invent IDs. Explain your reason in the requested language.',
                 schema: fn (JsonSchema $schema): array => [
                     'detected' => $schema->boolean()->required(),
                     'category_id' => $schema->integer()->enum($categoryIds)->nullable(),
@@ -65,6 +70,8 @@ class QuickListingCategorySuggester
             )->prompt(
                 prompt: <<<PROMPT
                     Classify the uploaded image into one category from this catalog.
+
+                    Explanation language: {$this->explanationLanguage()}
 
                     Catalog:
                     {$catalogText}
@@ -101,7 +108,7 @@ class QuickListingCategorySuggester
                 'detected' => $detected,
                 'category_id' => $detected ? $categoryId : null,
                 'confidence' => $confidence,
-                'reason' => (string) ($response['reason'] ?? 'No reason provided.'),
+                'reason' => (string) ($response['reason'] ?? __('panel::messages.category_no_reason')),
                 'alternatives' => $alternatives,
                 'error' => null,
             ];
@@ -112,9 +119,9 @@ class QuickListingCategorySuggester
                 'detected' => false,
                 'category_id' => null,
                 'confidence' => null,
-                'reason' => 'Category could not be detected automatically.',
+                'reason' => __('panel::messages.category_auto_unavailable'),
                 'alternatives' => [],
-                'error' => $exception->getMessage(),
+                'error' => __('panel::messages.category_auto_unavailable'),
             ];
         }
     }

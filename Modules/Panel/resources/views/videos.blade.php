@@ -26,15 +26,15 @@
             </div>
             <div class="field">
                 <label class="field__label" for="video-title">{{ __('panel::messages.title') }}</label>
-                <input id="video-title" type="text" name="title" class="input" maxlength="120">
+                <input id="video-title" type="text" dir="auto" name="title" class="input" maxlength="120">
                 @error('title')<p class="field__error">{{ $message }}</p>@enderror
             </div>
         </div>
 
         <div class="field">
             <label class="field__label" for="video-file">{{ __('panel::messages.videos') }}</label>
-            <input id="video-file" type="file" name="video" class="input" accept="video/*" required>
-            @error('video')<p class="field__error">{{ $message }}</p>@enderror
+            <input id="video-file" type="file" name="video_file" class="input" accept="video/*" required>
+            @error('video_file')<p class="field__error">{{ $message }}</p>@enderror
         </div>
 
         <button type="submit" class="button button--primary">{{ __('panel::messages.save') }}</button>
@@ -46,12 +46,12 @@
         <div class="data-list">
             @foreach($videos as $video)
                 <article class="data-row" style="grid-template-columns: auto minmax(0,1fr) auto">
-                    <span class="avatar avatar--small"><x-ui.icon name="video" style="width:14px;height:14px"/></span>
+                    <span class="avatar avatar--small"><x-ui.icon name="video_file" style="width:14px;height:14px"/></span>
                     <div class="data-row__main">
                         <p class="data-row__title text-clamp-1">{{ $video->getAttribute('title') ?: '—' }}</p>
                         <div class="data-row__meta">
-                            <span class="badge">{{ $video->getAttribute('status') }}</span>
-                            <span>{{ $video->getAttribute('duration_seconds') }}s</span>
+                            <span class="badge">{{ __('panel::messages.video_'.strtolower($video->statusLabel())) }}</span>
+                            <span>{{ __('panel::messages.seconds', ['count' => $video->getAttribute('duration_seconds')]) }}</span>
                         </div>
                     </div>
                     <div class="data-row__actions">

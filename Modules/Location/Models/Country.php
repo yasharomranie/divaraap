@@ -88,10 +88,11 @@ class Country extends Model
         return static::query()
             ->active()
             ->orderBy('name')
-            ->get(['id', 'name'])
+            ->get(['id', 'name', 'code'])
             ->map(fn (self $country): array => [
                 'id' => (int) $country->id,
                 'name' => (string) $country->name,
+                'code' => (string) $country->code,
             ])
             ->all();
     }

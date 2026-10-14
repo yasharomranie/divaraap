@@ -1,3 +1,4 @@
+import { inboxSocketId } from '../realtime/echo';
 import { failure, success, toError, type Result } from './result';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -45,6 +46,9 @@ export async function request<T>(options: HttpRequest): Promise<Result<T, HttpEr
         'X-Requested-With': 'XMLHttpRequest',
         'X-CSRF-TOKEN': csrfToken(),
     });
+
+    const socketId = inboxSocketId();
+    if (socketId !== undefined) headers.set('X-Socket-ID', socketId);
 
     if (contentType !== null) {
         headers.set('Content-Type', contentType);

@@ -27,9 +27,9 @@ class UpdateVideoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'listing_id.required' => 'Choose a listing for the video.',
-            'listing_id.exists' => 'Choose a valid listing for the video.',
-            'video_file.mimes' => 'Video must be an mp4, mov, webm, or m4v file.',
+            'listing_id.required' => __('panel::messages.video_listing'),
+            'listing_id.exists' => __('panel::messages.video_valid_listing'),
+            'video_file.mimes' => __('panel::messages.video_formats'),
         ];
     }
 }

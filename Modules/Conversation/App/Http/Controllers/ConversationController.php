@@ -98,7 +98,7 @@ class ConversationController extends Controller
 
         return redirect()
             ->route('panel.inbox.index', array_merge($this->inboxFilters($request), ['conversation' => $conversation->getKey()]))
-            ->with('success', $messageBody !== '' ? __('conversation::messages.message_sent') : 'Conversation started.');
+            ->with('success', $messageBody !== '' ? __('conversation::messages.message_sent') : __('conversation::messages.started'));
     }
 
     public function send(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
@@ -112,7 +112,7 @@ class ConversationController extends Controller
 
         $payload = $request->validate([
             'message' => ['required', 'string', 'max:2000'],
-        ]);
+        ], ['message.required' => __('conversation::messages.empty_message')], ['message' => __('conversation::messages.message_attribute')]);
 
         $messageBody = trim($payload['message']);
 

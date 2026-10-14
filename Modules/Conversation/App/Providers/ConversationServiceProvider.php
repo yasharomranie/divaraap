@@ -17,7 +17,7 @@ class ConversationServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(module_path('Conversation', 'lang'), 'conversation');
 
         Broadcast::channel('users.{id}.inbox', function ($user, $id): bool {
-            return (int) $user->getKey() === (int) $id;
+            return (string) $user->getKey() === (string) $id;
         });
     }
 

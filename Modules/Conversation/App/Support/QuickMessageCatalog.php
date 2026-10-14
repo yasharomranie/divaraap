@@ -9,10 +9,10 @@ class QuickMessageCatalog
     public static function all(): array
     {
         return [
-            'Hi',
-            'Is this listing still available?',
-            'What is your best price?',
-            'Thanks',
+            __('conversation::messages.quick_hi'),
+            __('conversation::messages.quick_available'),
+            __('conversation::messages.quick_price'),
+            __('conversation::messages.quick_thanks'),
         ];
     }
 }

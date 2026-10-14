@@ -284,10 +284,10 @@ class Listing extends Model implements HasMedia
     public static function panelStatusOptions(): array
     {
         return [
-            'pending' => 'Pending',
-            'active' => 'Active',
-            'sold' => 'Sold',
-            'expired' => 'Expired',
+            'pending' => __('panel::messages.pending'),
+            'active' => __('panel::messages.active'),
+            'sold' => __('panel::messages.sold'),
+            'expired' => __('panel::messages.expired'),
         ];
     }
 
@@ -689,8 +689,9 @@ class Listing extends Model implements HasMedia
         $payload['user_id'] = $userId;
         $payload['currency'] = ListingPanelHelper::normalizeCurrency($data['currency'] ?? null);
         $payload['slug'] = $slug;
+        $payload['status'] = PendingListingStatus::class;
 
-        $listing = static::query()->make($payload);
+        $listing = static::query()->make()->forceFill($payload);
         $listing->save();
 
         return $listing;

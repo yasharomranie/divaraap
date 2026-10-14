@@ -60,7 +60,14 @@
     @vite(['resources/ts/app.ts'])
     @livewireStyles
 </head>
-<body data-inbox-channel="{{ $isAuthenticated ? 'users.'.auth()->id().'.inbox' : '' }}">
+<body
+    @if($isAuthenticated && config('broadcasting.default') === 'reverb')
+        data-reverb-key="{{ config('broadcasting.connections.reverb.key') }}"
+        data-reverb-host="{{ config('broadcasting.connections.reverb.options.host') }}"
+        data-reverb-port="{{ config('broadcasting.connections.reverb.options.port') }}"
+        data-reverb-scheme="{{ config('broadcasting.connections.reverb.options.scheme') }}"
+    @endif
+    data-inbox-channel="{{ $isAuthenticated ? 'users.'.auth()->id().'.inbox' : '' }}">
 
 @unless($chromeless)
 <header class="site-header" data-sticky-header>

@@ -6,7 +6,7 @@
 <header class="panel-head">
     <div class="panel-head__text">
         <h1 class="title-page">{{ __('notification::messages.notifications') }}</h1>
-        <p class="text-muted">{{ $unreadCount }} {{ __('notification::messages.unread') }}</p>
+        <p class="text-muted" dir="auto">{{ $unreadCount }} {{ __('notification::messages.unread') }}</p>
     </div>
     @if($unreadCount > 0)
         <form method="POST" action="{{ route('panel.notifications.read-all') }}">
@@ -26,14 +26,14 @@
                     </span>
 
                     <div class="data-row__main">
-                        <p class="data-row__title">
+                        <p class="data-row__title" dir="auto">
                             {{ $notification->getAttribute('title') }}
                             @if($notification->isUnread())
                                 <span class="badge badge--accent">{{ __('notification::messages.unread') }}</span>
                             @endif
                         </p>
                         @if(filled($notification->getAttribute('body')))
-                            <p class="text-muted">{{ $notification->getAttribute('body') }}</p>
+                            <p class="text-muted" dir="auto">{{ $notification->getAttribute('body') }}</p>
                         @endif
                         <div class="data-row__meta">
                             <time datetime="{{ $notification->getAttribute('created_at')?->toIso8601String() }}">

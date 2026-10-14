@@ -41,7 +41,7 @@
                     <select id="fav-category" name="category" class="select" style="max-width:230px" data-filter-auto>
                         <option value="">{{ __('site::messages.all_categories') }}</option>
                         @foreach($categories as $id => $name)
-                            <option value="{{ $id }}" @selected($selectedCategoryId === (int) $id)>{{ $name }}</option>
+                            <option value="{{ $id }}" @selected($selectedCategoryId === (int) $id)>{{ \Modules\Category\Models\Category::localizedName($name) }}</option>
                         @endforeach
                     </select>
                 </form>

@@ -29,7 +29,7 @@ class PanelQuickListingForm extends Component
 {
     use WithFileUploads;
 
-    private const TOTAL_STEPS = 5;
+    private const TOTAL_STEPS = 4;
 
     private const DRAFT_SESSION_KEY = 'panel_quick_listing_draft';
 
@@ -91,6 +91,28 @@ class PanelQuickListingForm extends Component
         $this->loadLocations();
         $this->hydrateLocationDefaultsFromProfile();
         $this->restoreDraft();
+    }
+
+    protected function validationAttributes(): array
+    {
+        $attributes = [
+            'photos' => __('panel::messages.photos_attribute'),
+            'photos.*' => __('panel::messages.photos_attribute'),
+            'videos' => __('panel::messages.videos_attribute'),
+            'videos.*' => __('panel::messages.videos_attribute'),
+            'listingTitle' => __('panel::messages.title'),
+            'price' => __('panel::messages.price'),
+            'description' => __('panel::messages.description'),
+            'selectedCategoryId' => __('panel::messages.category'),
+            'selectedCountryId' => __('site::messages.country'),
+            'selectedCityId' => __('site::messages.city'),
+        ];
+        $labels = __('listing::messages.field_labels');
+        foreach ($this->listingCustomFields as $field) {
+            $attributes['customFieldValues.'.$field['name']] = $labels[$field['label']] ?? $field['label'];
+        }
+
+        return $attributes;
     }
 
     public function render()
@@ -181,7 +203,7 @@ class PanelQuickListingForm extends Component
         $this->validateCategoryStep();
         $this->validateDetailsStep();
         $this->validateCustomFieldsStep();
-        $this->currentStep = 5;
+        $this->currentStep = 4;
     }
 
     public function detectCategoryFromImage(): void
@@ -262,14 +284,14 @@ class PanelQuickListingForm extends Component
         } catch (Throwable $exception) {
             report($exception);
             $this->isPublishing = false;
-            $this->publishError = 'The listing could not be created. Please try again.';
-            session()->flash('error', 'The listing could not be created. Please try again.');
+            $this->publishError = __('panel::messages.publish_failed');
+            session()->flash('error', __('panel::messages.publish_failed'));
 
             return;
         }
 
         $this->isPublishing = false;
-        session()->flash('success', 'Your listing has been created successfully.');
+        session()->flash('success', __('panel::messages.listing_created'));
         $this->clearDraft();
 
         if (Route::has('panel.listings.edit')) {
@@ -313,7 +335,7 @@ class PanelQuickListingForm extends Component
                 $search !== '',
                 fn (Collection $categories): Collection => $categories->filter(
                     fn (array $category): bool => str_contains(
-                        mb_strtolower($category['name']),
+                        mb_strtolower(Category::localizedName($category['name']).' '.$category['name']),
                         mb_strtolower($search)
                     )
                 )
@@ -325,35 +347,33 @@ class PanelQuickListingForm extends Component
     public function getCurrentParentNameProperty(): string
     {
         if (! $this->activeParentCategoryId) {
-            return 'Category Selection';
+            return __('panel::messages.category_selection');
         }
 
         $category = collect($this->categories)->firstWhere('id', $this->activeParentCategoryId);
 
-        return (string) ($category['name'] ?? 'Category Selection');
+        return isset($category['name']) ? Category::localizedName($category['name']) : __('panel::messages.category_selection');
     }
 
     public function getCurrentStepTitleProperty(): string
     {
         return match ($this->currentStep) {
-            1 => 'Photos',
-            2 => 'Category',
-            3 => 'Basics',
-            4 => 'Details',
-            5 => 'Review',
-            default => 'New Listing',
+            1 => __('panel::messages.photos'),
+            2 => __('panel::messages.category'),
+            3 => __('panel::messages.basics'),
+            4 => __('panel::messages.preview'),
+            default => __('panel::messages.new_listing'),
         };
     }
 
     public function getCurrentStepHintProperty(): string
     {
         return match ($this->currentStep) {
-            1 => 'Add photos and optional videos first.',
-            2 => 'Pick the right category.',
-            3 => 'Add the basics.',
-            4 => 'Add extra details if needed.',
-            5 => 'Check everything before publishing.',
-            default => 'Create a new listing.',
+            1 => __('panel::messages.photos_step_hint'),
+            2 => __('panel::messages.category_step_hint'),
+            3 => __('panel::messages.details_step_hint'),
+            4 => __('panel::messages.preview_step_hint'),
+            default => __('panel::messages.new_listing_hint'),
         };
     }
 
@@ -365,7 +385,7 @@ class PanelQuickListingForm extends Component
 
         $category = collect($this->categories)->firstWhere('id', $this->selectedCategoryId);
 
-        return $category['name'] ?? null;
+        return isset($category['name']) ? Category::localizedName($category['name']) : null;
     }
 
     public function getSelectedCategoryPathProperty(): string
@@ -374,7 +394,7 @@ class PanelQuickListingForm extends Component
             return '';
         }
 
-        return implode(' › ', $this->categoryPathParts($this->selectedCategoryId));
+        return implode(app()->getLocale() === 'fa' ? ' ‹ ' : ' › ', $this->categoryPathParts($this->selectedCategoryId));
     }
 
     public function getDetectedAlternativeNamesProperty(): array
@@ -423,6 +443,13 @@ class PanelQuickListingForm extends Component
         $country = collect($this->countries)->firstWhere('id', $this->selectedCountryId);
 
         return $country['name'] ?? null;
+    }
+
+    public function getSelectedCountryDisplayNameProperty(): ?string
+    {
+        $country = collect($this->countries)->firstWhere('id', $this->selectedCountryId);
+
+        return $country ? Country::localizedName($country['name'], $country['code'] ?? '') : null;
     }
 
     public function getSelectedCityNameProperty(): ?string
@@ -527,8 +554,8 @@ class PanelQuickListingForm extends Component
                 Rule::in(collect($this->categories)->pluck('id')->all()),
             ],
         ], [
-            'selectedCategoryId.required' => 'Please choose a category.',
-            'selectedCategoryId.in' => 'Please choose a valid category.',
+            'selectedCategoryId.required' => __('panel::messages.choose_category'),
+            'selectedCategoryId.in' => __('panel::messages.valid_category'),
         ]);
     }
 
@@ -551,18 +578,18 @@ class PanelQuickListingForm extends Component
                         ->contains(fn (array $city): bool => $city['id'] === (int) $value);
 
                     if (! $cityExists) {
-                        $fail('The selected city does not belong to the chosen country.');
+                        $fail(__('panel::messages.city_country_mismatch'));
                     }
                 },
             ],
         ], [
-            'listingTitle.required' => 'A title is required.',
-            'listingTitle.max' => 'The title may not exceed 70 characters.',
-            'price.required' => 'A price is required.',
-            'price.numeric' => 'The price must be numeric.',
-            'description.required' => 'A description is required.',
-            'description.max' => 'The description may not exceed 1450 characters.',
-            'selectedCountryId.required' => 'Please choose a country.',
+            'listingTitle.required' => __('panel::messages.required_title'),
+            'listingTitle.max' => __('panel::messages.title_limit'),
+            'price.required' => __('panel::messages.required_price'),
+            'price.numeric' => __('panel::messages.numeric_price'),
+            'description.required' => __('panel::messages.required_description'),
+            'description.max' => __('panel::messages.description_limit'),
+            'selectedCountryId.required' => __('panel::messages.choose_country'),
         ]);
     }
 
@@ -774,7 +801,7 @@ class PanelQuickListingForm extends Component
         }
 
         $this->currentStep = $this->stepForValidationErrors(array_keys($errors));
-        $this->publishError = collect($errors)->flatten()->filter()->first() ?: 'Please fix the highlighted fields before publishing.';
+        $this->publishError = collect($errors)->flatten()->filter()->first() ?: __('panel::messages.fix_fields');
     }
 
     private function stepForValidationErrors(array $keys): int
@@ -800,10 +827,10 @@ class PanelQuickListingForm extends Component
         }
 
         if ($normalizedKeys->contains(fn ($key) => str_starts_with($key, 'customFieldValues.'))) {
-            return 4;
+            return 3;
         }
 
-        return 5;
+        return 4;
     }
 
     private function restoreDraft(): void
@@ -882,7 +909,7 @@ class PanelQuickListingForm extends Component
                 break;
             }
 
-            $parts[] = (string) $category['name'];
+            $parts[] = Category::localizedName((string) $category['name']);
             $currentId = $category['parent_id'] ?? null;
         }
 

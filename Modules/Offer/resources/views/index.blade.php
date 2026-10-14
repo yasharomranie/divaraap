@@ -16,7 +16,7 @@
 <header class="panel-head">
     <div class="panel-head__text">
         <h1 class="title-page">{{ __('offer::messages.offers') }}</h1>
-        <p class="text-muted">{{ trans_choice('site::messages.results_count', $offers->total(), ['count' => $offers->total()]) }}</p>
+        <p class="text-muted" dir="auto">{{ trans_choice('site::messages.results_count', $offers->total(), ['count' => $offers->total()]) }}</p>
     </div>
 </header>
 

@@ -18,6 +18,11 @@ ensure_containers() {
             --mount type=volume,src=divaraap-pgdata,dst=/var/lib/postgresql/data \
             postgres:16-bookworm
     fi
+    if docker container inspect divaraap-php >/dev/null 2>&1 &&
+        [[ "$(docker inspect --format '{{.Image}}' divaraap-php)" != "$(docker image inspect --format '{{.Id}}' divaraap-php:8.4)" ]]; then
+        docker rm -f divaraap-php >/dev/null
+        rm -f "$state_root/web.pid" "$state_root/queue.pid" "$state_root/reverb.pid"
+    fi
     if docker container inspect divaraap-php >/dev/null 2>&1; then
         docker start divaraap-php >/dev/null
     else

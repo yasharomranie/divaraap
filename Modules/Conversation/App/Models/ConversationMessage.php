@@ -40,6 +40,7 @@ class ConversationMessage extends Model
         return [
             'id' => (int) $this->getKey(),
             'body' => (string) $this->body,
+            'created_at' => $this->created_at?->toIso8601String() ?? now()->toIso8601String(),
             'time' => $this->created_at?->format('H:i') ?? now()->format('H:i'),
             'sender_id' => (int) $this->sender_id,
             'sender_name' => (string) ($this->sender?->name ?? 'User'),

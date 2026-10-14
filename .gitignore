@@ -33,3 +33,5 @@ graphify-out/cache/
 graphify-out/manifest.json
 graphify-out/.graphify*
 /.agents/skills/ui-ux-pro-max/scripts/__pycache__/
+
+/storage/media-library/temp/

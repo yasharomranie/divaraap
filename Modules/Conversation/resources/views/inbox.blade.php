@@ -35,7 +35,7 @@
                     <span class="avatar avatar--small">{{ \App\Support\UserDirectory::initials((string) $partner?->getAttribute('name')) }}</span>
                     <span class="thread-preview__main">
                         <span class="thread-preview__name text-clamp-1">{{ $partner?->getAttribute('name') ?? '—' }}</span>
-                        <span class="thread-preview__text text-clamp-1">{{ $conversation->getRelation('lastMessage')?->getAttribute('body') ?? '' }}</span>
+                        <span class="thread-preview__text text-clamp-1" dir="auto">{{ $conversation->getRelation('lastMessage')?->getAttribute('body') ?? '' }}</span>
                     </span>
                     @if($unread > 0)
                         <span class="thread-preview__badge">{{ $unread > 99 ? '99+' : $unread }}</span>
@@ -55,6 +55,8 @@
                     class="thread-layout__detail"
                     style="display:flex;flex:1 1 auto;min-height:0"
                     data-inbox-thread="{{ $selectedConversation->getKey() }}"
+                    data-thread-error="{{ __('conversation::messages.send_failed') }}"
+                    data-thread-read="{{ route('conversations.read', $selectedConversation) }}"
                     data-thread-endpoint="{{ route('conversations.messages.send', $selectedConversation) }}"
                 >
                     <div class="thread__head">
@@ -70,11 +72,11 @@
                         </div>
                     </div>
 
-                    <ul class="thread__messages" data-thread-messages>
+                    <ul class="thread__messages" data-thread-messages role="log" aria-live="polite" aria-label="{{ __('conversation::messages.conversations') }}">
                         @foreach($selectedConversation->getRelation('messages') as $message)
                             @php $outgoing = (int) $message->getAttribute('sender_id') === $viewerId; @endphp
-                            <li class="thread__bubble {{ $outgoing ? 'thread__bubble--out' : 'thread__bubble--in' }}">
-                                <p class="thread__text">{{ $message->getAttribute('body') }}</p>
+                            <li data-message-id="{{ $message->getKey() }}" class="thread__bubble {{ $outgoing ? 'thread__bubble--out' : 'thread__bubble--in' }}">
+                                <p class="thread__text" dir="auto">{{ $message->getAttribute('body') }}</p>
                                 <time class="thread__time" datetime="{{ $message->getAttribute('created_at')?->toIso8601String() }}">
                                     {{ $message->getAttribute('created_at')?->format('H:i') }}
                                 </time>
@@ -90,10 +92,11 @@
                         </div>
                     @endif
 
+                    <p class="field__error" data-thread-status role="alert"></p>
                     <form class="thread__composer" data-thread-form>
                         @csrf
                         <label class="visually-hidden" for="thread-input">{{ __('conversation::messages.message_placeholder') }}</label>
-                        <textarea id="thread-input" class="textarea" rows="1" placeholder="{{ __('conversation::messages.message_placeholder') }}" data-thread-input maxlength="2000"></textarea>
+                        <textarea id="thread-input" dir="auto" class="textarea" rows="1" placeholder="{{ __('conversation::messages.message_placeholder') }}" data-thread-input maxlength="2000"></textarea>
                         <button type="submit" class="button button--primary button--icon" data-thread-submit aria-label="{{ __('conversation::messages.send') }}">
                             <x-ui.icon name="arrow-right"/>
                         </button>

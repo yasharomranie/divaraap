@@ -18,10 +18,12 @@
     <form method="POST" action="{{ route('panel.videos.update', $video) }}" class="card__body">
         @csrf
         @method('PUT')
+        <input type="hidden" name="listing_id" value="{{ $video->getAttribute('listing_id') }}">
+        <input type="hidden" name="is_active" value="0">
 
         <div class="field">
             <label class="field__label" for="video-title">{{ __('panel::messages.title') }}</label>
-            <input id="video-title" type="text" name="title" value="{{ old('title', $video->getAttribute('title')) }}" class="input" maxlength="120">
+            <input id="video-title" type="text" dir="auto" name="title" value="{{ old('title', $video->getAttribute('title')) }}" class="input" maxlength="120">
             @error('title')<p class="field__error">{{ $message }}</p>@enderror
         </div>
 

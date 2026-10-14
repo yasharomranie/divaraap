@@ -24,7 +24,7 @@
             <div class="card__body">
                 <div class="field">
                     <label class="field__label" for="title">{{ __('panel::messages.title') }}</label>
-                    <input id="title" type="text" name="title" value="{{ old('title', $listing->getAttribute('title')) }}" class="input" maxlength="150" required
+                    <input id="title" type="text" dir="auto" name="title" value="{{ old('title', $listing->getAttribute('title')) }}" class="input" maxlength="150" required
                            aria-invalid="{{ $errors->has('title') ? 'true' : 'false' }}">
                     <span class="field__hint" data-counter-for="title"></span>
                     @error('title')<p class="field__error">{{ $message }}</p>@enderror
@@ -32,7 +32,7 @@
 
                 <div class="field">
                     <label class="field__label" for="description">{{ __('panel::messages.description') }}</label>
-                    <textarea id="description" name="description" rows="8" class="textarea" maxlength="4000">{{ old('description', $listing->getAttribute('description')) }}</textarea>
+                    <textarea id="description" name="description" rows="8" class="textarea" dir="auto" maxlength="4000">{{ old('description', $listing->getAttribute('description')) }}</textarea>
                     <span class="field__hint" data-counter-for="description"></span>
                     @error('description')<p class="field__error">{{ $message }}</p>@enderror
                 </div>
@@ -41,7 +41,7 @@
                     <div class="field">
                         <label class="field__label" for="price">{{ __('panel::messages.price') }}</label>
                         <span class="input-affix">
-                            <input id="price" type="number" step="0.01" min="0" name="price" value="{{ old('price', $listing->getAttribute('price')) }}" class="input">
+                            <input id="price" type="number" inputmode="decimal" step="0.01" min="0" name="price" value="{{ old('price', $listing->getAttribute('price')) }}" class="input">
                             <span class="input-affix__suffix">{{ $listing->getAttribute('currency') }}</span>
                         </span>
                         @error('price')<p class="field__error">{{ $message }}</p>@enderror
@@ -83,11 +83,11 @@
             <div class="card__body">
                 <div class="field">
                     <label class="field__label" for="country">{{ __('site::messages.country') }}</label>
-                    <input id="country" type="text" name="country" value="{{ old('country', $listing->getAttribute('country')) }}" class="input">
+                    <input id="country" type="text" dir="auto" name="country" value="{{ old('country', $listing->getAttribute('country')) }}" class="input">
                 </div>
                 <div class="field">
                     <label class="field__label" for="city">{{ __('site::messages.city') }}</label>
-                    <input id="city" type="text" name="city" value="{{ old('city', $listing->getAttribute('city')) }}" class="input">
+                    <input id="city" type="text" dir="auto" name="city" value="{{ old('city', $listing->getAttribute('city')) }}" class="input">
                 </div>
             </div>
         </section>

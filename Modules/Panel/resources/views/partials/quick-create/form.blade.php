@@ -3,7 +3,7 @@
         1 => __('panel::messages.photos'),
         2 => __('site::messages.category'),
         3 => __('site::messages.details'),
-        4 => __('panel::messages.overview'),
+        4 => __('panel::messages.preview'),
     ];
 @endphp
 
@@ -22,6 +22,7 @@
                         type="button"
                         class="pill {{ $currentStep === $number ? 'is-active' : '' }}"
                         wire:click="goToStep({{ $number }})"
+                        aria-current="{{ $currentStep === $number ? 'step' : 'false' }}"
                         @disabled($number > $currentStep)
                     >
                         <span>{{ $number }}</span>
@@ -38,6 +39,15 @@
             </div>
         @endif
 
+        @error('photos')
+            <div class="alert alert--critical" role="alert">{{ $message }}</div>
+        @enderror
+        @error('videos')
+            <div class="alert alert--critical" role="alert">{{ $message }}</div>
+        @enderror
+        @error('videos.*')
+            <div class="alert alert--critical" role="alert">{{ $message }}</div>
+        @enderror
         @error('photos.*')
             <div class="alert alert--critical" role="alert"><x-ui.icon name="shield"/><span>{{ $message }}</span></div>
         @enderror
@@ -49,8 +59,8 @@
                         <label class="upload__control" for="quick-photos">
                             <x-ui.icon name="image"/>
                             <span class="title-card">{{ __('panel::messages.photos') }}</span>
-                            <span class="text-muted">{{ __('panel::messages.photos_hint') }}</span>
-                            <input id="quick-photos" type="file" class="visually-hidden" wire:model="photos" multiple accept="image/*">
+                            <span class="text-muted">{{ __('panel::messages.photos_hint', ['count' => config('quick-listing.max_photo_count', 20)]) }}</span>
+                            <input id="quick-photos" type="file" class="visually-hidden" wire:model="photos" multiple accept="image/jpeg,image/png">
                         </label>
 
                         <div wire:loading wire:target="photos" class="text-muted">{{ __('panel::messages.uploading') }}</div>
@@ -63,7 +73,7 @@
                                         <button
                                             type="button"
                                             class="icon-button"
-                                            style="position:absolute;top:4px;inset-inline-end:4px;background:var(--surface-overlay);width:28px;height:28px"
+                                            style="position:absolute;top:4px;inset-inline-end:4px;background:var(--surface-overlay);width:44px;height:44px"
                                             wire:click="removePhoto({{ $index }})"
                                             aria-label="{{ __('favorite::messages.remove') }}"
                                         ><x-ui.icon name="close"/></button>
@@ -125,7 +135,7 @@
                                         class="nav-list__item {{ $selectedCategoryId === $category['id'] ? 'is-active' : '' }}"
                                         wire:click="selectCategory({{ $category['id'] }})"
                                     >
-                                        <span>{{ $category['name'] }}</span>
+                                        <span>{{ \Modules\Category\Models\Category::localizedName($category['name']) }}</span>
                                         @if($selectedCategoryId === $category['id'])
                                             <x-ui.icon name="check"/>
                                         @else
@@ -139,7 +149,7 @@
                                 @foreach($this->rootCategories as $category)
                                     <button type="button" class="category-card" wire:click="enterCategory({{ $category['id'] }})">
                                         <span class="category-card__icon"><x-ui.icon name="grid"/></span>
-                                        <span class="category-card__name">{{ $category['name'] }}</span>
+                                        <span class="category-card__name">{{ \Modules\Category\Models\Category::localizedName($category['name']) }}</span>
                                     </button>
                                 @endforeach
                             </div>
@@ -151,20 +161,20 @@
                     <div class="stack">
                         <div class="field">
                             <label class="field__label" for="listing-title">{{ __('panel::messages.title') }}</label>
-                            <input id="listing-title" type="text" class="input" wire:model.blur="listingTitle" maxlength="150">
+                            <input id="listing-title" dir="auto" type="text" class="input" wire:model.blur="listingTitle" maxlength="70">
                             @error('listingTitle')<p class="field__error">{{ $message }}</p>@enderror
                         </div>
 
                         <div class="field">
                             <label class="field__label" for="listing-description">{{ __('panel::messages.description') }}</label>
-                            <textarea id="listing-description" class="textarea" rows="6" wire:model.blur="description" maxlength="4000"></textarea>
+                            <textarea id="listing-description" dir="auto" class="textarea" rows="6" wire:model.blur="description" maxlength="1450"></textarea>
                             @error('description')<p class="field__error">{{ $message }}</p>@enderror
                         </div>
 
                         <div class="field__row field__row--three">
                             <div class="field">
                                 <label class="field__label" for="listing-price">{{ __('panel::messages.price') }}</label>
-                                <input id="listing-price" type="number" step="0.01" min="0" class="input" wire:model.blur="price">
+                                <input id="listing-price" type="number" inputmode="decimal" step="0.01" min="0" class="input" wire:model.blur="price">
                                 @error('price')<p class="field__error">{{ $message }}</p>@enderror
                             </div>
 
@@ -173,7 +183,7 @@
                                 <select id="listing-country" class="select" wire:model.live="selectedCountryId">
                                     <option value="">{{ __('site::messages.all_countries') }}</option>
                                     @foreach($countries as $country)
-                                        <option value="{{ $country['id'] }}">{{ $country['name'] }}</option>
+                                        <option value="{{ $country['id'] }}">{{ \Modules\Location\Models\Country::localizedName($country['name'], $country['code'] ?? '') }}</option>
                                     @endforeach
                                 </select>
                                 @error('selectedCountryId')<p class="field__error">{{ $message }}</p>@enderror
@@ -196,18 +206,18 @@
                                 <p class="field-set__legend">{{ __('site::messages.details') }}</p>
                                 @foreach($listingCustomFields as $field)
                                     <div class="field">
-                                        <label class="field__label" for="custom-{{ $field['name'] }}">{{ $field['label'] }}</label>
+                                        <label class="field__label" for="custom-{{ $field['name'] }}">{{ __('listing::messages.field_labels')[$field['label']] ?? $field['label'] }}</label>
                                         @if(($field['type'] ?? 'text') === 'select')
                                             <select id="custom-{{ $field['name'] }}" class="select" wire:model="customFieldValues.{{ $field['name'] }}">
                                                 <option value="">—</option>
                                                 @foreach($field['options'] ?? [] as $option)
-                                                    <option value="{{ $option }}">{{ $option }}</option>
+                                                    <option value="{{ $option }}">{{ __('listing::messages.field_options')[$option] ?? $option }}</option>
                                                 @endforeach
                                             </select>
                                         @elseif(($field['type'] ?? 'text') === 'boolean')
                                             <label class="checkbox">
-                                                <input type="checkbox" wire:model="customFieldValues.{{ $field['name'] }}">
-                                                <span>{{ $field['label'] }}</span>
+                                                <input type="checkbox" id="custom-{{ $field['name'] }}" wire:model="customFieldValues.{{ $field['name'] }}">
+                                                <span>{{ __('listing::messages.field_labels')[$field['label']] ?? $field['label'] }}</span>
                                             </label>
                                         @elseif(($field['type'] ?? 'text') === 'textarea')
                                             <textarea id="custom-{{ $field['name'] }}" class="textarea" rows="3" wire:model="customFieldValues.{{ $field['name'] }}"></textarea>
@@ -233,24 +243,24 @@
                         <dl class="spec-list">
                             <div class="spec-list__row">
                                 <dt class="spec-list__label">{{ __('panel::messages.title') }}</dt>
-                                <dd class="spec-list__value">{{ $listingTitle }}</dd>
+                                <dd class="spec-list__value" dir="auto">{{ $listingTitle }}</dd>
                             </div>
                             <div class="spec-list__row">
                                 <dt class="spec-list__label">{{ __('site::messages.category') }}</dt>
-                                <dd class="spec-list__value">{{ $this->selectedCategoryPath }}</dd>
+                                <dd class="spec-list__value" dir="auto">{{ $this->selectedCategoryPath }}</dd>
                             </div>
                             <div class="spec-list__row">
                                 <dt class="spec-list__label">{{ __('panel::messages.price') }}</dt>
-                                <dd class="spec-list__value">{{ $price }}</dd>
+                                <dd class="spec-list__value" dir="auto">{{ $price }}</dd>
                             </div>
                             <div class="spec-list__row">
                                 <dt class="spec-list__label">{{ __('panel::messages.location') }}</dt>
-                                <dd class="spec-list__value">{{ $this->selectedCityName }} {{ $this->selectedCountryName }}</dd>
+                                <dd class="spec-list__value" dir="auto">{{ $this->selectedCityName }} {{ $this->selectedCountryDisplayName }}</dd>
                             </div>
                         </dl>
 
                         @if(filled($description))
-                            <div class="prose">{{ $description }}</div>
+                            <div class="prose" dir="auto">{{ $description }}</div>
                         @endif
 
                         @if($photos !== [])
@@ -276,11 +286,11 @@
                     @endif
 
                     @if($currentStep === 1)
-                        <button type="button" class="button button--primary" wire:click="goToCategoryStep">{{ __('site::messages.apply') }}</button>
+                        <button type="button" class="button button--primary" wire:click="goToCategoryStep">{{ __('panel::messages.next') }}</button>
                     @elseif($currentStep === 2)
-                        <button type="button" class="button button--primary" wire:click="goToDetailsStep">{{ __('site::messages.apply') }}</button>
+                        <button type="button" class="button button--primary" wire:click="goToDetailsStep">{{ __('panel::messages.next') }}</button>
                     @elseif($currentStep === 3)
-                        <button type="button" class="button button--primary" wire:click="goToPreviewStep">{{ __('site::messages.apply') }}</button>
+                        <button type="button" class="button button--primary" wire:click="goToPreviewStep">{{ __('panel::messages.next') }}</button>
                     @else
                         <button type="button" class="button button--primary button--large" wire:click="publishListing" wire:loading.attr="disabled">
                             <span wire:loading.remove wire:target="publishListing">{{ __('site::messages.post_listing_cta') }}</span>

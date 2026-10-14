@@ -7,7 +7,7 @@ import type { InboxMessagePayload } from '../core/types';
 interface SentMessage {
     readonly id: number;
     readonly body: string;
-    readonly createdAt: string;
+    readonly created_at: string;
 }
 
 function isSentMessage(value: unknown): value is SentMessage {
@@ -20,22 +20,32 @@ function isSentMessage(value: unknown): value is SentMessage {
     return (
         typeof candidate['id'] === 'number' &&
         typeof candidate['body'] === 'string' &&
-        typeof candidate['createdAt'] === 'string'
+        typeof candidate['created_at'] === 'string'
     );
 }
 
-function appendBubble(list: HTMLElement, body: string, timestamp: string, outgoing: boolean): void {
+function paintUnreadCount(count: number): void {
+    for (const badge of queryAll<HTMLElement>('[data-inbox-badge]', HTMLElement)) {
+        setText(badge, count > 99 ? '99+' : String(count));
+        setHidden(badge, count === 0);
+    }
+}
+
+function appendBubble(list: HTMLElement, id: number, body: string, timestamp: string, outgoing: boolean): void {
+    if (list.querySelector(`[data-message-id="${String(id)}"]`) !== null) return;
     const item = document.createElement('li');
+    item.dataset['messageId'] = String(id);
     item.className = outgoing ? 'thread__bubble thread__bubble--out' : 'thread__bubble thread__bubble--in';
 
     const text = document.createElement('p');
     text.className = 'thread__text';
+    text.dir = 'auto';
     text.textContent = body;
 
     const meta = document.createElement('time');
     meta.className = 'thread__time';
     meta.dateTime = timestamp;
-    meta.textContent = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    meta.textContent = new Date(timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
     item.append(text, meta);
     list.append(item);
@@ -52,6 +62,9 @@ export const inboxThread = defineBehavior<HTMLElement>({
         const submit = query<HTMLButtonElement>('[data-thread-submit]', HTMLButtonElement, root);
         const conversationId = numericAttribute(root, 'data-inbox-thread');
         const endpoint = attribute(root, 'data-thread-endpoint');
+        const status = query<HTMLElement>('[data-thread-status]', HTMLElement, root);
+        const errorMessage = attribute(root, 'data-thread-error') ?? '';
+        const readEndpoint = attribute(root, 'data-thread-read');
 
         if (list === null || form === null || field === null || conversationId === null || endpoint === null) {
             return;
@@ -67,31 +80,35 @@ export const inboxThread = defineBehavior<HTMLElement>({
         }
 
         const send = (): void => {
+            if (field.disabled) return;
             const body = field.value.trim();
 
             if (body === '') {
                 return;
             }
 
+            if (status !== null) setText(status, '');
             field.disabled = true;
 
             if (submit !== null) {
                 submit.disabled = true;
             }
 
-            void post<unknown>(endpoint, { body }).then((result) => {
+            void post<{ message: unknown }>(endpoint, { message: body }).then((result) => {
                 field.disabled = false;
 
                 if (submit !== null) {
                     submit.disabled = false;
                 }
 
-                if (!result.ok || !isSentMessage(result.value)) {
+                if (!result.ok || !isSentMessage(result.value.message)) {
+                    if (status !== null) setText(status, errorMessage);
+                    field.focus();
                     return;
                 }
 
                 field.value = '';
-                appendBubble(list, result.value.body, result.value.createdAt, true);
+                appendBubble(list, result.value.message.id, result.value.message.body, result.value.message.created_at, true);
                 field.focus();
             });
         };
@@ -102,7 +119,7 @@ export const inboxThread = defineBehavior<HTMLElement>({
         });
 
         field.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' && !event.shiftKey) {
+            if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
                 event.preventDefault();
                 send();
             }
@@ -113,7 +130,14 @@ export const inboxThread = defineBehavior<HTMLElement>({
                 return;
             }
 
-            appendBubble(list, message.body, message.createdAt, false);
+            appendBubble(list, message.id, message.body, message.createdAt, message.outgoing);
+            if (!message.outgoing && readEndpoint !== null) {
+                void post<{ counts?: { unread_messages_total: number } }>(readEndpoint).then((result) => {
+                    if (result.ok && typeof result.value.counts?.unread_messages_total === 'number') {
+                        paintUnreadCount(result.value.counts.unread_messages_total);
+                    }
+                });
+            }
         });
     },
 });
@@ -124,10 +148,10 @@ export const inboxBadge = defineBehavior<HTMLElement>({
     mount(badge) {
         let count = numericAttribute(badge, 'data-inbox-badge') ?? 0;
 
-        subscribeToInbox(() => {
-            count += 1;
+        subscribeToInbox((message) => {
+            count = message.unreadTotal;
             setText(badge, count > 99 ? '99+' : String(count));
-            setHidden(badge, false);
+            setHidden(badge, count === 0);
         });
     },
 });

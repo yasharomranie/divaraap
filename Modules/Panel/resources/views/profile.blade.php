@@ -26,7 +26,7 @@
 
                 <div class="field">
                     <label class="field__label" for="profile-name">{{ __('user::messages.name') }}</label>
-                    <input id="profile-name" type="text" name="name" value="{{ old('name', $user->getAttribute('name')) }}" class="input" required>
+                    <input id="profile-name" type="text" dir="auto" name="name" value="{{ old('name', $user->getAttribute('name')) }}" class="input" required>
                     @error('name')<p class="field__error">{{ $message }}</p>@enderror
                 </div>
 

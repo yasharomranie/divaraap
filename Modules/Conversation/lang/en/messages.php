@@ -16,4 +16,11 @@ return [
     'own_listing' => 'You cannot message your own listing.',
     'empty_message' => 'Message cannot be empty.',
     'message_sent' => 'Message sent.',
+    'started' => 'Conversation started.',
+    'quick_hi' => 'Hi',
+    'quick_available' => 'Is this listing still available?',
+    'quick_price' => 'What is your best price?',
+    'quick_thanks' => 'Thanks',
+    'send_failed' => 'Message could not be sent. Please try again.',
+    'message_attribute' => 'Message',
 ];

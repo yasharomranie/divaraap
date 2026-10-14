@@ -33,12 +33,12 @@ class UpdateListingRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required' => 'Listing title is required.',
-            'price.numeric' => 'Listing price must be numeric.',
-            'status.required' => 'Listing status is required.',
-            'status.in' => 'Listing status is invalid.',
-            'contact_email.email' => 'Contact email must be valid.',
-            'expires_at.date' => 'Expiry date must be a valid date.',
+            'title.required' => __('panel::messages.required_title'),
+            'price.numeric' => __('panel::messages.numeric_price'),
+            'status.required' => __('panel::messages.required_status'),
+            'status.in' => __('panel::messages.invalid_status'),
+            'contact_email.email' => __('panel::messages.invalid_email'),
+            'expires_at.date' => __('panel::messages.invalid_expiry'),
         ];
     }
 }
