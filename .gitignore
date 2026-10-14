@@ -29,3 +29,6 @@ composer.lock
 .codex/config.toml
 /public/vendor/
 package-lock.json
+graphify-out/cache/
+graphify-out/manifest.json
+graphify-out/.graphify*
