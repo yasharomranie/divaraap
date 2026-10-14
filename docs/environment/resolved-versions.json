@@ -3,10 +3,9 @@
   "composer": "2.10.3",
   "node": "24.19.0",
   "postgresql": "16.15",
-  "composer_lock_sha256": "58324228936c4af43e42b9369b2539e5a103eaddb95dd56adb65d506f773af38",
+  "composer_lock_sha256": "d8cf2def165afd88bb2d5e1cf6cf40773a110c80db83e083b4cb948f736e9bcd",
   "npm_lock_sha256": "b37df2d88238f1f064444cda71ef1fb4d650ecab3bfcb280fb2f7319a43871ab",
   "php_packages": {
-    "a909m/filament-statefusion": "v2.3.0",
     "akaunting/laravel-money": "6.0.3",
     "anourvalar/eloquent-serialize": "1.3.12",
     "ariaieboy/filament-currency": "3.0.1",

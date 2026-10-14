@@ -26,6 +26,7 @@ bash scripts/cloud-environment.sh test
 npm run type-check
 npm run lint
 npm run build
+python3 scripts/check-runtime.py
 ```
 
 مخزن upstream فایل phpunit.xml ندارد؛ `docs/environment/phpunit.xml` آزمون‌های Feature موجود را روی `openclassify_testing` اجرا می‌کند. این فایل assertionها و کد تست را تغییر نمی‌دهد. دیتابیس تست از دیتابیس توسعه جدا است. دادهٔ نمونهٔ تست فقط وقتی جدول users خالی است seed می‌شود. تست‌های موجود با transaction کار می‌کنند.
@@ -43,4 +44,6 @@ npm run build
 - اسکریپت از کانتینرهای اختصاصی با همین نام استفاده می‌کند؛ اگر از قبل کانتینری نامرتبط با این نام وجود دارد، پیش از اجرا نام‌ها و mountها بررسی شوند.
 - credentialهای تولیدشدهٔ محلی و `.env` در Git ثبت نشوند.
 
-صف و broadcasting در تست HTTP با sync/log جایگزین می‌شوند؛ بررسی مستقل سرویس واقعی باید جدا از نتیجهٔ این تست‌ها گزارش شود. سرویس‌های هوش مصنوعی، object storage، نقشه، ورود اجتماعی و پرداخت بیرونی بدون credential در این فاز فعال نمی‌شوند.
+صف و broadcasting در تست HTTP با sync/log جایگزین می‌شوند. اسکریپت check-runtime مستقل از suite، HTTP واقعی، تحویل پیام Reverb و مصرف job در worker را بررسی می‌کند؛ برای اجرای آن سرویس‌ها باید start شده باشند. سرویس‌های هوش مصنوعی، object storage، نقشه، ورود اجتماعی و پرداخت بیرونی بدون credential در این فاز فعال نمی‌شوند.
+
+پس از اصلاح StateFusion، نصب کامل، اجرای مجدد install، start و بررسی‌های runtime موفق شدند. runner helper مستقیماً PHPUnit را با فایل تنظیمات خارجی اجرا می‌کند تا هشدار configuration تکراری artisan test ایجاد نشود.

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Admin\Providers;
 
-use A909M\FilamentStateFusion\FilamentStateFusionPlugin;
 use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -57,7 +56,6 @@ class AdminPanelProvider extends PanelProvider
                     ->sort(-2),
             ])
             ->plugins([
-                FilamentStateFusionPlugin::make(),
                 BreezyCore::make()
                     ->myProfile(
                         shouldRegisterNavigation: true,

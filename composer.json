@@ -7,7 +7,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "a909m/filament-statefusion": "^2.3",
         "ariaieboy/filament-currency": "^3.0",
         "bezhansalleh/filament-language-switch": "^5.0",
         "cheesegrits/filament-google-maps": "^5.0",

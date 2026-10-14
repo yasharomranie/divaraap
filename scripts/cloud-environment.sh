@@ -83,7 +83,7 @@ case "$action" in
         if [[ "$(docker exec divaraap-db psql -U openclassify -d openclassify_testing -tAc 'SELECT count(*) FROM users')" == 0 ]]; then
             docker exec -e APP_ENV=testing -e DB_DATABASE=openclassify_testing divaraap-php php artisan db:seed --force
         fi
-        php_run php artisan test --configuration=/setup/phpunit.xml
+        php_run php vendor/bin/phpunit --configuration=/setup/phpunit.xml
         ;;
     start)
         if [[ ! -f vendor/autoload.php ]]; then

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\User\App\Support\Filament;
 
-use A909M\FilamentStateFusion\Forms\Components\StateFusionSelect;
+use App\Support\Filament\ModelStateSelect;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Modules\User\App\States\UserStatus;
 
 class UserFormFields
 {
@@ -29,9 +30,9 @@ class UserFormFields
             ->dehydrated(fn ($state) => filled($state));
     }
 
-    public static function status(): StateFusionSelect
+    public static function status(): Select
     {
-        return StateFusionSelect::make('status')->required();
+        return ModelStateSelect::make('status')->options(UserStatus::options())->required();
     }
 
     public static function roles(): Select

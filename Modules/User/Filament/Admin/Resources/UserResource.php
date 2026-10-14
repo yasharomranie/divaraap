@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Modules\User\Filament\Admin\Resources;
 
-use A909M\FilamentStateFusion\Tables\Columns\StateFusionSelectColumn;
-use A909M\FilamentStateFusion\Tables\Filters\StateFusionSelectFilter;
+use App\Support\Filament\ModelStateSelectColumn;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Modules\Admin\Support\Filament\ResourceTableActions;
 use Modules\Admin\Support\Filament\ResourceTableColumns;
 use Modules\User\App\Models\User;
+use Modules\User\App\States\UserStatus;
 use Modules\User\App\Support\Filament\UserFormFields;
 use Modules\User\Filament\Admin\Resources\UserResource\Pages;
 use STS\FilamentImpersonate\Actions\Impersonate;
@@ -45,10 +46,12 @@ class UserResource extends Resource
             TextColumn::make('name')->searchable()->sortable(),
             TextColumn::make('email')->searchable()->sortable(),
             TextColumn::make('roles.name')->badge()->label('Roles'),
-            StateFusionSelectColumn::make('status'),
+            ModelStateSelectColumn::make('status')
+                ->options(UserStatus::options())
+                ->disabled(fn (User $record): bool => ! static::canEdit($record)),
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->defaultSort('id', 'desc')->filters([
-            StateFusionSelectFilter::make('status'),
+            SelectFilter::make('status')->options(UserStatus::options()),
         ])->actions(ResourceTableActions::editActivityDelete(static::class, [
             Impersonate::make(),
         ]));
