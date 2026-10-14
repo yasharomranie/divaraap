@@ -1,17 +1,17 @@
 # Graph Report - divaraap  (2026-10-14)
 
 ## Corpus Check
-- 484 files · ~2,793,719 words
+- 493 files · ~2,871,613 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 115 file(s) not represented in the graph (top: .stub 70, (none) 23, .css 13)
 
 ## Summary
-- 2738 nodes · 5422 edges · 299 communities (77 shown, 222 thin omitted)
+- 2764 nodes · 5468 edges · 309 communities (79 shown, 230 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 236 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `25b002a2`
+- Built from commit: `a7cd3a0b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -34,9 +34,9 @@
 - compilerOptions
 - package.json
 - Illuminate\Database\Eloquent\Builder
-- Illuminate\Http\Request
+- DemoController.php
 - PanelQuickListingForm
-- AuthRedirector
+- .redirect
 - Illuminate\Database\Schema\Blueprint
 - Video
 - Offer
@@ -44,9 +44,9 @@
 - Filament\Resources\Pages\CreateRecord
 - app.ts
 - AdminPanelProvider.php
-- .view
+- Illuminate\Http\Request
 - PanelQuickListingForm.php
-- LocalMedia
+- .disk
 - ListingCustomField
 - ManageGeneralSettings.php
 - ThemeManager
@@ -55,18 +55,18 @@
 - Do Things the Laravel Way
 - ConversationController
 - Illuminate\Database\Seeder
-- favorite-toggle.ts
+- echo.ts
 - VideoStatus
 - Category.php
 - Illuminate\Database\Eloquent\Model
 - Illuminate\Support\ServiceProvider
 - ListingPanelDemoSeeder.php
 - SampleListingImageCatalog.php
-- Filament\Forms\Components\TextInput
+- Filament\Forms\Components\Select
 - ListingCustomFieldSeedCatalog
 - composer.json
 - VideoFormSchema.php
-- Illuminate\Support\Str
+- PageResource.php
 - FavoriteSearch
 - DemoUserCatalog
 - dom.ts
@@ -75,11 +75,11 @@
 - Page
 - QuickListingCategorySuggester.php
 - AppServiceProvider.php
-- Controller
+- Illuminate\Http\RedirectResponse
 - bootstrap/app.php
 - ConversationReadUpdated
 - Illuminate\Support\Facades\Schema
-- HomeSlideDefaults.php
+- .resolveGeneralSettings
 - VideoFormSchema
 - Illuminate\Database\Migrations\Migration
 - Illuminate\Support\Facades\DB
@@ -89,10 +89,10 @@
 - form.blade.php
 - Filament\Panel
 - CountryCodeManager
-- .disk
+- UserDirectory
 - location-picker.ts
 - ProcessVideo.php
-- Illuminate\Pagination\LengthAwarePaginator
+- Throwable
 - PersianLocaleTest
 - forms.ts
 - require-dev
@@ -103,18 +103,17 @@
 - config
 - UserFactory.php
 - RequestAppData.php
-- Favorite
+- StateManagementTest.php
 - OfferResource.php
 - ReportResource.php
 - ReviewSeeder.php
 - Report
 - ListingsTrendChart
 - گزارش فاز ۱ — خط مبنای اجرایی
-- MarketplaceFlowTest
+- .prepare
 - ListingPanelHelper
 - NotificationPlugin
 - PagePlugin
-- EditListing.php
 - ReviewPlugin
 - 0001_01_01_000000_create_user_domain_tables.php
 - UserPlugin
@@ -125,41 +124,39 @@
 - OpenClassify
 - 2026_03_04_000000_create_favorites_tables.php
 - ListingSeeder.php
-- EditCity.php
+- Filament\Actions\CreateAction
 - ReportSeeder.php
 - VideoPlugin
-- reveal.ts
 - 0001_01_01_000001_create_cache_table.php
 - 2026_08_12_210737_create_customer_columns.php
 - 2026_08_12_210740_add_meter_id_to_subscription_items_table.php
 - 2026_08_12_210741_add_meter_event_name_to_subscription_items_table.php
-- CategoryController
+- favorite-toggle.ts
 - 2026_03_04_000000_create_conversation_tables.php
 - 2024_01_01_000003_create_listings_table.php
 - LocationSeeder
 - self
 - 2026_08_01_000000_create_promotion_tables.php
-- ListingCustomField.php
+- HomeSlideFormSchema.php
 - 2026_08_12_210739_create_subscription_items_table.php
 - PanelServiceProvider.php
-- CategoryServiceProvider
-- Closure
+- ListCategories
+- Graphify در پروژه
 - 2026_03_03_085614_create_media_table.php
-- ListingServiceProvider
+- ResolveDemoRequest
 - LocationServiceProvider
 - 2026_08_01_000000_create_user_notifications_table.php
 - ReportPlugin
-- ConversationDemoSeeder.php
+- behavior.ts
 - PromotionServiceProvider
 - 2026_08_01_000000_create_reports_table.php
-- StateManagementTest.php
+- StateManagementTest
 - AppServiceProvider
 - 2026_03_03_092653_create_personal_access_tokens_table.php
 - 2026_03_03_092655_create_passkeys_table.php
 - 2026_03_03_094518_create_socialite_users_table.php
 - 2026_03_07_000000_create_video_tables.php
 - AdminServiceProvider
-- VideoServiceProvider
 - laravel-boost
 - create.blade.php
 - login.blade.php
@@ -197,18 +194,21 @@
 - 500.blade.php
 - layout.blade.php
 - listings/quick-create.blade.php
+- Illuminate\Support\Carbon
 - PageServiceProvider
 - Code Standards
 - Code of Conduct
 - cloud-environment.sh
-- ListingController.php
+- PublicPersianMarketplaceTest
 - فهرست اولیهٔ فارسی‌سازی
 - اسکیل طراحی UI/UX Pro Max
 - FavoriteDemoSeeder.php
 - DemoServiceProvider
-- UserServiceProvider
+- ReportServiceProvider
+- ReviewServiceProvider
 - Category/resources/views/themes/README.md
 - Listing/resources/views/themes/README.md
+- ListCountries.php
 - Site/README.md
 - Theme/README.md
 - PERSIAN_STYLE_GUIDE.md
@@ -217,13 +217,15 @@
 - PromotionPlugin
 - OfferPlugin
 - محیط توسعهٔ فاز ۱
-- NotificationServiceProvider
+- ListOfferResourceRecords.php
+- ListPageResourceRecords.php
+- ListReportResourceRecords.php
 - OfferServiceProvider
 
 ## God Nodes (most connected - your core abstractions)
-1. `Listing` - 133 edges
-2. `User` - 124 edges
-3. `Category` - 78 edges
+1. `Listing` - 136 edges
+2. `User` - 125 edges
+3. `Category` - 81 edges
 4. `Video` - 71 edges
 5. `PanelQuickListingForm` - 61 edges
 6. `Conversation` - 46 edges
@@ -247,11 +249,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (299 total, 222 thin omitted)
-
-### Community 0 - "DemoSchemaManager"
-Cohesion: 0.07
-Nodes (8): CleanupDemoCommand, PrepareDemoCommand, DemoController, ResolveDemoRequest, DemoInstance, DemoSchemaManager, TurnstileVerifier, Demo
+## Communities (309 total, 230 thin omitted)
 
 ### Community 2 - "Filament\Support\Contracts\HasColor"
 Cohesion: 0.07
@@ -261,49 +259,45 @@ Nodes (10): ActiveListingStatus, ExpiredListingStatus, ListingStatus, PendingLis
 Cohesion: 0.08
 Nodes (14): CategoryResource, ListingCustomFieldResource, ListingResource, CityResource, CountryResource, DistrictResource, UserNotificationResource, OfferResource (+6 more)
 
-### Community 4 - "Filament\Tables\Table"
-Cohesion: 0.16
-Nodes (3): ResourceTableColumns, AdminListingResourceSchema, VideoTableSchema
-
 ### Community 5 - "Filament\Resources\Pages\EditRecord"
-Cohesion: 0.09
-Nodes (11): EditCategory, EditListingCustomField, EditCountry, EditDistrict, EditUserNotificationResourceRecord, EditOfferResourceRecord, EditPageResourceRecord, EditPromotionPlanResourceRecord (+3 more)
+Cohesion: 0.07
+Nodes (14): EditCategory, EditListingCustomField, EditListing, EditCity, EditCountry, EditDistrict, EditUserNotificationResourceRecord, EditOfferResourceRecord (+6 more)
 
 ### Community 6 - "PromotionOrder"
-Cohesion: 0.10
-Nodes (3): {closure#1}(), {closure#1}(), PromotionOrder
+Cohesion: 0.06
+Nodes (6): {closure#2}(), {closure#1}(), PromotionOrder, PromotionPlan, MarketplaceFlowTest, TestCase
 
 ### Community 7 - "Filament\Resources\Pages\ListRecords"
-Cohesion: 0.08
-Nodes (13): ListListingCustomFields, ListListings, ListCities, ListCountries, ListDistricts, ListUserNotificationResourceRecords, ListOfferResourceRecords, ListPageResourceRecords (+5 more)
+Cohesion: 0.17
+Nodes (5): ListCities, ListUserNotificationResourceRecords, ListPromotionPlanResourceRecords, ListReviewResourceRecords, ListVideos
 
 ### Community 8 - "Listing"
 Cohesion: 0.06
-Nodes (3): {closure#2}(), Listing, {closure#13}()
+Nodes (4): {closure#2}(), CreateListing, Listing, {closure#13}()
 
 ### Community 9 - "UserNotification"
-Cohesion: 0.10
-Nodes (5): NotificationController, UserNotification, PageController, PromotionController, {closure#1}()
+Cohesion: 0.09
+Nodes (7): NotificationController, UserNotification, PageController, PromotionController, SellerController, {closure#8}(), {closure#1}()
 
 ### Community 10 - "Country"
-Cohesion: 0.06
-Nodes (12): {closure#1}(), {closure#1}(), LocationLookupController, City, {closure#5}(), {closure#4}(), {closure#5}(), Country (+4 more)
+Cohesion: 0.12
+Nodes (6): {closure#1}(), {closure#1}(), LocationLookupController, City, Country, Location
 
 ### Community 11 - "AdminListingResourceSchema.php"
-Cohesion: 0.08
-Nodes (16): {closure#2}(), {closure#10}(), {closure#15}(), {closure#16}(), {closure#17}(), {closure#18}(), {closure#19}(), {closure#20}() (+8 more)
+Cohesion: 0.05
+Nodes (18): ModelStateSelectColumn, {closure#2}(), {closure#10}(), {closure#15}(), {closure#16}(), {closure#17}(), {closure#18}(), {closure#19}() (+10 more)
 
 ### Community 12 - "Listing.php"
 Cohesion: 0.08
 Nodes (13): {closure#1}(), {closure#11}(), {closure#13}(), {closure#14}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}() (+5 more)
 
 ### Community 13 - "PanelController.php"
-Cohesion: 0.08
-Nodes (5): StoreVideoRequest, UpdateListingRequest, UpdateVideoRequest, LoginRequest, RegisterRequest
+Cohesion: 0.10
+Nodes (4): StoreVideoRequest, UpdateListingRequest, UpdateVideoRequest, RegisterRequest
 
 ### Community 14 - "User"
-Cohesion: 0.06
-Nodes (5): NotificationDirectory, {closure#1}(), {closure#1}(), User, {closure#2}()
+Cohesion: 0.05
+Nodes (6): NotificationDirectory, {closure#1}(), Favorite, {closure#1}(), User, {closure#2}()
 
 ### Community 15 - "compilerOptions"
 Cohesion: 0.05
@@ -314,15 +308,11 @@ Cohesion: 0.06
 Nodes (30): devDependencies, eslint, @eslint/js, globals, laravel-echo, laravel-vite-plugin, pusher-js, @types/node (+22 more)
 
 ### Community 17 - "Illuminate\Database\Eloquent\Builder"
-Cohesion: 0.06
-Nodes (25): {closure#1}(), {closure#2}(), {closure#3}(), {closure#6}(), {closure#7}(), {closure#9}(), {closure#1}(), {closure#2}() (+17 more)
+Cohesion: 0.07
+Nodes (27): {closure#1}(), {closure#2}(), {closure#3}(), {closure#6}(), {closure#7}(), {closure#9}(), {closure#1}(), {closure#2}() (+19 more)
 
-### Community 19 - "Illuminate\Http\Request"
+### Community 21 - ".redirect"
 Cohesion: 0.14
-Nodes (3): EmailVerificationController, PasswordController, ProfileController
-
-### Community 21 - "AuthRedirector"
-Cohesion: 0.13
 Nodes (6): LoginController, RegisterController, SocialAuthController, AuthProviderCatalog, {closure#1}(), AuthRedirector
 
 ### Community 22 - "Illuminate\Database\Schema\Blueprint"
@@ -330,12 +320,12 @@ Cohesion: 0.11
 Nodes (18): {closure#1}(), {closure#2}(), {closure#3}(), {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#1}() (+10 more)
 
 ### Community 23 - "Video"
-Cohesion: 0.15
-Nodes (10): Video, {closure#11}(), {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}() (+2 more)
+Cohesion: 0.11
+Nodes (9): Video, {closure#11}(), {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}() (+1 more)
 
 ### Community 24 - "Offer"
-Cohesion: 0.12
-Nodes (4): {closure#1}(), {closure#2}(), OfferController, Offer
+Cohesion: 0.10
+Nodes (5): ListingDirectory, {closure#1}(), {closure#2}(), OfferController, Offer
 
 ### Community 25 - "require"
 Cohesion: 0.07
@@ -346,60 +336,60 @@ Cohesion: 0.11
 Nodes (13): CreateCategory, CreateListingCustomField, CreateCity, CreateCountry, CreateDistrict, CreateUserNotificationResourceRecord, CreateOfferResourceRecord, CreatePageResourceRecord (+5 more)
 
 ### Community 27 - "app.ts"
-Cohesion: 0.16
-Nodes (21): behaviors, boot(), Behavior, defineBehavior(), isMounted(), markMounted(), mounted, startBehaviors() (+13 more)
+Cohesion: 0.21
+Nodes (18): behaviors, defineBehavior(), focusFirst(), lockScroll(), onDocument(), query(), queryAll(), toggleClass() (+10 more)
 
-### Community 31 - "LocalMedia"
+### Community 31 - ".disk"
 Cohesion: 0.12
-Nodes (4): {closure#2}(), DemoStoragePath, LocalMedia, HomeSlideFormSchema
+Nodes (7): up(), {closure#2}(), DemoStoragePath, {closure#12}(), LocalMedia, {closure#1}(), {closure#7}()
 
 ### Community 32 - "ListingCustomField"
-Cohesion: 0.12
-Nodes (6): {closure#1}(), {closure#3}(), {closure#6}(), ListingCustomField, Listing, {closure#1}()
+Cohesion: 0.11
+Nodes (7): {closure#1}(), {closure#3}(), {closure#1}(), {closure#5}(), {closure#6}(), ListingCustomField, Listing
 
 ### Community 33 - "ManageGeneralSettings.php"
 Cohesion: 0.18
 Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 
 ### Community 34 - "ThemeManager"
-Cohesion: 0.33
-Nodes (3): {closure#1}(), ThemeServiceProvider, ThemeManager
+Cohesion: 0.13
+Nodes (5): CategoryController, ListingController, {closure#1}(), ThemeServiceProvider, ThemeManager
 
 ### Community 35 - "Category"
-Cohesion: 0.10
-Nodes (10): {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}(), {closure#7}(), {closure#8}(), ListCategories (+2 more)
+Cohesion: 0.11
+Nodes (6): {closure#2}(), {closure#3}(), {closure#4}(), {closure#8}(), Category, Category
 
 ### Community 36 - "Review"
-Cohesion: 0.07
-Nodes (7): ListingDirectory, UserDirectory, ReportController, ReviewController, Review, {closure#1}(), SellerController
+Cohesion: 0.08
+Nodes (3): {closure#1}(), Review, {closure#1}()
 
 ### Community 37 - "Do Things the Laravel Way"
 Cohesion: 0.04
 Nodes (48): APIs & Eloquent Resources, Application Structure & Architecture, Artisan, Artisan, Authentication & Authorization, Available Search Syntax, Comments, Common Mistakes (+40 more)
 
 ### Community 39 - "Illuminate\Database\Seeder"
-Cohesion: 0.10
-Nodes (9): DatabaseSeeder, CategorySeeder, DemoContentSeeder, NotificationSeeder, OfferSeeder, PageSeeder, PromotionOrderSeeder, PromotionPlanSeeder (+1 more)
+Cohesion: 0.09
+Nodes (11): DatabaseSeeder, CategorySeeder, DemoContentSeeder, ListingCustomFieldSeeder, NotificationSeeder, OfferSeeder, PageSeeder, PromotionOrderSeeder (+3 more)
 
-### Community 40 - "favorite-toggle.ts"
-Cohesion: 0.14
-Nodes (16): FavoriteToggleResponse, InboxMessagePayload, InboxState, InboxThreadState, LocationOption, favoriteToggle, isFavoriteResponse(), channelName() (+8 more)
+### Community 40 - "echo.ts"
+Cohesion: 0.27
+Nodes (9): channelName(), connect(), EchoChannel, EchoClient, InboxListener, isInboxPayload(), listeners, subscribeToInbox() (+1 more)
 
 ### Community 41 - "VideoStatus"
-Cohesion: 0.13
-Nodes (7): {closure#1}(), VideoStatus, Failed, Pending, Processing, Ready, Video
+Cohesion: 0.14
+Nodes (6): {closure#1}(), VideoStatus, Failed, Pending, Processing, Ready
 
 ### Community 42 - "Category.php"
 Cohesion: 0.15
 Nodes (7): {closure#10}(), {closure#11}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#8}(), {closure#9}()
 
 ### Community 43 - "Illuminate\Database\Eloquent\Model"
-Cohesion: 0.09
-Nodes (9): {closure#1}(), {closure#2}(), ModelStateSelectColumn, FavoriteListing, FavoriteSeller, CreateListing, {closure#2}(), PromotionPlan (+1 more)
+Cohesion: 0.08
+Nodes (9): {closure#1}(), {closure#2}(), FavoriteListing, FavoriteSeller, {closure#5}(), District, Panel, Profile (+1 more)
 
 ### Community 44 - "Illuminate\Support\ServiceProvider"
-Cohesion: 0.19
-Nodes (3): FavoriteServiceProvider, ReportServiceProvider, ReviewServiceProvider
+Cohesion: 0.10
+Nodes (6): CategoryServiceProvider, FavoriteServiceProvider, ListingServiceProvider, NotificationServiceProvider, UserServiceProvider, VideoServiceProvider
 
 ### Community 49 - "composer.json"
 Cohesion: 0.13
@@ -409,29 +399,33 @@ Nodes (14): autoload-dev, psr-4, description, extra, laravel, keywords, dont-dis
 Cohesion: 0.16
 Nodes (6): {closure#1}(), {closure#10}(), {closure#5}(), {closure#6}(), {closure#8}(), {closure#9}()
 
-### Community 51 - "Illuminate\Support\Str"
-Cohesion: 0.08
-Nodes (5): ResourceTableActions, {closure#1}(), {closure#2}(), {closure#4}(), {closure#1}()
+### Community 51 - "PageResource.php"
+Cohesion: 0.11
+Nodes (6): ResourceTableActions, ResourceTableColumns, {closure#1}(), {closure#2}(), {closure#4}(), {closure#1}()
 
 ### Community 53 - "DemoUserCatalog"
-Cohesion: 0.15
-Nodes (4): DemoUserCatalog, {closure#1}(), {closure#2}(), VideoDemoSeeder
+Cohesion: 0.17
+Nodes (4): ConversationDemoSeeder, DemoUserCatalog, {closure#2}(), VideoDemoSeeder
 
 ### Community 54 - "dom.ts"
-Cohesion: 0.21
-Nodes (11): attribute(), booleanAttribute(), ElementConstructor, focusFirst(), numericAttribute(), queryAll(), appendBubble(), inboxThread (+3 more)
+Cohesion: 0.23
+Nodes (9): attribute(), booleanAttribute(), ElementConstructor, numericAttribute(), onWindow(), appendBubble(), inboxThread, isSentMessage() (+1 more)
 
 ### Community 55 - "http.ts"
-Cohesion: 0.25
-Nodes (12): buildBody(), csrfToken(), get(), HttpError, HttpMethod, HttpRequest, post(), request() (+4 more)
+Cohesion: 0.17
+Nodes (16): buildBody(), csrfToken(), get(), HttpError, HttpMethod, HttpRequest, post(), request() (+8 more)
+
+### Community 57 - "Page"
+Cohesion: 0.12
+Nodes (3): {closure#1}(), Page, {closure#1}()
 
 ### Community 58 - "QuickListingCategorySuggester.php"
-Cohesion: 0.15
+Cohesion: 0.18
 Nodes (3): {closure#2}(), {closure#6}(), QuickListingCategorySuggester
 
-### Community 60 - "Controller"
-Cohesion: 0.11
-Nodes (8): Controller, HomeController, LanguageController, PublicMediaController, GET /dashboard(), ConfirmPasswordController, ForgotPasswordController, ResetPasswordController
+### Community 60 - "Illuminate\Http\RedirectResponse"
+Cohesion: 0.07
+Nodes (11): Controller, HomeController, LanguageController, PublicMediaController, GET /dashboard(), ConfirmPasswordController, EmailVerificationController, ForgotPasswordController (+3 more)
 
 ### Community 62 - "ConversationReadUpdated"
 Cohesion: 0.18
@@ -453,6 +447,10 @@ Nodes (3): {closure#1}(), {closure#1}(), {closure#1}()
 Cohesion: 0.23
 Nodes (6): ListCategoryActivities, ListListingActivities, ListCityActivities, ListCountryActivities, ListDistrictActivities, ListUserActivities
 
+### Community 69 - "RequestAppData"
+Cohesion: 0.18
+Nodes (3): BootstrapAppData, SetLocale, RequestAppData
+
 ### Community 72 - "form.blade.php"
 Cohesion: 0.17
 Nodes (11): backToRootCategories, enterCategory({{ $category[, goToCategoryStep, goToDetailsStep, goToPreviewStep, goToStep({{ $currentStep - 1 }}), goToStep({{ $number }}), publishListing (+3 more)
@@ -461,13 +459,17 @@ Nodes (11): backToRootCategories, enterCategory({{ $category[, goToCategoryStep,
 Cohesion: 0.15
 Nodes (4): CategoryPlugin, ListingPlugin, LocationPlugin, SitePlugin
 
-### Community 75 - ".disk"
-Cohesion: 0.14
-Nodes (4): up(), {closure#12}(), {closure#1}(), {closure#7}()
+### Community 75 - "UserDirectory"
+Cohesion: 0.20
+Nodes (3): UserDirectory, ReportController, ReviewController
 
 ### Community 76 - "location-picker.ts"
 Cohesion: 0.32
 Nodes (10): isStoredLocation(), readJson(), StoredLocation, writeJson(), buildCitiesUrl(), label(), locationPicker, normalize() (+2 more)
+
+### Community 78 - "ProcessVideo.php"
+Cohesion: 0.26
+Nodes (3): ProcessVideo, Video, VideoTranscoder
 
 ### Community 81 - "forms.ts"
 Cohesion: 0.29
@@ -502,7 +504,7 @@ Cohesion: 0.09
 Nodes (19): برنامهٔ فارسی‌سازی و راست‌چین OpenClassify, تصمیم‌ها و ریسک‌های لازم, تعریف اتمام, فازها و معیار تحویل, قواعد اجرا و کنترل کیفیت, مبنا و محدوده, اصلاح بارگذاری CSS, تنظیمات ذخیره‌شده و حدود اعتبار (+11 more)
 
 ### Community 100 - "ListingPanelHelper"
-Cohesion: 0.14
+Cohesion: 0.21
 Nodes (5): {closure#11}(), {closure#14}(), {closure#2}(), {closure#3}(), ListingPanelHelper
 
 ### Community 106 - "0001_01_01_000000_create_user_domain_tables.php"
@@ -521,13 +523,21 @@ Nodes (11): Contributors, Core Stack, Demo Mode, Docker, Frontend, Local, OpenCl
 Cohesion: 0.33
 Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 
-### Community 119 - "reveal.ts"
-Cohesion: 0.40
-Nodes (5): query(), ContactResponse, contactReveal, isContactResponse(), shareAction
+### Community 125 - "favorite-toggle.ts"
+Cohesion: 0.28
+Nodes (7): FavoriteToggleResponse, InboxMessagePayload, InboxState, InboxThreadState, LocationOption, favoriteToggle, isFavoriteResponse()
 
-### Community 136 - "Closure"
-Cohesion: 0.25
-Nodes (5): Graphify در پروژه, اجرای مجدد, استفاده در فارسی‌سازی, خروجی و حدود پوشش, SetLocale
+### Community 135 - "ListCategories"
+Cohesion: 0.36
+Nodes (4): {closure#5}(), {closure#6}(), {closure#7}(), ListCategories
+
+### Community 136 - "Graphify در پروژه"
+Cohesion: 0.40
+Nodes (4): Graphify در پروژه, اجرای مجدد, استفاده در فارسی‌سازی, خروجی و حدود پوشش
+
+### Community 142 - "behavior.ts"
+Cohesion: 0.38
+Nodes (6): boot(), Behavior, isMounted(), markMounted(), mounted, startBehaviors()
 
 ### Community 267 - "Code Standards"
 Cohesion: 0.40
@@ -550,7 +560,7 @@ Cohesion: 0.50
 Nodes (3): اجرای نمونه, اسکیل طراحی UI/UX Pro Max, قانون پروژه
 
 ### Community 273 - "FavoriteDemoSeeder.php"
-Cohesion: 0.20
+Cohesion: 0.25
 Nodes (3): {closure#1}(), {closure#2}(), FavoriteDemoSeeder
 
 ### Community 296 - "محیط توسعهٔ فاز ۱"
@@ -559,23 +569,23 @@ Nodes (3): محیط توسعهٔ فاز ۱, نصب و اجرا, نگهداری �
 
 ## Knowledge Gaps
 - **58 isolated node(s):** `php`, `site::layouts.app`, `panel::layouts.panel`, `site::layouts.app`, `site::layouts.app` (+53 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 986 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **222 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 997 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **230 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Listing` connect `Listing` to `Conversation`, `BackedEnum`, `PromotionOrder`, `Country`, `AdminListingResourceSchema.php`, `Listing.php`, `PanelController.php`, `ConversationDemoSeeder.php`, `ListingController.php`, `User`, `Illuminate\Database\Eloquent\Builder`, `FavoriteDemoSeeder.php`, `Illuminate\Http\Request`, `StateManagementTest.php`, `Video`, `.view`, `PanelQuickListingForm.php`, `ListingCustomField`, `Review`, `ConversationController`, `Illuminate\Database\Seeder`, `VideoStatus`, `Category.php`, `Illuminate\Database\Eloquent\Model`, `ListingPanelDemoSeeder.php`, `VideoFormSchema.php`, `DemoUserCatalog`, `Controller`, `ConversationReadUpdated`, `ListingSeeder`, `Illuminate\Support\Collection`, `.disk`, `Illuminate\Pagination\LengthAwarePaginator`, `Favorite`, `ReviewSeeder.php`, `Report`, `ListingsTrendChart`, `MarketplaceFlowTest`, `ListingPanelHelper`, `EditListing.php`, `.resolveInboxState`, `ListingOverview.php`, `ListingSeeder.php`, `.createListing`, `ReportSeeder.php`?**
-  _High betweenness centrality (0.104) - this node is a cross-community bridge._
+- **Why does `Listing` connect `Listing` to `Conversation`, `BackedEnum`, `Filament\Resources\Pages\EditRecord`, `PromotionOrder`, `Illuminate\Support\Carbon`, `UserNotification`, `AdminListingResourceSchema.php`, `Listing.php`, `PanelController.php`, `User`, `PublicPersianMarketplaceTest`, `Illuminate\Database\Eloquent\Builder`, `FavoriteDemoSeeder.php`, `Video`, `ConversationMessage`, `Illuminate\Http\Request`, `PanelQuickListingForm.php`, `ListingCustomField`, `.disk`, `ConversationController`, `Illuminate\Database\Seeder`, `Category.php`, `Illuminate\Database\Eloquent\Model`, `ListingPanelDemoSeeder.php`, `VideoFormSchema.php`, `DemoUserCatalog`, `Page`, `Illuminate\Http\RedirectResponse`, `ConversationReadUpdated`, `ListingSeeder`, `Illuminate\Support\Collection`, `ProcessVideo.php`, `StateManagementTest.php`, `ReviewSeeder.php`, `Report`, `ListingsTrendChart`, `ListingPanelHelper`, `.resolveInboxState`, `ListingOverview.php`, `ListingSeeder.php`, `.createListing`, `ReportSeeder.php`?**
+  _High betweenness centrality (0.111) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `Listing` (e.g. with `Conversation` and `Listing`) actually correct?**
   _`Listing` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `php`, `site::layouts.app`, `panel::layouts.panel` to the rest of the system?**
   _58 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `DemoSchemaManager` be split into smaller, more focused modules?**
-  _Cohesion score 0.07033315705975675 - nodes in this community are weakly interconnected._
-- **Why does `User` connect `User` to `DemoSchemaManager`, `Conversation`, `Filament\Support\Contracts\HasColor`, `BackedEnum`, `Listing`, `Country`, `Listing.php`, `PanelController.php`, `ConversationDemoSeeder.php`, `Illuminate\Database\Eloquent\Builder`, `FavoriteDemoSeeder.php`, `Illuminate\Http\Request`, `StateManagementTest.php`, `AuthRedirector`, `.view`, `LocalMedia`, `ListingCustomField`, `Review`, `Illuminate\Database\Seeder`, `Illuminate\Database\Eloquent\Model`, `ListingPanelDemoSeeder.php`, `FavoriteSearch`, `DemoUserCatalog`, `Controller`, `ConversationReadUpdated`, `ListingSeeder`, `Illuminate\Support\Collection`, `Filament\Panel`, `Illuminate\Pagination\LengthAwarePaginator`, `PersianLocaleTest`, `PanelSmokeTest`, `UserFactory.php`, `RequestAppData.php`, `Favorite`, `ReviewSeeder.php`, `Report`, `MarketplaceFlowTest`, `.mount`, `ListingSeeder.php`, `.createListing`, `ReportSeeder.php`?**
-  _High betweenness centrality (0.096) - this node is a cross-community bridge._
+- **Should `Conversation` be split into smaller, more focused modules?**
+  _Cohesion score 0.14761904761904762 - nodes in this community are weakly interconnected._
+- **Why does `User` connect `User` to `DemoSchemaManager`, `Conversation`, `Filament\Support\Contracts\HasColor`, `BackedEnum`, `PromotionOrder`, `Listing`, `UserNotification`, `Listing.php`, `PanelController.php`, `Illuminate\Database\Eloquent\Builder`, `FavoriteDemoSeeder.php`, `.redirect`, `Video`, `Illuminate\Http\Request`, `ConversationMessage`, `.disk`, `ListingCustomField`, `Review`, `Illuminate\Database\Seeder`, `Illuminate\Database\Eloquent\Model`, `ListingPanelDemoSeeder.php`, `FavoriteSearch`, `DemoUserCatalog`, `Page`, `Illuminate\Http\RedirectResponse`, `ConversationReadUpdated`, `ListingSeeder`, `Illuminate\Support\Collection`, `Filament\Panel`, `PersianLocaleTest`, `PanelSmokeTest`, `UserFactory.php`, `RequestAppData.php`, `StateManagementTest.php`, `ReviewSeeder.php`, `Report`, `.mount`, `ListingSeeder.php`, `.createListing`, `ReportSeeder.php`, `DemoSchemaManager.php`?**
+  _High betweenness centrality (0.101) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `User` (e.g. with `Conversation` and `Favorite`) actually correct?**
   _`User` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **Should `Filament\Support\Contracts\HasColor` be split into smaller, more focused modules?**
-  _Cohesion score 0.0734006734006734 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07017543859649122 - nodes in this community are weakly interconnected._

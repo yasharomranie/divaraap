@@ -15,6 +15,7 @@ class CategoryServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/migrations'));
         $this->loadRoutesFrom(module_path($this->moduleName, 'routes/web.php'));
         $this->loadViewsFrom(module_path($this->moduleName, 'resources/views'), 'category');
+        $this->loadTranslationsFrom(module_path($this->moduleName, 'lang'), 'category');
     }
 
     public function register(): void {}

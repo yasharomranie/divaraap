@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'names' => [
+        'Electronics' => 'کالای دیجیتال',
+        'Phones' => 'تلفن همراه',
+        'Computers' => 'رایانه',
+        'Tablets' => 'تبلت',
+        'TVs' => 'تلویزیون',
+        'Vehicles' => 'وسایل نقلیه',
+        'Cars' => 'خودرو',
+        'Motorcycles' => 'موتورسیکلت',
+        'Trucks' => 'کامیون',
+        'Boats' => 'قایق',
+        'Real Estate' => 'املاک',
+        'For Sale' => 'فروش',
+        'For Rent' => 'اجاره',
+        'Commercial' => 'تجاری',
+        'Fashion' => 'پوشاک',
+        'Men' => 'مردانه',
+        'Women' => 'زنانه',
+        'Kids' => 'کودک',
+        'Shoes' => 'کفش',
+        'Home' => 'خانه و باغ',
+        'Furniture' => 'مبلمان',
+        'Garden' => 'باغ و باغچه',
+        'Appliances' => 'لوازم خانگی',
+        'Sports' => 'ورزش',
+        'Outdoor' => 'فضای باز',
+        'Fitness' => 'تناسب اندام',
+        'Team Sports' => 'ورزش‌های تیمی',
+        'Jobs' => 'استخدام',
+        'Full Time' => 'تمام‌وقت',
+        'Part Time' => 'پاره‌وقت',
+        'Freelance' => 'پروژه‌ای',
+        'Services' => 'خدمات',
+        'Cleaning' => 'نظافت',
+        'Repair' => 'تعمیرات',
+        'Education' => 'آموزش',
+    ],
+];

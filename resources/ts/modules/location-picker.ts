@@ -1,5 +1,5 @@
 import { defineBehavior } from '../core/behavior';
-import { attribute, query, setText } from '../core/dom';
+import { attribute, query, queryAll, setText } from '../core/dom';
 import { get } from '../core/http';
 import { isStoredLocation, readJson, writeJson, type StoredLocation } from '../core/storage';
 import { isLocationOptionList, type LocationOption } from '../core/types';
@@ -71,6 +71,13 @@ export const locationPicker = defineBehavior<HTMLElement>({
         const disclosure = root.closest('details');
         const template = attribute(root, 'data-cities-url') ?? '';
         const fallbackLabel = attribute(root, 'data-location-fallback') ?? 'All locations';
+        const cityPlaceholder = attribute(root, 'data-location-all-cities') ?? 'All cities';
+        const loading = attribute(root, 'data-location-loading') ?? 'Loading';
+        const unavailable = attribute(root, 'data-location-unavailable') ?? 'Unavailable';
+        const loadError = attribute(root, 'data-location-error') ?? 'City list could not be loaded.';
+        const noCities = attribute(root, 'data-location-no-cities') ?? 'No cities';
+        const saved = attribute(root, 'data-location-saved') ?? 'Saved.';
+        const target = attribute(root, 'data-location-target');
         const labels = Array.from(document.querySelectorAll('[data-location-label]'));
 
         if (countrySelect === null || citySelect === null || applyButton === null) {
@@ -80,6 +87,22 @@ export const locationPicker = defineBehavior<HTMLElement>({
         const paint = (location: StoredLocation | null): void => {
             const text = label(location, fallbackLabel);
 
+            for (const form of queryAll<HTMLFormElement>('[data-location-search]', HTMLFormElement)) {
+                for (const [name, id] of [['country', location?.countryId], ['city', location?.cityId]] as const) {
+                    let field = query<HTMLInputElement>(`input[name="${name}"]`, HTMLInputElement, form);
+                    if (id === null || id === undefined) {
+                        field?.remove();
+                        continue;
+                    }
+                    if (field === null) {
+                        field = document.createElement('input');
+                        field.type = 'hidden';
+                        field.name = name;
+                        form.append(field);
+                    }
+                    field.value = String(id);
+                }
+            }
             for (const node of labels) {
                 setText(node, text);
             }
@@ -95,30 +118,30 @@ export const locationPicker = defineBehavior<HTMLElement>({
             const url = buildCitiesUrl(template, countryId);
 
             if (url === '') {
-                placeholderOnly(citySelect, fallbackLabel);
+                placeholderOnly(citySelect, cityPlaceholder);
 
                 return;
             }
 
             citySelect.disabled = true;
-            placeholderOnly(citySelect, 'Loading');
+            placeholderOnly(citySelect, loading);
 
             const result = await get<unknown>(url);
 
             if (!result.ok || !isLocationOptionList(result.value)) {
-                placeholderOnly(citySelect, 'Unavailable');
-                announce('City list could not be loaded.');
+                placeholderOnly(citySelect, unavailable);
+                announce(loadError);
 
                 return;
             }
 
             if (result.value.length === 0) {
-                placeholderOnly(citySelect, 'No cities');
+                placeholderOnly(citySelect, noCities);
 
                 return;
             }
 
-            replaceOptions(citySelect, result.value, 'All cities');
+            replaceOptions(citySelect, result.value, cityPlaceholder);
             citySelect.disabled = false;
 
             if (preselect === null) {
@@ -154,10 +177,22 @@ export const locationPicker = defineBehavior<HTMLElement>({
 
             writeJson(STORAGE_KEY, location);
             paint(location);
-            announce('Saved.');
+            announce(saved);
 
             if (disclosure !== null) {
                 disclosure.open = false;
+            }
+            if (target !== null) {
+                const url = new URL(target, window.location.origin);
+                if (url.pathname === window.location.pathname) {
+                    url.search = window.location.search;
+                }
+                for (const [name, id] of [['country', location.countryId], ['city', location.cityId]] as const) {
+                    if (id === null) url.searchParams.delete(name);
+                    else url.searchParams.set(name, String(id));
+                }
+                url.searchParams.delete('page');
+                window.location.assign(url.toString());
             }
         };
 
@@ -183,6 +218,11 @@ export const locationPicker = defineBehavior<HTMLElement>({
 
             countrySelect.value = match.value;
             await loadCities(match.value, stored);
+            paint({
+                ...stored,
+                countryName: match.dataset['name'] ?? stored.countryName,
+                cityName: citySelect.selectedOptions[0]?.dataset['name'] ?? stored.cityName,
+            });
         };
 
         void restore();

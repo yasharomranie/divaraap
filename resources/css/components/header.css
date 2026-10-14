@@ -388,3 +388,11 @@
         min-height: 44px;
     }
 }
+
+[dir='rtl'] .drawer__panel--end {
+    transform: translateX(-100%);
+}
+
+[dir='rtl'] .drawer.is-open .drawer__panel--end {
+    transform: none;
+}

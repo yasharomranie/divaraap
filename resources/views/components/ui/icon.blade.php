@@ -45,4 +45,4 @@
     $body = $paths[$name] ?? $paths['grid'];
 @endphp
 
-<svg {{ $attributes->merge(['fill' => 'none', 'stroke' => 'currentColor', 'stroke-width' => '1.7', 'stroke-linecap' => 'round', 'stroke-linejoin' => 'round', 'viewBox' => '0 0 24 24', 'aria-hidden' => 'true']) }}>{!! $body !!}</svg>
+<svg data-icon="{{ $name }}" {{ $attributes->merge(['fill' => 'none', 'stroke' => 'currentColor', 'stroke-width' => '1.7', 'stroke-linecap' => 'round', 'stroke-linejoin' => 'round', 'viewBox' => '0 0 24 24', 'aria-hidden' => 'true']) }}>{!! $body !!}</svg>

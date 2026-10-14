@@ -79,9 +79,9 @@ case "$action" in
             docker exec divaraap-db createdb -U openclassify openclassify_testing
         fi
         cp docs/environment/phpunit.xml "$state_root/phpunit.xml"
-        docker exec -e APP_ENV=testing -e DB_DATABASE=openclassify_testing divaraap-php php artisan migrate --force
+        docker exec -e APP_ENV=testing -e DB_DATABASE=openclassify_testing -e PUBLIC_STORAGE_ROOT=/setup/testing-public divaraap-php php artisan migrate --force
         if [[ "$(docker exec divaraap-db psql -U openclassify -d openclassify_testing -tAc 'SELECT count(*) FROM users')" == 0 ]]; then
-            docker exec -e APP_ENV=testing -e DB_DATABASE=openclassify_testing divaraap-php php artisan db:seed --force
+            docker exec -e APP_ENV=testing -e DB_DATABASE=openclassify_testing -e PUBLIC_STORAGE_ROOT=/setup/testing-public divaraap-php php artisan db:seed --force
         fi
         php_run php vendor/bin/phpunit --configuration=/setup/phpunit.xml
         ;;

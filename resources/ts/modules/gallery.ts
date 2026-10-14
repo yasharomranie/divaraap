@@ -62,12 +62,14 @@ export const listingGallery = defineBehavior<HTMLElement>({
         });
 
         onDocument('keydown', (event) => {
-            if (event.key === 'ArrowLeft') {
-                show(index - 1);
+            if (!gallery.contains(document.activeElement) || event.altKey || event.ctrlKey || event.metaKey) {
+                return;
             }
-
-            if (event.key === 'ArrowRight') {
-                show(index + 1);
+            const rtl = document.documentElement.dir === 'rtl';
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                event.preventDefault();
+                const delta = event.key === 'ArrowLeft' ? -1 : 1;
+                show(index + (rtl ? -delta : delta));
             }
         });
     },

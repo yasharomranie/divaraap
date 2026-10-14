@@ -1,5 +1,5 @@
 import { defineBehavior } from '../core/behavior';
-import { lockScroll, query, queryAll, toggleClass } from '../core/dom';
+import { lockScroll, onDocument, query, queryAll, toggleClass } from '../core/dom';
 
 export const listingFilters = defineBehavior<HTMLFormElement>({
     name: 'listing-filters',
@@ -40,17 +40,31 @@ export const filterDrawer = defineBehavior<HTMLElement>({
     mount(drawer) {
         const openers = queryAll<HTMLButtonElement>('[data-filter-drawer-open]', HTMLButtonElement);
         const closers = queryAll<HTMLButtonElement>('[data-filter-drawer-close]', HTMLButtonElement, drawer);
+        const panel = query<HTMLElement>('[role="dialog"]', HTMLElement, drawer);
+        const desktop = window.matchMedia('(min-width: 64rem)');
+        let opener: HTMLButtonElement | null = null;
 
         const setOpen = (open: boolean): void => {
-            toggleClass(drawer, 'is-open', open);
-            drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
-            lockScroll(open);
+            const modalOpen = open && !desktop.matches;
+            toggleClass(drawer, 'is-open', modalOpen);
+            drawer.setAttribute('aria-hidden', desktop.matches || modalOpen ? 'false' : 'true');
+            panel?.setAttribute('role', desktop.matches ? 'region' : 'dialog');
+            if (desktop.matches) panel?.removeAttribute('aria-modal');
+            else panel?.setAttribute('aria-modal', 'true');
+            lockScroll(modalOpen);
+            if (modalOpen) {
+                query<HTMLButtonElement>('.drawer__head button', HTMLButtonElement, drawer)?.focus();
+            } else {
+                opener?.focus();
+            }
         };
 
         setOpen(false);
+        desktop.addEventListener('change', () => { setOpen(false); });
 
-        for (const opener of openers) {
-            opener.addEventListener('click', () => {
+        for (const button of openers) {
+            button.addEventListener('click', () => {
+                opener = button;
                 setOpen(true);
             });
         }
@@ -60,6 +74,26 @@ export const filterDrawer = defineBehavior<HTMLElement>({
                 setOpen(false);
             });
         }
+
+        onDocument('keydown', (event) => {
+            if (!drawer.classList.contains('is-open')) return;
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                setOpen(false);
+            }
+            if (event.key !== 'Tab' || panel === null) return;
+            const controls = queryAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])', HTMLElement, panel)
+                .filter((element) => element.offsetParent !== null);
+            const first = controls[0];
+            const last = controls.at(-1);
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first?.focus();
+            }
+        });
     },
 });
 

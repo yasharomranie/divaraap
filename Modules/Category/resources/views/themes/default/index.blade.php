@@ -7,7 +7,7 @@
 <div class="shell shell--wide page">
     <div class="stack stack--section">
         <div class="stack stack--tight">
-            <nav class="breadcrumb" aria-label="Breadcrumb">
+            <nav class="breadcrumb" aria-label="{{ __('site::messages.breadcrumb') }}">
                 <a href="{{ route('home') }}">{{ __('site::messages.home') }}</a>
                 <span class="breadcrumb__separator">/</span>
                 <span>{{ __('site::messages.categories') }}</span>
@@ -18,7 +18,7 @@
         @forelse($categories as $category)
             <section class="section">
                 <div class="section__head">
-                    <h2 class="title-section">{{ $category->getAttribute('name') }}</h2>
+                    <h2 class="title-section">{{ $category->displayName() }}</h2>
                     <a href="{{ route('listings.index', ['category' => $category->getKey()]) }}" class="text-link">
                         {{ __('site::messages.view_all') }}
                     </a>
@@ -35,7 +35,7 @@
                                         <x-ui.icon name="grid"/>
                                     @endif
                                 </span>
-                                <span class="category-card__name">{{ $child->getAttribute('name') }}</span>
+                                <span class="category-card__name">{{ $child->displayName() }}</span>
                             </a>
                         @endforeach
                     </div>

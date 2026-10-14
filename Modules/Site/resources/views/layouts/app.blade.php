@@ -2,6 +2,23 @@
     $settings = $generalSettings ?? [];
     $siteName = $settings['site_name'] ?? config('app.name', 'OpenClassify');
     $siteDescription = $settings['site_description'] ?? __('site::messages.tagline');
+    if ($siteDescription === 'The marketplace for buying and selling everything.') {
+        $siteDescription = __('site::messages.tagline');
+    }
+    $footerTitle = static function (\Modules\Page\Models\Page $page): string {
+        $titles = [
+            'about' => ['About us', 'footer_about'],
+            'contact' => ['Contact', 'footer_contact'],
+            'how-it-works' => ['How it works', 'footer_how_it_works'],
+            'safety-tips' => ['Safety tips', 'footer_safety_tips'],
+            'terms' => ['Terms of service', 'footer_terms'],
+            'privacy' => ['Privacy policy', 'footer_privacy'],
+        ];
+        $title = (string) $page->title;
+        $default = $titles[$page->slug] ?? null;
+
+        return $default !== null && $title === $default[0] ? __('site::messages.'.$default[1]) : $title;
+    };
     $siteLogoUrl = $settings['site_logo_url'] ?? null;
     $isAuthenticated = auth()->check();
     $account = is_array($headerAccountMeta ?? null) ? $headerAccountMeta : [];
@@ -71,7 +88,7 @@
                 </a>
             </div>
 
-            <form action="{{ route('listings.index') }}" method="GET" class="site-search" role="search" data-search-form>
+            <form action="{{ route('listings.index') }}" method="GET" class="site-search" role="search" data-location-search data-search-form>
                 <x-ui.icon name="search" class="site-search__icon"/>
                 <label class="visually-hidden" for="site-search-input">{{ __('site::messages.search') }}</label>
                 <input
@@ -102,6 +119,13 @@
                         data-location-picker
                         data-cities-url="{{ $citiesUrl }}"
                         data-location-fallback="{{ __('site::messages.all_locations') }}"
+                        data-location-target="{{ route('listings.index') }}"
+                        data-location-loading="{{ __('site::messages.loading') }}"
+                        data-location-unavailable="{{ __('site::messages.unavailable') }}"
+                        data-location-error="{{ __('site::messages.cities_unavailable') }}"
+                        data-location-no-cities="{{ __('site::messages.no_cities') }}"
+                        data-location-all-cities="{{ __('site::messages.all_cities') }}"
+                        data-location-saved="{{ __('site::messages.location_saved') }}"
                     >
                         <div class="field">
                             <label class="field__label" for="header-country">{{ __('site::messages.country') }}</label>
@@ -111,8 +135,8 @@
                                     <option
                                         value="{{ $country['id'] }}"
                                         data-code="{{ strtoupper($country['code'] ?? '') }}"
-                                        data-name="{{ $country['name'] }}"
-                                    >{{ $country['name'] }}</option>
+                                        data-name="{{ \Modules\Location\Models\Country::localizedName($country['name'], $country['code'] ?? '') }}"
+                                    >{{ \Modules\Location\Models\Country::localizedName($country['name'], $country['code'] ?? '') }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -122,7 +146,7 @@
                                 <option value="">{{ __('site::messages.all_cities') }}</option>
                             </select>
                         </div>
-                        <p class="field__hint" data-location-status>{{ __('site::messages.location_hint') }}</p>
+                        <p class="field__hint" data-location-status role="status" aria-live="polite">{{ __('site::messages.location_hint') }}</p>
                         <button type="button" class="button button--primary button--block" data-location-apply>
                             {{ __('site::messages.apply') }}
                         </button>
@@ -184,7 +208,7 @@
                     <a
                         href="{{ route('listings.index', ['category' => $navCategory['id']]) }}"
                         class="category-bar__link {{ (int) request('category') === (int) $navCategory['id'] ? 'is-active' : '' }}"
-                    >{{ $navCategory['name'] }}</a>
+                    >{{ \Modules\Category\Models\Category::localizedName($navCategory['name']) }}</a>
                 @endforeach
             </div>
         </div>
@@ -287,17 +311,17 @@
                 <a href="{{ route('categories.index') }}" class="site-footer__link">{{ __('site::messages.categories') }}</a>
                 <a href="{{ route('promotions.plans') }}" class="site-footer__link">{{ __('promotion::messages.plans') }}</a>
                 @foreach($helpPages as $helpPage)
-                    <a href="{{ route('pages.show', $helpPage->getAttribute('slug')) }}" class="site-footer__link">{{ $helpPage->getAttribute('title') }}</a>
+                    <a href="{{ route('pages.show', $helpPage->getAttribute('slug')) }}" class="site-footer__link">{{ $footerTitle($helpPage) }}</a>
                 @endforeach
             </div>
 
             <div class="site-footer__column">
                 <p class="site-footer__heading">{{ __('site::messages.company') }}</p>
                 @foreach($footerPages as $footerPage)
-                    <a href="{{ route('pages.show', $footerPage->getAttribute('slug')) }}" class="site-footer__link">{{ $footerPage->getAttribute('title') }}</a>
+                    <a href="{{ route('pages.show', $footerPage->getAttribute('slug')) }}" class="site-footer__link">{{ $footerTitle($footerPage) }}</a>
                 @endforeach
                 @foreach($legalPages as $legalPage)
-                    <a href="{{ route('pages.show', $legalPage->getAttribute('slug')) }}" class="site-footer__link">{{ $legalPage->getAttribute('title') }}</a>
+                    <a href="{{ route('pages.show', $legalPage->getAttribute('slug')) }}" class="site-footer__link">{{ $footerTitle($legalPage) }}</a>
                 @endforeach
             </div>
 
@@ -317,7 +341,7 @@
             <p>© {{ date('Y') }} {{ $siteName }}</p>
             <div class="locale-list">
                 @foreach($locales as $locale)
-                    <a href="{{ route('lang.switch', $locale) }}" class="locale-list__item {{ app()->getLocale() === $locale ? 'is-active' : '' }}">{{ $locale }}</a>
+                    <a href="{{ route('lang.switch', $locale) }}" class="locale-list__item {{ app()->getLocale() === $locale ? 'is-active' : '' }}" lang="{{ $locale }}" hreflang="{{ $locale }}" @if(app()->getLocale() === $locale) aria-current="true" @endif>{{ $localeNames[$locale] ?? $locale }}</a>
                 @endforeach
             </div>
         </div>

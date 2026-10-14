@@ -47,8 +47,8 @@
     </div>
 
     <div class="listing-card__body">
-        <p class="listing-card__price">{{ $listing->panelPriceLabel() }}</p>
-        <h3 class="listing-card__title text-clamp-2">
+        <p class="listing-card__price"><bdi>{{ $listing->panelPriceLabel() }}</bdi></p>
+        <h3 class="listing-card__title text-clamp-2" dir="auto">
             <a href="{{ route('listings.show', $listing) }}">{{ $listing->getAttribute('title') }}</a>
         </h3>
         <div class="listing-card__meta">

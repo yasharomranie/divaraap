@@ -18,6 +18,20 @@
     object-fit: cover;
 }
 
+.gallery__empty {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-3);
+    height: 100%;
+    color: var(--ink-600);
+}
+
+.gallery__empty svg {
+    width: 40px;
+    height: 40px;
+}
+
 .gallery__nav {
     position: absolute;
     top: 50%;

@@ -12,5 +12,6 @@
     <env name="BROADCAST_CONNECTION" value="log" force="true"/>
     <env name="MAIL_MAILER" value="array" force="true"/>
     <env name="BCRYPT_ROUNDS" value="4" force="true"/>
+    <env name="PUBLIC_STORAGE_ROOT" value="/setup/testing-public" force="true"/>
   </php>
 </phpunit>

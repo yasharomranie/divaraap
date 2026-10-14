@@ -168,3 +168,10 @@ html[lang='fa'] {
     direction: ltr;
     text-align: start;
 }
+
+[dir='rtl'] svg[data-icon='chevron-left'],
+[dir='rtl'] svg[data-icon='chevron-right'],
+[dir='rtl'] svg[data-icon='arrow-left'],
+[dir='rtl'] svg[data-icon='arrow-right'] {
+    transform: scaleX(-1);
+}

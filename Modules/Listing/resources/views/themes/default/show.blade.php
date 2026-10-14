@@ -18,13 +18,13 @@
 @section('content')
 <div class="shell shell--wide page">
     <div class="stack stack--loose">
-        <nav class="breadcrumb" aria-label="Breadcrumb">
+        <nav class="breadcrumb" aria-label="{{ __('site::messages.breadcrumb') }}">
             <a href="{{ route('home') }}">{{ __('site::messages.home') }}</a>
             <span class="breadcrumb__separator">/</span>
             <a href="{{ route('listings.index') }}">{{ __('site::messages.all_listings') }}</a>
             @foreach($breadcrumbCategories as $crumb)
                 <span class="breadcrumb__separator">/</span>
-                <a href="{{ route('listings.index', ['category' => $crumb->getKey()]) }}">{{ $crumb->getAttribute('name') }}</a>
+                <a href="{{ route('listings.index', ['category' => $crumb->getKey()]) }}">{{ $crumb->displayName() }}</a>
             @endforeach
         </nav>
 
@@ -32,21 +32,28 @@
             <div class="stack stack--loose">
                 <section class="gallery" data-gallery>
                     <div class="gallery__stage">
-                        @php $first = $gallery[0]['gallery'] ?? null; @endphp
+                        @php $first = \Modules\Listing\Support\ListingImageViewData::pickUrl($gallery[0]['gallery'] ?? null); @endphp
+                        @if($first)
                         <img
-                            src="{{ \Modules\Listing\Support\ListingImageViewData::pickUrl($first) ?? '' }}"
+                            src="{{ $first }}"
                             alt="{{ $listing->getAttribute('title') }}"
                             data-gallery-stage
                             fetchpriority="high"
                         >
+                        @else
+                            <span class="gallery__empty" role="img" aria-label="{{ __('listing::messages.no_image') }}">
+                                <x-ui.icon name="image"/>
+                                <span>{{ __('listing::messages.no_image') }}</span>
+                            </span>
+                        @endif
                         @if(count($gallery) > 1)
-                            <button type="button" class="gallery__nav gallery__nav--previous" data-gallery-previous aria-label="{{ __('site::messages.back') }}">
+                            <button type="button" class="gallery__nav gallery__nav--previous" data-gallery-previous aria-label="{{ __('site::messages.previous_image') }}">
                                 <x-ui.icon name="chevron-left"/>
                             </button>
-                            <button type="button" class="gallery__nav gallery__nav--next" data-gallery-next aria-label="{{ __('site::messages.view_all') }}">
+                            <button type="button" class="gallery__nav gallery__nav--next" data-gallery-next aria-label="{{ __('site::messages.next_image') }}">
                                 <x-ui.icon name="chevron-right"/>
                             </button>
-                            <span class="gallery__counter" data-gallery-counter>1 / {{ count($gallery) }}</span>
+                            <span class="gallery__counter" data-gallery-counter dir="ltr">1 / {{ count($gallery) }}</span>
                         @endif
                     </div>
 
@@ -59,7 +66,7 @@
                                     data-gallery-thumb
                                     data-gallery-source="{{ \Modules\Listing\Support\ListingImageViewData::pickUrl($image['gallery'] ?? null) }}"
                                     data-gallery-alt="{{ $listing->getAttribute('title') }}"
-                                    aria-label="{{ $index + 1 }}"
+                                    aria-label="{{ __('site::messages.image_number', ['number' => $index + 1]) }}"
                                 >
                                     <img src="{{ \Modules\Listing\Support\ListingImageViewData::pickUrl($image['thumb'] ?? null) }}" alt="" loading="lazy">
                                 </button>
@@ -71,8 +78,8 @@
                 <section class="card">
                     <div class="card__body">
                         <div class="stack stack--tight">
-                            <p class="text-price text-price--large">{{ $listing->panelPriceLabel() }}</p>
-                            <h1 class="title-page">{{ $listing->getAttribute('title') }}</h1>
+                            <p class="text-price text-price--large"><bdi>{{ $listing->panelPriceLabel() }}</bdi></p>
+                            <h1 class="title-page" dir="auto">{{ $listing->getAttribute('title') }}</h1>
                             <div class="row row--wrap text-meta">
                                 @if($place !== '')
                                     <span class="row" style="gap:var(--space-1)"><x-ui.icon name="map-pin" style="width:14px;height:14px"/>{{ $place }}</span>
@@ -87,7 +94,7 @@
                         @if(filled($listing->getAttribute('description')))
                             <div class="stack stack--tight">
                                 <h2 class="card__title">{{ __('site::messages.description') }}</h2>
-                                <div class="prose">{!! nl2br(e($listing->getAttribute('description'))) !!}</div>
+                                <div class="prose" dir="auto">{!! nl2br(e($listing->getAttribute('description'))) !!}</div>
                             </div>
                         @endif
 
@@ -98,7 +105,7 @@
                                     @foreach($presentableCustomFields as $field)
                                         <div class="spec-list__row">
                                             <dt class="spec-list__label">{{ $field['label'] }}</dt>
-                                            <dd class="spec-list__value">{{ $field['value'] }}</dd>
+                                            <dd class="spec-list__value"><bdi>{{ $field['value'] }}</bdi></dd>
                                         </div>
                                     @endforeach
                                 </dl>
@@ -114,7 +121,7 @@
                                 @if($listing->getRelation('category'))
                                     <div class="spec-list__row">
                                         <dt class="spec-list__label">{{ __('site::messages.category') }}</dt>
-                                        <dd class="spec-list__value">{{ $listing->getRelation('category')->getAttribute('name') }}</dd>
+                                        <dd class="spec-list__value">{{ $listing->getRelation('category')->displayName() }}</dd>
                                     </div>
                                 @endif
                             </dl>
@@ -172,8 +179,8 @@
                                                 <span>{{ __('site::messages.show_contact') }}</span>
                                             </button>
                                             <div data-contact-output class="contact-panel">
-                                                <a class="contact-panel__value" data-contact-phone href="#"><x-ui.icon name="phone"/><span></span></a>
-                                                <a class="contact-panel__value" data-contact-email href="#"><x-ui.icon name="mail"/><span></span></a>
+                                                <a class="contact-panel__value" dir="ltr" data-contact-phone href="#"><x-ui.icon name="phone"/><span></span></a>
+                                                <a class="contact-panel__value" dir="ltr" data-contact-email href="#"><x-ui.icon name="mail"/><span></span></a>
                                             </div>
                                         </div>
                                     @endif
@@ -181,7 +188,7 @@
                             @elseif($isOwner)
                                 <a href="{{ route('panel.listings.edit', $listing) }}" class="button button--secondary button--block">
                                     <x-ui.icon name="edit"/>
-                                    <span>{{ __('panel::messages.edit') }}</span>
+                                    <span>{{ __('site::messages.edit_listing') }}</span>
                                 </a>
                             @endif
                         @else

@@ -415,7 +415,7 @@ class Listing extends Model implements HasMedia
     public function panelPriceLabel(): string
     {
         if (is_null($this->price)) {
-            return 'Free';
+            return __('listing::messages.free');
         }
 
         return number_format((float) $this->price, 2, ',', '.').' '.($this->currency ?? 'TL');
@@ -560,10 +560,10 @@ class Listing extends Model implements HasMedia
     public function statusLabel(): string
     {
         return match ($this->statusValue()) {
-            'sold' => 'Sold',
-            'expired' => 'Expired',
-            'pending' => 'Pending',
-            default => 'Active',
+            'sold' => __('listing::messages.status_sold'),
+            'expired' => __('listing::messages.status_expired'),
+            'pending' => __('listing::messages.status_pending'),
+            default => __('listing::messages.status_active'),
         };
     }
 

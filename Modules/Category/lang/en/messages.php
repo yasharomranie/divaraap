@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'names' => [
+        'Electronics' => 'Electronics',
+        'Phones' => 'Phones',
+        'Computers' => 'Computers',
+        'Tablets' => 'Tablets',
+        'TVs' => 'TVs',
+        'Vehicles' => 'Vehicles',
+        'Cars' => 'Cars',
+        'Motorcycles' => 'Motorcycles',
+        'Trucks' => 'Trucks',
+        'Boats' => 'Boats',
+        'Real Estate' => 'Real Estate',
+        'For Sale' => 'For Sale',
+        'For Rent' => 'For Rent',
+        'Commercial' => 'Commercial',
+        'Fashion' => 'Fashion',
+        'Men' => 'Men',
+        'Women' => 'Women',
+        'Kids' => 'Kids',
+        'Shoes' => 'Shoes',
+        'Home' => 'Home',
+        'Furniture' => 'Furniture',
+        'Garden' => 'Garden',
+        'Appliances' => 'Appliances',
+        'Sports' => 'Sports',
+        'Outdoor' => 'Outdoor',
+        'Fitness' => 'Fitness',
+        'Team Sports' => 'Team Sports',
+        'Jobs' => 'Jobs',
+        'Full Time' => 'Full Time',
+        'Part Time' => 'Part Time',
+        'Freelance' => 'Freelance',
+        'Services' => 'Services',
+        'Cleaning' => 'Cleaning',
+        'Repair' => 'Repair',
+        'Education' => 'Education',
+    ],
+];

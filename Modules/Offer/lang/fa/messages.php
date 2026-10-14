@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'offers' => 'پیشنهادهای قیمت',
+    'make_offer' => 'پیشنهاد قیمت',
+    'your_offer' => 'قیمت پیشنهادی شما',
+    'offer_message' => 'پیام به فروشنده',
+    'send_offer' => 'ارسال پیشنهاد',
+    'sent' => 'پیشنهاد برای فروشنده ارسال شد.',
+    'accepted' => 'پیشنهاد پذیرفته شد.',
+    'declined' => 'پیشنهاد رد شد.',
+    'withdrawn' => 'پیشنهاد پس گرفته شد.',
+    'cannot_offer_own' => 'نمی‌توانید برای آگهی خودتان پیشنهاد قیمت بدهید.',
+    'received' => 'دریافت‌شده',
+    'sent_tab' => 'ارسال‌شده',
+    'accept' => 'پذیرش',
+    'decline' => 'رد کردن',
+    'withdraw' => 'پس گرفتن',
+    'status_pending' => 'در انتظار پاسخ',
+    'status_accepted' => 'پذیرفته‌شده',
+    'status_declined' => 'ردشده',
+    'status_withdrawn' => 'پس‌گرفته‌شده',
+    'no_offers' => 'هنوز پیشنهادی وجود ندارد',
+    'no_offers_hint' => 'پیشنهادهای خریداران اینجا نمایش داده می‌شوند.',
+    'all' => 'همه',
+    'best_offer' => 'بهترین پیشنهاد',
+    'notification_received_title' => 'پیشنهاد جدید',
+    'notification_received_body' => 'برای :listing پیشنهاد :amount دریافت کردید.',
+    'notification_accepted_title' => 'پیشنهاد پذیرفته شد',
+    'notification_accepted_body' => 'پیشنهاد شما برای :listing پذیرفته شد.',
+    'notification_declined_title' => 'پیشنهاد رد شد',
+    'notification_declined_body' => 'پیشنهاد شما برای :listing رد شد.',
+    'sign_in_to_offer' => 'برای پیشنهاد قیمت وارد شوید.',
+];

@@ -40,6 +40,18 @@ class Category extends Model
 
     protected $casts = ['is_active' => 'boolean'];
 
+    public static function localizedName(string $name): string
+    {
+        $names = __('category::messages.names');
+
+        return is_array($names) ? ($names[$name] ?? $name) : $name;
+    }
+
+    public function displayName(): string
+    {
+        return static::localizedName((string) $this->name);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

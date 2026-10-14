@@ -51,6 +51,8 @@ class ListingCustomFieldSchemaBuilder
             ->keyBy('name');
 
         $result = [];
+        $labels = __('listing::messages.field_labels');
+        $options = __('listing::messages.field_options');
 
         foreach ($values as $key => $value) {
             if ($value === null || $value === '') {
@@ -59,19 +61,24 @@ class ListingCustomFieldSchemaBuilder
 
             $field = $fieldsByName->get((string) $key);
             $label = $field?->label ?: Str::headline((string) $key);
+            $label = is_array($labels) ? ($labels[$label] ?? $label) : $label;
 
             if (is_bool($value)) {
-                $displayValue = $value ? 'Yes' : 'No';
+                $displayValue = $value ? __('listing::messages.yes') : __('listing::messages.no');
             } elseif (is_array($value)) {
                 $displayValue = implode(', ', array_map(fn ($item): string => (string) $item, $value));
             } elseif ($field?->type === ListingCustomField::TYPE_DATE) {
                 try {
-                    $displayValue = Carbon::parse((string) $value)->format('M j, Y');
+                    $displayValue = Carbon::parse((string) $value)->locale(app()->getLocale())->isoFormat('LL');
                 } catch (\Throwable) {
                     $displayValue = (string) $value;
                 }
             } else {
                 $displayValue = (string) $value;
+            }
+
+            if ($field?->type === ListingCustomField::TYPE_SELECT && is_array($options)) {
+                $displayValue = $options[$displayValue] ?? $displayValue;
             }
 
             if (trim($displayValue) === '') {

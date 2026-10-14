@@ -1,6 +1,6 @@
 @extends('site::layouts.app')
 
-@section('title', $selectedCategory?->getAttribute('name') ?? __('site::messages.all_listings'))
+@section('title', $selectedCategory?->displayName() ?? __('site::messages.all_listings'))
 @section('description', __('site::messages.hero_lead'))
 
 @php
@@ -22,19 +22,19 @@
 @section('content')
 <div class="shell shell--wide page">
     <div class="stack stack--loose">
-        <nav class="breadcrumb" aria-label="Breadcrumb">
+        <nav class="breadcrumb" aria-label="{{ __('site::messages.breadcrumb') }}">
             <a href="{{ route('home') }}">{{ __('site::messages.home') }}</a>
             <span class="breadcrumb__separator">/</span>
             <a href="{{ route('listings.index') }}">{{ __('site::messages.all_listings') }}</a>
             @if($selectedCategory)
                 <span class="breadcrumb__separator">/</span>
-                <span>{{ $selectedCategory->getAttribute('name') }}</span>
+                <span>{{ $selectedCategory->displayName() }}</span>
             @endif
         </nav>
 
         <div class="panel-head">
             <div class="panel-head__text">
-                <h1 class="title-page">{{ $selectedCategory?->getAttribute('name') ?? __('site::messages.all_listings') }}</h1>
+                <h1 class="title-page">{{ $selectedCategory?->displayName() ?? __('site::messages.all_listings') }}</h1>
                 <p class="text-muted">{{ trans_choice('site::messages.results_count', $filteredListingsTotal, ['count' => number_format($filteredListingsTotal)]) }}</p>
             </div>
 
@@ -75,7 +75,7 @@
                                 @foreach($categories as $category)
                                     <label class="radio">
                                         <input type="radio" name="category" value="{{ $category->getKey() }}" @checked($categoryId === (int) $category->getKey())>
-                                        <span>{{ $category->getAttribute('name') }}</span>
+                                        <span>{{ $category->displayName() }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -88,7 +88,7 @@
                                 <select id="filter-country" name="country" class="select">
                                     <option value="">{{ __('site::messages.all_countries') }}</option>
                                     @foreach($countries as $country)
-                                        <option value="{{ $country->getKey() }}" @selected($countryId === (int) $country->getKey())>{{ $country->getAttribute('name') }}</option>
+                                        <option value="{{ $country->getKey() }}" @selected($countryId === (int) $country->getKey())>{{ $country->displayName() }}</option>
                                     @endforeach
                                 </select>
                             </div>

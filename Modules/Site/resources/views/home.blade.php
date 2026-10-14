@@ -10,7 +10,7 @@
             <h1 class="title-hero hero__title">{{ __('site::messages.hero_title') }}</h1>
             <p class="text-lead hero__lead">{{ __('site::messages.hero_lead') }}</p>
 
-            <form action="{{ route('listings.index') }}" method="GET" class="hero__search" role="search">
+            <form action="{{ route('listings.index') }}" method="GET" class="hero__search" role="search" data-location-search>
                 <div class="hero__search-row">
                     <span class="input-affix">
                         <x-ui.icon name="search" class="input-affix__icon"/>
@@ -49,7 +49,7 @@
                                 <x-ui.icon name="grid"/>
                             @endif
                         </span>
-                        <span class="category-card__name">{{ $category->getAttribute('name') }}</span>
+                        <span class="category-card__name">{{ $category->displayName() }}</span>
                     </a>
                 @endforeach
             </div>

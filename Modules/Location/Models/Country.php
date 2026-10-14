@@ -19,6 +19,25 @@ class Country extends Model
 
     protected $casts = ['is_active' => 'boolean'];
 
+    public static function localizedName(string $name, string $code): string
+    {
+        $code = strtoupper($code);
+
+        if (app()->getLocale() !== 'fa' || preg_match('/^[A-Z]{2}$/', $code) !== 1) {
+            return $name;
+        }
+
+        $canonicalName = \Locale::getDisplayRegion('und_'.$code, 'en');
+        $isCanonical = $name === $canonicalName || ($code === 'TR' && $name === 'Turkey');
+
+        return $isCanonical ? \Locale::getDisplayRegion('und_'.$code, 'fa') : $name;
+    }
+
+    public function displayName(): string
+    {
+        return static::localizedName((string) $this->name, (string) $this->code);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
@@ -140,10 +159,10 @@ class Country extends Model
         $countries = static::query()
             ->active()
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'name', 'code']);
 
         $selectedCountry = $countryId
-            ? ($countries->firstWhere('id', $countryId) ?? static::query()->whereKey($countryId)->first(['id', 'name']))
+            ? ($countries->firstWhere('id', $countryId) ?? static::query()->whereKey($countryId)->first(['id', 'name', 'code']))
             : null;
         $selectedCity = $cityId
             ? City::query()->whereKey($cityId)->first(['id', 'name', 'country_id'])
@@ -151,7 +170,7 @@ class Country extends Model
 
         if ($selectedCity && ! $selectedCountry) {
             $countryId = (int) $selectedCity->country_id;
-            $selectedCountry = static::query()->whereKey($countryId)->first(['id', 'name']);
+            $selectedCountry = static::query()->whereKey($countryId)->first(['id', 'name', 'code']);
         }
 
         $cities = collect();
