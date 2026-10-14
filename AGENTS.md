@@ -10,6 +10,14 @@
 * **Language:** : English codebase. Translate each module inside of. 
 * **Comments:** Zero. Code must be entirely self-documenting.
 
+## UI/UX design policy
+
+- Use `.agents/skills/ui-ux-pro-max/SKILL.md` for every UI/UX design, implementation, review, and visual fix, including Persian localization and RTL layouts.
+- Read the skill and run its local search for the relevant design concern before choosing layouts, typography, colors, components, or interactions. Use `--design-system` for new pages or a shared visual direction, `--domain` for focused concerns, and `--stack laravel` for this project's implementation guidance.
+- Keep the existing Laravel, Blade, Filament, TypeScript, and CSS architecture. Preserve the minimalist design and no-animation rule. Skill recommendations do not authorize framework changes or override project requirements.
+- Verify Persian font coverage, RTL and mixed-direction content, responsive layout, contrast, keyboard access, visible focus, and labeled inputs for applicable UI changes. Apply web guidance to this web project.
+- Use Graphify first when design work requires codebase structure or impact analysis; use UI/UX Pro Max for design decisions. Verify recommendations against the actual product and record relevant checks.
+
 ## graphify
 
 Project policy: Use Graphify first for codebase architecture, dependency, impact, and relationship analysis. Run it through `bash scripts/graphify.sh` so the pinned project tool is available. Refresh a stale graph before analysis. Verify source details when the graph is incomplete, especially translation arrays and CSS. Graph analysis does not replace application tests.
