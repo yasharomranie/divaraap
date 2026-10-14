@@ -33,14 +33,12 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $availableLocales = config('app.available_locales', ['en']);
-        $localeLabels = [
-            'en' => 'English',
-            'tr' => 'Turkish',
-        ];
+        $localeLabels = config('app.locale_names', []);
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) use ($availableLocales, $localeLabels): void {
             $switch
                 ->locales($availableLocales)
+                ->userPreferredLocale(fn (): string => request()->cookie('filament_language_switch_locale', config('app.locale')))
                 ->labels(collect($availableLocales)->mapWithKeys(
                     fn (string $locale) => [$locale => $localeLabels[$locale] ?? strtoupper($locale)]
                 )->all())

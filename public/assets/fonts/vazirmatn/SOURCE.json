@@ -1,0 +1,15 @@
+{
+  "package": "@fontsource-variable/vazirmatn",
+  "package_version": "5.3.0",
+  "upstream": "https://github.com/rastikerdar/vazirmatn",
+  "distribution": "https://www.npmjs.com/package/@fontsource-variable/vazirmatn",
+  "license": "SIL OFL 1.1",
+  "sha256": {
+    "LICENSE": "e6f4ce7b6c830d5a25a4f8ac777c267cd7d3c180bc2a7150ca57cbb9b280c4b7",
+    "files/vazirmatn-arabic-wght-normal.woff2": "84a382e46c30fb4f73d0e3800c16d0af15888e2731e57fa5f93e2c29a2c6a957",
+    "files/vazirmatn-latin-ext-wght-normal.woff2": "21529facfd236f6be527e4353623bdb889c96a7ebb7db1e148e28406be0ea004",
+    "files/vazirmatn-latin-wght-normal.woff2": "d29c041cd4294af893cf3c01dfab6d47202c667ab55d702f68782599918c651d",
+    "font.css": "97a46923b2cd2e23e111d16dabb71f926b0b2efa1ee2a52922959e5a08143911",
+    "metadata.json": "880465c4ec10ef96cd3454416a43a7217665c57b2e74031bf3ed3e668f4c65ff"
+  }
+}

@@ -229,10 +229,7 @@ class ManageGeneralSettings extends SettingsPage
 
     private function localeOptions(): array
     {
-        $labels = [
-            'en' => 'English',
-            'tr' => 'Turkish',
-        ];
+        $labels = config('app.locale_names', []);
 
         return collect(config('app.available_locales', ['en']))
             ->mapWithKeys(fn (string $locale) => [$locale => $labels[$locale] ?? strtoupper($locale)])

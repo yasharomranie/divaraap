@@ -15,11 +15,7 @@
         ? route('locations.cities', ['country' => '__COUNTRY__'], false)
         : '';
     $locales = config('app.available_locales', ['en']);
-    $localeNames = [
-        'en' => 'English', 'tr' => 'Türkçe', 'ar' => 'العربية', 'zh' => '中文',
-        'es' => 'Español', 'fr' => 'Français', 'de' => 'Deutsch', 'pt' => 'Português',
-        'ru' => 'Русский', 'ja' => '日本語',
-    ];
+    $localeNames = config('app.locale_names', []);
     $legalPages = \Modules\Page\Models\Page::navigation(\Modules\Page\Models\Page::PLACEMENT_LEGAL);
     $helpPages = \Modules\Page\Models\Page::navigation(\Modules\Page\Models\Page::PLACEMENT_HELP);
     $footerPages = \Modules\Page\Models\Page::navigation(\Modules\Page\Models\Page::PLACEMENT_FOOTER);
@@ -27,7 +23,7 @@
     $sellRoute = $isAuthenticated ? route('panel.listings.create') : route('login');
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), config('app.rtl_locales', ['fa', 'ar']), true) ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -43,6 +39,7 @@
     @hasSection('og_image')<meta property="og:image" content="@yield('og_image')">@endif
     <meta name="twitter:card" content="summary_large_image">
     <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="stylesheet" href="{{ asset('assets/fonts/vazirmatn/font.css') }}">
     @vite(['resources/ts/app.ts'])
     @livewireStyles
 </head>

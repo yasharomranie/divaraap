@@ -152,3 +152,19 @@
     white-space: nowrap;
     border: 0;
 }
+
+html[lang='fa'] {
+    --text-base: 1rem;
+    --leading-normal: 1.75;
+    --leading-tight: 1.45;
+    --tracking-tight: 0;
+    --tracking-normal: 0;
+    --tracking-wide: 0;
+}
+
+[dir='rtl'] input[type='email'],
+[dir='rtl'] input[type='url'],
+[dir='rtl'] input[type='tel'] {
+    direction: ltr;
+    text-align: start;
+}

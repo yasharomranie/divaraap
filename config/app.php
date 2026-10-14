@@ -8,9 +8,17 @@ return [
     'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'http://localhost'),
     'timezone' => 'UTC',
-    'locale' => env('APP_LOCALE', 'tr'),
+    'locale' => env('APP_LOCALE', 'fa'),
 
-    'available_locales' => ['en', 'tr', 'ar', 'zh', 'es', 'fr', 'de', 'pt', 'ru', 'ja'],
+    'available_locales' => ['fa', 'en', 'tr', 'ar', 'zh', 'es', 'fr', 'de', 'pt', 'ru', 'ja'],
+
+    'locale_names' => [
+        'fa' => 'فارسی', 'en' => 'English', 'tr' => 'Türkçe', 'ar' => 'العربية',
+        'zh' => '中文', 'es' => 'Español', 'fr' => 'Français', 'de' => 'Deutsch',
+        'pt' => 'Português', 'ru' => 'Русский', 'ja' => '日本語',
+    ],
+
+    'rtl_locales' => ['fa', 'ar'],
 
     'currencies' => ['USD'],
 
