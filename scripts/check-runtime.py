@@ -1,12 +1,25 @@
 import socket,json,os,base64,struct,subprocess,hashlib
 from pathlib import Path
 import urllib.request,time
+from html.parser import HTMLParser
+from urllib.parse import urljoin
+class Stylesheets(HTMLParser):
+ def __init__(self):
+  super().__init__(); self.urls=[]
+ def handle_starttag(self,tag,attrs):
+  values=dict(attrs)
+  if tag=="link" and values.get("rel")=="stylesheet": self.urls.append(values["href"])
 project_root=Path(__file__).resolve().parent.parent
 for route in ['/', '/listings', '/login']:
  with urllib.request.urlopen('http://127.0.0.1:8000'+route,timeout=10) as response:
   body=response.read().decode()
   assert response.status==200 and '<html' in body and 'OpenClassify' in body
- print('HTTP '+route+': application response verified')
+ parser=Stylesheets();parser.feed(body)
+ assert parser.urls, 'Application stylesheet is missing'
+ for stylesheet in parser.urls:
+  with urllib.request.urlopen(urljoin('http://127.0.0.1:8000',stylesheet),timeout=10) as asset:
+   assert asset.status==200 and 'text/css' in asset.headers['Content-Type']
+ print('HTTP '+route+': application and CSS responses verified')
 settings=dict(line.split('=',1) for line in (project_root/'.env').read_text().splitlines() if '=' in line)
 key=settings['REVERB_APP_KEY']
 s=socket.create_connection(('127.0.0.1',8080),timeout=10)
