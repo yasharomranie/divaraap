@@ -2,6 +2,7 @@
 <phpunit bootstrap="/app/vendor/autoload.php" colors="false" cacheDirectory="/setup/phpunit-cache">
   <testsuites><testsuite name="Baseline"><directory>/app/tests/Feature</directory></testsuite></testsuites>
   <php>
+    <ini name="memory_limit" value="512M"/>
     <env name="APP_ENV" value="testing" force="true"/>
     <env name="DB_CONNECTION" value="pgsql" force="true"/>
     <env name="DB_HOST" value="divaraap-db" force="true"/>

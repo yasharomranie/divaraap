@@ -1,0 +1,24 @@
+{
+  "package": "mwguerra/filemanager",
+  "version": "v2.1.1",
+  "source": {
+    "type": "git",
+    "url": "https://github.com/mwguerra/filemanager.git",
+    "reference": "da05d5ef8e4057482c249280473d3949236436de"
+  },
+  "sha256": {
+    "components/panel-sidebar.blade.php": "78ce0470feb85094bb1de80decdc948571864c9e5a2a28a202932f3f325c375c",
+    "livewire/file-manager-sidebar.blade.php": "bda2dfb4d50a1e0d50e9ae0793e2e805fcfaa3ccbc7db232887cbf1eaebc8f53",
+    "components/viewers/video.blade.php": "063e45c218916c7c3cd8676d4b8ab7b7fc6ea436a3d63f0a16350bf711288a1e",
+    "components/viewers/fallback.blade.php": "80c65dfac74790c773fc6cf509391f15e8235bf18f925faad71e432e8a2ef23b",
+    "components/viewers/text.blade.php": "3c0feeefd1c264274b4d3b5e21cea3321e509d92a23c53f39d1a37a3b16ffc43",
+    "components/viewers/pdf.blade.php": "0f00cbd52c9387450028e01298143884c5ab049c09a64a762256167f455b1562",
+    "components/viewers/image.blade.php": "199839a9628a3de6bb696a09619882e3dbf080eceb4b204140bf640fe759eb33",
+    "components/viewers/audio.blade.php": "ba92884abcc53a9241acd239dc0ef2ca59dd1b29db341b5d4ed328dc559a9c0d",
+    "filament/pages/file-manager.blade.php": "16c2ceb369ebc2a364408a499b3b2df98852175a34dabe83963e8c7a52582d54",
+    "filament/pages/partials/file-card.blade.php": "549ad5b327ffa5f3655015e76db742656598a04ce1779c3412d3d89f018868ca",
+    "filament/pages/partials/folder-tree.blade.php": "45a42a0d70be3b163cdac8e6bf5922d2c9f5691ee732ad5cfd44d9ea34ec044e",
+    "filament/pages/partials/file-list-item.blade.php": "cf97c5aaa571526a0bc43b7f0f92cb41efe96a1c244c526d30095aea566bacf5",
+    "livewire/partials/sidebar-folder-tree.blade.php": "7ca61e9a6ad36de4e94c46d394123efa5e50119bfc55d77f5e0dfd13f58c407f"
+  }
+}

@@ -23,6 +23,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Modules\Admin\Filament\Pages\LocalizedFileManager;
 use Modules\Category\CategoryPlugin;
 use Modules\Demo\App\Http\Middleware\ResolveDemoRequest;
 use Modules\Listing\ListingPlugin;
@@ -37,7 +38,6 @@ use Modules\Site\App\Http\Middleware\BootstrapAppData;
 use Modules\Site\SitePlugin;
 use Modules\User\UserPlugin;
 use Modules\Video\VideoPlugin;
-use MWGuerra\FileManager\Filament\Pages\FileManager;
 use MWGuerra\FileManager\FileManagerPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -50,6 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->default()
             ->path('admin')
+            ->pages([LocalizedFileManager::class])
             ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->login()
             ->font('Vazirmatn', url: fn (): string => asset('assets/fonts/vazirmatn/font.css'), provider: LocalFontProvider::class)
@@ -71,9 +72,7 @@ class AdminPanelProvider extends PanelProvider
                     )
                     ->enableTwoFactorAuthentication()
                     ->enableSanctumTokens(),
-                FileManagerPlugin::make()->only([
-                    FileManager::class,
-                ]),
+                FileManagerPlugin::make()->only([]),
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(fn (): bool => app()->environment('local'))
                     ->users([

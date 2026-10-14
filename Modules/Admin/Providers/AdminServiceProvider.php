@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Modules\Admin\Providers;
 
+use App\Support\Filament\FileManagerNotificationMailbox;
 use Filament\Events\ServingFilament;
+use Filament\Notifications\NotificationMailbox;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,5 +23,8 @@ class AdminServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(module_path('Admin', 'Database/migrations'));
     }
 
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->scoped(NotificationMailbox::class, FileManagerNotificationMailbox::class);
+    }
 }
