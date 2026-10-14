@@ -15,7 +15,7 @@ class ExpiredListingStatus extends ListingStatus implements HasColor, HasDescrip
 
     public function getLabel(): ?string
     {
-        return 'Expired';
+        return __('listing::admin.expired');
     }
 
     public function getColor(): string|array|null

@@ -21,6 +21,26 @@ class ListingResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Catalog';
 
+    public static function getModelLabel(): string
+    {
+        return __('listing::admin.listing');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('listing::admin.listings');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('listing::admin.listings');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('listing::admin.catalog');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema(AdminListingResourceSchema::form());

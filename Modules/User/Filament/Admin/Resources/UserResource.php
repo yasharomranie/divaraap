@@ -28,6 +28,26 @@ class UserResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'User Management';
 
+    public static function getModelLabel(): string
+    {
+        return __('user::admin.user');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('user::admin.users');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('user::admin.users');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('user::admin.user_management');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
@@ -43,15 +63,15 @@ class UserResource extends Resource
     {
         return $table->columns([
             ResourceTableColumns::id(),
-            TextColumn::make('name')->searchable()->sortable(),
-            TextColumn::make('email')->searchable()->sortable(),
-            TextColumn::make('roles.name')->badge()->label('Roles'),
-            ModelStateSelectColumn::make('status')
+            TextColumn::make('name')->label(__('user::admin.name'))->searchable()->sortable(),
+            TextColumn::make('email')->label(__('user::admin.email'))->searchable()->sortable(),
+            TextColumn::make('roles.name')->label(__('user::admin.roles'))->formatStateUsing(fn (string $state): string => User::roleLabel($state))->badge()->label(__('user::admin.roles')),
+            ModelStateSelectColumn::make('status')->label(__('user::admin.status'))
                 ->options(UserStatus::options())
                 ->disabled(fn (User $record): bool => ! static::canEdit($record)),
-            TextColumn::make('created_at')->dateTime()->sortable(),
+            TextColumn::make('created_at')->label(__('user::admin.created_at'))->dateTime()->sortable(),
         ])->defaultSort('id', 'desc')->filters([
-            SelectFilter::make('status')->options(UserStatus::options()),
+            SelectFilter::make('status')->label(__('user::admin.status'))->options(UserStatus::options()),
         ])->actions(ResourceTableActions::editActivityDelete(static::class, [
             Impersonate::make(),
         ]));

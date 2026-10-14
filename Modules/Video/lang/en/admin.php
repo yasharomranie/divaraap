@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'browser_supported_uploads_are_reduced_before_transfer_laravel_then_converts_them_to_a_mobile_mp4_with_the_queue' => 'Browser-supported uploads are reduced before transfer. Laravel then converts them to a mobile MP4 with the queue.',
+    'catalog' => 'Catalog',
+    'description' => 'Description',
+    'details' => 'Details',
+    'duration' => 'Duration',
+    'failed' => 'Failed',
+    'front_view_walkaround_detail_clip' => 'Front view, walkaround, detail clip',
+    'is_active' => 'Is active',
+    'listing' => 'Listing',
+    'owner' => 'Owner',
+    'preview' => 'Preview',
+    'processed' => 'Processed',
+    'processed_at' => 'Processed at',
+    'processing' => 'Processing',
+    'queued' => 'Queued',
+    'ready' => 'Ready',
+    'resolution' => 'Resolution',
+    'size' => 'Size',
+    'source_video' => 'Source video',
+    'status' => 'Status',
+    'title' => 'Title',
+    'upload_path' => 'Upload path',
+    'uploads_are_optimized_in_the_browser_when_supported_then_converted_to_a_mobile_mp4_in_the_queue' => 'Uploads are optimized in the browser when supported, then converted to a mobile MP4 in the queue.',
+    'user' => 'User',
+    'video' => 'Video',
+    'videos' => 'Videos',
+    'visible' => 'Visible',
+    'add_video' => 'Add video',
+    'metadata_hint' => 'Resolution, duration, and size are filled after the queue completes.',
+];

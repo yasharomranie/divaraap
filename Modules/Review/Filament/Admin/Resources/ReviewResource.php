@@ -35,16 +35,36 @@ class ReviewResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function getModelLabel(): string
+    {
+        return __('review::admin.review');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('review::admin.reviews');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('review::admin.reviews');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('review::admin.moderation');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('seller_id')->numeric()->required(),
-            TextInput::make('author_id')->numeric()->required(),
-            TextInput::make('listing_id')->numeric(),
-            TextInput::make('rating')->numeric()->minValue(1)->maxValue(5)->required(),
-            TextInput::make('title')->maxLength(120),
-            Textarea::make('body')->rows(4)->maxLength(2000),
-            Toggle::make('is_approved')->default(true),
+            TextInput::make('seller_id')->label(__('review::admin.seller'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
+            TextInput::make('author_id')->label(__('review::admin.author'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
+            TextInput::make('listing_id')->label(__('review::admin.listing'))->extraInputAttributes(['dir' => 'auto'])->numeric(),
+            TextInput::make('rating')->label(__('review::admin.rating'))->extraInputAttributes(['dir' => 'auto'])->numeric()->minValue(1)->maxValue(5)->required(),
+            TextInput::make('title')->label(__('review::admin.title'))->extraInputAttributes(['dir' => 'auto'])->maxLength(120),
+            Textarea::make('body')->label(__('review::admin.body'))->rows(4)->maxLength(2000),
+            Toggle::make('is_approved')->label(__('review::admin.is_approved'))->default(true),
         ]);
     }
 
@@ -52,15 +72,15 @@ class ReviewResource extends Resource
     {
         return $table->columns([
             ResourceTableColumns::id(),
-            TextColumn::make('rating')->badge()->sortable(),
-            TextColumn::make('title')->searchable()->limit(40),
-            TextColumn::make('seller_id')->label('Seller')->sortable(),
-            TextColumn::make('author_id')->label('Author')->sortable(),
-            IconColumn::make('is_approved')->boolean()->label('Approved'),
+            TextColumn::make('rating')->label(__('review::admin.rating'))->badge()->sortable(),
+            TextColumn::make('title')->label(__('review::admin.title'))->searchable()->limit(40),
+            TextColumn::make('seller_id')->label(__('review::admin.seller'))->sortable(),
+            TextColumn::make('author_id')->label(__('review::admin.author'))->sortable(),
+            IconColumn::make('is_approved')->label(__('review::admin.is_approved'))->boolean()->label(__('review::admin.approved')),
             ResourceTableColumns::createdAtHidden(),
         ])->defaultSort('id', 'desc')->filters([
-            SelectFilter::make('rating')->options([1 => '1', 2 => '2', 3 => '3', 4 => '4', 5 => '5']),
-            TernaryFilter::make('is_approved')->label('Approved'),
+            SelectFilter::make('rating')->label(__('review::admin.rating'))->options([1 => '1', 2 => '2', 3 => '3', 4 => '4', 5 => '5']),
+            TernaryFilter::make('is_approved')->label(__('review::admin.approved')),
         ])->actions(ResourceTableActions::editDelete());
     }
 

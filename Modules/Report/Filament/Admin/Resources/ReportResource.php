@@ -33,22 +33,42 @@ class ReportResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    public static function getModelLabel(): string
+    {
+        return __('report::admin.report');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('report::admin.reports');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('report::admin.reports');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('report::admin.moderation');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            Select::make('subject_type')->options([
-                Report::SUBJECT_LISTING => 'Listing',
-                Report::SUBJECT_USER => 'User',
+            Select::make('subject_type')->label(__('report::admin.subject_type'))->options([
+                Report::SUBJECT_LISTING => __('report::admin.listing'),
+                Report::SUBJECT_USER => __('report::admin.user'),
             ])->required(),
-            TextInput::make('subject_id')->numeric()->required(),
-            Select::make('reason')->options(fn (): array => collect(Report::reasons())->mapWithKeys(
+            TextInput::make('subject_id')->label(__('report::admin.subject_id'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
+            Select::make('reason')->label(__('report::admin.reason'))->options(fn (): array => collect(Report::reasons())->mapWithKeys(
                 static fn (string $reason): array => [$reason => __('report::messages.reason_'.$reason)]
             )->all())->required(),
-            Textarea::make('details')->rows(3)->maxLength(1000),
-            Select::make('status')->options(fn (): array => collect(Report::statuses())->mapWithKeys(
+            Textarea::make('details')->label(__('report::admin.details'))->rows(3)->maxLength(1000),
+            Select::make('status')->label(__('report::admin.status'))->options(fn (): array => collect(Report::statuses())->mapWithKeys(
                 static fn (string $status): array => [$status => __('report::messages.status_'.$status)]
             )->all())->required(),
-            Textarea::make('resolution_note')->rows(2)->maxLength(1000),
+            Textarea::make('resolution_note')->label(__('report::admin.resolution_note'))->rows(2)->maxLength(1000),
         ]);
     }
 
@@ -56,19 +76,19 @@ class ReportResource extends Resource
     {
         return $table->columns([
             ResourceTableColumns::id(),
-            TextColumn::make('subject_type')->badge()->sortable(),
-            TextColumn::make('subject_id')->label('Subject')->sortable(),
-            TextColumn::make('reason')->badge()->searchable(),
-            TextColumn::make('status')->badge()->sortable(),
-            TextColumn::make('reporter_id')->label('Reporter'),
+            TextColumn::make('subject_type')->label(__('report::admin.subject_type'))->formatStateUsing(fn (string $state): string => __('report::admin.'.$state))->badge()->sortable(),
+            TextColumn::make('subject_id')->label(__('report::admin.subject'))->sortable(),
+            TextColumn::make('reason')->label(__('report::admin.reason'))->formatStateUsing(fn (string $state): string => __('report::messages.reason_'.$state))->badge()->searchable(),
+            TextColumn::make('status')->label(__('report::admin.status'))->formatStateUsing(fn (string $state): string => __('report::messages.status_'.$state))->badge()->sortable(),
+            TextColumn::make('reporter_id')->label(__('report::admin.reporter')),
             ResourceTableColumns::createdAtHidden(),
         ])->defaultSort('id', 'desc')->filters([
-            SelectFilter::make('status')->options(fn (): array => collect(Report::statuses())->mapWithKeys(
+            SelectFilter::make('status')->label(__('report::admin.status'))->options(fn (): array => collect(Report::statuses())->mapWithKeys(
                 static fn (string $status): array => [$status => __('report::messages.status_'.$status)]
             )->all()),
-            SelectFilter::make('subject_type')->options([
-                Report::SUBJECT_LISTING => 'Listing',
-                Report::SUBJECT_USER => 'User',
+            SelectFilter::make('subject_type')->label(__('report::admin.subject_type'))->options([
+                Report::SUBJECT_LISTING => __('report::admin.listing'),
+                Report::SUBJECT_USER => __('report::admin.user'),
             ]),
         ])->actions(ResourceTableActions::editDelete());
     }

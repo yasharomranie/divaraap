@@ -15,7 +15,7 @@ class PendingListingStatus extends ListingStatus implements HasColor, HasDescrip
 
     public function getLabel(): ?string
     {
-        return 'Pending';
+        return __('listing::admin.pending');
     }
 
     public function getColor(): string|array|null

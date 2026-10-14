@@ -36,6 +36,21 @@ class ManageGeneralSettings extends SettingsPage
 
     protected static ?int $navigationSort = 1;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('site::admin.general_settings');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('site::admin.settings');
+    }
+
+    public function getTitle(): string
+    {
+        return __('site::admin.general_settings');
+    }
+
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $defaults = $this->defaultFormData();
@@ -81,13 +96,12 @@ class ManageGeneralSettings extends SettingsPage
 
         return $schema
             ->components([
-                TextInput::make('site_name')
-                    ->label('Site Name')
+                TextInput::make('site_name')->label(__('site::admin.site_name'))->extraInputAttributes(['dir' => 'auto'])
+                    ->label(__('site::admin.site_name'))
                     ->default($defaults['site_name'])
                     ->required()
                     ->maxLength(255),
-                Textarea::make('site_description')
-                    ->label('Site Description')
+                Textarea::make('site_description')->label(__('site::admin.site_description'))
                     ->default($defaults['site_description'])
                     ->rows(3)
                     ->maxLength(500),
@@ -95,107 +109,98 @@ class ManageGeneralSettings extends SettingsPage
                     $defaults['home_slides'],
                     fn ($state): array => $this->normalizeHomeSlides($state),
                 ),
-                FileUpload::make('site_logo')
-                    ->label('Site Logo')
+                FileUpload::make('site_logo')->label(__('site::admin.site_logo'))
                     ->image()
                     ->disk(LocalMedia::disk())
                     ->directory(LocalMedia::managedDirectory('settings'))
                     ->visibility('public'),
-                TextInput::make('sender_name')
-                    ->label('Sender Name')
+                TextInput::make('sender_name')->label(__('site::admin.sender_name'))->extraInputAttributes(['dir' => 'auto'])
+                    ->label(__('site::admin.sender_name'))
                     ->default($defaults['sender_name'])
                     ->required()
                     ->maxLength(120),
-                TextInput::make('sender_email')
-                    ->label('Sender Email')
+                TextInput::make('sender_email')->label(__('site::admin.sender_email'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.sender_email'))
                     ->email()
                     ->default($defaults['sender_email'])
                     ->required()
                     ->maxLength(255),
-                Select::make('default_language')
-                    ->label('Default Language')
+                Select::make('default_language')->label(__('site::admin.default_language'))
                     ->options($this->localeOptions())
                     ->default($defaults['default_language'])
                     ->required()
                     ->searchable(),
-                CountryCodeSelect::make('default_country_code')
-                    ->label('Default Country')
+                CountryCodeSelect::make('default_country_code')->label(__('site::admin.default_country'))
                     ->default($defaults['default_country_code'])
                     ->required()
-                    ->helperText('Used as the default country in panel forms.'),
-                TagsInput::make('currencies')
-                    ->label('Currencies')
-                    ->placeholder('TRY')
+                    ->helperText(__('site::admin.used_as_the_default_country_in_panel_forms')),
+                TagsInput::make('currencies')->label(__('site::admin.currencies'))
+                    ->placeholder(__('site::admin.try'))
                     ->default($defaults['currencies'])
-                    ->helperText('Add 3-letter currency codes such as TRY, USD, or EUR.')
+                    ->helperText(__('site::admin.add_3_letter_currency_codes_such_as_try_usd_or_eur'))
                     ->required()
                     ->rules(['array', 'min:1'])
                     ->afterStateHydrated(fn (TagsInput $component, $state) => $component->state($this->normalizeCurrencies($state)))
                     ->dehydrateStateUsing(fn ($state) => $this->normalizeCurrencies($state)),
-                TextInput::make('linkedin_url')
-                    ->label('LinkedIn URL')
+                TextInput::make('linkedin_url')->label(__('site::admin.linkedin_url'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.linkedin_url'))
                     ->url()
                     ->default($defaults['linkedin_url'])
                     ->nullable()
                     ->maxLength(255),
-                TextInput::make('instagram_url')
-                    ->label('Instagram URL')
+                TextInput::make('instagram_url')->label(__('site::admin.instagram_url'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.instagram_url'))
                     ->url()
                     ->default($defaults['instagram_url'])
                     ->nullable()
                     ->maxLength(255),
-                PhoneInput::make('whatsapp')
-                    ->label('WhatsApp')
+                PhoneInput::make('whatsapp')->label(__('site::admin.whatsapp'))
                     ->defaultCountry(CountryCodeManager::defaultCountryIso2())
                     ->default($defaults['whatsapp'])
                     ->nullable()
                     ->formatAsYouType()
-                    ->helperText('Use international format. Example: +905551112233'),
-                Toggle::make('enable_google_maps')
-                    ->label('Google Maps Enabled')
+                    ->helperText(__('site::admin.use_international_format_example_905551112233')),
+                Toggle::make('enable_google_maps')->label(__('site::admin.google_maps_enabled'))
                     ->default($defaults['enable_google_maps']),
-                TextInput::make('google_maps_api_key')
-                    ->label('Google Maps API Key')
+                TextInput::make('google_maps_api_key')->label(__('site::admin.google_maps_api_key'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.google_maps_api_key'))
                     ->password()
                     ->revealable()
                     ->nullable()
                     ->maxLength(255)
-                    ->helperText('Required to enable map fields in listing forms.'),
-                Toggle::make('enable_google_login')
-                    ->label('Google Login Enabled')
+                    ->helperText(__('site::admin.required_to_enable_map_fields_in_listing_forms')),
+                Toggle::make('enable_google_login')->label(__('site::admin.google_login_enabled'))
                     ->default($defaults['enable_google_login']),
-                TextInput::make('google_client_id')
-                    ->label('Google Client ID')
+                TextInput::make('google_client_id')->label(__('site::admin.google_client_id'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.google_client_id'))
                     ->nullable()
                     ->maxLength(255),
-                TextInput::make('google_client_secret')
-                    ->label('Google Client Secret')
+                TextInput::make('google_client_secret')->label(__('site::admin.google_client_secret'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.google_client_secret'))
                     ->password()
                     ->revealable()
                     ->nullable()
                     ->maxLength(255),
-                Toggle::make('enable_facebook_login')
-                    ->label('Facebook Login Enabled')
+                Toggle::make('enable_facebook_login')->label(__('site::admin.facebook_login_enabled'))
                     ->default($defaults['enable_facebook_login']),
-                TextInput::make('facebook_client_id')
-                    ->label('Facebook Client ID')
+                TextInput::make('facebook_client_id')->label(__('site::admin.facebook_client_id'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.facebook_client_id'))
                     ->nullable()
                     ->maxLength(255),
-                TextInput::make('facebook_client_secret')
-                    ->label('Facebook Client Secret')
+                TextInput::make('facebook_client_secret')->label(__('site::admin.facebook_client_secret'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.facebook_client_secret'))
                     ->password()
                     ->revealable()
                     ->nullable()
                     ->maxLength(255),
-                Toggle::make('enable_apple_login')
-                    ->label('Apple Login Enabled')
+                Toggle::make('enable_apple_login')->label(__('site::admin.apple_login_enabled'))
                     ->default($defaults['enable_apple_login']),
-                TextInput::make('apple_client_id')
-                    ->label('Apple Client ID')
+                TextInput::make('apple_client_id')->label(__('site::admin.apple_client_id'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.apple_client_id'))
                     ->nullable()
                     ->maxLength(255),
-                TextInput::make('apple_client_secret')
-                    ->label('Apple Client Secret')
+                TextInput::make('apple_client_secret')->label(__('site::admin.apple_client_secret'))->extraInputAttributes(['dir' => 'ltr'])
+                    ->label(__('site::admin.apple_client_secret'))
                     ->password()
                     ->revealable()
                     ->nullable()
@@ -210,7 +215,7 @@ class ManageGeneralSettings extends SettingsPage
 
         return [
             'site_name' => $siteName,
-            'site_description' => 'A fast and secure marketplace for buying and selling.',
+            'site_description' => __('site::admin.a_fast_and_secure_marketplace_for_buying_and_selling'),
             'home_slides' => $this->defaultHomeSlides(),
             'sender_name' => $siteName,
             'sender_email' => (string) config('mail.from.address', 'info@'.$siteHost),

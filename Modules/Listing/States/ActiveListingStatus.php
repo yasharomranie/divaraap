@@ -15,7 +15,7 @@ class ActiveListingStatus extends ListingStatus implements HasColor, HasDescript
 
     public function getLabel(): ?string
     {
-        return 'Active';
+        return __('listing::admin.active');
     }
 
     public function getColor(): string|array|null

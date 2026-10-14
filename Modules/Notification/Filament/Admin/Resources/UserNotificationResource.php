@@ -32,14 +32,34 @@ class UserNotificationResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function getModelLabel(): string
+    {
+        return __('notification::admin.notification');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('notification::admin.notifications');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('notification::admin.notifications');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('notification::admin.moderation');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('user_id')->numeric()->required(),
-            TextInput::make('type')->maxLength(48)->required(),
-            TextInput::make('title')->maxLength(150)->required(),
-            Textarea::make('body')->rows(3),
-            TextInput::make('action_url')->maxLength(255),
+            TextInput::make('user_id')->label(__('notification::admin.user'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
+            TextInput::make('type')->label(__('notification::admin.type'))->extraInputAttributes(['dir' => 'auto'])->maxLength(48)->required(),
+            TextInput::make('title')->label(__('notification::admin.title'))->extraInputAttributes(['dir' => 'auto'])->maxLength(150)->required(),
+            Textarea::make('body')->label(__('notification::admin.body'))->rows(3),
+            TextInput::make('action_url')->label(__('notification::admin.action_url'))->extraInputAttributes(['dir' => 'ltr'])->maxLength(255),
         ]);
     }
 
@@ -47,15 +67,15 @@ class UserNotificationResource extends Resource
     {
         return $table->columns([
             ResourceTableColumns::id(),
-            TextColumn::make('title')->searchable()->limit(48),
-            TextColumn::make('type')->badge()->sortable(),
-            TextColumn::make('user_id')->label('User')->sortable(),
-            TextColumn::make('read_at')->dateTime()->label('Read')->placeholder('Unread'),
+            TextColumn::make('title')->label(__('notification::admin.title'))->searchable()->limit(48),
+            TextColumn::make('type')->label(__('notification::admin.type'))->formatStateUsing(fn (string $state): string => __('notification::admin.'.$state))->badge()->sortable(),
+            TextColumn::make('user_id')->label(__('notification::admin.user'))->sortable(),
+            TextColumn::make('read_at')->label(__('notification::admin.read_at'))->dateTime()->label(__('notification::admin.read'))->placeholder(__('notification::admin.unread')),
             ResourceTableColumns::createdAtHidden(),
         ])->defaultSort('id', 'desc')->filters([
-            SelectFilter::make('type')->options([
-                'offer' => 'Offer', 'message' => 'Message', 'review' => 'Review',
-                'listing' => 'Listing', 'promotion' => 'Promotion', 'saved_search' => 'Saved search',
+            SelectFilter::make('type')->label(__('notification::admin.type'))->options([
+                'offer' => __('notification::admin.offer'), 'message' => __('notification::admin.message'), 'review' => __('notification::admin.review'),
+                'listing' => __('notification::admin.listing'), 'promotion' => __('notification::admin.promotion'), 'saved_search' => __('notification::admin.saved_search'),
             ]),
         ])->actions(ResourceTableActions::editDelete());
     }

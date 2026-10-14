@@ -31,49 +31,67 @@ class ListingCustomFieldResource extends Resource
 
     protected static ?int $navigationSort = 30;
 
+    public static function getModelLabel(): string
+    {
+        return __('listing::admin.custom_fields');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('listing::admin.custom_fields');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('listing::admin.custom_fields');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('listing::admin.catalog');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('label')
+            TextInput::make('label')->label(__('listing::admin.label'))->extraInputAttributes(['dir' => 'auto'])
                 ->required()
                 ->maxLength(255)
                 ->live(onBlur: true)
                 ->afterStateUpdated(function ($state, $set, ?ListingCustomField $record): void {
                     $set('name', ListingCustomField::uniqueNameFromLabel((string) $state, $record));
                 }),
-            TextInput::make('name')
+            TextInput::make('name')->label(__('listing::admin.name'))->extraInputAttributes(['dir' => 'auto'])
                 ->required()
                 ->maxLength(255)
                 ->regex('/^[a-z0-9_]+$/')
-                ->helperText('Only lowercase letters, numbers and underscore.')
+                ->helperText(__('listing::admin.only_lowercase_letters_numbers_and_underscore'))
                 ->unique(ignoreRecord: true),
-            Select::make('type')
+            Select::make('type')->label(__('listing::admin.type'))
                 ->required()
                 ->options(ListingCustomField::typeOptions())
                 ->live(),
-            Select::make('category_id')
-                ->label('Category')
+            Select::make('category_id')->label(__('listing::admin.category'))
                 ->options(fn (): array => Category::activeIdNameOptions())
                 ->searchable()
                 ->preload()
                 ->nullable()
-                ->helperText('Leave empty to apply this field to all categories.'),
-            TagsInput::make('options')
-                ->label('Select Options')
-                ->placeholder('Add an option and press Enter')
+                ->helperText(__('listing::admin.leave_empty_to_apply_this_field_to_all_categories')),
+            TagsInput::make('options')->label(__('listing::admin.select_options'))
+                ->placeholder(__('listing::admin.add_an_option_and_press_enter'))
                 ->visible(fn ($get): bool => $get('type') === ListingCustomField::TYPE_SELECT)
-                ->helperText('Used only for Select type fields.'),
-            TextInput::make('sort_order')
+                ->helperText(__('listing::admin.used_only_for_select_type_fields')),
+            TextInput::make('sort_order')->label(__('listing::admin.sort_order'))->extraInputAttributes(['dir' => 'auto'])
                 ->numeric()
                 ->default(0),
-            TextInput::make('placeholder')
+            TextInput::make('placeholder')->label(__('listing::admin.placeholder'))->extraInputAttributes(['dir' => 'auto'])
                 ->maxLength(255),
-            Textarea::make('help_text')
+            Textarea::make('help_text')->label(__('listing::admin.help_text'))
                 ->rows(2)
                 ->maxLength(500),
-            Toggle::make('is_required')
+            Toggle::make('is_required')->label(__('listing::admin.is_required'))
                 ->default(false),
-            Toggle::make('is_active')
+            Toggle::make('is_active')->label(__('listing::admin.is_active'))
                 ->default(true),
         ]);
     }
@@ -82,14 +100,14 @@ class ListingCustomFieldResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->sortable(),
-                TextColumn::make('label')->searchable()->sortable(),
-                TextColumn::make('name')->searchable()->copyable(),
-                TextColumn::make('type')->sortable(),
-                TextColumn::make('category.name')->label('Category')->default('All categories'),
-                IconColumn::make('is_required')->boolean()->label('Required'),
-                IconColumn::make('is_active')->boolean()->label('Active'),
-                TextColumn::make('sort_order')->sortable(),
+                TextColumn::make('id')->label(__('listing::admin.id'))->sortable(),
+                TextColumn::make('label')->label(__('listing::admin.label'))->searchable()->sortable(),
+                TextColumn::make('name')->label(__('listing::admin.name'))->searchable()->copyable(),
+                TextColumn::make('type')->label(__('listing::admin.type'))->sortable(),
+                TextColumn::make('category.name')->label(__('listing::admin.category'))->default(__('listing::admin.all_categories')),
+                IconColumn::make('is_required')->label(__('listing::admin.is_required'))->boolean()->label(__('listing::admin.required')),
+                IconColumn::make('is_active')->label(__('listing::admin.is_active'))->boolean()->label(__('listing::admin.active')),
+                TextColumn::make('sort_order')->label(__('listing::admin.sort_order'))->sortable(),
             ])
             ->defaultSort('id', 'desc')
             ->actions(ResourceTableActions::editDelete());

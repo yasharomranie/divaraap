@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Admin\Providers;
 
+use App\Support\Filament\LocalAvatarProvider;
 use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
@@ -43,16 +44,19 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $this->loadTranslationsFrom(module_path('Admin', 'lang'), 'admin');
+
         return $panel
             ->id('admin')
             ->default()
             ->path('admin')
+            ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->login()
             ->font('Vazirmatn', url: fn (): string => asset('assets/fonts/vazirmatn/font.css'), provider: LocalFontProvider::class)
             ->colors(['primary' => Color::Blue])
             ->userMenuItems([
                 'view-site' => MenuItem::make()
-                    ->label('View Site')
+                    ->label(fn (): string => __('admin::admin.view_site'))
                     ->icon('heroicon-o-globe-alt')
                     ->url(fn (): string => url('/'))
                     ->sort(-2),
@@ -61,9 +65,9 @@ class AdminPanelProvider extends PanelProvider
                 BreezyCore::make()
                     ->myProfile(
                         shouldRegisterNavigation: true,
-                        navigationGroup: 'Settings',
+                        navigationGroup: __('admin::admin.settings'),
                         hasAvatars: true,
-                        userMenuLabel: 'My Profile',
+                        userMenuLabel: __('admin::admin.my_profile'),
                     )
                     ->enableTwoFactorAuthentication()
                     ->enableSanctumTokens(),

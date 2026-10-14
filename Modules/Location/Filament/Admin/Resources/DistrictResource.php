@@ -36,12 +36,32 @@ class DistrictResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    public static function getModelLabel(): string
+    {
+        return __('location::admin.district');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('location::admin.districts');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('location::admin.districts');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('location::admin.location');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('name')->required()->maxLength(120),
-            Select::make('city_id')->relationship('city', 'name')->label('City')->searchable()->preload()->required(),
-            Toggle::make('is_active')->default(true),
+            TextInput::make('name')->label(__('location::admin.name'))->extraInputAttributes(['dir' => 'auto'])->required()->maxLength(120),
+            Select::make('city_id')->label(__('location::admin.city'))->relationship('city', 'name')->label(__('location::admin.city'))->searchable()->preload()->required(),
+            Toggle::make('is_active')->label(__('location::admin.is_active'))->default(true),
         ]);
     }
 
@@ -49,22 +69,20 @@ class DistrictResource extends Resource
     {
         return $table->columns([
             ResourceTableColumns::id(),
-            TextColumn::make('name')->searchable()->sortable(),
-            TextColumn::make('city.name')->label('City')->searchable()->sortable(),
-            TextColumn::make('city.country.name')->label('Country'),
+            TextColumn::make('name')->label(__('location::admin.name'))->searchable()->sortable(),
+            TextColumn::make('city.name')->label(__('location::admin.city'))->searchable()->sortable(),
+            TextColumn::make('city.country.name')->label(__('location::admin.country')),
             ResourceTableColumns::activeIcon(),
             ResourceTableColumns::createdAtHidden(),
         ])->defaultSort('id', 'desc')->filters([
-            SelectFilter::make('country_id')
-                ->label('Country')
+            SelectFilter::make('country_id')->label(__('location::admin.country'))
                 ->options(fn (): array => Country::idNameOptions())
                 ->query(fn (Builder $query, array $data): Builder => $query->when($data['value'] ?? null, fn (Builder $query, string $countryId): Builder => $query->whereHas('city', fn (Builder $cityQuery): Builder => $cityQuery->where('country_id', $countryId)))),
-            SelectFilter::make('city_id')
-                ->label('City')
+            SelectFilter::make('city_id')->label(__('location::admin.city'))
                 ->relationship('city', 'name')
                 ->searchable()
                 ->preload(),
-            TernaryFilter::make('is_active')->label('Active'),
+            TernaryFilter::make('is_active')->label(__('location::admin.active')),
         ])->actions(ResourceTableActions::editActivityDelete(static::class));
     }
 

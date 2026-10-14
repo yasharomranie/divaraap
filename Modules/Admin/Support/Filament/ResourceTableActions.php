@@ -30,7 +30,7 @@ final class ResourceTableActions
 
     public static function activities(string $resourceClass): Action
     {
-        return Action::make('activities')
+        return Action::make('activities')->label(__('admin::admin.activities'))
             ->icon('heroicon-o-clock')
             ->url(fn ($record): string => $resourceClass::getUrl('activities', ['record' => $record]));
     }

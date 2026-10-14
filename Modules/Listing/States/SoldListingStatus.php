@@ -15,7 +15,7 @@ class SoldListingStatus extends ListingStatus implements HasColor, HasDescriptio
 
     public function getLabel(): ?string
     {
-        return 'Sold';
+        return __('listing::admin.sold');
     }
 
     public function getColor(): string|array|null

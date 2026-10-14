@@ -79,7 +79,7 @@ class Country extends Model
         return static::query()
             ->when($onlyActive, fn (Builder $query): Builder => $query->active())
             ->orderBy('name')
-            ->pluck('name', 'name')
+            ->get(['name', 'code'])->mapWithKeys(fn (self $country): array => [(string) $country->name => $country->displayName()])
             ->all();
     }
 

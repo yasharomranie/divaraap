@@ -15,7 +15,7 @@ class BannedUserStatus extends UserStatus implements HasColor, HasDescription, H
 
     public function getLabel(): ?string
     {
-        return 'Banned';
+        return __('user::admin.banned');
     }
 
     public function getColor(): string|array|null

@@ -14,10 +14,10 @@ enum VideoStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Pending => 'Queued',
-            self::Processing => 'Processing',
-            self::Ready => 'Ready',
-            self::Failed => 'Failed',
+            self::Pending => __('video::admin.queued'),
+            self::Processing => __('video::admin.processing'),
+            self::Ready => __('video::admin.ready'),
+            self::Failed => __('video::admin.failed'),
         };
     }
 

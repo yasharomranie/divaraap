@@ -24,6 +24,26 @@ class VideoResource extends Resource
 
     protected static ?string $navigationLabel = 'Videos';
 
+    public static function getModelLabel(): string
+    {
+        return __('video::admin.video');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('video::admin.videos');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('video::admin.videos');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('video::admin.catalog');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema(VideoFormSchema::resourceSchema());

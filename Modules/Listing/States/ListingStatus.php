@@ -12,10 +12,10 @@ abstract class ListingStatus extends State
     public static function options(): array
     {
         return [
-            'active' => 'Active',
-            'pending' => 'Pending',
-            'sold' => 'Sold',
-            'expired' => 'Expired',
+            'active' => __('listing::admin.active'),
+            'pending' => __('listing::admin.pending'),
+            'sold' => __('listing::admin.sold'),
+            'expired' => __('listing::admin.expired'),
         ];
     }
 

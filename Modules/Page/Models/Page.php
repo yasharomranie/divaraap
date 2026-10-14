@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 
 class Page extends Model
@@ -94,25 +95,37 @@ class Page extends Model
         return $slug;
     }
 
+    public function localizedValue(string $field): string
+    {
+        $value = (string) $this->getAttribute($field);
+        $key = 'page::content.'.$this->getAttribute('slug').'.'.$field;
+
+        if (app()->getLocale() !== 'fa' || ! Lang::has($key, 'en') || $value !== Lang::get($key, [], 'en')) {
+            return $value;
+        }
+
+        return (string) Lang::get($key, [], 'fa');
+    }
+
     public function metaTitleValue(): string
     {
         $meta = (string) $this->getAttribute('meta_title');
 
-        return $meta !== '' ? $meta : (string) $this->getAttribute('title');
+        return $meta !== '' ? $meta : $this->localizedValue('title');
     }
 
     public function metaDescriptionValue(): string
     {
-        $meta = (string) $this->getAttribute('meta_description');
+        $meta = $this->localizedValue('meta_description');
 
-        return $meta !== '' ? $meta : (string) $this->getAttribute('excerpt');
+        return $meta !== '' ? $meta : $this->localizedValue('excerpt');
     }
 
     public function bodyParagraphs(): array
     {
-        $body = (string) $this->getAttribute('body');
+        $body = $this->localizedValue('body');
 
-        return collect(preg_split('/\R{2,}/', $body) ?: [])
+        return collect(preg_split('/\R{2,}/u', $body) ?: [])
             ->map(static fn (string $block): string => trim($block))
             ->filter(static fn (string $block): bool => $block !== '')
             ->values()

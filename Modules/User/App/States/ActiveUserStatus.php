@@ -15,7 +15,7 @@ class ActiveUserStatus extends UserStatus implements HasColor, HasDescription, H
 
     public function getLabel(): ?string
     {
-        return 'Active';
+        return __('user::admin.active');
     }
 
     public function getColor(): string|array|null

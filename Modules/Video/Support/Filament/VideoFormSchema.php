@@ -24,8 +24,8 @@ class VideoFormSchema
 {
     public static function listingSection(): Section
     {
-        return Section::make('Videos')
-            ->description('Uploads are optimized in the browser when supported, then converted to a mobile MP4 in the queue.')
+        return Section::make(__('video::admin.videos'))
+            ->description(__('video::admin.uploads_are_optimized_in_the_browser_when_supported_then_converted_to_a_mobile_mp4_in_the_queue'))
             ->schema([
                 self::listingRepeater(),
             ])
@@ -35,7 +35,7 @@ class VideoFormSchema
     public static function resourceSchema(bool $partnerScoped = false): array
     {
         return [
-            Section::make('Video')
+            Section::make(__('video::admin.video'))
                 ->schema([
                     self::listingField($partnerScoped),
                     self::titleField(),
@@ -51,14 +51,14 @@ class VideoFormSchema
 
     public static function listingRepeater(): Repeater
     {
-        return Repeater::make('videos')
+        return Repeater::make('videos')->label(__('video::admin.videos'))
             ->relationship(
                 'videos',
                 modifyQueryUsing: fn (Builder $query): Builder => $query->ordered(),
             )
             ->schema(self::itemSchema())
             ->defaultItems(0)
-            ->addActionLabel('Add video')
+            ->addActionLabel(__('video::admin.add_video'))
             ->itemLabel(fn (array $state): string => trim((string) ($state['title'] ?? '')) ?: 'Video')
             ->maxItems((int) config('video.max_listing_videos', 5))
             ->orderColumn('sort_order')
@@ -83,8 +83,7 @@ class VideoFormSchema
 
     protected static function listingField(bool $partnerScoped): Select
     {
-        return Select::make('listing_id')
-            ->label('Listing')
+        return Select::make('listing_id')->label(__('video::admin.listing'))
             ->relationship(
                 'listing',
                 'title',
@@ -103,14 +102,14 @@ class VideoFormSchema
 
     protected static function titleField(): TextInput
     {
-        return TextInput::make('title')
+        return TextInput::make('title')->label(__('video::admin.title'))->extraInputAttributes(['dir' => 'auto'])
             ->maxLength(120)
-            ->placeholder('Front view, walkaround, detail clip');
+            ->placeholder(__('video::admin.front_view_walkaround_detail_clip'));
     }
 
     protected static function descriptionField(): Textarea
     {
-        return Textarea::make('description')
+        return Textarea::make('description')->label(__('video::admin.description'))
             ->rows(3)
             ->maxLength(500)
             ->columnSpanFull();
@@ -118,8 +117,7 @@ class VideoFormSchema
 
     protected static function activeField(): Toggle
     {
-        return Toggle::make('is_active')
-            ->label('Visible')
+        return Toggle::make('is_active')->label(__('video::admin.visible'))
             ->default(true);
     }
 
@@ -127,8 +125,7 @@ class VideoFormSchema
     {
         $clientConfig = config('video.client_side', []);
 
-        return FileUpload::make('upload_path')
-            ->label('Source video')
+        return FileUpload::make('upload_path')->label(__('video::admin.source_video'))
             ->disk(fn (): string => LocalMedia::disk())
             ->directory(LocalMedia::managedDirectory(trim((string) config('video.upload_directory', 'videos/uploads'), '/')))
             ->visibility('public')
@@ -149,7 +146,7 @@ class VideoFormSchema
             ->maxSize((int) config('video.max_upload_size_kb', 102400))
             ->downloadable()
             ->openable()
-            ->helperText('Browser-supported uploads are reduced before transfer. Laravel then converts them to a mobile MP4 with the queue.')
+            ->helperText(__('video::admin.browser_supported_uploads_are_reduced_before_transfer_laravel_then_converts_them_to_a_mobile_mp4_with_the_queue'))
             ->required(fn (?Video $record): bool => blank($record?->path) && blank($record?->upload_path))
             ->extraInputAttributes([
                 'data-video-upload-optimizer' => ($clientConfig['enabled'] ?? true) ? 'true' : 'false',
@@ -164,7 +161,7 @@ class VideoFormSchema
     protected static function previewField(): Placeholder
     {
         return Placeholder::make('preview')
-            ->label('Preview')
+            ->label(__('video::admin.preview'))
             ->content(
                 fn (?Video $record): HtmlString => new HtmlString(
                     view('video::filament.video-preview-field', ['video' => $record])->render()
@@ -176,17 +173,17 @@ class VideoFormSchema
     protected static function metaField(): Placeholder
     {
         return Placeholder::make('details')
-            ->label('Details')
+            ->label(__('video::admin.details'))
             ->content(function (?Video $record): string {
                 if (! $record) {
-                    return 'Resolution, duration, and size are filled after the queue completes.';
+                    return __('video::admin.metadata_hint');
                 }
 
                 return collect([
-                    'Status: '.$record->statusLabel(),
-                    'Resolution: '.$record->resolutionLabel(),
-                    'Duration: '.$record->durationLabel(),
-                    'Size: '.$record->sizeLabel(),
+                    __('video::admin.status').': '.$record->statusLabel(),
+                    __('video::admin.resolution').': '.$record->resolutionLabel(),
+                    __('video::admin.duration').': '.$record->durationLabel(),
+                    __('video::admin.size').': '.$record->sizeLabel(),
                 ])->implode(' • ');
             })
             ->columnSpanFull();

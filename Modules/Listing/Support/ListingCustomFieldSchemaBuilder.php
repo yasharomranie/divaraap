@@ -102,7 +102,7 @@ class ListingCustomFieldSchemaBuilder
             ListingCustomField::TYPE_TEXT => TextInput::make($statePath)->maxLength(255),
             ListingCustomField::TYPE_TEXTAREA => Textarea::make($statePath)->rows(3)->columnSpanFull(),
             ListingCustomField::TYPE_NUMBER => TextInput::make($statePath)->numeric(),
-            ListingCustomField::TYPE_SELECT => Select::make($statePath)->options($field->selectOptions())->searchable(),
+            ListingCustomField::TYPE_SELECT => Select::make($statePath)->options(collect($field->selectOptions())->map(fn (string $option): string => __('listing::messages.field_options')[$option] ?? $option)->all())->searchable(),
             ListingCustomField::TYPE_BOOLEAN => Toggle::make($statePath),
             ListingCustomField::TYPE_DATE => DatePicker::make($statePath),
             default => null,
@@ -112,7 +112,7 @@ class ListingCustomFieldSchemaBuilder
             return null;
         }
 
-        $component = $component->label($field->label);
+        $component = $component->label(__('listing::messages.field_labels')[$field->label] ?? $field->label);
 
         if ($field->is_required) {
             $component = $component->required();

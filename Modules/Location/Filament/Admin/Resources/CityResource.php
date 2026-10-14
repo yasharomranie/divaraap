@@ -35,12 +35,32 @@ class CityResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function getModelLabel(): string
+    {
+        return __('location::admin.city');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('location::admin.cities');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('location::admin.cities');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('location::admin.location');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('name')->required()->maxLength(120),
-            Select::make('country_id')->relationship('country', 'name')->label('Country')->searchable()->preload()->required(),
-            Toggle::make('is_active')->default(true),
+            TextInput::make('name')->label(__('location::admin.name'))->extraInputAttributes(['dir' => 'auto'])->required()->maxLength(120),
+            Select::make('country_id')->label(__('location::admin.country'))->relationship('country', 'name')->label(__('location::admin.country'))->searchable()->preload()->required(),
+            Toggle::make('is_active')->label(__('location::admin.is_active'))->default(true),
         ]);
     }
 
@@ -48,25 +68,23 @@ class CityResource extends Resource
     {
         return $table->columns([
             ResourceTableColumns::id(),
-            TextColumn::make('name')->searchable()->sortable(),
-            TextColumn::make('country.name')->label('Country')->searchable()->sortable(),
-            TextColumn::make('districts_count')->counts('districts')->label('Districts')->sortable(),
+            TextColumn::make('name')->label(__('location::admin.name'))->searchable()->sortable(),
+            TextColumn::make('country.name')->label(__('location::admin.country'))->searchable()->sortable(),
+            TextColumn::make('districts_count')->label(__('location::admin.districts'))->counts('districts')->label(__('location::admin.districts'))->sortable(),
             ResourceTableColumns::activeIcon(),
             ResourceTableColumns::createdAtHidden(),
         ])->defaultSort('id', 'desc')->filters([
-            SelectFilter::make('country_id')
-                ->label('Country')
+            SelectFilter::make('country_id')->label(__('location::admin.country'))
                 ->relationship('country', 'name')
                 ->searchable()
                 ->preload(),
-            TernaryFilter::make('has_districts')
-                ->label('Has districts')
+            TernaryFilter::make('has_districts')->label(__('location::admin.has_districts'))
                 ->queries(
                     true: fn (Builder $query): Builder => $query->has('districts'),
                     false: fn (Builder $query): Builder => $query->doesntHave('districts'),
                     blank: fn (Builder $query): Builder => $query,
                 ),
-            TernaryFilter::make('is_active')->label('Active'),
+            TernaryFilter::make('is_active')->label(__('location::admin.active')),
         ])->actions(ResourceTableActions::editActivityDelete(static::class));
     }
 

@@ -36,21 +36,41 @@ class PromotionPlanResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function getModelLabel(): string
+    {
+        return __('promotion::admin.promotion_plan');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('promotion::admin.promotion_plans');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('promotion::admin.promotion_plans');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('promotion::admin.marketplace');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('name')->required()->maxLength(80)->live(onBlur: true)
+            TextInput::make('name')->label(__('promotion::admin.name'))->extraInputAttributes(['dir' => 'auto'])->required()->maxLength(80)->live(onBlur: true)
                 ->afterStateUpdated(static fn (Set $set, ?string $state): mixed => $set('slug', Str::slug((string) $state))),
-            TextInput::make('slug')->required()->maxLength(80)->unique(ignoreRecord: true),
-            Textarea::make('description')->rows(3)->maxLength(500),
-            TextInput::make('price')->numeric()->required()->default(0),
-            TextInput::make('currency')->maxLength(3)->required()->default('USD'),
-            TextInput::make('duration_days')->numeric()->required()->default(7),
-            TextInput::make('bump_count')->numeric()->default(0),
-            Toggle::make('grants_featured'),
-            Toggle::make('grants_urgent'),
-            Toggle::make('is_active')->default(true),
-            TextInput::make('sort_order')->numeric()->default(0),
+            TextInput::make('slug')->label(__('promotion::admin.slug'))->extraInputAttributes(['dir' => 'ltr'])->required()->maxLength(80)->unique(ignoreRecord: true),
+            Textarea::make('description')->label(__('promotion::admin.description'))->rows(3)->maxLength(500),
+            TextInput::make('price')->label(__('promotion::admin.price'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required()->default(0),
+            TextInput::make('currency')->label(__('promotion::admin.currency'))->extraInputAttributes(['dir' => 'ltr'])->maxLength(3)->required()->default('USD'),
+            TextInput::make('duration_days')->label(__('promotion::admin.duration_days'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required()->default(7),
+            TextInput::make('bump_count')->label(__('promotion::admin.bump_count'))->extraInputAttributes(['dir' => 'auto'])->numeric()->default(0),
+            Toggle::make('grants_featured')->label(__('promotion::admin.grants_featured')),
+            Toggle::make('grants_urgent')->label(__('promotion::admin.grants_urgent')),
+            Toggle::make('is_active')->label(__('promotion::admin.is_active'))->default(true),
+            TextInput::make('sort_order')->label(__('promotion::admin.sort_order'))->extraInputAttributes(['dir' => 'auto'])->numeric()->default(0),
         ]);
     }
 
@@ -58,15 +78,15 @@ class PromotionPlanResource extends Resource
     {
         return $table->columns([
             ResourceTableColumns::id(),
-            TextColumn::make('name')->searchable()->sortable(),
-            TextColumn::make('price')->money(fn (PromotionPlan $record): string => (string) $record->getAttribute('currency'))->sortable(),
-            TextColumn::make('duration_days')->label('Days')->sortable(),
-            IconColumn::make('grants_featured')->boolean()->label('Featured'),
-            IconColumn::make('grants_urgent')->boolean()->label('Urgent'),
+            TextColumn::make('name')->label(__('promotion::admin.name'))->searchable()->sortable(),
+            TextColumn::make('price')->label(__('promotion::admin.price'))->money(fn (PromotionPlan $record): string => (string) $record->getAttribute('currency'))->sortable(),
+            TextColumn::make('duration_days')->label(__('promotion::admin.days'))->sortable(),
+            IconColumn::make('grants_featured')->label(__('promotion::admin.grants_featured'))->boolean()->label(__('promotion::admin.featured')),
+            IconColumn::make('grants_urgent')->label(__('promotion::admin.grants_urgent'))->boolean()->label(__('promotion::admin.urgent')),
             ResourceTableColumns::activeIcon(),
         ])->defaultSort('id', 'desc')->filters([
-            TernaryFilter::make('is_active')->label('Active'),
-            TernaryFilter::make('grants_featured')->label('Featured'),
+            TernaryFilter::make('is_active')->label(__('promotion::admin.active')),
+            TernaryFilter::make('grants_featured')->label(__('promotion::admin.featured')),
         ])->actions(ResourceTableActions::editDelete());
     }
 

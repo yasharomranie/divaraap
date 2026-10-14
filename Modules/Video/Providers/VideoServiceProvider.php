@@ -10,6 +10,7 @@ class VideoServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        $this->loadTranslationsFrom(module_path('Video', 'lang'), 'video');
         $this->loadViewsFrom(module_path('Video', 'resources/views'), 'video');
         $this->loadMigrationsFrom(module_path('Video', 'Database/migrations'));
     }

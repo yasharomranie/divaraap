@@ -33,16 +33,36 @@ class OfferResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function getModelLabel(): string
+    {
+        return __('offer::admin.offer');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('offer::admin.offers');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('offer::admin.offers');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('offer::admin.marketplace');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('listing_id')->numeric()->required(),
-            TextInput::make('buyer_id')->numeric()->required(),
-            TextInput::make('seller_id')->numeric()->required(),
-            TextInput::make('amount')->numeric()->required(),
-            TextInput::make('currency')->maxLength(3)->required(),
-            Textarea::make('message')->rows(3)->maxLength(500),
-            Select::make('status')->options(fn (): array => collect(Offer::statuses())->mapWithKeys(
+            TextInput::make('listing_id')->label(__('offer::admin.listing'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
+            TextInput::make('buyer_id')->label(__('offer::admin.buyer'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
+            TextInput::make('seller_id')->label(__('offer::admin.seller'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
+            TextInput::make('amount')->label(__('offer::admin.amount'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
+            TextInput::make('currency')->label(__('offer::admin.currency'))->extraInputAttributes(['dir' => 'ltr'])->maxLength(3)->required(),
+            Textarea::make('message')->label(__('offer::admin.message'))->rows(3)->maxLength(500),
+            Select::make('status')->label(__('offer::admin.status'))->options(fn (): array => collect(Offer::statuses())->mapWithKeys(
                 static fn (string $status): array => [$status => __('offer::messages.status_'.$status)]
             )->all())->required(),
         ]);
@@ -52,14 +72,14 @@ class OfferResource extends Resource
     {
         return $table->columns([
             ResourceTableColumns::id(),
-            TextColumn::make('listing_id')->label('Listing')->sortable(),
-            TextColumn::make('amount')->money(fn (Offer $record): string => (string) $record->getAttribute('currency'))->sortable(),
-            TextColumn::make('status')->badge()->sortable(),
-            TextColumn::make('buyer_id')->label('Buyer'),
-            TextColumn::make('seller_id')->label('Seller'),
+            TextColumn::make('listing_id')->label(__('offer::admin.listing'))->sortable(),
+            TextColumn::make('amount')->label(__('offer::admin.amount'))->money(fn (Offer $record): string => (string) $record->getAttribute('currency'))->sortable(),
+            TextColumn::make('status')->label(__('offer::admin.status'))->formatStateUsing(fn (string $state): string => __('offer::messages.status_'.$state))->badge()->sortable(),
+            TextColumn::make('buyer_id')->label(__('offer::admin.buyer')),
+            TextColumn::make('seller_id')->label(__('offer::admin.seller')),
             ResourceTableColumns::createdAtHidden(),
         ])->defaultSort('id', 'desc')->filters([
-            SelectFilter::make('status')->options(fn (): array => collect(Offer::statuses())->mapWithKeys(
+            SelectFilter::make('status')->label(__('offer::admin.status'))->options(fn (): array => collect(Offer::statuses())->mapWithKeys(
                 static fn (string $status): array => [$status => __('offer::messages.status_'.$status)]
             )->all()),
         ])->actions(ResourceTableActions::editDelete());

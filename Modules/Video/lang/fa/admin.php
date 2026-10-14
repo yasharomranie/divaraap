@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'browser_supported_uploads_are_reduced_before_transfer_laravel_then_converts_them_to_a_mobile_mp4_with_the_queue' => 'در مرورگرهای پشتیبان، فایل پیش از ارسال بهینه می‌شود؛ سپس در صف به MP4 مناسب موبایل تبدیل می‌شود.',
+    'catalog' => 'دسته‌بندی و آگهی',
+    'description' => 'توضیحات',
+    'details' => 'جزئیات',
+    'duration' => 'مدت',
+    'failed' => 'ناموفق',
+    'front_view_walkaround_detail_clip' => 'نمای روبه‌رو، نمای کامل یا جزئیات',
+    'is_active' => 'فعال',
+    'listing' => 'آگهی',
+    'owner' => 'مالک',
+    'preview' => 'پیش‌نمایش',
+    'processed' => 'پردازش‌شده',
+    'processed_at' => 'زمان پردازش',
+    'processing' => 'در حال پردازش',
+    'queued' => 'در صف',
+    'ready' => 'آماده',
+    'resolution' => 'وضوح تصویر',
+    'size' => 'حجم',
+    'source_video' => 'ویدیوی اصلی',
+    'status' => 'وضعیت',
+    'title' => 'عنوان',
+    'upload_path' => 'فایل بارگذاری',
+    'uploads_are_optimized_in_the_browser_when_supported_then_converted_to_a_mobile_mp4_in_the_queue' => 'در مرورگرهای پشتیبان، فایل پیش از ارسال بهینه می‌شود؛ سپس در صف به MP4 مناسب موبایل تبدیل می‌شود.',
+    'user' => 'کاربر',
+    'video' => 'ویدیو',
+    'videos' => 'ویدیوها',
+    'visible' => 'قابل نمایش',
+    'add_video' => 'افزودن ویدیو',
+    'metadata_hint' => 'وضوح، مدت و حجم پس از پردازش در صف تکمیل می‌شوند.',
+];

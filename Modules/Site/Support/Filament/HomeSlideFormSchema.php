@@ -14,39 +14,36 @@ final class HomeSlideFormSchema
 {
     public static function make(array $defaults, callable $normalizeSlides): Repeater
     {
-        return Repeater::make('home_slides')
-            ->label('Homepage Slides')
-            ->helperText('Use 1 to 5 slides. Upload a wide image for each slide to improve the hero area.')
+        return Repeater::make('home_slides')->label(__('site::admin.homepage_slides'))
+            ->helperText(__('site::admin.use_1_to_5_slides_upload_a_wide_image_for_each_slide_to_improve_the_hero_area'))
             ->schema([
-                FileUpload::make('image_path')
-                    ->label('Slide Image')
+                FileUpload::make('image_path')->label(__('site::admin.slide_image'))
                     ->image()
                     ->disk(LocalMedia::disk())
                     ->directory(LocalMedia::managedDirectory('home-slides'))
                     ->visibility('public')
                     ->imageEditor()
                     ->imagePreviewHeight('200')
-                    ->helperText('Recommended: 1600x1000 or wider.')
+                    ->helperText(__('site::admin.recommended_1600x1000_or_wider'))
                     ->columnSpanFull(),
-                TextInput::make('badge')
-                    ->label('Badge')
+                TextInput::make('badge')->label(__('site::admin.badge'))->extraInputAttributes(['dir' => 'auto'])
+                    ->label(__('site::admin.badge'))
                     ->maxLength(255),
-                TextInput::make('title')
-                    ->label('Title')
+                TextInput::make('title')->label(__('site::admin.title'))->extraInputAttributes(['dir' => 'auto'])
+                    ->label(__('site::admin.title'))
                     ->required()
                     ->maxLength(255),
-                Textarea::make('subtitle')
-                    ->label('Subtitle')
+                Textarea::make('subtitle')->label(__('site::admin.subtitle'))
                     ->rows(3)
                     ->required()
                     ->maxLength(500)
                     ->columnSpanFull(),
-                TextInput::make('primary_button_text')
-                    ->label('Primary Button')
+                TextInput::make('primary_button_text')->label(__('site::admin.primary_button'))->extraInputAttributes(['dir' => 'auto'])
+                    ->label(__('site::admin.primary_button'))
                     ->required()
                     ->maxLength(120),
-                TextInput::make('secondary_button_text')
-                    ->label('Secondary Button')
+                TextInput::make('secondary_button_text')->label(__('site::admin.secondary_button'))->extraInputAttributes(['dir' => 'auto'])
+                    ->label(__('site::admin.secondary_button'))
                     ->required()
                     ->maxLength(120),
             ])
@@ -58,8 +55,8 @@ final class HomeSlideFormSchema
             ->collapsed()
             ->cloneable()
             ->reorderableWithButtons()
-            ->addActionLabel('Add Slide')
-            ->itemLabel(fn (array $state): string => filled($state['title'] ?? null) ? (string) $state['title'] : 'New Slide')
+            ->addActionLabel(__('site::admin.add_slide'))
+            ->itemLabel(fn (array $state): string => filled($state['title'] ?? null) ? (string) $state['title'] : __('site::admin.new_slide'))
             ->dehydrateStateUsing(fn ($state) => $normalizeSlides($state));
     }
 }

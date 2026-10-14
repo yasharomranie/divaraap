@@ -12,6 +12,7 @@ class LocationServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadTranslationsFrom(module_path('Location', 'lang'), 'location');
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/migrations'));
         $this->loadRoutesFrom(module_path($this->moduleName, 'routes/web.php'));
     }

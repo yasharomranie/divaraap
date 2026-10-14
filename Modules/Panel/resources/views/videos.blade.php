@@ -50,7 +50,7 @@
                     <div class="data-row__main">
                         <p class="data-row__title text-clamp-1">{{ $video->getAttribute('title') ?: '—' }}</p>
                         <div class="data-row__meta">
-                            <span class="badge">{{ __('panel::messages.video_'.strtolower($video->statusLabel())) }}</span>
+                            <span class="badge">{{ $video->statusLabel() }}</span>
                             <span>{{ __('panel::messages.seconds', ['count' => $video->getAttribute('duration_seconds')]) }}</span>
                         </div>
                     </div>

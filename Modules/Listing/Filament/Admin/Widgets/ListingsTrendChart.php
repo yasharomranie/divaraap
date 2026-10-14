@@ -13,16 +13,22 @@ class ListingsTrendChart extends ChartWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected ?string $heading = 'Listing Creation Trend';
+    public function getHeading(): ?string
+    {
+        return __('listing::admin.trend');
+    }
 
-    protected ?string $description = 'Daily listing volume by selected period.';
+    public function getDescription(): ?string
+    {
+        return __('listing::admin.trend_description');
+    }
 
     protected function getFilters(): ?array
     {
         return [
-            '7' => 'Last 7 days',
-            '30' => 'Last 30 days',
-            '90' => 'Last 90 days',
+            '7' => __('listing::admin.last_7_days'),
+            '30' => __('listing::admin.last_30_days'),
+            '90' => __('listing::admin.last_90_days'),
         ];
     }
 
@@ -34,7 +40,7 @@ class ListingsTrendChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Listings',
+                    'label' => __('listing::admin.listings'),
                     'data' => $trend['data'],
                     'fill' => true,
                     'borderColor' => '#2563eb',

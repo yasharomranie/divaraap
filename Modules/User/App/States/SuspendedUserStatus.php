@@ -15,7 +15,7 @@ class SuspendedUserStatus extends UserStatus implements HasColor, HasDescription
 
     public function getLabel(): ?string
     {
-        return 'Suspended';
+        return __('user::admin.suspended');
     }
 
     public function getColor(): string|array|null

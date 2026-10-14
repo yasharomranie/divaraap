@@ -74,12 +74,12 @@ class ListingCustomField extends Model
     public static function typeOptions(): array
     {
         return [
-            self::TYPE_TEXT => 'Text',
-            self::TYPE_TEXTAREA => 'Textarea',
-            self::TYPE_NUMBER => 'Number',
-            self::TYPE_SELECT => 'Select',
-            self::TYPE_BOOLEAN => 'Boolean',
-            self::TYPE_DATE => 'Date',
+            self::TYPE_TEXT => __('listing::admin.text'),
+            self::TYPE_TEXTAREA => __('listing::admin.textarea'),
+            self::TYPE_NUMBER => __('listing::admin.number'),
+            self::TYPE_SELECT => __('listing::admin.select'),
+            self::TYPE_BOOLEAN => __('listing::admin.boolean'),
+            self::TYPE_DATE => __('listing::admin.date'),
         ];
     }
 

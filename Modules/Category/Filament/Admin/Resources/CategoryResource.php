@@ -13,7 +13,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
 use Modules\Admin\Support\Filament\ResourceTableActions;
 use Modules\Admin\Support\Filament\ResourceTableColumns;
 use Modules\Category\Filament\Admin\Resources\CategoryResource\Pages;
@@ -28,16 +27,36 @@ class CategoryResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Catalog';
 
+    public static function getModelLabel(): string
+    {
+        return __('category::admin.category');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('category::admin.categories');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('category::admin.categories');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('category::admin.catalog');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('name')->required()->maxLength(255)->live(onBlur: true)->afterStateUpdated(fn ($state, $set) => $set('slug', Str::slug($state))),
-            TextInput::make('slug')->required()->maxLength(255)->unique(ignoreRecord: true),
-            TextInput::make('description')->maxLength(500),
-            TextInput::make('icon')->maxLength(100),
-            Select::make('parent_id')->label('Parent Category')->options(fn (): array => Category::rootIdNameOptions())->nullable()->searchable(),
-            TextInput::make('sort_order')->numeric()->default(0),
-            Toggle::make('is_active')->default(true),
+            TextInput::make('name')->label(__('category::admin.name'))->extraInputAttributes(['dir' => 'auto'])->required()->maxLength(255)->live(onBlur: true)->afterStateUpdated(fn ($state, $set) => $set('slug', Category::uniqueSlug((string) $state))),
+            TextInput::make('slug')->label(__('category::admin.slug'))->extraInputAttributes(['dir' => 'ltr'])->required()->maxLength(255)->unique(ignoreRecord: true),
+            TextInput::make('description')->label(__('category::admin.description'))->extraInputAttributes(['dir' => 'auto'])->maxLength(500),
+            TextInput::make('icon')->label(__('category::admin.icon'))->extraInputAttributes(['dir' => 'auto'])->maxLength(100),
+            Select::make('parent_id')->label(__('category::admin.parent_category'))->options(fn (): array => Category::rootIdNameOptions())->nullable()->searchable(),
+            TextInput::make('sort_order')->label(__('category::admin.sort_order'))->extraInputAttributes(['dir' => 'auto'])->numeric()->default(0),
+            Toggle::make('is_active')->label(__('category::admin.is_active'))->default(true),
         ]);
     }
 
@@ -45,18 +64,18 @@ class CategoryResource extends Resource
     {
         return $table->columns([
             ResourceTableColumns::id(),
-            TextColumn::make('name')
+            TextColumn::make('name')->label(__('category::admin.name'))
                 ->searchable()
-                ->formatStateUsing(fn (string $state, Category $record): string => $record->parent_id === null ? $state : '↳ '.$state)
+                ->formatStateUsing(fn (string $state, Category $record): string => $record->parent_id === null ? Category::localizedName($state) : '↳ '.Category::localizedName($state))
                 ->weight(fn (Category $record): string => $record->parent_id === null ? 'semi-bold' : 'normal'),
-            TextColumn::make('parent.name')->label('Parent')->default('-'),
-            TextColumn::make('children_count')->label('Subcategories'),
-            TextColumn::make('listings_count')->label('Listings'),
+            TextColumn::make('parent.name')->label(__('category::admin.parent'))->default('-'),
+            TextColumn::make('children_count')->label(__('category::admin.subcategories')),
+            TextColumn::make('listings_count')->label(__('category::admin.listings')),
             ResourceTableColumns::activeIcon(),
-            TextColumn::make('sort_order')->sortable(),
+            TextColumn::make('sort_order')->label(__('category::admin.sort_order'))->sortable(),
         ])->actions([
             Action::make('toggleChildren')
-                ->label(fn (Category $record, Pages\ListCategories $livewire): string => $livewire->hasExpandedChildren($record) ? 'Hide subcategories' : 'Show subcategories')
+                ->label(fn (Category $record, Pages\ListCategories $livewire): string => $livewire->hasExpandedChildren($record) ? __('category::admin.hide_subcategories') : __('category::admin.show_subcategories'))
                 ->icon(fn (Category $record, Pages\ListCategories $livewire): string => $livewire->hasExpandedChildren($record) ? 'heroicon-o-chevron-down' : 'heroicon-o-chevron-right')
                 ->action(fn (Category $record, Pages\ListCategories $livewire) => $livewire->toggleChildren($record))
                 ->visible(fn (Category $record): bool => $record->parent_id === null && $record->children_count > 0),

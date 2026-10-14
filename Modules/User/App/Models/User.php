@@ -86,6 +86,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
             ->dontLogEmptyChanges();
     }
 
+    public static function roleLabel(string $name): string
+    {
+        return in_array($name, ['admin', 'member'], true) ? __('user::admin.role_'.$name) : $name;
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return match ($panel->getId()) {

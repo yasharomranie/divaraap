@@ -12,9 +12,9 @@ abstract class UserStatus extends State
     public static function options(): array
     {
         return [
-            'active' => 'Active',
-            'suspended' => 'Suspended',
-            'banned' => 'Banned',
+            'active' => __('user::admin.active'),
+            'suspended' => __('user::admin.suspended'),
+            'banned' => __('user::admin.banned'),
         ];
     }
 

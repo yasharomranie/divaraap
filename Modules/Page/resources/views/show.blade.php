@@ -6,24 +6,24 @@
 @section('content')
 <div class="shell shell--narrow page">
     <article class="stack stack--loose">
-        <nav class="breadcrumb" aria-label="Breadcrumb">
+        <nav class="breadcrumb" aria-label="{{ __('site::messages.breadcrumb') }}">
             <a href="{{ route('home') }}">{{ __('site::messages.home') }}</a>
             <span class="breadcrumb__separator">/</span>
-            <span>{{ $page->getAttribute('title') }}</span>
+            <span>{{ $page->localizedValue('title') }}</span>
         </nav>
 
         <header class="stack stack--tight">
-            <h1 class="title-page">{{ $page->getAttribute('title') }}</h1>
-            @if(filled($page->getAttribute('excerpt')))
-                <p class="text-lead">{{ $page->getAttribute('excerpt') }}</p>
+            <h1 class="title-page" dir="auto">{{ $page->localizedValue('title') }}</h1>
+            @if(filled($page->localizedValue('excerpt')))
+                <p class="text-lead">{{ $page->localizedValue('excerpt') }}</p>
             @endif
         </header>
 
         <div class="card">
             <div class="card__body">
-                <div class="prose">
+                <div class="prose" dir="auto">
                     @foreach($page->bodyParagraphs() as $paragraph)
-                        @php $lines = preg_split('/\R/', $paragraph); @endphp
+                        @php $lines = preg_split('/\R/u', $paragraph); @endphp
                         @if(count($lines) > 1)
                             <h2>{{ array_shift($lines) }}</h2>
                             <p>{{ implode(' ', $lines) }}</p>

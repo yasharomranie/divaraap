@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Modules\Listing\Models\Listing;
 use Modules\Listing\Models\ListingCustomField;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
@@ -39,6 +40,19 @@ class Category extends Model
     protected $fillable = ['name', 'slug', 'description', 'icon', 'parent_id', 'level', 'sort_order', 'is_active'];
 
     protected $casts = ['is_active' => 'boolean'];
+
+    public static function uniqueSlug(string $name): string
+    {
+        $base = Str::slug($name);
+        $base = $base !== '' ? $base : 'category';
+        $slug = $base;
+        $suffix = 1;
+        while (static::query()->where('slug', $slug)->exists()) {
+            $slug = $base.'-'.++$suffix;
+        }
+
+        return $slug;
+    }
 
     public static function localizedName(string $name): string
     {
@@ -126,7 +140,7 @@ class Category extends Model
         return static::query()
             ->active()
             ->ordered()
-            ->pluck('name', 'id')
+            ->pluck('name', 'id')->map(fn (string $name): string => static::localizedName($name))
             ->all();
     }
 
@@ -202,7 +216,7 @@ class Category extends Model
             ->active()
             ->whereNull('parent_id')
             ->ordered()
-            ->pluck('name', 'id')
+            ->pluck('name', 'id')->map(fn (string $name): string => static::localizedName($name))
             ->all();
     }
 
