@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'offers' => 'Offers',
+    'make_offer' => 'Make an offer',
+    'your_offer' => 'Your offer',
+    'offer_message' => 'Message to seller',
+    'send_offer' => 'Send offer',
+    'sent' => 'Offer sent to the seller.',
+    'accepted' => 'Offer accepted.',
+    'declined' => 'Offer declined.',
+    'withdrawn' => 'Offer withdrawn.',
+    'cannot_offer_own' => 'You cannot make an offer on your own listing.',
+    'received' => 'Received',
+    'sent_tab' => 'Sent',
+    'accept' => 'Accept',
+    'decline' => 'Decline',
+    'withdraw' => 'Withdraw',
+    'status_pending' => 'Pending',
+    'status_accepted' => 'Accepted',
+    'status_declined' => 'Declined',
+    'status_withdrawn' => 'Withdrawn',
+    'no_offers' => 'No offers yet',
+    'no_offers_hint' => 'Offers from buyers appear here.',
+    'all' => 'All',
+    'best_offer' => 'Best offer',
+    'notification_received_title' => 'New offer',
+    'notification_received_body' => 'You received :amount for :listing.',
+    'notification_accepted_title' => 'Offer accepted',
+    'notification_accepted_body' => 'Your offer for :listing was accepted.',
+    'notification_declined_title' => 'Offer declined',
+    'notification_declined_body' => 'Your offer for :listing was declined.',
+    'sign_in_to_offer' => 'Sign in to make an offer.',
+];

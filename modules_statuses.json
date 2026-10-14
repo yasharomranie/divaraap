@@ -1,0 +1,20 @@
+{
+    "Category": true,
+    "Listing": true,
+    "Location": true,
+    "Admin": true,
+    "Theme": true,
+    "Conversation": true,
+    "Favorite": true,
+    "User": true,
+    "Video": true,
+    "Demo": true,
+    "Panel": true,
+    "Site": true,
+    "Review": true,
+    "Report": true,
+    "Notification": true,
+    "Promotion": true,
+    "Offer": true,
+    "Page": true
+}

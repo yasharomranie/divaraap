@@ -1,0 +1,290 @@
+.card {
+    background: var(--surface-raised);
+    border: 1px solid var(--line-hairline);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.card--flush {
+    border-radius: var(--radius-lg);
+}
+
+.card__body {
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.card__body--tight {
+    padding: var(--space-4);
+    gap: var(--space-3);
+}
+
+.card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--line-hairline);
+}
+
+.card__title {
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+    color: var(--ink-900);
+}
+
+.card__foot {
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--line-hairline);
+    background: var(--surface-sunken);
+}
+
+.listing-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-raised);
+    border: 1px solid var(--line-hairline);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    height: 100%;
+}
+
+.listing-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+}
+
+.listing-card__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: var(--ink-50);
+}
+
+.listing-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.listing-card__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--ink-300);
+}
+
+.listing-card__placeholder svg {
+    width: 32px;
+    height: 32px;
+}
+
+.listing-card__flags {
+    position: absolute;
+    top: var(--space-2);
+    inset-inline-start: var(--space-2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+}
+
+.listing-card__favorite {
+    position: absolute;
+    top: var(--space-2);
+    inset-inline-end: var(--space-2);
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--surface-overlay);
+    backdrop-filter: saturate(180%) blur(12px);
+    color: var(--ink-600);
+}
+
+.listing-card__favorite svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+}
+
+.listing-card__favorite.is-active {
+    color: var(--critical);
+}
+
+.listing-card__favorite.is-active svg {
+    fill: currentColor;
+}
+
+.listing-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    flex: 1 1 auto;
+}
+
+.listing-card__title {
+    font-size: var(--text-base);
+    font-weight: var(--weight-medium);
+    color: var(--ink-800);
+    line-height: var(--leading-snug);
+}
+
+.listing-card__price {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    color: var(--ink-900);
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: tabular-nums;
+}
+
+.listing-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--ink-500);
+    margin-top: auto;
+    padding-top: var(--space-2);
+}
+
+.listing-card__meta span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+[data-view-mode='list'] .listing-card {
+    flex-direction: row;
+}
+
+[data-view-mode='list'] .listing-card__media {
+    width: 132px;
+    flex-shrink: 0;
+    aspect-ratio: 1;
+}
+
+[data-view-mode='list'] .listing-card__body {
+    padding: var(--space-4);
+}
+
+.category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-2);
+    background: var(--surface-raised);
+    border: 1px solid var(--line-hairline);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.category-card:hover {
+    border-color: var(--line-strong);
+}
+
+.category-card__icon {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--surface-sunken);
+    color: var(--ink-600);
+    overflow: hidden;
+}
+
+.category-card__icon img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.category-card__icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.category-card__name {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--ink-800);
+    line-height: var(--leading-snug);
+}
+
+.category-card__count {
+    font-size: var(--text-xs);
+    color: var(--ink-500);
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    background: var(--surface-raised);
+    border: 1px solid var(--line-hairline);
+    border-radius: var(--radius-md);
+}
+
+.stat-card__value {
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink-900);
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-card__label {
+    font-size: var(--text-xs);
+    color: var(--ink-500);
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-16) var(--space-6);
+    text-align: center;
+    background: var(--surface-raised);
+    border: 1px solid var(--line-hairline);
+    border-radius: var(--radius-lg);
+}
+
+.empty-state__icon {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--surface-sunken);
+    color: var(--ink-400);
+}
+
+.empty-state__icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.empty-state__title {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    color: var(--ink-900);
+}
+
+.empty-state__text {
+    font-size: var(--text-sm);
+    color: var(--ink-500);
+    max-width: 42ch;
+}

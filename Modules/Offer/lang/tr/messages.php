@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'offers' => 'Teklifler',
+    'make_offer' => 'Teklif ver',
+    'your_offer' => 'Teklifiniz',
+    'offer_message' => 'Satıcıya mesaj',
+    'send_offer' => 'Teklifi gönder',
+    'sent' => 'Teklifiniz satıcıya iletildi.',
+    'accepted' => 'Teklif kabul edildi.',
+    'declined' => 'Teklif reddedildi.',
+    'withdrawn' => 'Teklif geri çekildi.',
+    'cannot_offer_own' => 'Kendi ilanınıza teklif veremezsiniz.',
+    'received' => 'Gelen',
+    'sent_tab' => 'Giden',
+    'accept' => 'Kabul et',
+    'decline' => 'Reddet',
+    'withdraw' => 'Geri çek',
+    'status_pending' => 'Bekliyor',
+    'status_accepted' => 'Kabul edildi',
+    'status_declined' => 'Reddedildi',
+    'status_withdrawn' => 'Geri çekildi',
+    'no_offers' => 'Henüz teklif yok',
+    'no_offers_hint' => 'Alıcılardan gelen teklifler burada görünür.',
+    'all' => 'Tümü',
+    'best_offer' => 'En iyi teklif',
+    'notification_received_title' => 'Yeni teklif',
+    'notification_received_body' => ':listing için :amount teklif aldınız.',
+    'notification_accepted_title' => 'Teklif kabul edildi',
+    'notification_accepted_body' => ':listing için teklifiniz kabul edildi.',
+    'notification_declined_title' => 'Teklif reddedildi',
+    'notification_declined_body' => ':listing için teklifiniz reddedildi.',
+    'sign_in_to_offer' => 'Teklif vermek için giriş yapın.',
+];
