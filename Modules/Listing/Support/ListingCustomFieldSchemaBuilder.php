@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Modules\Listing\Support;
 
+use App\Support\PersianLocale;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Component;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Modules\Listing\Models\ListingCustomField;
 
@@ -69,7 +69,7 @@ class ListingCustomFieldSchemaBuilder
                 $displayValue = implode(', ', array_map(fn ($item): string => (string) $item, $value));
             } elseif ($field?->type === ListingCustomField::TYPE_DATE) {
                 try {
-                    $displayValue = Carbon::parse((string) $value)->locale(app()->getLocale())->isoFormat('LL');
+                    $displayValue = PersianLocale::date((string) $value);
                 } catch (\Throwable) {
                     $displayValue = (string) $value;
                 }

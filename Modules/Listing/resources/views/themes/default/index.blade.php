@@ -35,7 +35,7 @@
         <div class="panel-head">
             <div class="panel-head__text">
                 <h1 class="title-page">{{ $selectedCategory?->displayName() ?? __('site::messages.all_listings') }}</h1>
-                <p class="text-muted">{{ trans_choice('site::messages.results_count', $filteredListingsTotal, ['count' => number_format($filteredListingsTotal)]) }}</p>
+                <p class="text-muted">{{ trans_choice('site::messages.results_count', $filteredListingsTotal, ['count' => \App\Support\PersianLocale::number($filteredListingsTotal)]) }}</p>
             </div>
 
             @auth
@@ -85,7 +85,7 @@
                             <p class="filter-group__title">{{ __('site::messages.location') }}</p>
                             <div class="field">
                                 <label class="field__label" for="filter-country">{{ __('site::messages.country') }}</label>
-                                <select id="filter-country" name="country" class="select">
+                                <select id="filter-country" name="country" class="select" data-dependent-source data-dependent-target="filter-city" data-dependent-url="{{ route('locations.cities', ['country' => '__VALUE__'], false) }}">
                                     <option value="">{{ __('site::messages.all_countries') }}</option>
                                     @foreach($countries as $country)
                                         <option value="{{ $country->getKey() }}" @selected($countryId === (int) $country->getKey())>{{ $country->displayName() }}</option>
@@ -94,10 +94,10 @@
                             </div>
                             <div class="field">
                                 <label class="field__label" for="filter-city">{{ __('site::messages.city') }}</label>
-                                <select id="filter-city" name="city" class="select" @disabled($cities->isEmpty())>
+                                <select id="filter-city" name="city" class="select" data-placeholder="{{ __('site::messages.all_cities') }}" @disabled($cities->isEmpty())>
                                     <option value="">{{ __('site::messages.all_cities') }}</option>
                                     @foreach($cities as $city)
-                                        <option value="{{ $city->getKey() }}" @selected($cityId === (int) $city->getKey())>{{ $city->getAttribute('name') }}</option>
+                                        <option value="{{ $city->getKey() }}" @selected($cityId === (int) $city->getKey())>{{ $city->displayName() }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -108,11 +108,11 @@
                             <div class="field__row field__row--two">
                                 <div class="field">
                                     <label class="field__label" for="filter-min">{{ __('site::messages.min') }}</label>
-                                    <input id="filter-min" type="number" inputmode="numeric" min="0" name="min_price" value="{{ $minPriceInput }}" class="input" placeholder="0">
+                                    <input id="filter-min" type="text" inputmode="decimal" min="0" name="min_price" value="{{ $minPriceInput }}" class="input" placeholder="0">
                                 </div>
                                 <div class="field">
                                     <label class="field__label" for="filter-max">{{ __('site::messages.max') }}</label>
-                                    <input id="filter-max" type="number" inputmode="numeric" min="0" name="max_price" value="{{ $maxPriceInput }}" class="input" placeholder="—">
+                                    <input id="filter-max" type="text" inputmode="decimal" min="0" name="max_price" value="{{ $maxPriceInput }}" class="input" placeholder="—">
                                 </div>
                             </div>
                         </div>

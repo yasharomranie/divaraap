@@ -73,7 +73,7 @@ export const dependentSelect = defineBehavior<HTMLSelectElement>({
             for (const option of result.value) {
                 const node = document.createElement('option');
                 node.value = String(option.id);
-                node.textContent = option.name;
+                node.textContent = option.display_name ?? option.name;
                 target.append(node);
             }
 

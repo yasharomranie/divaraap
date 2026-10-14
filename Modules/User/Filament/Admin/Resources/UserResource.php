@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\User\Filament\Admin\Resources;
 
 use App\Support\Filament\ModelStateSelectColumn;
+use App\Support\PersianLocale;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -69,7 +70,7 @@ class UserResource extends Resource
             ModelStateSelectColumn::make('status')->label(__('user::admin.status'))
                 ->options(UserStatus::options())
                 ->disabled(fn (User $record): bool => ! static::canEdit($record)),
-            TextColumn::make('created_at')->label(__('user::admin.created_at'))->dateTime()->sortable(),
+            TextColumn::make('created_at')->label(__('user::admin.created_at'))->formatStateUsing(fn ($state): string => PersianLocale::date($state, true))->sortable(),
         ])->defaultSort('id', 'desc')->filters([
             SelectFilter::make('status')->label(__('user::admin.status'))->options(UserStatus::options()),
         ])->actions(ResourceTableActions::editActivityDelete(static::class, [

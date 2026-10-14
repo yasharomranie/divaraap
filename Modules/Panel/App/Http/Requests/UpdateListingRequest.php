@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Panel\App\Http\Requests;
 
+use App\Rules\IranianMobile;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Modules\Listing\Models\Listing;
@@ -22,7 +23,7 @@ class UpdateListingRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'status' => ['required', Rule::in(array_keys(Listing::panelStatusOptions()))],
-            'contact_phone' => ['nullable', 'string', 'max:60'],
+            'contact_phone' => ['nullable', 'string', 'max:60', new IranianMobile],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'country' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],

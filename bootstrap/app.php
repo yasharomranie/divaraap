@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\NormalizeLocalizedNumbers;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ResolveDemoRequest::class,
             BootstrapAppData::class,
             SetLocale::class,
+            NormalizeLocalizedNumbers::class,
         ]);
 
         $middleware->appendToPriorityList(StartSession::class, ResolveDemoRequest::class);

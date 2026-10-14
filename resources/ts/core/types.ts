@@ -1,6 +1,7 @@
 export interface LocationOption {
     readonly id: number;
     readonly name: string;
+    readonly display_name?: string;
 }
 
 export interface FavoriteToggleResponse {
@@ -40,7 +41,7 @@ export function isLocationOptionList(value: unknown): value is LocationOption[] 
 
             const candidate = item as Record<string, unknown>;
 
-            return typeof candidate['id'] === 'number' && typeof candidate['name'] === 'string';
+            return typeof candidate['id'] === 'number' && typeof candidate['name'] === 'string' && (candidate['display_name'] === undefined || typeof candidate['display_name'] === 'string');
         })
     );
 }

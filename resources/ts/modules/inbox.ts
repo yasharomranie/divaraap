@@ -45,7 +45,7 @@ function appendBubble(list: HTMLElement, id: number, body: string, timestamp: st
     const meta = document.createElement('time');
     meta.className = 'thread__time';
     meta.dateTime = timestamp;
-    meta.textContent = new Date(timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    meta.textContent = new Date(timestamp).toLocaleTimeString(document.documentElement.lang === 'fa' ? 'fa-IR' : 'en-GB', { hour: '2-digit', minute: '2-digit', ...(document.documentElement.lang === 'fa' ? { timeZone: 'Asia/Tehran' } : { timeZone: 'UTC' }) });
 
     item.append(text, meta);
     list.append(item);

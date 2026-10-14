@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Offer\Models;
 
+use App\Support\PersianLocale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -208,7 +209,7 @@ class Offer extends Model
 
     public function amountLabel(): string
     {
-        return number_format((float) $this->getAttribute('amount'), 2).' '.(string) $this->getAttribute('currency');
+        return PersianLocale::number((string) $this->getAttribute('amount'), 2).' '.(string) $this->getAttribute('currency');
     }
 
     public function statusTone(): string

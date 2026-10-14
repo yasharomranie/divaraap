@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\User\App\Models;
 
+use App\Support\IranianPhone;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
@@ -35,6 +36,11 @@ class Profile extends Model
         return static::query()
             ->where('user_id', $user->getKey())
             ->first();
+    }
+
+    public static function savePhoneForUser(User $user, ?string $phone): void
+    {
+        static::query()->updateOrCreate(['user_id' => $user->getKey()], ['phone' => $phone === null ? null : IranianPhone::normalize($phone)]);
     }
 
     public static function phoneForUser(User $user): ?string

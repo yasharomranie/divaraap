@@ -13,6 +13,8 @@ class LocationSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(IranianLocationSeeder::class);
+
         foreach ($this->countries() as $country) {
             Country::updateOrCreate(
                 ['code' => $country['code']],

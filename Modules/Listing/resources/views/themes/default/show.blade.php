@@ -10,6 +10,10 @@
     $isOwner = $viewer !== null && $sellerId !== null && (int) $viewer->getKey() === $sellerId;
     $city = trim((string) $listing->getAttribute('city'));
     $country = trim((string) $listing->getAttribute('country'));
+    if (in_array($country, ['Iran', 'IR', 'ایران'], true)) {
+        $city = \Modules\Location\Support\IranianCities::label($city);
+        $country = \Modules\Location\Models\Country::localizedName('Iran', 'IR');
+    }
     $place = collect([$city, $country])->filter()->implode(', ');
     $createdAt = $listing->getAttribute('created_at');
     $canContact = $viewer !== null && ! $isOwner && $sellerId !== null;
@@ -235,7 +239,7 @@
                             <div class="field">
                                 <label class="field__label" for="offer-amount">{{ __('offer::messages.your_offer') }}</label>
                                 <span class="input-affix">
-                                    <input id="offer-amount" type="number" name="amount" min="1" step="0.01" class="input" required
+                                    <input id="offer-amount" type="text" name="amount" min="1" step="0.01" class="input" required
                                            value="{{ round((float) $listing->getAttribute('price') * 0.9, 2) }}">
                                     <span class="input-affix__suffix">{{ $listing->getAttribute('currency') }}</span>
                                 </span>

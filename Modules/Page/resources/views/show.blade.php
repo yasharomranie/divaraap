@@ -36,7 +36,7 @@
         </div>
 
         <p class="text-meta">
-            {{ __('page::messages.last_updated', ['date' => $page->getAttribute('updated_at')?->isoFormat('LL')]) }}
+            {{ __('page::messages.last_updated', ['date' => \App\Support\PersianLocale::date($page->getAttribute('updated_at'))]) }}
         </p>
     </article>
 </div>

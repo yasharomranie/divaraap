@@ -83,11 +83,12 @@ class PersianPanelFlowTest extends TestCase
             ->set('selectedCategoryId', (int) $category->getKey())
             ->set('selectedCountryId', (int) $country->getKey())
             ->set('selectedCityId', null)->set('listingTitle', $title)
-            ->set('description', 'توضیحات فارسی ثبت آگهی')->set('price', '1500')
+            ->set('description', 'توضیحات فارسی ثبت آگهی')->set('price', '۱۵۰۰')
             ->call('goToPreviewStep')->assertHasNoErrors()->assertSet('currentStep', 4)->assertSee('پیش‌نمایش')->assertSee('ایران')
             ->call('publishListing')->assertHasNoErrors()->assertSet('publishError', null);
         $listing = Listing::query()->where('title', $title)->firstOrFail();
         $component->assertRedirect(route('panel.listings.edit', $listing));
+        $this->assertSame('1500.00', $listing->price);
         $this->assertSame('Iran', $listing->country);
         $this->assertSame('pending', $listing->statusValue());
         $this->assertCount(1, $listing->getMedia('listing-images'));

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Admin\Support\Filament;
 
+use App\Support\PersianLocale;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 
@@ -22,7 +23,7 @@ final class ResourceTableColumns
     public static function createdAtHidden(string $name = 'created_at'): TextColumn
     {
         return TextColumn::make($name)->label(__('admin::admin.created_at'))
-            ->dateTime()
+            ->formatStateUsing(fn ($state): string => PersianLocale::date($state, true))
             ->sortable()
             ->toggleable(isToggledHiddenByDefault: true);
     }

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Location\Support\IranianCities;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -19,6 +20,24 @@ class City extends Model
     protected $fillable = ['name', 'country_id', 'is_active'];
 
     protected $casts = ['is_active' => 'boolean'];
+
+    public static function ensureIranianCapitals(): void
+    {
+        $country = Country::withTrashed()->firstOrCreate(['code' => 'IR'], ['name' => 'Iran', 'phone_code' => '+98', 'is_active' => true]);
+
+        foreach (IranianCities::CAPITALS as $name => $persianName) {
+            $exists = static::withTrashed()->where('country_id', $country->getKey())->whereIn('name', [$name, $persianName])->exists();
+
+            if (! $exists) {
+                static::query()->create(['country_id' => $country->getKey(), 'name' => $name, 'is_active' => true]);
+            }
+        }
+    }
+
+    public function displayName(): string
+    {
+        return $this->country?->code === 'IR' ? IranianCities::label((string) $this->name) : (string) $this->name;
+    }
 
     public function scopeActive(Builder $query): Builder
     {
@@ -64,10 +83,11 @@ class City extends Model
         return static::query()
             ->active()
             ->orderBy('name')
-            ->get(['id', 'name', 'country_id'])
+            ->with('country')->get(['id', 'name', 'country_id'])
             ->map(fn (self $city): array => [
                 'id' => (int) $city->id,
                 'name' => (string) $city->name,
+                'display_name' => $city->displayName(),
                 'country_id' => (int) $city->country_id,
             ])
             ->all();

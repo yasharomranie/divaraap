@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Promotion\Models;
 
+use App\Support\PersianLocale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -64,7 +65,7 @@ class PromotionPlan extends Model
 
         return $price <= 0.0
             ? __('promotion::messages.free')
-            : number_format($price, 2).' '.(string) $this->getAttribute('currency');
+            : PersianLocale::number($price, 2).' '.(string) $this->getAttribute('currency');
     }
 
     public function benefitList(): array

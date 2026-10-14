@@ -78,7 +78,7 @@
                             <li data-message-id="{{ $message->getKey() }}" class="thread__bubble {{ $outgoing ? 'thread__bubble--out' : 'thread__bubble--in' }}">
                                 <p class="thread__text" dir="auto">{{ $message->getAttribute('body') }}</p>
                                 <time class="thread__time" datetime="{{ $message->getAttribute('created_at')?->toIso8601String() }}">
-                                    {{ $message->getAttribute('created_at')?->format('H:i') }}
+                                    {{ \App\Support\PersianLocale::time($message->getAttribute('created_at')) }}
                                 </time>
                             </li>
                         @endforeach

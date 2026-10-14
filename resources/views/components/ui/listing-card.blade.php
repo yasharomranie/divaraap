@@ -6,6 +6,10 @@
     $isFeatured = (bool) $listing->getAttribute('is_featured') || in_array($listingId, $featuredIds, true);
     $city = trim((string) $listing->getAttribute('city'));
     $country = trim((string) $listing->getAttribute('country'));
+    if (in_array($country, ['Iran', 'IR', 'ایران'], true)) {
+        $city = \Modules\Location\Support\IranianCities::label($city);
+        $country = \Modules\Location\Models\Country::localizedName('Iran', 'IR');
+    }
     $place = $city !== '' ? $city : $country;
     $createdAt = $listing->getAttribute('created_at');
 @endphp

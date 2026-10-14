@@ -16,19 +16,19 @@
 
 <div class="grid grid--stats">
     <div class="stat-card">
-        <span class="stat-card__value">{{ number_format($stats['active']) }}</span>
+        <span class="stat-card__value">{{ \App\Support\PersianLocale::number($stats['active']) }}</span>
         <span class="stat-card__label">{{ __('panel::messages.active') }}</span>
     </div>
     <div class="stat-card">
-        <span class="stat-card__value">{{ number_format($stats['views']) }}</span>
+        <span class="stat-card__value">{{ \App\Support\PersianLocale::number($stats['views']) }}</span>
         <span class="stat-card__label">{{ __('panel::messages.total_views') }}</span>
     </div>
     <div class="stat-card">
-        <span class="stat-card__value">{{ number_format($stats['offers']) }}</span>
+        <span class="stat-card__value">{{ \App\Support\PersianLocale::number($stats['offers']) }}</span>
         <span class="stat-card__label">{{ __('offer::messages.offers') }}</span>
     </div>
     <div class="stat-card">
-        <span class="stat-card__value">{{ $stats['reviews']['total'] > 0 ? number_format($stats['reviews']['average'], 1) : '—' }}</span>
+        <span class="stat-card__value">{{ $stats['reviews']['total'] > 0 ? \App\Support\PersianLocale::number($stats['reviews']['average'], 1) : '—' }}</span>
         <span class="stat-card__label">{{ __('review::messages.reviews') }}</span>
     </div>
 </div>

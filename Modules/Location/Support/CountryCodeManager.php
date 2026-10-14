@@ -11,12 +11,12 @@ class CountryCodeManager
 {
     public static function defaultCountryCode(): string
     {
-        return self::normalizeCountryCode(config('app.default_country_code', '+90'));
+        return self::normalizeCountryCode(config('app.default_country_code', '+98'));
     }
 
     public static function defaultCountryIso2(): string
     {
-        return self::iso2FromCountryCode(self::defaultCountryCode()) ?? 'TR';
+        return self::iso2FromCountryCode(self::defaultCountryCode()) ?? 'IR';
     }
 
     public static function normalizeCountryCode(?string $value): string
@@ -24,14 +24,14 @@ class CountryCodeManager
         $value = trim((string) $value);
 
         if ($value === '') {
-            return '+90';
+            return '+98';
         }
 
         if (self::isValidCountryCode($value)) {
             return $value;
         }
 
-        return self::countryCodeFromIso2($value) ?? '+90';
+        return self::countryCodeFromIso2($value) ?? '+98';
     }
 
     public static function isValidCountryCode(?string $value): bool

@@ -1,7 +1,7 @@
 @extends('site::layouts.app')
 
 @section('title', $seller->getAttribute('name'))
-@section('description', __('site::messages.member_since', ['date' => $seller->getAttribute('created_at')?->isoFormat('LL')]))
+@section('description', __('site::messages.member_since', ['date' => \App\Support\PersianLocale::date($seller->getAttribute('created_at'))]))
 
 @php
     $sellerId = (int) $seller->getKey();
@@ -19,7 +19,7 @@
                         <div class="stack stack--tight" style="gap:2px">
                             <h1 class="title-section">{{ $seller->getAttribute('name') }}</h1>
                             <x-ui.rating :average="$summary['average']" :total="$summary['total']"/>
-                            <p class="text-meta">{{ __('site::messages.member_since', ['date' => $seller->getAttribute('created_at')?->isoFormat('LL')]) }}</p>
+                            <p class="text-meta">{{ __('site::messages.member_since', ['date' => \App\Support\PersianLocale::date($seller->getAttribute('created_at'))]) }}</p>
                         </div>
                     </div>
 
@@ -70,15 +70,15 @@
 
                 <div class="grid grid--stats">
                     <div class="stat-card">
-                        <span class="stat-card__value">{{ number_format($listingCount) }}</span>
+                        <span class="stat-card__value">{{ \App\Support\PersianLocale::number($listingCount) }}</span>
                         <span class="stat-card__label">{{ __('site::messages.active_listings') }}</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-card__value">{{ number_format($summary['total']) }}</span>
+                        <span class="stat-card__value">{{ \App\Support\PersianLocale::number($summary['total']) }}</span>
                         <span class="stat-card__label">{{ __('review::messages.reviews') }}</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-card__value">{{ $summary['total'] > 0 ? number_format($summary['average'], 1) : '—' }}</span>
+                        <span class="stat-card__value">{{ $summary['total'] > 0 ? \App\Support\PersianLocale::number($summary['average'], 1) : '—' }}</span>
                         <span class="stat-card__label">{{ __('review::messages.rating_summary', ['average' => '']) }}</span>
                     </div>
                 </div>

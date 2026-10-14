@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Location\Support\IranianCities;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -150,6 +151,7 @@ class Country extends Model
             ->map(fn (City $city): array => [
                 'id' => (int) $city->id,
                 'name' => (string) $city->name,
+                'display_name' => $this->code === 'IR' ? IranianCities::label((string) $city->name) : (string) $city->name,
                 'country_id' => (int) $city->country_id,
             ])
             ->all();

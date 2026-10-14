@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Notification\Filament\Admin\Resources;
 
+use App\Support\PersianLocale;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -70,7 +71,7 @@ class UserNotificationResource extends Resource
             TextColumn::make('title')->label(__('notification::admin.title'))->searchable()->limit(48),
             TextColumn::make('type')->label(__('notification::admin.type'))->formatStateUsing(fn (string $state): string => __('notification::admin.'.$state))->badge()->sortable(),
             TextColumn::make('user_id')->label(__('notification::admin.user'))->sortable(),
-            TextColumn::make('read_at')->label(__('notification::admin.read_at'))->dateTime()->label(__('notification::admin.read'))->placeholder(__('notification::admin.unread')),
+            TextColumn::make('read_at')->label(__('notification::admin.read_at'))->formatStateUsing(fn ($state): string => PersianLocale::date($state, true))->label(__('notification::admin.read'))->placeholder(__('notification::admin.unread')),
             ResourceTableColumns::createdAtHidden(),
         ])->defaultSort('id', 'desc')->filters([
             SelectFilter::make('type')->label(__('notification::admin.type'))->options([

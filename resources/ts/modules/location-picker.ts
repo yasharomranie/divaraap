@@ -45,8 +45,8 @@ function replaceOptions(select: HTMLSelectElement, options: readonly LocationOpt
     for (const option of options) {
         const node = document.createElement('option');
         node.value = String(option.id);
-        node.textContent = option.name;
-        node.dataset['name'] = option.name;
+        node.textContent = option.display_name ?? option.name;
+        node.dataset['name'] = option.display_name ?? option.name;
         select.append(node);
     }
 }

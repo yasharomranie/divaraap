@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Listing\Models;
 
+use App\Support\PersianLocale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -353,7 +354,7 @@ class Listing extends Model implements HasMedia
             $date = $startDate->copy()->addDays($index);
             $dateKey = $date->toDateString();
 
-            $labels[] = $date->format('M j');
+            $labels[] = app()->getLocale() === 'fa' ? PersianLocale::date($date) : $date->format('M j');
             $data[] = (int) ($countsByDate[$dateKey] ?? 0);
         }
 
@@ -416,6 +417,10 @@ class Listing extends Model implements HasMedia
     {
         if (is_null($this->price)) {
             return __('listing::messages.free');
+        }
+
+        if (app()->getLocale() === 'fa') {
+            return PersianLocale::number($this->price, 2).' '.($this->currency ?? 'TL');
         }
 
         return number_format((float) $this->price, 2, ',', '.').' '.($this->currency ?? 'TL');

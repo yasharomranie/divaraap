@@ -174,7 +174,7 @@
                         <div class="field__row field__row--three">
                             <div class="field">
                                 <label class="field__label" for="listing-price">{{ __('panel::messages.price') }}</label>
-                                <input id="listing-price" type="number" inputmode="decimal" step="0.01" min="0" class="input" wire:model.blur="price">
+                                <input id="listing-price" type="text" inputmode="decimal" step="0.01" min="0" class="input" wire:model.blur="price">
                                 @error('price')<p class="field__error">{{ $message }}</p>@enderror
                             </div>
 
@@ -194,7 +194,7 @@
                                 <select id="listing-city" class="select" wire:model="selectedCityId" @disabled($this->availableCities === [])>
                                     <option value="">{{ __('site::messages.all_cities') }}</option>
                                     @foreach($this->availableCities as $city)
-                                        <option value="{{ $city['id'] }}">{{ $city['name'] }}</option>
+                                        <option value="{{ $city['id'] }}">{{ $city['display_name'] ?? $city['name'] }}</option>
                                     @endforeach
                                 </select>
                                 @error('selectedCityId')<p class="field__error">{{ $message }}</p>@enderror
@@ -224,7 +224,7 @@
                                         @else
                                             <input
                                                 id="custom-{{ $field['name'] }}"
-                                                type="{{ ($field['type'] ?? 'text') === 'number' ? 'number' : 'text' }}"
+                                                type="text" @if(($field['type'] ?? 'text') === 'number') inputmode="decimal" @endif
                                                 class="input"
                                                 wire:model="customFieldValues.{{ $field['name'] }}"
                                             >
@@ -255,7 +255,7 @@
                             </div>
                             <div class="spec-list__row">
                                 <dt class="spec-list__label">{{ __('panel::messages.location') }}</dt>
-                                <dd class="spec-list__value" dir="auto">{{ $this->selectedCityName }} {{ $this->selectedCountryDisplayName }}</dd>
+                                <dd class="spec-list__value" dir="auto">{{ $this->selectedCityDisplayName }} {{ $this->selectedCountryDisplayName }}</dd>
                             </div>
                         </dl>
 

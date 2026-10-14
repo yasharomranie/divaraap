@@ -41,7 +41,7 @@
                     <div class="field">
                         <label class="field__label" for="price">{{ __('panel::messages.price') }}</label>
                         <span class="input-affix">
-                            <input id="price" type="number" inputmode="decimal" step="0.01" min="0" name="price" value="{{ old('price', $listing->getAttribute('price')) }}" class="input">
+                            <input id="price" type="text" inputmode="decimal" step="0.01" min="0" name="price" value="{{ old('price', $listing->getAttribute('price')) }}" class="input">
                             <span class="input-affix__suffix">{{ $listing->getAttribute('currency') }}</span>
                         </span>
                         @error('price')<p class="field__error">{{ $message }}</p>@enderror
@@ -97,7 +97,7 @@
             <div class="card__body">
                 <div class="field">
                     <label class="field__label" for="contact_phone">{{ __('panel::messages.contact_phone') }}</label>
-                    <input id="contact_phone" type="tel" name="contact_phone" value="{{ old('contact_phone', $listing->getAttribute('contact_phone')) }}" class="input">
+                    <input id="contact_phone" type="tel" dir="ltr" autocomplete="tel" placeholder="09123456789" name="contact_phone" value="{{ old('contact_phone', $listing->getAttribute('contact_phone')) }}" class="input">
                     @error('contact_phone')<p class="field__error">{{ $message }}</p>@enderror
                 </div>
                 <div class="field">

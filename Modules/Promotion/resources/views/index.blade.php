@@ -90,7 +90,7 @@
 
                     <div class="data-row__actions">
                         <span class="text-meta">
-                            {{ $order->getAttribute('starts_at')?->isoFormat('ll') }} — {{ $order->getAttribute('ends_at')?->isoFormat('ll') }}
+                            {{ \App\Support\PersianLocale::date($order->getAttribute('starts_at')) }} — {{ \App\Support\PersianLocale::date($order->getAttribute('ends_at')) }}
                         </span>
                     </div>
                 </article>

@@ -99,7 +99,7 @@
                                     <span class="avatar">{{ \App\Support\UserDirectory::initials((string) $seller->getAttribute('name')) }}</span>
                                     <div class="data-row__main">
                                         <p class="data-row__title">{{ $seller->getAttribute('name') }}</p>
-                                        <p class="data-row__meta">{{ __('user::messages.seller_since', ['date' => $seller->getAttribute('created_at')?->isoFormat('LL')]) }}</p>
+                                        <p class="data-row__meta">{{ __('user::messages.seller_since', ['date' => \App\Support\PersianLocale::date($seller->getAttribute('created_at'))]) }}</p>
                                     </div>
                                     <div class="data-row__actions">
                                         <a href="{{ route('sellers.show', $seller) }}" class="button button--secondary button--small">{{ __('site::messages.view_profile') }}</a>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Panel\App\Livewire;
 
+use App\Support\PersianLocale;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -452,6 +453,13 @@ class PanelQuickListingForm extends Component
         return $country ? Country::localizedName($country['name'], $country['code'] ?? '') : null;
     }
 
+    public function getSelectedCityDisplayNameProperty(): ?string
+    {
+        $city = collect($this->cities)->firstWhere('id', $this->selectedCityId);
+
+        return $city['display_name'] ?? $this->selectedCityName;
+    }
+
     public function getSelectedCityNameProperty(): ?string
     {
         if (! $this->selectedCityId) {
@@ -561,6 +569,8 @@ class PanelQuickListingForm extends Component
 
     private function validateDetailsStep(): void
     {
+        $this->price = PersianLocale::normalize($this->price);
+
         $this->validate([
             'listingTitle' => ['required', 'string', 'max:70'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -602,6 +612,10 @@ class PanelQuickListingForm extends Component
             $name = $field['name'];
             $statePath = "customFieldValues.{$name}";
             $type = $field['type'];
+
+            if ($type === ListingCustomField::TYPE_NUMBER && is_string($this->customFieldValues[$name] ?? null)) {
+                $this->customFieldValues[$name] = PersianLocale::normalize($this->customFieldValues[$name]);
+            }
             $isRequired = (bool) $field['is_required'];
 
             if ($type === ListingCustomField::TYPE_BOOLEAN) {

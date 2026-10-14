@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Modules\Listing\Support\Filament;
 
+use App\Rules\IranianMobile;
 use App\Support\Filament\ModelStateSelect;
 use App\Support\Filament\ModelStateSelectColumn;
+use App\Support\IranianPhone;
+use App\Support\PersianLocale;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -71,7 +74,7 @@ class AdminListingResourceSchema
                     ($categoryId = $get('category_id')) ? (int) $categoryId : null
                 )),
             ModelStateSelect::make('status')->label(__('listing::admin.status'))->options(ListingStatus::options())->required(),
-            PhoneInput::make('contact_phone')->label(__('listing::admin.contact_phone'))->defaultCountry(CountryCodeManager::defaultCountryIso2())->nullable(),
+            PhoneInput::make('contact_phone')->rules([new IranianMobile])->dehydrateStateUsing(fn ($state) => $state === null ? null : IranianPhone::normalize((string) $state))->label(__('listing::admin.contact_phone'))->defaultCountry(CountryCodeManager::defaultCountryIso2())->nullable(),
             TextInput::make('contact_email')->label(__('listing::admin.contact_email'))->extraInputAttributes(['dir' => 'ltr'])->email()->maxLength(255),
             Toggle::make('is_featured')->label(__('listing::admin.is_featured'))->default(false),
             Select::make('country')->label(__('listing::admin.country'))
@@ -131,7 +134,7 @@ class AdminListingResourceSchema
                 IconColumn::make('is_featured')->label(__('listing::admin.is_featured'))->boolean()->label(__('listing::admin.featured'))->sortable(),
                 TextColumn::make('city')->label(__('listing::admin.city'))->sortable(),
                 TextColumn::make('country')->label(__('listing::admin.country'))->sortable(),
-                TextColumn::make('created_at')->label(__('listing::admin.created_at'))->dateTime()->sortable(),
+                TextColumn::make('created_at')->label(__('listing::admin.created_at'))->formatStateUsing(fn ($state): string => PersianLocale::date($state, true))->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')->label(__('listing::admin.status'))->options(ListingStatus::options()),

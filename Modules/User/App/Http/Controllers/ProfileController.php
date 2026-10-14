@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Modules\User\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Rules\IranianMobile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Modules\User\App\Models\Profile;
 
 class ProfileController extends Controller
 {
@@ -21,6 +23,7 @@ class ProfileController extends Controller
     {
         $validated = $request->validateWithBag('updateProfile', [
             'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:60', new IranianMobile],
             'email' => [
                 'required',
                 'string',
@@ -31,6 +34,11 @@ class ProfileController extends Controller
             ],
         ]);
 
+        $phone = $validated['phone'] ?? null;
+        unset($validated['phone']);
+        if ($request->exists('phone')) {
+            Profile::savePhoneForUser($request->user(), $phone);
+        }
         $request->user()->fill($validated);
 
         if ($request->user()->isDirty('email')) {
