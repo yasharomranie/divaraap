@@ -55,9 +55,15 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                     $report['Configuration cached'] = $app->configurationIsCached();
                     $report['InnoDB declarations in config file'] = substr_count(file_get_contents($root.'/config/database.php'), "'engine' => 'InnoDB'");
                     $pdo = $connection->getPdo();
-                    $report['Database settings'] = $pdo->query('SELECT DATABASE() AS database_name, VERSION() AS version, @@default_storage_engine AS server_default_engine, @@sql_mode AS sql_mode')->fetch(PDO::FETCH_ASSOC);
-                    $report['Tables'] = $pdo->query('SELECT TABLE_NAME AS name, ENGINE AS engine FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME')->fetchAll(PDO::FETCH_ASSOC);
+                    $report['Database settings'] = $pdo->query('SELECT DATABASE() AS database_name, VERSION() AS version, @@default_storage_engine AS server_default_engine, @@sql_mode AS sql_mode, @@innodb_default_row_format AS innodb_default_row_format, @@innodb_page_size AS innodb_page_size')->fetch(PDO::FETCH_ASSOC);
+                    $report['Tables'] = $pdo->query('SELECT TABLE_NAME AS name, ENGINE AS engine, ROW_FORMAT AS row_format FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME')->fetchAll(PDO::FETCH_ASSOC);
                     $names = array_column($report['Tables'], 'name');
+                    foreach (['users', 'profiles', 'password_reset_tokens'] as $table) {
+                        if (in_array($table, $names, true)) {
+                            $report['Table definitions'][$table] = $pdo->query('SHOW CREATE TABLE `'.$table.'`')->fetch(PDO::FETCH_NUM)[1];
+                        }
+                    }
+
                     $completed = in_array('migrations', $names, true) ? $pdo->query('SELECT migration FROM migrations ORDER BY id')->fetchAll(PDO::FETCH_COLUMN) : [];
                     $report['Completed migrations'] = $completed;
                     $migrator = $app['migrator'];

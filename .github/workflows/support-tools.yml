@@ -1,0 +1,22 @@
+name: Publish installation support tools
+on:
+  push:
+    branches: [main]
+    paths:
+      - distribution/installer-diagnostics.php
+      - config/database.php
+      - .github/workflows/support-tools.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: installation-support-tools
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload deploy-main distribution/installer-diagnostics.php config/database.php --clobber
