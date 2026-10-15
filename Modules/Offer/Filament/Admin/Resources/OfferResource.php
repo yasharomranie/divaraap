@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Modules\Offer\Filament\Admin\Resources;
 
+use App\Support\Filament\CurrencySelect;
+use App\Support\Filament\MoneyInput;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -59,8 +61,8 @@ class OfferResource extends Resource
             TextInput::make('listing_id')->label(__('offer::admin.listing'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
             TextInput::make('buyer_id')->label(__('offer::admin.buyer'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
             TextInput::make('seller_id')->label(__('offer::admin.seller'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
-            TextInput::make('amount')->label(__('offer::admin.amount'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required(),
-            TextInput::make('currency')->label(__('offer::admin.currency'))->extraInputAttributes(['dir' => 'ltr'])->maxLength(3)->required(),
+            MoneyInput::make('amount')->label(__('offer::admin.amount'))->required(),
+            CurrencySelect::make()->label(__('offer::admin.currency')),
             Textarea::make('message')->label(__('offer::admin.message'))->rows(3)->maxLength(500),
             Select::make('status')->label(__('offer::admin.status'))->options(fn (): array => collect(Offer::statuses())->mapWithKeys(
                 static fn (string $status): array => [$status => __('offer::messages.status_'.$status)]
@@ -73,7 +75,7 @@ class OfferResource extends Resource
         return $table->columns([
             ResourceTableColumns::id(),
             TextColumn::make('listing_id')->label(__('offer::admin.listing'))->sortable(),
-            TextColumn::make('amount')->label(__('offer::admin.amount'))->money(fn (Offer $record): string => (string) $record->getAttribute('currency'))->sortable(),
+            TextColumn::make('amount')->label(__('offer::admin.amount'))->formatStateUsing(fn (Offer $record): string => $record->amountLabel())->sortable(),
             TextColumn::make('status')->label(__('offer::admin.status'))->formatStateUsing(fn (string $state): string => __('offer::messages.status_'.$state))->badge()->sortable(),
             TextColumn::make('buyer_id')->label(__('offer::admin.buyer')),
             TextColumn::make('seller_id')->label(__('offer::admin.seller')),

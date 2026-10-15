@@ -8,8 +8,8 @@
         'smart' => __('site::messages.sort_relevance'),
         'newest' => __('site::messages.sort_newest'),
         'oldest' => __('site::messages.sort_oldest'),
-        'price_asc' => __('site::messages.sort_price_asc'),
-        'price_desc' => __('site::messages.sort_price_desc'),
+        'price_asc' => __('site::messages.sort_price_asc').' ('.\App\Support\Money::currencyLabel('IRR').')',
+        'price_desc' => __('site::messages.sort_price_desc').' ('.\App\Support\Money::currencyLabel('IRR').')',
     ];
     $dateOptions = [
         'all' => __('site::messages.any_time'),
@@ -104,7 +104,7 @@
                         </div>
 
                         <div class="filter-group">
-                            <p class="filter-group__title">{{ __('site::messages.price_range') }}</p>
+                            <p class="filter-group__title">{{ __('site::messages.price_range') }} ({{ \App\Support\Money::currencyLabel('IRR') }})</p>
                             <div class="field__row field__row--two">
                                 <div class="field">
                                     <label class="field__label" for="filter-min">{{ __('site::messages.min') }}</label>

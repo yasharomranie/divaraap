@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Modules\Listing\Support\Filament;
 
 use App\Rules\IranianMobile;
+use App\Support\Filament\CurrencySelect;
 use App\Support\Filament\ModelStateSelect;
 use App\Support\Filament\ModelStateSelectColumn;
+use App\Support\Filament\MoneyInput;
 use App\Support\IranianPhone;
+use App\Support\Money;
 use App\Support\PersianLocale;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Filament\Forms\Components\DatePicker;
@@ -49,13 +52,8 @@ class AdminListingResourceSchema
             TextInput::make('title')->label(__('listing::admin.title'))->extraInputAttributes(['dir' => 'auto'])->required()->maxLength(255)->live(onBlur: true)->afterStateUpdated(fn ($state, $set) => $set('slug', Str::slug($state).'-'.Str::random(4))),
             TextInput::make('slug')->label(__('listing::admin.slug'))->extraInputAttributes(['dir' => 'ltr'])->required()->maxLength(255)->unique(ignoreRecord: true),
             Textarea::make('description')->label(__('listing::admin.description'))->rows(4),
-            TextInput::make('price')->label(__('listing::admin.price'))->extraInputAttributes(['dir' => 'auto'])
-                ->numeric()
-                ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
-            Select::make('currency')->label(__('listing::admin.currency'))
-                ->options(fn (): array => ListingPanelHelper::currencyOptions())
-                ->default(fn (): string => ListingPanelHelper::defaultCurrency())
-                ->required(),
+            MoneyInput::make('price')->label(__('listing::admin.price'))->nullable(),
+            CurrencySelect::make()->label(__('listing::admin.currency')),
             Select::make('category_id')->label(__('listing::admin.category'))
                 ->options(fn (): array => Category::activeIdNameOptions())
                 ->searchable()
@@ -125,7 +123,7 @@ class AdminListingResourceSchema
                 TextColumn::make('category.name')->label(__('listing::admin.category'))->sortable(),
                 TextColumn::make('user.email')->label(__('listing::admin.owner'))->searchable()->toggleable()->sortable(),
                 TextColumn::make('price')->label(__('listing::admin.price'))
-                    ->currency(fn (Listing $record): string => $record->currency ?: ListingPanelHelper::defaultCurrency())
+                    ->formatStateUsing(fn (Listing $record): string => $record->panelPriceLabel())
                     ->sortable(),
                 ModelStateSelectColumn::make('status')->label(__('listing::admin.status'))
                     ->options(ListingStatus::options())
@@ -165,12 +163,12 @@ class AdminListingResourceSchema
                 Filter::make('price')
                     ->label(__('listing::admin.price_range'))
                     ->schema([
-                        TextInput::make('min')->label(__('listing::admin.min'))->extraInputAttributes(['dir' => 'auto'])->numeric()->label(__('listing::admin.min')),
-                        TextInput::make('max')->label(__('listing::admin.max'))->extraInputAttributes(['dir' => 'auto'])->numeric()->label(__('listing::admin.max')),
+                        MoneyInput::make('min')->label(__('listing::admin.min'))->extraInputAttributes(['dir' => 'auto'])->label(__('listing::admin.min')),
+                        MoneyInput::make('max')->label(__('listing::admin.max'))->extraInputAttributes(['dir' => 'auto'])->label(__('listing::admin.max')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query
-                        ->when($data['min'] ?? null, fn (Builder $builder, string $amount): Builder => $builder->where('price', '>=', (float) $amount))
-                        ->when($data['max'] ?? null, fn (Builder $builder, string $amount): Builder => $builder->where('price', '<=', (float) $amount))),
+                        ->when(Money::valid($data['min'] ?? null, 'IRR'), fn (Builder $builder): Builder => $builder->where('currency', 'IRR')->where('price', '>=', Money::decimal($data['min'])))
+                        ->when(Money::valid($data['max'] ?? null, 'IRR'), fn (Builder $builder): Builder => $builder->where('currency', 'IRR')->where('price', '<=', Money::decimal($data['max'])))),
             ])
             ->filtersLayout(FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(3)

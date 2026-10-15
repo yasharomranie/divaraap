@@ -31,7 +31,7 @@ final class RequestAppData
     {
         $fallbackName = config('app.name', 'OpenClassify');
         $fallbackLocale = config('app.locale', 'en');
-        $fallbackCurrencies = $this->normalizeCurrencies(config('app.currencies', ['USD']));
+        $fallbackCurrencies = $this->normalizeCurrencies(config('app.currencies', ['IRR']));
         $fallbackDescription = 'Buy and sell everything in your area.';
         $fallbackHomeSlides = HomeSlideDefaults::defaults();
         $fallbackGoogleMapsApiKey = config('services.google_maps.api_key');
@@ -41,7 +41,7 @@ final class RequestAppData
         $fallbackFacebookClientSecret = config('services.facebook.client_secret');
         $fallbackAppleClientId = config('services.apple.client_id');
         $fallbackAppleClientSecret = config('services.apple.client_secret');
-        $fallbackDefaultCountryCode = (string) config('app.default_country_code', '+90');
+        $fallbackDefaultCountryCode = (string) config('app.default_country_code', '+98');
 
         $generalSettings = [
             'site_name' => $fallbackName,

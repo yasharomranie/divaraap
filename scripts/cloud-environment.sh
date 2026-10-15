@@ -97,7 +97,7 @@ case "$action" in
         fi
         ensure_containers
         for service in web queue reverb; do
-            if [[ -f "$state_root/$service.pid" ]] && docker exec divaraap-php sh -c "kill -0 \$(cat /setup/$service.pid)" 2>/dev/null; then continue; fi
+            if [[ -f "$state_root/$service.pid" ]] && docker exec divaraap-php php -r '$pid = trim(file_get_contents("/setup/".$argv[1].".pid")); $status = @file_get_contents("/proc/".$pid."/status"); exit($status && preg_match("/^State:\s+Z/m", $status) !== 1 ? 0 : 1);' "$service" 2>/dev/null; then continue; fi
             case "$service" in
                 web) command='php artisan serve --host=0.0.0.0 --port=8000' ;;
                 queue) command='php artisan queue:work --tries=1 --timeout=60' ;;

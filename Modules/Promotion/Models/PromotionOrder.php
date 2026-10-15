@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Promotion\Models;
 
-use App\Support\PersianLocale;
+use App\Support\Money;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -68,7 +68,7 @@ class PromotionOrder extends Model
             'listing_id' => $listingId,
             'plan_id' => $plan->getKey(),
             'plan_name' => (string) $plan->getAttribute('name'),
-            'amount' => (float) $plan->getAttribute('price'),
+            'amount' => (string) $plan->getAttribute('price'),
             'currency' => (string) $plan->getAttribute('currency'),
             'status' => self::STATUS_ACTIVE,
             'starts_at' => now(),
@@ -148,6 +148,6 @@ class PromotionOrder extends Model
 
     public function amountLabel(): string
     {
-        return PersianLocale::number((string) $this->getAttribute('amount'), 2).' '.(string) $this->getAttribute('currency');
+        return Money::format((string) $this->getAttribute('amount'), (string) $this->getAttribute('currency'));
     }
 }

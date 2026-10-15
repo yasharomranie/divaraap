@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Panel\App\Http\Requests;
 
 use App\Rules\IranianMobile;
+use App\Rules\MonetaryAmount;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Modules\Listing\Models\Listing;
@@ -21,7 +22,7 @@ class UpdateListingRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
-            'price' => ['nullable', 'numeric', 'min:0'],
+            'price' => ['nullable', new MonetaryAmount((string) ($this->route('listing')?->currency ?? 'IRR'))],
             'status' => ['required', Rule::in(array_keys(Listing::panelStatusOptions()))],
             'contact_phone' => ['nullable', 'string', 'max:60', new IranianMobile],
             'contact_email' => ['nullable', 'email', 'max:255'],

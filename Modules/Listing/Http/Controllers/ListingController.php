@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Listing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Support\Money;
 use Illuminate\Http\JsonResponse;
 use Modules\Category\Models\Category;
 use Modules\Conversation\App\Models\Conversation;
@@ -39,8 +40,8 @@ class ListingController extends Controller
 
         $minPriceInput = trim((string) request('min_price', ''));
         $maxPriceInput = trim((string) request('max_price', ''));
-        $minPrice = is_numeric($minPriceInput) ? max((float) $minPriceInput, 0) : null;
-        $maxPrice = is_numeric($maxPriceInput) ? max((float) $maxPriceInput, 0) : null;
+        $minPrice = Money::valid($minPriceInput, 'IRR') ? Money::decimal($minPriceInput) : null;
+        $maxPrice = Money::valid($maxPriceInput, 'IRR') ? Money::decimal($maxPriceInput) : null;
 
         $dateFilter = (string) request('date_filter', 'all');
         $allowedDateFilters = ['all', 'today', 'week', 'month'];

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\Site\Filament\Admin\Pages;
 
+use App\Support\Money;
 use BackedEnum;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -134,14 +134,14 @@ class ManageGeneralSettings extends SettingsPage
                     ->default($defaults['default_country_code'])
                     ->required()
                     ->helperText(__('site::admin.used_as_the_default_country_in_panel_forms')),
-                TagsInput::make('currencies')->label(__('site::admin.currencies'))
-                    ->placeholder(__('site::admin.try'))
-                    ->default($defaults['currencies'])
-                    ->helperText(__('site::admin.add_3_letter_currency_codes_such_as_try_usd_or_eur'))
-                    ->required()
-                    ->rules(['array', 'min:1'])
-                    ->afterStateHydrated(fn (TagsInput $component, $state) => $component->state($this->normalizeCurrencies($state)))
-                    ->dehydrateStateUsing(fn ($state) => $this->normalizeCurrencies($state)),
+                Select::make('currencies')->label(__('site::admin.currencies'))
+                    ->options(['IRR' => Money::currencyLabel('IRR')])
+                    ->multiple()
+                    ->default(['IRR'])
+                    ->disabled()
+                    ->dehydrated()
+                    ->afterStateHydrated(fn (Select $component) => $component->state(['IRR']))
+                    ->dehydrateStateUsing(fn (): array => ['IRR']),
                 TextInput::make('linkedin_url')->label(__('site::admin.linkedin_url'))->extraInputAttributes(['dir' => 'ltr'])
                     ->label(__('site::admin.linkedin_url'))
                     ->url()
@@ -220,8 +220,8 @@ class ManageGeneralSettings extends SettingsPage
             'sender_name' => $siteName,
             'sender_email' => (string) config('mail.from.address', 'info@'.$siteHost),
             'default_language' => in_array(config('app.locale'), array_keys($this->localeOptions()), true) ? (string) config('app.locale') : 'en',
-            'default_country_code' => CountryCodeManager::normalizeCountryCode(config('app.default_country_code', '+90')),
-            'currencies' => $this->normalizeCurrencies(config('app.currencies', ['TRY'])),
+            'default_country_code' => CountryCodeManager::normalizeCountryCode(config('app.default_country_code', '+98')),
+            'currencies' => $this->normalizeCurrencies(config('app.currencies', ['IRR'])),
             'linkedin_url' => 'https://www.linkedin.com/company/openclassify',
             'instagram_url' => 'https://www.instagram.com/openclassify',
             'whatsapp' => '+905551112233',
@@ -243,17 +243,7 @@ class ManageGeneralSettings extends SettingsPage
 
     private function normalizeCurrencies(null|array|string $state): array
     {
-        $source = is_array($state) ? $state : (filled($state) ? [$state] : []);
-
-        $normalized = collect($source)
-            ->filter(fn ($currency) => is_string($currency) && trim($currency) !== '')
-            ->map(fn (string $currency) => strtoupper(substr(trim($currency), 0, 3)))
-            ->filter(fn (string $currency) => strlen($currency) === 3)
-            ->unique()
-            ->values()
-            ->all();
-
-        return $normalized !== [] ? $normalized : ['USD'];
+        return ['IRR'];
     }
 
     private function defaultHomeSlides(): array

@@ -12,20 +12,24 @@ class PromotionPlanSeeder extends Seeder
     public function run(): void
     {
         foreach ($this->records() as $record) {
+            $existing = PromotionPlan::query()->where('slug', $record['slug'])->first();
+            if ($existing) {
+                unset($record['price'], $record['currency']);
+            }
             PromotionPlan::query()->updateOrCreate(['slug' => $record['slug']], $record);
         }
     }
 
     private function records(): array
     {
-        $currency = (string) config('app.default_currency', 'USD');
+        $currency = (string) config('app.default_currency', 'IRR');
 
         return [
             [
                 'slug' => 'spotlight-7',
                 'name' => 'Spotlight 7',
                 'description' => 'Keep your listing at the top of its category for a week.',
-                'price' => 4.90,
+                'price' => 490000,
                 'currency' => $currency,
                 'duration_days' => 7,
                 'grants_featured' => true,
@@ -42,7 +46,7 @@ class PromotionPlanSeeder extends Seeder
                 'slug' => 'spotlight-30',
                 'name' => 'Spotlight 30',
                 'description' => 'A full month of premium placement across the marketplace.',
-                'price' => 14.90,
+                'price' => 1490000,
                 'currency' => $currency,
                 'duration_days' => 30,
                 'grants_featured' => true,
@@ -60,7 +64,7 @@ class PromotionPlanSeeder extends Seeder
                 'slug' => 'urgent-3',
                 'name' => 'Urgent 3',
                 'description' => 'Signal buyers that the item has to go quickly.',
-                'price' => 2.90,
+                'price' => 290000,
                 'currency' => $currency,
                 'duration_days' => 3,
                 'grants_featured' => false,

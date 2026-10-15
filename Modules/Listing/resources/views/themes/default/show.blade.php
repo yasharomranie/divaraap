@@ -240,8 +240,8 @@
                                 <label class="field__label" for="offer-amount">{{ __('offer::messages.your_offer') }}</label>
                                 <span class="input-affix">
                                     <input id="offer-amount" type="text" name="amount" min="1" step="0.01" class="input" required
-                                           value="{{ round((float) $listing->getAttribute('price') * 0.9, 2) }}">
-                                    <span class="input-affix__suffix">{{ $listing->getAttribute('currency') }}</span>
+                                           value="{{ old('amount', $listing->getAttribute('price')) }}" inputmode="decimal" dir="ltr">
+                                    <span class="input-affix__suffix">{{ \App\Support\Money::currencyLabel($listing->getAttribute('currency')) }}</span>
                                 </span>
                             </div>
                             <div class="field">

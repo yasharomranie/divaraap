@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Modules\Panel\App\Livewire;
 
+use App\Rules\MonetaryAmount;
+use App\Support\Money;
 use App\Support\PersianLocale;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
@@ -569,11 +571,11 @@ class PanelQuickListingForm extends Component
 
     private function validateDetailsStep(): void
     {
-        $this->price = PersianLocale::normalize($this->price);
+        $this->price = Money::input($this->price);
 
         $this->validate([
             'listingTitle' => ['required', 'string', 'max:70'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'price' => ['required', new MonetaryAmount(ListingPanelHelper::defaultCurrency())],
             'description' => ['required', 'string', 'max:1450'],
             'selectedCountryId' => ['required', 'integer', Rule::in(collect($this->countries)->pluck('id')->all())],
             'selectedCityId' => [
@@ -665,7 +667,7 @@ class PanelQuickListingForm extends Component
         $payload = [
             'title' => trim($this->listingTitle),
             'description' => trim($this->description),
-            'price' => (float) $this->price,
+            'price' => Money::decimal($this->price),
             'currency' => ListingPanelHelper::defaultCurrency(),
             'category_id' => $this->selectedCategoryId,
             'status' => 'pending',

@@ -42,7 +42,7 @@
                         <label class="field__label" for="price">{{ __('panel::messages.price') }}</label>
                         <span class="input-affix">
                             <input id="price" type="text" inputmode="decimal" step="0.01" min="0" name="price" value="{{ old('price', $listing->getAttribute('price')) }}" class="input">
-                            <span class="input-affix__suffix">{{ $listing->getAttribute('currency') }}</span>
+                            <span class="input-affix__suffix">{{ \App\Support\Money::currencyLabel($listing->getAttribute('currency')) }}</span>
                         </span>
                         @error('price')<p class="field__error">{{ $message }}</p>@enderror
                     </div>

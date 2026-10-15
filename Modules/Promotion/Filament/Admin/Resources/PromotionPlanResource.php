@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Modules\Promotion\Filament\Admin\Resources;
 
+use App\Support\Filament\CurrencySelect;
+use App\Support\Filament\MoneyInput;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -63,8 +65,8 @@ class PromotionPlanResource extends Resource
                 ->afterStateUpdated(static fn (Set $set, ?string $state): mixed => $set('slug', Str::slug((string) $state))),
             TextInput::make('slug')->label(__('promotion::admin.slug'))->extraInputAttributes(['dir' => 'ltr'])->required()->maxLength(80)->unique(ignoreRecord: true),
             Textarea::make('description')->label(__('promotion::admin.description'))->rows(3)->maxLength(500),
-            TextInput::make('price')->label(__('promotion::admin.price'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required()->default(0),
-            TextInput::make('currency')->label(__('promotion::admin.currency'))->extraInputAttributes(['dir' => 'ltr'])->maxLength(3)->required()->default('USD'),
+            MoneyInput::make('price')->label(__('promotion::admin.price'))->required()->default(0),
+            CurrencySelect::make()->label(__('promotion::admin.currency')),
             TextInput::make('duration_days')->label(__('promotion::admin.duration_days'))->extraInputAttributes(['dir' => 'auto'])->numeric()->required()->default(7),
             TextInput::make('bump_count')->label(__('promotion::admin.bump_count'))->extraInputAttributes(['dir' => 'auto'])->numeric()->default(0),
             Toggle::make('grants_featured')->label(__('promotion::admin.grants_featured')),
@@ -79,7 +81,7 @@ class PromotionPlanResource extends Resource
         return $table->columns([
             ResourceTableColumns::id(),
             TextColumn::make('name')->label(__('promotion::admin.name'))->searchable()->sortable(),
-            TextColumn::make('price')->label(__('promotion::admin.price'))->money(fn (PromotionPlan $record): string => (string) $record->getAttribute('currency'))->sortable(),
+            TextColumn::make('price')->label(__('promotion::admin.price'))->formatStateUsing(fn (PromotionPlan $record): string => $record->priceLabel())->sortable(),
             TextColumn::make('duration_days')->label(__('promotion::admin.days'))->sortable(),
             IconColumn::make('grants_featured')->label(__('promotion::admin.grants_featured'))->boolean()->label(__('promotion::admin.featured')),
             IconColumn::make('grants_urgent')->label(__('promotion::admin.grants_urgent'))->boolean()->label(__('promotion::admin.urgent')),

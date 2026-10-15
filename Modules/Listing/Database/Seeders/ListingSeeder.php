@@ -246,13 +246,14 @@ class ListingSeeder extends Seeder
 
     private function upsertListing(array $data, Category $category, User $user): Listing
     {
+        $existingCurrency = Listing::query()->where('slug', $data['slug'])->value('currency');
         $listing = Listing::updateOrCreate(
             ['slug' => $data['slug']],
             [
                 'title' => $data['title'],
                 'description' => $data['description'],
                 'price' => $data['price'],
-                'currency' => 'TRY',
+                'currency' => $existingCurrency ?: config('app.default_currency', 'IRR'),
                 'city' => $data['city'],
                 'country' => $data['country'],
                 'category_id' => $category->id,

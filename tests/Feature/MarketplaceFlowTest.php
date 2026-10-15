@@ -35,13 +35,13 @@ class MarketplaceFlowTest extends TestCase
 
         $this->actingAs($buyer)
             ->from(route('listings.show', $listing))
-            ->post(route('offers.store', $listing), ['amount' => 123.45, 'message' => 'Test offer'])
+            ->post(route('offers.store', $listing), ['amount' => 123, 'message' => 'Test offer'])
             ->assertRedirect();
 
         $offer = Offer::query()
             ->where('listing_id', $listing->getKey())
             ->where('buyer_id', $buyer->getKey())
-            ->where('amount', 123.45)
+            ->where('amount', 123)
             ->firstOrFail();
 
         $this->assertTrue($offer->isPending());

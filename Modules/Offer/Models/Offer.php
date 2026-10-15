@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Offer\Models;
 
-use App\Support\PersianLocale;
+use App\Support\Money;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -75,7 +75,7 @@ class Offer extends Model
             : $query;
     }
 
-    public static function place(int $listingId, int $buyerId, int $sellerId, float $amount, string $currency, ?string $message): self
+    public static function place(int $listingId, int $buyerId, int $sellerId, string|float $amount, string $currency, ?string $message): self
     {
         static::query()
             ->forListing($listingId)
@@ -87,7 +87,7 @@ class Offer extends Model
             'listing_id' => $listingId,
             'buyer_id' => $buyerId,
             'seller_id' => $sellerId,
-            'amount' => $amount,
+            'amount' => Money::decimal($amount),
             'currency' => $currency,
             'message' => $message,
             'status' => self::STATUS_PENDING,
@@ -209,7 +209,7 @@ class Offer extends Model
 
     public function amountLabel(): string
     {
-        return PersianLocale::number((string) $this->getAttribute('amount'), 2).' '.(string) $this->getAttribute('currency');
+        return Money::format((string) $this->getAttribute('amount'), (string) $this->getAttribute('currency'));
     }
 
     public function statusTone(): string

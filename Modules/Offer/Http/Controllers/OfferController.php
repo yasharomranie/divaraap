@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Modules\Offer\Http\Controllers;
 
+use App\Rules\MonetaryAmount;
 use App\Support\ListingDirectory;
+use App\Support\Money;
 use App\Support\UserDirectory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -47,16 +49,20 @@ class OfferController extends Controller
 
     public function store(Request $request, int $listing): RedirectResponse
     {
-        $validated = $request->validate([
-            'amount' => ['required', 'numeric', 'min:1', 'max:99999999'],
-            'message' => ['nullable', 'string', 'max:500'],
-        ]);
-
         $summary = ListingDirectory::find($listing);
 
         if ($summary === null || $summary['seller_id'] === null) {
             abort(404);
         }
+
+        $validated = $request->validate([
+            'amount' => ['required', new MonetaryAmount($summary['currency']), function (string $attribute, mixed $value, \Closure $fail): void {
+                if (Money::valid($value, 'USD') && Money::decimal($value) === '0.00') {
+                    $fail(__('validation.gt.numeric', ['attribute' => __('offer::messages.your_offer'), 'value' => 0]));
+                }
+            }],
+            'message' => ['nullable', 'string', 'max:500'],
+        ]);
 
         $buyerId = (int) $request->user()->getKey();
 
@@ -68,8 +74,8 @@ class OfferController extends Controller
             $listing,
             $buyerId,
             $summary['seller_id'],
-            (float) $validated['amount'],
-            (string) $request->input('currency', config('app.default_currency', 'USD')),
+            Money::decimal($validated['amount']),
+            $summary['currency'],
             $validated['message'] ?? null,
         );
 

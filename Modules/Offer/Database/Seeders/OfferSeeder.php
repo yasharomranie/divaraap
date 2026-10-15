@@ -50,7 +50,7 @@ class OfferSeeder extends Seeder
                     'listing_id' => (int) $listing->getKey(),
                     'buyer_id' => $buyerId,
                     'seller_id' => $sellerId,
-                    'amount' => round($price * $ratio, 2),
+                    'amount' => round($price * $ratio, $listing->currency === 'IRR' ? 0 : 2),
                     'currency' => (string) $listing->getAttribute('currency'),
                     'message' => $messages[($index + $step) % count($messages)],
                     'status' => $status,

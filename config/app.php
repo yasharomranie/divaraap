@@ -20,7 +20,9 @@ return [
 
     'rtl_locales' => ['fa', 'ar'],
 
-    'currencies' => ['USD'],
+    'default_currency' => 'IRR',
+
+    'currencies' => ['IRR'],
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Listing\Models;
 
+use App\Support\Money;
 use App\Support\PersianLocale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -171,8 +172,8 @@ class Listing extends Model implements HasMedia
         $country = isset($filters['country']) ? trim((string) $filters['country']) : null;
         $city = isset($filters['city']) ? trim((string) $filters['city']) : null;
         $userId = isset($filters['user_id']) && is_numeric($filters['user_id']) ? (int) $filters['user_id'] : null;
-        $minPrice = is_numeric($filters['min_price'] ?? null) ? max((float) $filters['min_price'], 0) : null;
-        $maxPrice = is_numeric($filters['max_price'] ?? null) ? max((float) $filters['max_price'], 0) : null;
+        $minPrice = Money::valid($filters['min_price'] ?? null, 'IRR') ? Money::decimal($filters['min_price']) : null;
+        $maxPrice = Money::valid($filters['max_price'] ?? null, 'IRR') ? Money::decimal($filters['max_price']) : null;
         $dateFilter = (string) ($filters['date_filter'] ?? 'all');
         $categoryIds = $filters['category_ids'] ?? null;
 
@@ -182,8 +183,8 @@ class Listing extends Model implements HasMedia
             ->when(! is_null($userId) && $userId > 0, fn (Builder $builder) => $builder->where('user_id', $userId))
             ->when($country !== null && $country !== '', fn (Builder $builder) => $builder->where('country', $country))
             ->when($city !== null && $city !== '', fn (Builder $builder) => $builder->where('city', $city))
-            ->when(! is_null($minPrice), fn (Builder $builder) => $builder->whereNotNull('price')->where('price', '>=', $minPrice))
-            ->when(! is_null($maxPrice), fn (Builder $builder) => $builder->whereNotNull('price')->where('price', '<=', $maxPrice));
+            ->when(! is_null($minPrice), fn (Builder $builder) => $builder->where('currency', 'IRR')->whereNotNull('price')->where('price', '>=', $minPrice))
+            ->when(! is_null($maxPrice), fn (Builder $builder) => $builder->where('currency', 'IRR')->whereNotNull('price')->where('price', '<=', $maxPrice));
 
         return match ($dateFilter) {
             'today' => $query->where('created_at', '>=', Carbon::now()->startOfDay()),
@@ -198,8 +199,8 @@ class Listing extends Model implements HasMedia
         return match ($sort) {
             'newest' => $query->reorder()->orderByDesc('created_at'),
             'oldest' => $query->reorder()->orderBy('created_at'),
-            'price_asc' => $query->reorder()->orderByRaw('price is null')->orderBy('price'),
-            'price_desc' => $query->reorder()->orderByRaw('price is null')->orderByDesc('price'),
+            'price_asc' => $query->where('currency', 'IRR')->reorder()->orderByRaw('price is null')->orderBy('price'),
+            'price_desc' => $query->where('currency', 'IRR')->reorder()->orderByRaw('price is null')->orderByDesc('price'),
             default => $query->reorder()->orderByDesc('is_featured')->orderByDesc('created_at'),
         };
     }
@@ -419,11 +420,7 @@ class Listing extends Model implements HasMedia
             return __('listing::messages.free');
         }
 
-        if (app()->getLocale() === 'fa') {
-            return PersianLocale::number($this->price, 2).' '.($this->currency ?? 'TL');
-        }
-
-        return number_format((float) $this->price, 2, ',', '.').' '.($this->currency ?? 'TL');
+        return Money::format((string) $this->price, $this->currency);
     }
 
     public function panelStatusMeta(): array
@@ -657,11 +654,15 @@ class Listing extends Model implements HasMedia
         ]);
 
         if (array_key_exists('currency', $attributes)) {
-            $payload['currency'] = ListingPanelHelper::normalizeCurrency($attributes['currency']);
+            $payload['currency'] = $this->currency ?: ListingPanelHelper::defaultCurrency();
         }
 
         if (array_key_exists('custom_fields', $attributes)) {
             $payload['custom_fields'] = $attributes['custom_fields'];
+        }
+
+        if (isset($payload['price'])) {
+            $payload['price'] = Money::decimal($payload['price']);
         }
 
         $this->forceFill($payload)->save();
@@ -692,7 +693,10 @@ class Listing extends Model implements HasMedia
         ]);
 
         $payload['user_id'] = $userId;
-        $payload['currency'] = ListingPanelHelper::normalizeCurrency($data['currency'] ?? null);
+        $payload['currency'] = ListingPanelHelper::defaultCurrency();
+        if (isset($payload['price'])) {
+            $payload['price'] = Money::decimal($payload['price']);
+        }
         $payload['slug'] = $slug;
         $payload['status'] = PendingListingStatus::class;
 
@@ -704,6 +708,11 @@ class Listing extends Model implements HasMedia
 
     public function applyAdminFormData(array $data): void
     {
+        $data['currency'] = $this->exists ? $this->currency : ListingPanelHelper::defaultCurrency();
+        if (isset($data['price'])) {
+            $data['price'] = Money::decimal($data['price']);
+        }
+
         $this->fill(Arr::only($data, [
             'title',
             'description',

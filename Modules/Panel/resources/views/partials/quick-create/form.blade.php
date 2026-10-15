@@ -173,7 +173,7 @@
 
                         <div class="field__row field__row--three">
                             <div class="field">
-                                <label class="field__label" for="listing-price">{{ __('panel::messages.price') }}</label>
+                                <label class="field__label" for="listing-price">{{ __('panel::messages.price') }} ({{ \App\Support\Money::currencyLabel(\Modules\Listing\Support\ListingPanelHelper::defaultCurrency()) }})</label>
                                 <input id="listing-price" type="text" inputmode="decimal" step="0.01" min="0" class="input" wire:model.blur="price">
                                 @error('price')<p class="field__error">{{ $message }}</p>@enderror
                             </div>
@@ -251,7 +251,7 @@
                             </div>
                             <div class="spec-list__row">
                                 <dt class="spec-list__label">{{ __('panel::messages.price') }}</dt>
-                                <dd class="spec-list__value" dir="auto">{{ $price }}</dd>
+                                <dd class="spec-list__value" dir="auto">{{ \App\Support\Money::valid($price, \Modules\Listing\Support\ListingPanelHelper::defaultCurrency()) ? \App\Support\Money::format($price, \Modules\Listing\Support\ListingPanelHelper::defaultCurrency()) : $price }}</dd>
                             </div>
                             <div class="spec-list__row">
                                 <dt class="spec-list__label">{{ __('panel::messages.location') }}</dt>
