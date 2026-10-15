@@ -8,7 +8,7 @@ OpenClassify is a modular classifieds marketplace built with Laravel 13 and Fila
 
 - PHP 8.4+
 - Laravel 13
-- PostgreSQL 16+
+- MySQL 8.x (default for new installations), or PostgreSQL 16+
 - FilamentPHP v5
 - `nwidart/laravel-modules`
 - Blade + hand-authored CSS design system + Vite
@@ -98,7 +98,7 @@ For the managed cloud development environment, use [the tested setup commands](d
 
 ### Local
 
-Requirements: PHP 8.4+, Composer, Node 24, PostgreSQL 16+, FFmpeg and FFprobe.
+Requirements: PHP 8.4+, Composer, Node 24, and MySQL 8.x or PostgreSQL 16+. FFmpeg/FFprobe are required for transcoding in the standard profile; the shared profile accepts ready-to-play MP4 files.
 
 Create the databases first:
 
@@ -204,19 +204,21 @@ npm run build
 vendor/bin/pint
 ```
 
-The test suite runs against the `openclassify_testing` PostgreSQL database. Prepare
-it once with:
+The cloud baseline suite uses the separate `openclassify_testing` PostgreSQL database. Explicitly select that connection when preparing it:
 
 ```bash
-APP_ENV=testing DB_DATABASE=openclassify_testing php artisan migrate:fresh --seed --force
+APP_ENV=testing DB_CONNECTION=pgsql DB_DATABASE=openclassify_testing php artisan migrate --force
+APP_ENV=testing DB_CONNECTION=pgsql DB_DATABASE=openclassify_testing php artisan db:seed --force
 ```
+
+MySQL has its own `docs/environment/phpunit-mysql.xml` configuration for an isolated `divaraap_shared_testing` database. See [MySQL verification](docs/MYSQL_COMPATIBILITY_FA.md) for versions, evidence and test prerequisites.
 
 ## Production Checklist
 
+Use the [release guide](docs/RELEASE_GUIDE_FA.md) for the Docker/PostgreSQL deployment, or the [shared-hosting guide](docs/SHARED_HOSTING_FA.md) for MySQL hosting. Preserve the existing APP_KEY and user data. Demo seeders are for isolated development/test databases.
+
 ```bash
 php artisan migrate --force
-php artisan db:seed --force
-php artisan storage:link
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

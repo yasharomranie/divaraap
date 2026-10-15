@@ -1,0 +1,74 @@
+{
+  "checked_at": "2026-10-15T06:27:56.801140+00:00",
+  "php": "8.4.26",
+  "engines": {
+    "8.4.11": {
+      "version": "8.4.11",
+      "sql_mode": "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
+      "charset": "utf8mb4",
+      "checks": {
+        "full_suite": {
+          "tests": 126,
+          "assertions": 2017,
+          "passed": true
+        },
+        "restricted_php": {
+          "tests": 7,
+          "assertions": 33,
+          "passed": true
+        }
+      },
+      "fresh_migrations": true,
+      "seed": true
+    },
+    "8.0.46": {
+      "version": "8.0.46",
+      "sql_mode": "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
+      "charset": "utf8mb4",
+      "checks": {
+        "full_suite": {
+          "tests": 126,
+          "assertions": 2017,
+          "passed": true
+        },
+        "restricted_php": {
+          "tests": 7,
+          "assertions": 33,
+          "passed": true
+        }
+      },
+      "fresh_migrations": true,
+      "seed": true
+    }
+  },
+  "browser_mysql84": {
+    "flows": [
+      "Browser registration, terms and confirmation succeeded",
+      "Registered Persian phone persisted in profile",
+      "Photo upload and wizard category step succeeded",
+      "Message delivered by HTTP polling without Reverb or a queue worker",
+      "Skip link and mobile drawer Escape/focus restoration verified"
+    ],
+    "wizard": [
+      "Full browser registration → photo → category → Persian details → rial preview → pending listing saved"
+    ],
+    "video": [
+      "Actual MP4 browser upload accepted with shell functions disabled"
+    ]
+  },
+  "restricted_functions": [
+    "proc_open",
+    "exec",
+    "shell_exec",
+    "system",
+    "passthru",
+    "popen",
+    "symlink"
+  ],
+  "limitations": [
+    "Actual customer cPanel account not tested",
+    "No automatic PostgreSQL to MySQL data conversion",
+    "Web installer and one-click updater not implemented",
+    "MySQL 5.7 and older not verified"
+  ]
+}

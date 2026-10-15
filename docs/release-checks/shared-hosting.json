@@ -47,7 +47,6 @@
   },
   "limitations": [
     "Actual cPanel account not tested",
-    "MySQL server independently untested",
     "Web installer and updater not implemented",
     "Existing PostgreSQL data not automatically migrated"
   ],
@@ -55,5 +54,6 @@
     "status": 200,
     "bytes": 3546,
     "video_status": "ready"
-  }
+  },
+  "additional_mysql_verification": "mysql-compatibility.json"
 }

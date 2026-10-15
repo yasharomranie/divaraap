@@ -6,7 +6,7 @@ use Illuminate\Support\Str;
 use Pdo\Mysql;
 
 return [
-    'default' => env('DB_CONNECTION', 'pgsql'),
+    'default' => env('DB_CONNECTION', 'mysql'),
     'connections' => [
         'sqlite' => [
             'driver' => 'sqlite',
