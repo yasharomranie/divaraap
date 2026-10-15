@@ -19,7 +19,7 @@ class StoreVideoRequest extends FormRequest
             'listing_id' => ['required', 'integer', 'exists:listings,id'],
             'title' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'video_file' => ['required', 'file', 'mimes:mp4,mov,webm,m4v', 'max:256000'],
+            'video_file' => ['required', 'file', config('video.processing') === 'direct' ? 'mimetypes:video/mp4' : 'mimes:mp4,mov,webm,m4v', 'max:'.config('video.max_upload_size_kb', 102400)],
         ];
     }
 
@@ -29,6 +29,7 @@ class StoreVideoRequest extends FormRequest
             'listing_id.required' => __('panel::messages.video_listing'),
             'listing_id.exists' => __('panel::messages.video_valid_listing'),
             'video_file.required' => __('panel::messages.video_required'),
+            'video_file.mimetypes' => __('video::admin.direct_mp4_only'),
             'video_file.mimes' => __('panel::messages.video_formats'),
         ];
     }

@@ -83,10 +83,13 @@
                         @endif
 
                         <div class="upload">
+                            @if(config('video.processing') === 'direct')
+                                <p class="field__hint">{{ __('video::admin.direct_mp4_only') }}</p>
+                            @endif
                             <label class="upload__control" for="quick-videos">
                                 <x-ui.icon name="video"/>
                                 <span class="title-card">{{ __('panel::messages.videos') }}</span>
-                                <input id="quick-videos" type="file" class="visually-hidden" wire:model="videos" multiple accept="video/*">
+                                <input id="quick-videos" type="file" class="visually-hidden" wire:model="videos" multiple accept="{{ config('video.processing') === 'direct' ? 'video/mp4' : 'video/*' }}">
                             </label>
 
                             @if($videos !== [])

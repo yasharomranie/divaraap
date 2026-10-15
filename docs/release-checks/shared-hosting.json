@@ -1,0 +1,59 @@
+{
+  "postgresql": {
+    "tests": 126,
+    "assertions": 2017,
+    "passed": true
+  },
+  "mariadb": {
+    "tests": 126,
+    "assertions": 2017,
+    "passed": true
+  },
+  "disabled_shell": {
+    "tests": 7,
+    "assertions": 33,
+    "passed": true
+  },
+  "browser_flows": [
+    "Browser registration, terms and confirmation succeeded",
+    "Registered Persian phone persisted in profile",
+    "Photo upload and wizard category step succeeded",
+    "Message delivered by HTTP polling without Reverb or a queue worker",
+    "Skip link and mobile drawer Escape/focus restoration verified"
+  ],
+  "listing_wizard": [
+    "Full browser registration → photo → category → Persian details → rial preview → pending listing saved"
+  ],
+  "video_upload": [
+    "Actual MP4 browser upload accepted with shell functions disabled"
+  ],
+  "public_browser": {
+    "cases": 36,
+    "failed": 0
+  },
+  "environment": {
+    "php": "8.4.26",
+    "mariadb": "11.4.13",
+    "hosting_profile": "shared",
+    "disabled_php_functions": [
+      "proc_open",
+      "exec",
+      "shell_exec",
+      "system",
+      "passthru",
+      "popen",
+      "symlink"
+    ]
+  },
+  "limitations": [
+    "Actual cPanel account not tested",
+    "MySQL server independently untested",
+    "Web installer and updater not implemented",
+    "Existing PostgreSQL data not automatically migrated"
+  ],
+  "media_http": {
+    "status": 200,
+    "bytes": 3546,
+    "video_status": "ready"
+  }
+}

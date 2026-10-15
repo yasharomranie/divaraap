@@ -25,7 +25,7 @@ class VideoFormSchema
     public static function listingSection(): Section
     {
         return Section::make(__('video::admin.videos'))
-            ->description(__('video::admin.uploads_are_optimized_in_the_browser_when_supported_then_converted_to_a_mobile_mp4_in_the_queue'))
+            ->description(config('video.processing') === 'direct' ? __('video::admin.direct_mp4_only') : __('video::admin.uploads_are_optimized_in_the_browser_when_supported_then_converted_to_a_mobile_mp4_in_the_queue'))
             ->schema([
                 self::listingRepeater(),
             ])
@@ -129,7 +129,7 @@ class VideoFormSchema
             ->disk(fn (): string => LocalMedia::disk())
             ->directory(LocalMedia::managedDirectory(trim((string) config('video.upload_directory', 'videos/uploads'), '/')))
             ->visibility('public')
-            ->acceptedFileTypes([
+            ->acceptedFileTypes(config('video.processing') === 'direct' ? ['video/mp4'] : [
                 'video/mp4',
                 'video/quicktime',
                 'video/webm',
@@ -146,7 +146,7 @@ class VideoFormSchema
             ->maxSize((int) config('video.max_upload_size_kb', 102400))
             ->downloadable()
             ->openable()
-            ->helperText(__('video::admin.browser_supported_uploads_are_reduced_before_transfer_laravel_then_converts_them_to_a_mobile_mp4_with_the_queue'))
+            ->helperText(config('video.processing') === 'direct' ? __('video::admin.direct_mp4_only') : __('video::admin.browser_supported_uploads_are_reduced_before_transfer_laravel_then_converts_them_to_a_mobile_mp4_with_the_queue'))
             ->required(fn (?Video $record): bool => blank($record?->path) && blank($record?->upload_path))
             ->extraInputAttributes([
                 'data-video-upload-optimizer' => ($clientConfig['enabled'] ?? true) ? 'true' : 'false',

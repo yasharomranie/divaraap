@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Support\Database\SoftDeleteUniqueIndex;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->index(['is_published', 'placement']);
         });
 
-        DB::statement('CREATE UNIQUE INDEX pages_slug_unique ON pages (slug) WHERE deleted_at IS NULL');
+        SoftDeleteUniqueIndex::create('pages', ['slug'], 'pages_slug_unique');
     }
 
     public function down(): void

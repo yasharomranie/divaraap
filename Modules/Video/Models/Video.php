@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Modules\Listing\Models\Listing;
 use Modules\Site\App\Support\LocalMedia;
@@ -99,6 +100,10 @@ class Video extends Model
 
     public static function createFromTemporaryUpload(Listing $listing, TemporaryUploadedFile $file, array $attributes = []): self
     {
+        if (config('video.processing') === 'direct' && $file->getMimeType() !== 'video/mp4') {
+            throw ValidationException::withMessages(['video_file' => __('video::admin.direct_mp4_only')]);
+        }
+
         $disk = (string) ($attributes['disk'] ?? config('video.disk', LocalMedia::disk()));
         $path = $file->storeAs(
             trim((string) config('video.upload_directory', 'videos/uploads').'/'.$listing->getKey(), '/'),
@@ -122,6 +127,10 @@ class Video extends Model
 
     public static function createFromUploadedFile(Listing $listing, UploadedFile $file, array $attributes = []): self
     {
+        if (config('video.processing') === 'direct' && $file->getMimeType() !== 'video/mp4') {
+            throw ValidationException::withMessages(['video_file' => __('video::admin.direct_mp4_only')]);
+        }
+
         $disk = (string) ($attributes['disk'] ?? config('video.disk', LocalMedia::disk()));
         $path = $file->storeAs(
             trim((string) config('video.upload_directory', 'videos/uploads').'/'.$listing->getKey(), '/'),
@@ -157,7 +166,7 @@ class Video extends Model
                 ->latest('id')
                 ->paginate(10)
                 ->withQueryString(),
-            'listingOptions' => $user->panelListingOptions(),
+            'listingOptions' => $user->panelListingOptions()->pluck('title', 'id'),
         ];
     }
 
@@ -432,6 +441,24 @@ class Video extends Model
             return;
         }
 
+        if (config('video.processing') === 'direct') {
+            $disk = Storage::disk($this->upload_disk);
+            if ($disk->mimeType($this->upload_path) !== 'video/mp4') {
+                $this->forceFill(['status' => VideoStatus::Failed, 'processing_error' => __('video::admin.direct_mp4_only')])->saveQuietly();
+
+                return;
+            }
+            $this->syncOriginal();
+            $this->markAsProcessed([
+                'disk' => $this->upload_disk,
+                'path' => $this->upload_path,
+                'mime_type' => 'video/mp4',
+                'size' => $disk->size($this->upload_path),
+            ]);
+
+            return;
+        }
+
         ProcessVideo::dispatch($this->getKey())
             ->onQueue((string) config('video.queue', 'videos'))
             ->afterCommit();
@@ -457,6 +484,10 @@ class Video extends Model
 
     protected function replaceUploadFromUploadedFile(UploadedFile $file): void
     {
+        if (config('video.processing') === 'direct' && $file->getMimeType() !== 'video/mp4') {
+            throw ValidationException::withMessages(['video_file' => __('video::admin.direct_mp4_only')]);
+        }
+
         $disk = (string) config('video.disk', LocalMedia::disk());
         $path = $file->storeAs(
             trim((string) config('video.upload_directory', 'videos/uploads').'/'.$this->listing_id, '/'),

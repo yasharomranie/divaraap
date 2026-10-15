@@ -61,6 +61,10 @@
     @livewireStyles
 </head>
 <body
+    @if($isAuthenticated && config('hosting.profile') === 'shared')
+        data-inbox-poll-url="{{ route('conversations.updates', [], false) }}"
+        data-inbox-poll-interval="{{ config('hosting.poll_interval_ms', 5000) }}"
+    @endif
     @if($isAuthenticated && config('broadcasting.default') === 'reverb')
         data-reverb-key="{{ config('broadcasting.connections.reverb.key') }}"
         data-reverb-host="{{ config('broadcasting.connections.reverb.options.host') }}"

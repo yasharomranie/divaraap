@@ -11,6 +11,7 @@ Route::middleware('web')->group(function () {
     });
 
     Route::middleware('auth')->name('conversations.')->group(function () {
+        Route::get('/inbox/updates', [ConversationController::class, 'updates'])->middleware('throttle:30,1')->name('updates');
         Route::post('/listings/{listing}/conversation', [ConversationController::class, 'start'])->name('start');
         Route::post('/conversations/{conversation}/messages', [ConversationController::class, 'send'])->name('messages.send');
         Route::post('/conversations/{conversation}/read', [ConversationController::class, 'read'])->name('read');

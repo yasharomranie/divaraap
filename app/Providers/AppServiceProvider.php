@@ -14,7 +14,21 @@ use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        if (config('hosting.profile') === 'shared') {
+            config([
+                'queue.default' => 'sync',
+                'broadcasting.default' => 'null',
+                'demo.enabled' => false,
+                'video.processing' => 'direct',
+                'video.client_side.enabled' => false,
+                'media-library.image_driver' => 'gd',
+                'media-library.image_optimizers' => [],
+                'media-library.queue_conversions_by_default' => false,
+            ]);
+        }
+    }
 
     public function boot(): void
     {

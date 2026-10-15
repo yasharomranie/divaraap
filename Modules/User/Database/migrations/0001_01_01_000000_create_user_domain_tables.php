@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Support\Database\SoftDeleteUniqueIndex;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        DB::statement('CREATE UNIQUE INDEX users_email_unique ON users (email) WHERE deleted_at IS NULL');
+        SoftDeleteUniqueIndex::create('users', ['email'], 'users_email_unique');
 
         Schema::create('profiles', function (Blueprint $table): void {
             $table->id();
@@ -40,7 +40,7 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        DB::statement('CREATE UNIQUE INDEX profiles_user_id_unique ON profiles (user_id) WHERE deleted_at IS NULL');
+        SoftDeleteUniqueIndex::create('profiles', ['user_id'], 'profiles_user_id_unique');
 
         Schema::create('password_reset_tokens', function (Blueprint $table): void {
             $table->string('email')->primary();

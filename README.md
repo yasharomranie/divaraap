@@ -227,3 +227,7 @@ php artisan view:cache
 - Website: [openclassify.com](https://openclassify.com)
 - Package: [openclassify/openclassify](https://packagist.org/packages/openclassify/openclassify)
 - Contributors: [GitHub graph](https://github.com/openclassify/openclassify/graphs/contributors)
+
+### Shared hosting
+
+The optional `HOSTING_PROFILE=shared` profile uses synchronous jobs, authenticated inbox polling, GD image processing and direct MP4 uploads without shell commands or persistent workers. MariaDB compatibility and requirements are documented in [the shared-hosting guide](docs/SHARED_HOSTING_FA.md). A web installer and one-click updater are not included yet.

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'direct_mp4_only' => 'Shared hosting accepts ready-to-play MP4 videos only; conversion is unavailable.',
     'browser_supported_uploads_are_reduced_before_transfer_laravel_then_converts_them_to_a_mobile_mp4_with_the_queue' => 'Browser-supported uploads are reduced before transfer. Laravel then converts them to a mobile MP4 with the queue.',
     'catalog' => 'Catalog',
     'description' => 'Description',

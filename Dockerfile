@@ -19,7 +19,7 @@ RUN --mount=type=bind,target=/release-source,readonly \
     apt-get -o Acquire::https::CaInfo=${SSL_CERT_FILE:-/etc/ssl/certs/ca-certificates.crt} update && \
     apt-get -o Acquire::https::CaInfo=${SSL_CERT_FILE:-/etc/ssl/certs/ca-certificates.crt} install -y --no-install-recommends nginx ffmpeg git unzip libpq-dev libicu-dev libzip-dev libpng-dev libwebp-dev libjpeg62-turbo-dev libfreetype6-dev libonig-dev libxml2-dev && \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
-    docker-php-ext-install -j4 pdo_pgsql intl zip gd mbstring bcmath pcntl exif opcache && \
+    docker-php-ext-install -j4 pdo_pgsql pdo_mysql intl zip gd mbstring bcmath pcntl exif opcache && \
     cp /tmp/composer-binary /usr/local/bin/composer && chmod +x /usr/local/bin/composer && \
     mkdir -p /var/www/html && cp -a /release-source/. /var/www/html/ && cd /var/www/html && \
     mkdir -p public/build && cp -a /release-build/. public/build/ && \

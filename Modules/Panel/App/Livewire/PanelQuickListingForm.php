@@ -549,7 +549,7 @@ class PanelQuickListingForm extends Component
             'videos.*' => [
                 'required',
                 'file',
-                'mimetypes:video/mp4,video/quicktime,video/webm,video/x-matroska,video/x-msvideo',
+                config('video.processing') === 'direct' ? 'mimetypes:video/mp4' : 'mimetypes:video/mp4,video/quicktime,video/webm,video/x-matroska,video/x-msvideo',
                 'max:'.config('video.max_upload_size_kb', 102400),
             ],
         ]);

@@ -1,7 +1,7 @@
 # Architecture & Data
 * **Modular Monolith:** Strict boundaries; zero cross-module JOINs.
 * **Design:** SOLID, KISS, MVC. Clean Apple style: minimalist, text-minimal, no animations.
-* **Database:** PostgreSQL with SoftDeletes everywhere.
+* **Database:** PostgreSQL and MySQL/MariaDB for shared hosting, with SoftDeletes everywhere. Preserve portable queries and active-record uniqueness on both engines.
 * **Logic:** Fat Models handle all DB interactions.
 * **Shared Code:** Keep global helpers in the Laravel root.
 

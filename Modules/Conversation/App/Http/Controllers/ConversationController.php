@@ -18,6 +18,20 @@ use Modules\Listing\Models\Listing;
 
 class ConversationController extends Controller
 {
+    public function updates(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'conversation' => ['nullable', 'integer', 'min:1', 'max:2147483647'],
+            'after' => ['nullable', 'integer', 'min:0', 'max:2147483647'],
+        ]);
+
+        return response()->json(Conversation::pollForUser(
+            (int) $request->user()->getKey(),
+            isset($data['conversation']) ? (int) $data['conversation'] : null,
+            (int) ($data['after'] ?? 0),
+        ))->header('Cache-Control', 'no-store, private');
+    }
+
     public function inbox(Request $request): View
     {
         $user = $request->user();

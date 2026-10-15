@@ -33,7 +33,8 @@
 
         <div class="field">
             <label class="field__label" for="video-file">{{ __('panel::messages.videos') }}</label>
-            <input id="video-file" type="file" name="video_file" class="input" accept="video/*" required>
+            <input id="video-file" type="file" name="video_file" class="input" accept="{{ config('video.processing') === 'direct' ? 'video/mp4' : 'video/*' }}" required>
+            @if(config('video.processing') === 'direct')<p class="field__hint">{{ __('video::admin.direct_mp4_only') }}</p>@endif
             @error('video_file')<p class="field__error">{{ $message }}</p>@enderror
         </div>
 

@@ -6,6 +6,7 @@ type InboxListener = (payload: InboxMessagePayload) => void;
 
 const listeners = new Set<InboxListener>();
 let client: Echo<'reverb'> | null = null;
+let polling = false;
 
 function parseInboxPayload(value: unknown): InboxMessagePayload | null {
     if (typeof value !== 'object' || value === null) return null;
@@ -24,7 +25,52 @@ function parseInboxPayload(value: unknown): InboxMessagePayload | null {
     };
 }
 
+function startPolling(endpoint: string): void {
+    if (polling) return;
+    polling = true;
+    const thread = document.querySelector<HTMLElement>('[data-inbox-thread]');
+    const conversation = thread?.dataset['inboxThread'];
+    let cursor = Math.max(0, ...Array.from(document.querySelectorAll<HTMLElement>('[data-message-id]'),
+        (element) => Number(element.dataset['messageId'] ?? 0)));
+    const interval = Math.max(5000, Number(document.body.dataset['inboxPollInterval'] ?? 5000));
+    const tick = async (): Promise<void> => {
+        try {
+            if (document.hidden) return;
+            const url = new URL(endpoint, window.location.origin);
+            if (conversation !== undefined) {
+                url.searchParams.set('conversation', conversation);
+                url.searchParams.set('after', String(cursor));
+            }
+            const response = await fetch(url, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+            if (!response.ok) return;
+            const value = await response.json() as { messages?: unknown[]; unread_total?: number };
+            if (typeof value.unread_total === 'number') {
+                for (const badge of document.querySelectorAll<HTMLElement>('[data-inbox-badge]')) {
+                    badge.textContent = value.unread_total > 99 ? '99+' : String(value.unread_total);
+                    badge.hidden = value.unread_total === 0;
+                }
+            }
+            for (const message of value.messages ?? []) {
+                const payload = parseInboxPayload(message);
+                if (payload === null) continue;
+                cursor = Math.max(cursor, payload.id);
+                for (const listener of listeners) listener(payload);
+            }
+        } catch {
+            return;
+        } finally {
+            window.setTimeout(() => { void tick(); }, interval);
+        }
+    };
+    void tick();
+}
+
 function connect(): void {
+    const endpoint = document.body.dataset['inboxPollUrl'];
+    if (endpoint !== undefined && endpoint !== '') {
+        startPolling(endpoint);
+        return;
+    }
     if (client !== null) return;
     const data = document.body.dataset;
     const channel = data['inboxChannel'];

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Conversation\App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,28 @@ class Conversation extends Model
     protected $fillable = ['listing_id', 'seller_id', 'buyer_id', 'last_message_at'];
 
     protected $casts = ['last_message_at' => 'datetime'];
+
+    public static function pollForUser(int $userId, ?int $conversationId, int $after): array
+    {
+        $unreadTotal = static::unreadCountForUser($userId);
+        $messages = [];
+        if ($conversationId !== null) {
+            $conversation = static::query()->findOrFail($conversationId);
+            abort_unless($conversation->hasParticipant($userId), 403);
+            $messages = $conversation->messagesAfter($after)->map(fn (ConversationMessage $message): array => [
+                'conversation' => ['id' => (int) $conversation->getKey()],
+                'message' => $message->toRealtimePayloadFor($userId),
+                'counts' => ['unread_messages_total' => $unreadTotal],
+            ])->all();
+        }
+
+        return ['messages' => $messages, 'unread_total' => $unreadTotal];
+    }
+
+    public function messagesAfter(int $messageId): Collection
+    {
+        return $this->messages()->with('sender:id,name')->where('id', '>', $messageId)->orderBy('id')->limit(100)->get();
+    }
 
     public function listing()
     {

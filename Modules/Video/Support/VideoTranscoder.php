@@ -15,6 +15,10 @@ class VideoTranscoder
 {
     public function transcode(Video $video): array
     {
+        if (config('video.processing') === 'direct') {
+            throw new RuntimeException('Video transcoding is unavailable in direct upload mode.');
+        }
+
         $disk = (string) config('video.disk', LocalMedia::disk());
         $inputDisk = Storage::disk((string) ($video->upload_disk ?: $disk));
         $outputDisk = Storage::disk($disk);

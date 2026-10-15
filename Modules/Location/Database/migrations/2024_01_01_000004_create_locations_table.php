@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Support\Database\SoftDeleteUniqueIndex;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        DB::statement('CREATE UNIQUE INDEX countries_code_unique ON countries (code) WHERE deleted_at IS NULL');
+        SoftDeleteUniqueIndex::create('countries', ['code'], 'countries_code_unique');
 
         Schema::create('cities', function (Blueprint $table) {
             $table->id();

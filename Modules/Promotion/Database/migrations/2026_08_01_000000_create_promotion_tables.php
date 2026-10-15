@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Support\Database\SoftDeleteUniqueIndex;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        DB::statement('CREATE UNIQUE INDEX promotion_plans_slug_unique ON promotion_plans (slug) WHERE deleted_at IS NULL');
+        SoftDeleteUniqueIndex::create('promotion_plans', ['slug'], 'promotion_plans_slug_unique');
 
         Schema::create('promotion_orders', function (Blueprint $table): void {
             $table->id();

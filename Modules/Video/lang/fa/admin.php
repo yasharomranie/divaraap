@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'direct_mp4_only' => 'در هاست اشتراکی فقط ویدیوی MP4 آمادهٔ پخش پذیرفته می‌شود؛ تبدیل ویدیو انجام نمی‌شود.',
     'browser_supported_uploads_are_reduced_before_transfer_laravel_then_converts_them_to_a_mobile_mp4_with_the_queue' => 'در مرورگرهای پشتیبان، فایل پیش از ارسال بهینه می‌شود؛ سپس در صف به MP4 مناسب موبایل تبدیل می‌شود.',
     'catalog' => 'دسته‌بندی و آگهی',
     'description' => 'توضیحات',

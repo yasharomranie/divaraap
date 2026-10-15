@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Support\Database\SoftDeleteUniqueIndex;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -41,7 +41,7 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        DB::statement('CREATE UNIQUE INDEX favorite_searches_user_id_signature_unique ON favorite_searches (user_id, signature) WHERE deleted_at IS NULL');
+        SoftDeleteUniqueIndex::create('favorite_searches', ['user_id', 'signature'], 'favorite_searches_user_id_signature_unique');
     }
 
     public function down(): void

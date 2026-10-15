@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.shared.example
 .agents
 .codex
 node_modules

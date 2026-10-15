@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Support\Database\SoftDeleteUniqueIndex;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -36,7 +36,7 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        DB::statement('CREATE UNIQUE INDEX listings_slug_unique ON listings (slug) WHERE deleted_at IS NULL');
+        SoftDeleteUniqueIndex::create('listings', ['slug'], 'listings_slug_unique');
 
         Schema::create('listing_custom_fields', function (Blueprint $table): void {
             $table->id();
@@ -54,7 +54,7 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        DB::statement('CREATE UNIQUE INDEX listing_custom_fields_name_unique ON listing_custom_fields (name) WHERE deleted_at IS NULL');
+        SoftDeleteUniqueIndex::create('listing_custom_fields', ['name'], 'listing_custom_fields_name_unique');
     }
 
     public function down(): void
