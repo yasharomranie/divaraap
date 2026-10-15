@@ -49,6 +49,7 @@ for name in ['index.php', 'install.php', 'deployment-runner.php', 'recover.php']
     shutil.copy2(root / 'distribution' / name, public / name)
 shutil.copy2(root / 'distribution/private.htaccess', private / '.htaccess')
 shutil.copy2(root / 'distribution/INSTALL_FA.md', build / 'INSTALL_FA.md')
+shutil.copy2(root / 'distribution/CREATE-INSTALLATION-KEY.html', build / 'CREATE-INSTALLATION-KEY.html')
 shutil.copy2(root / 'docs/DEPLOYMENT_FA.md', build / 'DEPLOYMENT_FA.md')
 for name in ['storage/app/public', 'storage/app/private', 'storage/framework/cache/data', 'storage/framework/sessions', 'storage/framework/views', 'storage/logs', 'bootstrap/cache']:
     (private / name).mkdir(parents=True, exist_ok=True)

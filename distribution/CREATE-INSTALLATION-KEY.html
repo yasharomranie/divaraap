@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>ساخت کد خصوصی نصب</title>
+<link rel="stylesheet" href="public_html/assets/fonts/vazirmatn/font.css">
+<style>
+body{font-family:Vazirmatn,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.9;margin:0;padding:20px}main{max-width:640px;margin:24px auto;padding:24px;background:white;border:1px solid #cbd5e1;border-radius:12px}button,a,input{font:inherit;box-sizing:border-box;min-height:44px}button,a{display:inline-block;padding:10px 16px;border-radius:6px;border:1px solid #1d4ed8;background:#1d4ed8;color:white;cursor:pointer;text-decoration:none;margin-block:12px}input{width:100%;padding:10px;border:1px solid #64748b;border-radius:6px}label{display:block}ol{padding-inline-start:24px}:focus-visible{outline:3px solid #2563eb;outline-offset:3px}[hidden]{display:none}
+</style>
+<main>
+<h1>ساخت کد خصوصی نصب</h1>
+<p>این فایل را پس از استخراج ZIP روی دستگاه خود باز کنید. کد همین‌جا ساخته می‌شود و به هیچ سروری فرستاده نمی‌شود.</p>
+<ol>
+<li>«ساخت کد» را بزنید و کد نمایش‌داده‌شده را در جای امن ذخیره کنید.</li>
+<li>فایل install.token را دانلود و با File Manager در پوشهٔ خصوصی divaraap هاست آپلود کنید؛ کنار artisan و composer.json، بیرون از مسیر عمومی سایت.</li>
+<li>صفحهٔ install.php دامنه را با HTTPS باز کنید و کد ذخیره‌شده را در فرم نصب وارد کنید.</li>
+</ol>
+<p>فایل کد را عمومی منتشر نکنید. برای هر نصب کد تازه بسازید. بدون این فایل خصوصی، نصاب بستهٔ عمومی فعال نمی‌شود و صفحهٔ 404 نشان می‌دهد.</p>
+<button type="button" id="generate">ساخت کد</button>
+<div id="result" hidden>
+<label for="code">کد نصب؛ آن را خارج از هاست نگه دارید</label>
+<input id="code" readonly dir="ltr" autocomplete="off" spellcheck="false">
+<a id="download" download="install.token">دانلود فایل install.token</a>
+</div>
+<p role="status" aria-live="polite" id="status"></p>
+</main>
+<script>
+let previousUrl;
+document.getElementById('generate').addEventListener('click',async()=>{
+ const button=document.getElementById('generate');
+ const status=document.getElementById('status');
+ button.disabled=true;
+ try{
+  if(!globalThis.crypto?.subtle)throw new Error('unsupported');
+  const code=Array.from(crypto.getRandomValues(new Uint8Array(32)),value=>value.toString(16).padStart(2,'0')).join('');
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code));
+  const hash=Array.from(new Uint8Array(digest),value=>value.toString(16).padStart(2,'0')).join('');
+  if(previousUrl)URL.revokeObjectURL(previousUrl);
+  previousUrl=URL.createObjectURL(new Blob([hash+'\n'],{type:'text/plain'}));
+  document.getElementById('download').href=previousUrl;
+  document.getElementById('code').value=code;
+  document.getElementById('result').hidden=false;
+  status.textContent='کد آماده است. ابتدا آن را ذخیره کنید، سپس فایل را دانلود و در پوشهٔ خصوصی هاست آپلود کنید.';
+ }catch{
+  status.textContent='ساخت کد در این مرورگر ممکن نشد. فایل را با نسخهٔ جدید Chrome یا Firefox روی دستگاه خود باز کنید.';
+ }finally{button.disabled=false;}
+});
+</script>
+</html>

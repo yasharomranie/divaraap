@@ -6,6 +6,7 @@ import zipfile
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', required=True)
+parser.add_argument('--public-release', action='store_true')
 args = parser.parse_args()
 output = Path(args.output).resolve()
 build = output / 'build'
@@ -24,11 +25,16 @@ if not (public / 'build/manifest.json').is_file():
     raise SystemExit('Frontend build is missing.')
 if not (public / 'js/filament').is_dir():
     raise SystemExit('Filament assets missing.')
+omitted = {'INSTALLATION-CODE.txt', 'divaraap/install.token'} if args.public_release else set()
+if args.public_release and not (build / 'CREATE-INSTALLATION-KEY.html').is_file():
+    raise SystemExit('Public installer activation helper is missing.')
 manifest = {}
 for p in sorted(build.rglob('*')):
     if not p.is_file():
         continue
     name = p.relative_to(build).as_posix()
+    if name in omitted:
+        continue
     if p.name in ['auth.json', '.env', '.git'] or '/.git/' in name or '/node_modules/' in name or '/tests/' in name and name.startswith('divaraap/tests/'):
         raise SystemExit('Unexpected file: ' + name)
     manifest[name] = hashlib.sha256(p.read_bytes()).hexdigest()
@@ -36,6 +42,8 @@ for p in sorted(build.rglob('*')):
 archive = output / 'divaraap-shared-install.zip'
 with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
     for p in sorted(build.rglob('*')):
+        if p.relative_to(build).as_posix() in omitted:
+            continue
         if p.is_dir():
             z.write(p, p.relative_to(build).as_posix() + '/')
         else:

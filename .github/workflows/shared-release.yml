@@ -28,13 +28,14 @@ jobs:
       - run: npm ci && npm run build
       - run: php artisan filament:assets
       - run: php artisan vendor:publish --tag=filament-phone-input-assets --force
+      - run: python3 tests/Packaging/test_public_installer.py
       - run: python3 scripts/prepare-local-assets.py
       - run: python3 scripts/build-shared-package.py --output "$RUNNER_TEMP/shared-release"
-      - run: python3 scripts/finalize-shared-package.py --output "$RUNNER_TEMP/shared-release"
+      - run: python3 scripts/finalize-shared-package.py --public-release --output "$RUNNER_TEMP/shared-release"
       - run: python3 scripts/build-update-package.py --output "$RUNNER_TEMP/shared-release"
       - env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          gh release view deploy-main >/dev/null 2>&1 || gh release create deploy-main --target "$GITHUB_SHA" --title 'Shared hosting main' --notes 'Production update with bundled dependencies. Installation archives are never published.'
-          gh release upload deploy-main "$RUNNER_TEMP/shared-release/divaraap-update.zip" "$RUNNER_TEMP/shared-release/UPDATE-SHA256SUMS.txt" --clobber
+          gh release view deploy-main >/dev/null 2>&1 || gh release create deploy-main --target "$GITHUB_SHA" --title 'Shared hosting main' --notes 'Production update and public installer with bundled dependencies. Generate a private installation key using CREATE-INSTALLATION-KEY.html before installing.'
+          gh release upload deploy-main "$RUNNER_TEMP/shared-release/divaraap-update.zip" "$RUNNER_TEMP/shared-release/UPDATE-SHA256SUMS.txt" "$RUNNER_TEMP/shared-release/divaraap-shared-install.zip" "$RUNNER_TEMP/shared-release/SHA256SUMS.txt" --clobber
