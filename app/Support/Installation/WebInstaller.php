@@ -60,6 +60,7 @@ final class WebInstaller
                 throw new RuntimeException('نصب قبلی ناتمام مانده است؛ راهنمای بازیابی داخل بسته را بررسی کنید.');
             }
             $this->assertEmptyDatabase($input);
+            $step = 'آماده‌سازی تنظیمات';
             $settings = parse_ini_file($this->basePath.'/.env.shared.example', false, INI_SCANNER_RAW);
             if (! is_array($settings)) {
                 throw new RuntimeException('نمونهٔ تنظیمات بسته موجود نیست.');
@@ -98,6 +99,7 @@ final class WebInstaller
             if (! rename($temp, $this->basePath.'/.env')) {
                 throw new RuntimeException('ذخیرهٔ تنظیمات ممکن نیست.');
             }
+            $step = 'راه‌اندازی برنامه';
             require_once $this->basePath.'/vendor/autoload.php';
             $app = require $this->basePath.'/bootstrap/app.php';
             $app->usePublicPath($this->publicPath);
@@ -118,7 +120,7 @@ final class WebInstaller
             unlink($this->basePath.'/installation.pending');
         } catch (Throwable $exception) {
             if (is_file($this->basePath.'/installation.pending')) {
-                file_put_contents($this->basePath.'/installation-error.log', $step.' '.get_class($exception).' '.date(DATE_ATOM).PHP_EOL, FILE_APPEND | LOCK_EX);
+                file_put_contents($this->basePath.'/installation-error.log', $step.' '.get_class($exception).' '.str_replace($this->basePath.'/', '', $exception->getFile()).':'.$exception->getLine().' '.date(DATE_ATOM).PHP_EOL, FILE_APPEND | LOCK_EX);
                 throw new RuntimeException('نصب در مرحلهٔ «'.$step.'» متوقف شد. سایت هنوز فعال نشده؛ راهنمای بازیابی را بخوانید.', previous: $exception);
             }
             throw $exception;

@@ -45,7 +45,7 @@ for folder in ['assets', 'build', 'css', 'js', 'fonts', 'vendor', 'img', 'images
 for name in ['.htaccess', 'favicon.ico', 'favicon.svg', 'robots.txt']:
     if (root / 'public' / name).is_file():
         shutil.copy2(root / 'public' / name, public / name)
-for name in ['index.php', 'install.php', 'deployment-runner.php', 'recover.php']:
+for name in ['index.php', 'install.php', 'deployment-runner.php', 'recover.php', 'installer-diagnostics.php']:
     shutil.copy2(root / 'distribution' / name, public / name)
 shutil.copy2(root / 'distribution/private.htaccess', private / '.htaccess')
 shutil.copy2(root / 'distribution/INSTALL_FA.md', build / 'INSTALL_FA.md')
