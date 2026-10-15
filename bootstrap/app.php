@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\LocalLibraryPolicy;
 use App\Http\Middleware\NormalizeLocalizedNumbers;
 use App\Http\Middleware\ValidateRouteIdentifiers;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Bootstrap\LoadConfiguration;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Routing\Middleware\SubstituteBindings;
@@ -22,6 +24,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(LocalLibraryPolicy::class);
         $middleware->web(prepend: [ValidateRouteIdentifiers::class], append: [
             ResolveDemoRequest::class,
             BootstrapAppData::class,
@@ -39,6 +42,17 @@ $app = Application::configure(basePath: dirname(__DIR__))
 
 if (is_file($hostingPath = __DIR__.'/hosting-public.php')) {
     $app->usePublicPath(require $hostingPath);
+}
+
+if (is_file($runtimePath = __DIR__.'/hosting-runtime.php')) {
+    $runtime = require $runtimePath;
+    $app->useEnvironmentPath($runtime['root']);
+    $app->useStoragePath($runtime['root'].'/storage');
+    $app->usePublicPath($runtime['public']);
+    $app->afterBootstrapping(LoadConfiguration::class, function ($app) use ($runtime): void {
+        $app['config']->set('app.asset_url', $runtime['asset_url']);
+        $app['config']->set('deployment.root', $runtime['root']);
+    });
 }
 
 return $app;

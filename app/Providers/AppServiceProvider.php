@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Modules\Location\Support\CountryCodeManager;
 use SocialiteProviders\Apple\Provider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
+use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        PhoneInput::configureUsing(function (PhoneInput $input): void {
+            $input->enableIpLookup(false)->initialCountry(fn (): string => strtolower($input->getDefaultCountry() ?: CountryCodeManager::defaultCountryIso2()));
+        });
+
         Gate::before(function ($user): ?bool {
             if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
                 return true;

@@ -33,3 +33,6 @@ graphify-out/.graphify*
 /.agents/skills/ui-ux-pro-max/scripts/__pycache__/
 
 /storage/media-library/temp/
+
+__pycache__/
+*.pyc

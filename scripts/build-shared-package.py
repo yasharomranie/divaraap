@@ -6,11 +6,13 @@ from pathlib import Path
 import secrets
 import shutil
 import subprocess
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', required=True)
 args = parser.parse_args()
 root = Path(__file__).resolve().parent.parent
+subprocess.run([sys.executable, str(root / 'scripts/prepare-local-assets.py')], check=True)
 output = Path(args.output).resolve()
 if output == root or root in output.parents:
     raise SystemExit('Output must be outside the checkout.')
@@ -43,10 +45,11 @@ for folder in ['assets', 'build', 'css', 'js', 'fonts', 'vendor', 'img', 'images
 for name in ['.htaccess', 'favicon.ico', 'favicon.svg', 'robots.txt']:
     if (root / 'public' / name).is_file():
         shutil.copy2(root / 'public' / name, public / name)
-for name in ['index.php', 'install.php']:
+for name in ['index.php', 'install.php', 'deployment-runner.php', 'recover.php']:
     shutil.copy2(root / 'distribution' / name, public / name)
 shutil.copy2(root / 'distribution/private.htaccess', private / '.htaccess')
 shutil.copy2(root / 'distribution/INSTALL_FA.md', build / 'INSTALL_FA.md')
+shutil.copy2(root / 'docs/DEPLOYMENT_FA.md', build / 'DEPLOYMENT_FA.md')
 for name in ['storage/app/public', 'storage/app/private', 'storage/framework/cache/data', 'storage/framework/sessions', 'storage/framework/views', 'storage/logs', 'bootstrap/cache']:
     (private / name).mkdir(parents=True, exist_ok=True)
 for module in (private / 'Modules').iterdir():
@@ -59,6 +62,6 @@ token = secrets.token_urlsafe(32)
 os.chmod(private / 'install.token', 0o600)
 os.chmod(build / 'INSTALLATION-CODE.txt', 0o600)
 revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root).decode().strip()
-metadata = {'source_revision': revision, 'source_dirty': bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=root).strip()), 'php': '8.4+', 'database': 'MySQL 8 or MariaDB 11.4', 'profile': 'shared', 'layout': ['divaraap', 'public_html'], 'installer': True}
+metadata = {'source_revision': revision, 'source_dirty': bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=root).strip()), 'php': '8.4+', 'database': 'MySQL 8 or MariaDB 11.4', 'profile': 'shared', 'layout': ['divaraap', 'public_html'], 'installer': True, 'deployment_protocol': 1, 'local_assets': True}
 (private / 'release.json').write_text(json.dumps(metadata, indent=2) + '\n')
 print('Clean package staged. Run Composer --no-dev in build/divaraap before finalizing.')
