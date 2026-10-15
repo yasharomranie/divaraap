@@ -16,6 +16,8 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -50,6 +52,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->default()
             ->path('admin')
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin-accessibility'))
             ->pages([LocalizedFileManager::class])
             ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->login()

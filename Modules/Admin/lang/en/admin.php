@@ -13,4 +13,5 @@ return [
     'file_manager' => 'File Manager',
     'files' => 'Files',
     'root' => 'Root',
+    'open_record' => 'Open :record',
 ];

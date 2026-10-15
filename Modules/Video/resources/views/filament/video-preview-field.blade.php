@@ -12,7 +12,7 @@
 <div class="space-y-3">
     <div class="flex flex-wrap items-center gap-2">
         <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold {{ $statusColor }}">
-            {{ $video?->statusLabel() ?? 'New' }}
+            {{ $video?->statusLabel() ?? __('video::admin.new') }}
         </span>
 
         @if($video && ($video->resolutionLabel() !== '-'))
@@ -38,7 +38,7 @@
         ></video>
     @else
         <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-            Preview will appear after the first upload.
+            {{ __('video::admin.preview_after_upload') }}
         </div>
     @endif
 

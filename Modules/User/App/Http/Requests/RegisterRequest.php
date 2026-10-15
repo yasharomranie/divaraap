@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\User\App\Http\Requests;
 
+use App\Rules\IranianMobile;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -22,8 +23,9 @@ class RegisterRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:120'],
             'last_name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique((new User)->getTable(), 'email')],
-            'password' => ['required', Password::defaults()],
+            'password' => ['required', 'confirmed', Password::defaults()],
             'terms' => ['accepted'],
+            'phone' => ['nullable', 'string', 'max:60', new IranianMobile],
             'marketing_opt_in' => ['nullable', 'boolean'],
         ];
     }

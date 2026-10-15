@@ -69,6 +69,8 @@
     @endif
     data-inbox-channel="{{ $isAuthenticated ? 'users.'.auth()->id().'.inbox' : '' }}">
 
+<a class="skip-link button" href="#main-content">{{ __('site::messages.skip_to_content') }}</a>
+
 @unless($chromeless)
 <header class="site-header" data-sticky-header>
     <div class="shell shell--wide">
@@ -288,7 +290,7 @@
 </div>
 @endunless
 
-<main>
+<main id="main-content" tabindex="-1">
     @if(session('success') || session('error') || $errors->any())
         <div class="shell shell--wide" style="padding-top: var(--space-4)">
             <x-ui.flash/>

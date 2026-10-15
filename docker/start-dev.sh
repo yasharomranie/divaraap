@@ -8,11 +8,12 @@ fi
 cd /var/www/html
 
 composer install
-npm install
+npm ci --no-audit --no-fund
 
-php artisan key:generate --force
+if ! grep -q '^APP_KEY=.' /var/www/html/.env; then
+    php artisan key:generate --force
+fi
 php artisan migrate --force
-php artisan db:seed --force
 php artisan storage:link
 
 php-fpm -D

@@ -120,4 +120,5 @@ return [
     'footer_safety_tips' => 'نکات ایمنی',
     'footer_terms' => 'شرایط استفاده',
     'footer_privacy' => 'حریم خصوصی',
+    'skip_to_content' => 'رفتن به محتوای اصلی',
 ];

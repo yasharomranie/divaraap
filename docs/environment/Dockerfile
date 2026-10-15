@@ -8,4 +8,9 @@ RUN --mount=type=secret,id=proxy_ca,required=true \
     docker-php-ext-install -j4 pdo_pgsql intl zip gd mbstring bcmath pcntl exif && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+RUN --mount=type=secret,id=proxy_ca,required=true \
+    apt-get -o Acquire::https::CaInfo=/run/secrets/proxy_ca update && \
+    apt-get -o Acquire::https::CaInfo=/run/secrets/proxy_ca install -y --no-install-recommends ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
+COPY php.ini /usr/local/etc/php/conf.d/uploads.ini
 WORKDIR /app

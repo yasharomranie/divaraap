@@ -36,4 +36,8 @@ return [
     'delete_account_lead' => 'حساب کاربری و آگهی‌های شما برای همیشه حذف می‌شوند.',
     'delete_confirm' => 'حساب من را حذف کن',
     'seller_since' => 'فروشنده از :date',
+    'first_name' => 'نام',
+    'last_name' => 'نام خانوادگی',
+    'accept_terms' => 'قوانین استفاده را می‌پذیرم.',
+    'read_terms' => 'مطالعهٔ قوانین استفاده',
 ];

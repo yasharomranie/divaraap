@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 use Laravel\Cashier\Billable;
@@ -65,11 +66,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public static function registerFrom(array $data): self
     {
-        return static::query()->create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => $data['password'],
-        ]);
+        return DB::transaction(function () use ($data): self {
+            $user = static::query()->create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+            ]);
+            if (filled($data['phone'] ?? null)) {
+                Profile::savePhoneForUser($user, $data['phone']);
+            }
+
+            return $user;
+        });
     }
 
     public function updatePassword(string $password): void

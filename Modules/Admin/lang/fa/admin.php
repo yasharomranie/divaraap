@@ -13,4 +13,5 @@ return [
     'file_manager' => 'مدیریت فایل',
     'files' => 'فایل‌ها',
     'root' => 'ریشه',
+    'open_record' => 'باز کردن :record',
 ];

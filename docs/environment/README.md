@@ -39,11 +39,13 @@ python3 scripts/check-runtime.py
 - در ماشین تازه یا بازیابی بدون volume، نصب و seed نمونه را دوباره اجرا کنید. ماندگاری دادهٔ volume در snapshot محیط فرض نشده است. پردازش‌ها هم باید دوباره راه‌اندازی شوند.
 - trust store میزبان به صورت read-only به کانتینر mount می‌شود. TLS و اعتبارسنجی بسته‌ها غیرفعال نمی‌شوند.
 - Composer با `--prefer-source` نصب می‌کند؛ Git از `GIT_SSL_CAINFO` برای گواهی پروکسی استفاده می‌کند. این مسیر در محیط فعلی به دلیل مسدود بودن دانلود آرشیو از api.github.com انتخاب شده است و clone نخست حجیم‌تر است.
-- Dockerfile.dev اصلی PHP 8.3 دارد و با requirement فعلی 8.4 سازگار نیست؛ فایل اصلی در فاز ۱ تغییر نکرده است.
-- فایل‌های lock در upstream نادیده گرفته شده‌اند. نصب اول lockهای محلی ایجاد می‌کند؛ refresh با آن‌ها انجام می‌شود. `resolved-versions.json` نسخه‌ها و checksum آن‌ها را ثبت می‌کند، اما جایگزین lockfile نیست. نصب در clone تازه بدون lock ممکن است نسخه‌های سازگار جدیدتری بگیرد.
+- در فاز ۷ Dockerfile.dev به PHP 8.4 و Node 24 ارتقا یافت؛ build این مسیر اختیاری جداگانه اجرا نشده است. مسیر cloud از docs/environment/Dockerfile استفاده می‌کند.
+- از فاز ۷ composer.lock و package-lock.json در Git ثبت شده‌اند؛ install از نسخه‌های قفل‌شده استفاده می‌کند. برای نصب frontend از npm ci استفاده کنید.
 - اسکریپت از کانتینرهای اختصاصی با همین نام استفاده می‌کند؛ اگر از قبل کانتینری نامرتبط با این نام وجود دارد، پیش از اجرا نام‌ها و mountها بررسی شوند.
 - credentialهای تولیدشدهٔ محلی و `.env` در Git ثبت نشوند.
 
 صف و broadcasting در تست HTTP با sync/log جایگزین می‌شوند. اسکریپت check-runtime مستقل از suite، HTTP واقعی، تحویل پیام Reverb و مصرف job در worker را بررسی می‌کند؛ برای اجرای آن سرویس‌ها باید start شده باشند. سرویس‌های هوش مصنوعی، object storage، نقشه، ورود اجتماعی و پرداخت بیرونی بدون credential در این فاز فعال نمی‌شوند.
 
 پس از اصلاح StateFusion، نصب کامل، اجرای مجدد install، start و بررسی‌های runtime موفق شدند. runner helper مستقیماً PHPUnit را با فایل تنظیمات خارجی اجرا می‌کند تا هشدار configuration تکراری artisan test ایجاد نشود.
+
+از فاز ۷ FFmpeg/FFprobe و پشتیبانی WebP فعال‌اند؛ worker صف‌های default و videos را مصرف می‌کند. PHP سقف upload=100M و post=110M دارد و Livewire با سقف ویدیو هماهنگ است. راهنمای تولید و backup/rollback در [راهنمای انتشار](../RELEASE_GUIDE_FA.md) است.

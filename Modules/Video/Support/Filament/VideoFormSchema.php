@@ -59,7 +59,7 @@ class VideoFormSchema
             ->schema(self::itemSchema())
             ->defaultItems(0)
             ->addActionLabel(__('video::admin.add_video'))
-            ->itemLabel(fn (array $state): string => trim((string) ($state['title'] ?? '')) ?: 'Video')
+            ->itemLabel(fn (array $state): string => trim((string) ($state['title'] ?? '')) ?: __('video::admin.video'))
             ->maxItems((int) config('video.max_listing_videos', 5))
             ->orderColumn('sort_order')
             ->collapsible()

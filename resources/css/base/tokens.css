@@ -71,7 +71,7 @@
     --accent: #0066cc;
     --accent-strong: #0055aa;
     --accent-soft: #e8f1fd;
-    --positive: #1a7f47;
+    --positive: #176f3f;
     --positive-soft: #e6f4ec;
     --caution: #9a6400;
     --caution-soft: #fdf3e0;
@@ -82,7 +82,7 @@
     --shadow-md: 0 4px 16px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
     --shadow-lg: 0 18px 48px rgb(0 0 0 / 0.10), 0 2px 6px rgb(0 0 0 / 0.04);
 
-    --focus-ring: 0 0 0 3px rgb(0 102 204 / 0.28);
+    --focus-ring: 0 0 0 3px var(--accent);
 
     --shell-max: 1200px;
     --shell-wide: 1400px;

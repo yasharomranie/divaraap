@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Modules\Admin\Providers;
 
+use App\Support\Filament\AccessibleTableLinks;
 use App\Support\Filament\FileManagerNotificationMailbox;
 use Filament\Events\ServingFilament;
 use Filament\Notifications\NotificationMailbox;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,6 +17,9 @@ class AdminServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadTranslationsFrom(module_path('Admin', 'lang'), 'admin');
+        Table::configureUsing(fn (Table $table) => $table->extraRecordLinkAttributes(
+            fn (\Illuminate\Database\Eloquent\Model|array $record): array => AccessibleTableLinks::attributes($record), merge: true,
+        ));
         Event::listen(ServingFilament::class, function (): void {
             config()->set('filemanager.file_manager.navigation.label', __('admin::admin.file_manager'));
             config()->set('filemanager.file_manager.navigation.group', __('admin::admin.files'));

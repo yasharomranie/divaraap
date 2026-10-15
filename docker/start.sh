@@ -1,17 +1,19 @@
 #!/bin/sh
-set -e
+set -eu
+cd /var/www/html
 
-if [ ! -f /var/www/html/.env ]; then
-    cp /var/www/html/.env.example /var/www/html/.env
-    php artisan key:generate --force
+if [ -z "${APP_KEY:-}" ]; then
+    printf '%s\n' 'APP_KEY must be configured before starting the application.' >&2
+    exit 1
 fi
 
-php artisan migrate --force
-php artisan db:seed --force
+mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan storage:link
 
 php-fpm -D
-nginx -g 'daemon off;'
+exec nginx -g 'daemon off;'

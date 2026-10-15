@@ -272,7 +272,7 @@ class Video extends Model
             return str($name)->after('--')->replace('-', ' ')->title()->toString();
         }
 
-        return sprintf('Video #%d', $this->getKey());
+        return __('video::admin.untitled_video', ['id' => $this->getKey() ?? 0]);
     }
 
     public function statusLabel(): string

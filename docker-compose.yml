@@ -1,37 +1,59 @@
+x-runtime: &runtime
+  image: divaraap:release
+  env_file: .env
+  environment: &runtime-environment
+    APP_ENV: production
+    APP_DEBUG: "false"
+    APP_KEY: ${APP_KEY:?Configure APP_KEY in .env}
+    DB_CONNECTION: pgsql
+    DB_HOST: db
+    DB_PORT: 5432
+    DB_DATABASE: openclassify
+    DB_USERNAME: openclassify
+    DB_PASSWORD: ${DB_PASSWORD:?Configure DB_PASSWORD in .env}
+    CACHE_STORE: database
+    SESSION_DRIVER: database
+    QUEUE_CONNECTION: database
+    DB_QUEUE_RETRY_AFTER: 1920
+    FILESYSTEM_DISK: public
+    MEDIA_DISK: public
+    CLOUD_MEDIA_DISK: public
+    PUBLIC_STORAGE_ROOT: /var/www/html/storage/app/public
+    APP_PUBLIC_STORAGE_URL: /media
+  volumes:
+    - storage_data:/var/www/html/storage/app
+    - framework_data:/var/www/html/storage/framework
+    - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+  depends_on:
+    db:
+      condition: service_healthy
+  restart: unless-stopped
+
 services:
   app:
+    <<: *runtime
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:80"
-    environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
-      DB_CONNECTION: pgsql
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_DATABASE: openclassify
-      DB_USERNAME: openclassify
-      DB_PASSWORD: secret
-      REDIS_HOST: redis
-      CACHE_STORE: redis
-      SESSION_DRIVER: redis
-      QUEUE_CONNECTION: redis
-    volumes:
-      - storage_data:/var/www/html/storage/app
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - "127.0.0.1:8000:80"
+
+  worker:
+    <<: *runtime
+    command: ["php", "artisan", "queue:work", "--queue=default,videos", "--tries=1", "--timeout=1860"]
+
+  reverb:
+    <<: *runtime
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    ports:
+      - "127.0.0.1:8080:8080"
 
   db:
-    image: postgres:16-alpine
+    image: postgres:16-bookworm
     environment:
       POSTGRES_DB: openclassify
       POSTGRES_USER: openclassify
-      POSTGRES_PASSWORD: secret
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Configure DB_PASSWORD in .env}
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
@@ -39,13 +61,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  redis:
-    image: redis:7-alpine
-    volumes:
-      - redis_data:/data
+    restart: unless-stopped
 
 volumes:
   db_data:
-  redis_data:
   storage_data:
+  framework_data:

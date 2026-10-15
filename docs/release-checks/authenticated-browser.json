@@ -1,0 +1,758 @@
+[
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/panel",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/panel/my-profile",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/panel/my-listings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/panel/create-listing",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/panel/inbox?conversation=12",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/favorites",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/panel/offers",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/panel/notifications",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/panel/videos",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 390,
+    "path": "/panel/promotions",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/panel",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/panel/my-profile",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/panel/my-listings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/panel/create-listing",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/panel/inbox?conversation=12",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/favorites",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/panel/offers",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/panel/notifications",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/panel/videos",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/panel/promotions",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/panel",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/panel/my-profile",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/panel/my-listings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/panel/create-listing",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/panel/inbox?conversation=12",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/favorites",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/panel/offers",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/panel/notifications",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/panel/videos",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 390,
+    "path": "/panel/promotions",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/panel",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/panel/my-profile",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/panel/my-listings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/panel/create-listing",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/panel/inbox?conversation=12",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/favorites",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/panel/offers",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/panel/notifications",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/panel/videos",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "member",
+    "lang": "en",
+    "width": 1440,
+    "path": "/panel/promotions",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/listings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/listings/126/edit",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/users",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/pages",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/pages/create",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/videos",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/videos/11/edit",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/file-manager",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/promotion-plans/create",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 390,
+    "path": "/admin/manage-general-settings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/listings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/listings/126/edit",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/users",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/pages",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/pages/create",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/videos",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/videos/11/edit",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/file-manager",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/promotion-plans/create",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "fa",
+    "width": 1440,
+    "path": "/admin/manage-general-settings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/listings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/listings/126/edit",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/users",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/pages",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/pages/create",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/videos",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/videos/11/edit",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/file-manager",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/promotion-plans/create",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 390,
+    "path": "/admin/manage-general-settings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/listings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/listings/126/edit",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/users",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/pages",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/pages/create",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/videos",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/videos/11/edit",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/file-manager",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/promotion-plans/create",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  },
+  {
+    "role": "admin",
+    "lang": "en",
+    "width": 1440,
+    "path": "/admin/manage-general-settings",
+    "status": 200,
+    "overflow": false,
+    "violations": []
+  }
+]

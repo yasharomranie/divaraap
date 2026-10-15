@@ -15,10 +15,9 @@ services:
       DB_DATABASE: openclassify
       DB_USERNAME: openclassify
       DB_PASSWORD: secret
-      REDIS_HOST: redis
-      CACHE_STORE: redis
-      SESSION_DRIVER: redis
-      QUEUE_CONNECTION: redis
+      CACHE_STORE: database
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
     volumes:
       - .:/var/www/html
       - /var/www/html/vendor

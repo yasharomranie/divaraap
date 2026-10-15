@@ -75,7 +75,7 @@ class VideoTableSchema
             ])
             ->defaultSort('id', 'desc')
             ->actions([
-                Action::make('watch')
+                Action::make('watch')->label(__('video::admin.watch'))
                     ->icon('heroicon-o-play-circle')
                     ->color('gray')
                     ->modalHeading(fn (Video $record): string => $record->titleLabel())

@@ -128,3 +128,18 @@ dialog {
     animation: none !important;
     transition: none !important;
 }
+
+.skip-link {
+    position: fixed;
+    inset-block-start: var(--space-3);
+    inset-inline-start: var(--space-3);
+    z-index: 2000;
+}
+
+.skip-link:not(:focus) {
+    clip-path: inset(50%);
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+}

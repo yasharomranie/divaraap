@@ -38,6 +38,7 @@ class RegisterController extends Controller
 
         $user = User::registerFrom([
             'name' => $request->fullName(),
+            'phone' => $request->input('phone'),
             'email' => $request->string('email')->toString(),
             'password' => $request->string('password')->toString(),
         ]);

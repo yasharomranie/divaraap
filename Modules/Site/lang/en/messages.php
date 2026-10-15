@@ -120,4 +120,5 @@ return [
     'footer_safety_tips' => 'Safety tips',
     'footer_terms' => 'Terms of service',
     'footer_privacy' => 'Privacy policy',
+    'skip_to_content' => 'Skip to main content',
 ];

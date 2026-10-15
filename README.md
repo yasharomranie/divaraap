@@ -90,20 +90,15 @@ Breakpoints: base (phone), 40rem, 48rem (tablet), 64rem (desktop), 80rem (wide).
 
 ### Docker
 
-```bash
-cp .env.example .env
-docker compose up -d
-```
+Use the [Persian release and rollback runbook](docs/RELEASE_GUIDE_FA.md) for the production Docker workflow. Configure a persistent `APP_KEY`, database credentials, domain and Reverb endpoint before starting the stack. Startup never generates a key, seeds demo data or runs migrations automatically.
 
-App URLs:
+The stack provides PHP 8.4 FPM, Nginx, a database queue worker (including video jobs), Reverb and PostgreSQL 16. Ports bind to loopback for a TLS reverse proxy. Uploaded files and maintenance state use persistent volumes.
 
-- Frontend: `http://localhost:8000`
-- Admin: `http://localhost:8000/admin`
-- Panel: `http://localhost:8000/panel`
+For the managed cloud development environment, use [the tested setup commands](docs/environment/README.md).
 
 ### Local
 
-Requirements: PHP 8.4+, Composer, Node 20+, PostgreSQL 16+.
+Requirements: PHP 8.4+, Composer, Node 24, PostgreSQL 16+, FFmpeg and FFprobe.
 
 Create the databases first:
 
@@ -114,7 +109,7 @@ createdb openclassify_testing
 
 ```bash
 composer install
-npm install
+npm ci
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
@@ -125,6 +120,8 @@ composer run dev
 `db:seed` populates every module with realistic sample data: locations, a category
 tree, 120 listings with images, videos, conversations, favourites, offers, reviews,
 reports, notifications, promotion plans and orders, and CMS pages.
+
+Demo seeds are for an isolated development database only. Do not run the general seeder against production data.
 
 ## Seeded Accounts
 

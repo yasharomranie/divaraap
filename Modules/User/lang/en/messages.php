@@ -36,4 +36,8 @@ return [
     'delete_account_lead' => 'This permanently removes your account and listings.',
     'delete_confirm' => 'Delete my account',
     'seller_since' => 'Seller since :date',
+    'first_name' => 'First name',
+    'last_name' => 'Last name',
+    'accept_terms' => 'I accept the terms of use.',
+    'read_terms' => 'Read the terms of use',
 ];

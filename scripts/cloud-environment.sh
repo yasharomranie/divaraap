@@ -100,7 +100,7 @@ case "$action" in
             if [[ -f "$state_root/$service.pid" ]] && docker exec divaraap-php php -r '$pid = trim(file_get_contents("/setup/".$argv[1].".pid")); $status = @file_get_contents("/proc/".$pid."/status"); exit($status && preg_match("/^State:\s+Z/m", $status) !== 1 ? 0 : 1);' "$service" 2>/dev/null; then continue; fi
             case "$service" in
                 web) command='php artisan serve --host=0.0.0.0 --port=8000' ;;
-                queue) command='php artisan queue:work --tries=1 --timeout=60' ;;
+                queue) command='php artisan queue:work --queue=default,videos --tries=1 --timeout=1860' ;;
                 reverb) command='php artisan reverb:start --host=0.0.0.0 --port=8080' ;;
             esac
             docker exec divaraap-php sh -c "nohup $command >/setup/$service.log 2>&1 </dev/null & echo \$! >/setup/$service.pid"

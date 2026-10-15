@@ -32,4 +32,9 @@ return [
     'visible' => 'Visible',
     'add_video' => 'Add video',
     'metadata_hint' => 'Resolution, duration, and size are filled after the queue completes.',
+    'new' => 'New',
+    'preview_after_upload' => 'Preview will appear after the first upload.',
+    'no_playable_file' => 'This video does not have a playable file yet.',
+    'untitled_video' => 'Video #:id',
+    'watch' => 'Watch',
 ];
