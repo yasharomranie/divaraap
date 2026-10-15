@@ -36,7 +36,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             http_response_code(409);
             $error = 'نصب دیگری در حال اجراست؛ کمی بعد تلاش کنید.';
         } else {
-            $report = ['PHP' => PHP_VERSION, 'Environment file' => is_file($root.'/.env') ? 'present' : 'missing', 'Temporary environment file' => is_file($root.'/.env.installing') ? 'present' : 'missing', 'Disabled functions' => ini_get('disable_functions') ?: 'none', 'Open basedir' => ini_get('open_basedir') ?: 'none'];
+            $report = ['Diagnostics revision' => '2', 'PHP' => PHP_VERSION, 'Environment file' => is_file($root.'/.env') ? 'present' : 'missing', 'Temporary environment file' => is_file($root.'/.env.installing') ? 'present' : 'missing', 'Disabled functions' => ini_get('disable_functions') ?: 'none', 'Open basedir' => ini_get('open_basedir') ?: 'none'];
             $secrets = [];
             try {
                 if (is_file($root.'/.env')) {
@@ -50,6 +50,25 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                     $app->usePublicPath(__DIR__);
                     $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
                     $report['Bootstrap'] = 'passed; migrations were not executed';
+                    $connection = $app['db']->connection();
+                    $report['Configured table engine'] = $connection->getConfig('engine');
+                    $report['Configuration cached'] = $app->configurationIsCached();
+                    $report['InnoDB declarations in config file'] = substr_count(file_get_contents($root.'/config/database.php'), "'engine' => 'InnoDB'");
+                    $pdo = $connection->getPdo();
+                    $report['Database settings'] = $pdo->query('SELECT DATABASE() AS database_name, VERSION() AS version, @@default_storage_engine AS server_default_engine, @@sql_mode AS sql_mode')->fetch(PDO::FETCH_ASSOC);
+                    $report['Tables'] = $pdo->query('SELECT TABLE_NAME AS name, ENGINE AS engine FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME')->fetchAll(PDO::FETCH_ASSOC);
+                    $names = array_column($report['Tables'], 'name');
+                    $completed = in_array('migrations', $names, true) ? $pdo->query('SELECT migration FROM migrations ORDER BY id')->fetchAll(PDO::FETCH_COLUMN) : [];
+                    $report['Completed migrations'] = $completed;
+                    $migrator = $app['migrator'];
+                    $files = $migrator->getMigrationFiles(array_merge([$app->databasePath('migrations')], $migrator->paths()));
+                    foreach ($files as $migration => $path) {
+                        if (! in_array($migration, $completed, true)) {
+                            $report['First uncompleted migration'] = $migration;
+                            break;
+                        }
+                    }
+
                 } else {
                     $report['Bootstrap'] = 'not attempted; environment file missing';
                 }
