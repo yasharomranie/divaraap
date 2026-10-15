@@ -1,9 +1,9 @@
 {
-  "checked_at": "2026-10-15T08:59:01.945156+00:00",
-  "source_revision": "85019e53c286aff882570f830eaaca27edb80223",
-  "archive_sha256": "33ff0938c0466663bea1eb7ae5b2f27546e01a2b2dd30943694009a4f74d5aac",
-  "archive_bytes": 165931119,
-  "uncompressed_bytes": 624720260,
+  "checked_at": "2026-10-15T09:41:57.945714+00:00",
+  "source_revision": "0c3d86a250772ce919fba70d728e6af6bd1a345a",
+  "archive_sha256": "0430beb7d229906ada45aeca94364534d3c178c1b584c3496fafa6ad39e53db7",
+  "archive_bytes": 166035187,
+  "uncompressed_bytes": 624854199,
   "production_packages": 202,
   "archive_integrity": true,
   "no_runtime_data_or_development_environment": true,
@@ -26,9 +26,11 @@
     "Packaged site and administrator login succeed with relocated paths and special-character DB password"
   ],
   "suite": {
-    "tests": 131,
-    "assertions": 2035,
+    "tests": 145,
+    "assertions": 2108,
     "passed": true
   },
-  "actual_cpanel_account_tested": false
+  "actual_cpanel_account_tested": false,
+  "deployment_capable": true,
+  "runtime_libraries_local": true
 }

@@ -1,0 +1,51 @@
+{
+  "checked_at": "2026-10-15T09:41:57.945714+00:00",
+  "source_revision": "0c3d86a250772ce919fba70d728e6af6bd1a345a",
+  "installation_archive": {
+    "sha256": "0430beb7d229906ada45aeca94364534d3c178c1b584c3496fafa6ad39e53db7",
+    "bytes": 166035187,
+    "uncompressed_bytes": 624854199
+  },
+  "production_packages": 202,
+  "database": "MariaDB 11.4.13",
+  "php": "8.4.26",
+  "disabled_functions": [
+    "proc_open",
+    "exec",
+    "shell_exec",
+    "system",
+    "passthru",
+    "popen",
+    "symlink"
+  ],
+  "suite": {
+    "tests": 145,
+    "assertions": 2108,
+    "passed": true
+  },
+  "focused_deployment_suite": {
+    "tests": 14,
+    "assertions": 73,
+    "passed": true
+  },
+  "checks": {
+    "fresh_browser_install": true,
+    "encrypted_token_and_admin_authorization": true,
+    "zip_traversal_and_protected_paths": true,
+    "cold_upgrade_with_persistent_environment_and_upload": true,
+    "versioned_local_assets": true,
+    "one_use_nonce_replay_rejected": true,
+    "native_code_rollback": true,
+    "intentional_failed_ddl_migration": true,
+    "native_recovery_after_failed_migration": true,
+    "sql_backup_restore": true,
+    "off_origin_requests_blocked_in_browser": true,
+    "javascript_page_errors": 0,
+    "mobile_rtl_and_no_horizontal_overflow": true,
+    "https_required_for_native_actions": true,
+    "existing_development_http_queue_and_websocket_checks": true
+  },
+  "github_download_test": "Deterministic HTTP response fixture through the production downloader; live API unavailable from this environment.",
+  "github_actions_execution_verified": false,
+  "actual_cpanel_account_tested": false
+}
