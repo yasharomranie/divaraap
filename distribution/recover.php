@@ -6,6 +6,12 @@ use App\Support\Deployment\ReleaseLayout;
 header('Cache-Control: no-store');
 header('X-Frame-Options: DENY');
 header("Content-Security-Policy: default-src 'none'; style-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'");
+$secure = ! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+$local = PHP_SAPI === 'cli-server' && in_array(parse_url('http://'.($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST), ['localhost', '127.0.0.1'], true);
+if (! $secure && ! $local) {
+    http_response_code(403);
+    exit('HTTPS is required.');
+}
 $root = dirname(__DIR__).'/divaraap';
 if (! is_file($root.'/installed.lock') || ! is_file($root.'/recovery.token')) {
     http_response_code(404);

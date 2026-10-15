@@ -8,6 +8,12 @@ use Illuminate\Contracts\Console\Kernel;
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
+$secure = ! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+$local = PHP_SAPI === 'cli-server' && in_array(parse_url('http://'.($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST), ['localhost', '127.0.0.1'], true);
+if (! $secure && ! $local) {
+    http_response_code(403);
+    exit('HTTPS is required.');
+}
 $root = dirname(__DIR__).'/divaraap';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || ! is_file($root.'/installed.lock')) {
     http_response_code(404);
