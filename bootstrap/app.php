@@ -14,7 +14,7 @@ use Modules\Demo\App\Http\Middleware\ResolveDemoRequest;
 use Modules\Site\App\Http\Middleware\BootstrapAppData;
 use Modules\Site\App\Http\Middleware\SetLocale;
 
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
@@ -36,3 +36,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prependToPriorityList(AuthenticatesRequests::class, ResolveDemoRequest::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {})->create();
+
+if (is_file($hostingPath = __DIR__.'/hosting-public.php')) {
+    $app->usePublicPath(require $hostingPath);
+}
+
+return $app;

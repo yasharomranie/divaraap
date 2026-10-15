@@ -232,4 +232,4 @@ php artisan view:cache
 
 ### Shared hosting
 
-The optional `HOSTING_PROFILE=shared` profile uses synchronous jobs, authenticated inbox polling, GD image processing and direct MP4 uploads without shell commands or persistent workers. MariaDB compatibility and requirements are documented in [the shared-hosting guide](docs/SHARED_HOSTING_FA.md). A web installer and one-click updater are not included yet.
+The optional `HOSTING_PROFILE=shared` profile uses synchronous jobs, authenticated inbox polling, GD image processing and direct MP4 uploads without shell commands or persistent workers. MariaDB compatibility and requirements are documented in [the shared-hosting guide](docs/SHARED_HOSTING_FA.md). A protected Persian first-install wizard and release packaging scripts are available; see [installation package](docs/INSTALLATION_PACKAGE_FA.md). A one-click updater is not included yet.
