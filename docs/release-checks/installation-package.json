@@ -1,0 +1,34 @@
+{
+  "checked_at": "2026-10-15T08:59:01.945156+00:00",
+  "source_revision": "85019e53c286aff882570f830eaaca27edb80223",
+  "archive_sha256": "33ff0938c0466663bea1eb7ae5b2f27546e01a2b2dd30943694009a4f74d5aac",
+  "archive_bytes": 165931119,
+  "uncompressed_bytes": 624720260,
+  "production_packages": 202,
+  "archive_integrity": true,
+  "no_runtime_data_or_development_environment": true,
+  "relocated_layout_installation": true,
+  "database": "MariaDB 11.4.13",
+  "php": "8.4.26",
+  "disabled_functions": [
+    "proc_open",
+    "exec",
+    "shell_exec",
+    "system",
+    "passthru",
+    "popen",
+    "symlink"
+  ],
+  "browser_checks": [
+    "CSRF and installation-code checks reject unauthorized writes",
+    "Nonempty database rejected; existing sentinel data preserved",
+    "Fresh install completed using only the browser; installer locked",
+    "Packaged site and administrator login succeed with relocated paths and special-character DB password"
+  ],
+  "suite": {
+    "tests": 131,
+    "assertions": 2035,
+    "passed": true
+  },
+  "actual_cpanel_account_tested": false
+}
