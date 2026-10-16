@@ -1,17 +1,17 @@
 # Graph Report - divaraap  (2026-10-16)
 
 ## Corpus Check
-- 669 files · ~2,998,320 words
+- 670 files · ~2,998,608 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 127 file(s) not represented in the graph (top: .stub 70, (none) 25, .css 18)
 
 ## Summary
-- 3547 nodes · 6981 edges · 423 communities (118 shown, 305 thin omitted)
+- 3548 nodes · 6981 edges · 424 communities (118 shown, 306 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 309 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `23a5d479`
+- Built from commit: `0b4c63f4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -293,7 +293,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (423 total, 305 thin omitted)
+## Communities (424 total, 306 thin omitted)
 
 ### Community 0 - "DemoSchemaManager"
 Cohesion: 0.07
@@ -769,14 +769,14 @@ Nodes (3): {closure#2}(), {closure#4}(), {closure#5}()
 
 ## Knowledge Gaps
 - **92 isolated node(s):** `php`, `site::layouts.app`, `panel::layouts.panel`, `site::layouts.app`, `site::layouts.app` (+87 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1285 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **305 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1286 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **306 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `User` connect `User` to `DemoSchemaManager`, `PublicMediaController.php`, `RialMoneyTest.php`, `Listing`, `RequestAppData.php`, `LocalAvatarProvider.php`, `Illuminate\Database\Eloquent\Builder`, `StateManagementTest.php`, `UserFactory.php`, `Illuminate\Database\Eloquent\SoftDeletes`, `PersianPanelFlowTest.php`, `PersianFileManagerTest.php`, `Illuminate\Support\Facades\Route`, `Video`, `AppearanceSettingsTest.php`, `ReportSeeder.php`, `.disk`, `Illuminate\Support\Collection`, `Illuminate\Http\Request`, `Illuminate\Database\Seeder`, `ConversationReadUpdated`, `Report`, `PersianPanelFlowTest`, `Conversation`, `FavoriteSearch`, `DemoUserCatalog`, `Illuminate\Http\RedirectResponse`, `RuntimeException`, `IranianLocalizationTest.php`, `.view`, `TestCase`, `ListingSeeder`, `Illuminate\Support\Str`, `RialMoneyTest`, `UserResource.php`, `DeploymentHandoffTest.php`, `City`, `PersianAdminLocalizationTest.php`, `Video.php`, `PageResource.php`, `ReviewSeeder.php`, `Filament\Panel`, `Profile`, `PromotionPlan`, `MobileNavigationTest`?**
-  _High betweenness centrality (0.108) - this node is a cross-community bridge._
+  _High betweenness centrality (0.112) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `User` (e.g. with `Conversation` and `Favorite`) actually correct?**
   _`User` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `php`, `site::layouts.app`, `panel::layouts.panel` to the rest of the system?**
@@ -784,7 +784,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `DemoSchemaManager` be split into smaller, more focused modules?**
   _Cohesion score 0.07481005260081823 - nodes in this community are weakly interconnected._
 - **Why does `TestCase` connect `TestCase` to `RialMoneyTest.php`, `Listing`, `StateManagementTest.php`, `PersianFileManagerTest.php`, `PersianPanelFlowTest.php`, `AppearanceSettingsTest`, `AppearanceSettingsTest.php`, `ReleaseLayout`, `PublicPersianMarketplaceTest`, `PersianPanelFlowTest`, `InnoDbSchemaTest.php`, `RuntimeException`, `PersianAdminLocalizationTest`, `IranianLocalizationTest.php`, `RialMoneyTest`, `PersianLocaleTest`, `DeploymentHandoffTest.php`, `PersianAdminLocalizationTest.php`, `GitHubRelease`, `GitHubReleaseTest.php`, `PersianFileManagerTest`, `Profile`, `PromotionPlan`, `MobileNavigationTest`?**
-  _High betweenness centrality (0.076) - this node is a cross-community bridge._
+  _High betweenness centrality (0.074) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `Listing` (e.g. with `Conversation` and `Listing`) actually correct?**
   _`Listing` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **Should `Filament\Support\Contracts\HasColor` be split into smaller, more focused modules?**

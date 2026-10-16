@@ -30,4 +30,4 @@ jobs:
         run: |
           python3 scripts/build-deployment-repair.py --output "$RUNNER_TEMP/deployment-repair"
           cp distribution/installer-diagnostics.php "$RUNNER_TEMP/installer-diagnostics-v2.php"
-          gh release upload deploy-main distribution/installer-diagnostics.php "$RUNNER_TEMP/installer-diagnostics-v2.php" config/database.php "$RUNNER_TEMP/deployment-repair/deployment-repair-v1.php" "$RUNNER_TEMP/deployment-repair/deployment-repair-v2.php" "$RUNNER_TEMP/deployment-repair/deployment-repair-v3.php" "$RUNNER_TEMP/deployment-repair/deployment-repair-v4.php" "$RUNNER_TEMP/deployment-repair/deployment-repair-v5.php" --clobber
+          gh release upload deploy-main distribution/installer-diagnostics.php "$RUNNER_TEMP/installer-diagnostics-v2.php" config/database.php "$RUNNER_TEMP/deployment-repair/deployment-repair-v1.php" "$RUNNER_TEMP/deployment-repair/deployment-repair-v2.php" "$RUNNER_TEMP/deployment-repair/deployment-repair-v3.php" "$RUNNER_TEMP/deployment-repair/deployment-repair-v4.php" "$RUNNER_TEMP/deployment-repair/deployment-repair-v5.php" "$RUNNER_TEMP/deployment-repair/deployment-repair-v6.php" --clobber

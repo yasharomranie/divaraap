@@ -11,12 +11,20 @@ final class DeploymentManager
 {
     public function layout(): ReleaseLayout
     {
-        $root = config('deployment.root');
-        if (! is_string($root) || ! is_file($root.'/installed.lock')) {
-            throw new RuntimeException('Deployment is available only in the shared-hosting installation package.');
+        $code = dirname(__DIR__, 3);
+        $roots = [$code];
+        if (basename(dirname($code)) === 'releases' && preg_match('/\A[a-f0-9]{32}\z/', basename($code))) {
+            $roots[] = dirname($code, 2);
         }
+        $roots[] = config('deployment.root');
+        foreach ($roots as $root) {
+            if (is_string($root) && is_file($root.'/installed.lock')) {
+                $root = realpath($root);
 
-        return new ReleaseLayout($root, dirname($root).'/public_html');
+                return new ReleaseLayout($root, dirname($root).'/public_html');
+            }
+        }
+        throw new RuntimeException('Deployment is available only in the shared-hosting installation package.');
     }
 
     public function prepare(): array
