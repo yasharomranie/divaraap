@@ -52,6 +52,47 @@
             window.removeEventListener('beforeunload', notify);
         }
     };
+    let uploading = false;
+    document.addEventListener('click', async (event) => {
+        const trigger = event.target instanceof Element ? event.target.closest('[data-deployment-upload-start]') : null;
+        if (!trigger || uploading || running) return;
+        const container = trigger.closest('[data-deployment-upload]');
+        const file = container.querySelector('[data-deployment-package]').files[0];
+        const checksumFile = container.querySelector('[data-deployment-checksum]').files[0];
+        if (!file || !checksumFile) { display('ابتدا بستهٔ ZIP و فایل بررسی صحت را انتخاب کنید.'); return; }
+        if (file.size < 1 || file.size > 268435456 || checksumFile.size > 16384) { display('حجم فایل بسته یا فایل بررسی صحت معتبر نیست.'); return; }
+        uploading = true;
+        trigger.disabled = true;
+        try {
+            const text = await checksumFile.text();
+            const checksum = text.match(/^([a-f0-9]{64})[ \t]+\*?divaraap-update\.zip\s*$/i)?.[1];
+            if (!checksum) { display('فایل بررسی صحت متعلق به divaraap-update.zip نیست.'); return; }
+            const componentRoot = trigger.closest('[wire\\:id]');
+            const component = window.Livewire.find(componentRoot.getAttribute('wire:id'));
+            display('در حال شروع بارگذاری بسته از دستگاه…');
+            const id = await component.$call('startPackageUpload', file.size, checksum);
+            for (let offset = 0; offset < file.size;) {
+                const chunk = file.slice(offset, offset + 262144);
+                const encoded = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(chunk);
+                });
+                const next = await component.$call('uploadPackageChunk', id, offset, encoded);
+                if (next !== offset + chunk.size) throw new Error('Upload offset mismatch');
+                offset = next;
+                display(`بارگذاری بسته: ${Math.floor(offset * 100 / file.size)}٪`);
+            }
+            display('بارگذاری تمام شد؛ بررسی صحت و آماده‌سازی نصب…');
+            await component.$call('finishPackageUpload', id);
+        } catch {
+            display('بارگذاری یا آماده‌سازی بسته انجام نشد. اتصال مرورگر و فایل بررسی صحت را بررسی کنید؛ برای تلاش تازه دوباره بارگذاری را بزنید.');
+        } finally {
+            uploading = false;
+            trigger.disabled = false;
+        }
+    });
     const scan = () => {
         if (queued) install(queued);
         const element = document.querySelector('[data-deployment-job]');

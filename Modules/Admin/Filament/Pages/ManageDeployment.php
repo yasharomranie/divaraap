@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\SettingsPage;
 use Filament\Schemas\Schema;
+use Illuminate\Http\Client\ConnectionException;
 use Livewire\Attributes\Locked;
 use Modules\Site\App\Settings\DeploymentSettings;
 use Throwable;
@@ -131,6 +132,32 @@ final class ManageDeployment extends SettingsPage
         }
     }
 
+    public function startPackageUpload(int $size, string $checksum): string
+    {
+        abort_unless(self::canAccess(), 403);
+
+        return app(DeploymentManager::class)->startUpload($size, $checksum, (int) auth()->id());
+    }
+
+    public function uploadPackageChunk(string $id, int $offset, string $encoded): int
+    {
+        abort_unless(self::canAccess(), 403);
+
+        return app(DeploymentManager::class)->uploadChunk($id, $offset, $encoded, (int) auth()->id());
+    }
+
+    public function finishPackageUpload(string $id): void
+    {
+        abort_unless(self::canAccess(), 403);
+        if (function_exists('set_time_limit')) {
+            set_time_limit(240);
+        }
+        $job = app(DeploymentManager::class)->finishUpload($id, (int) auth()->id());
+        $this->pendingDeployment = $job;
+        $this->deploymentStatus = ['state' => 'prepared', 'message' => 'صحت بستهٔ بارگذاری‌شده تأیید شد؛ نصب شروع می‌شود.'];
+        $this->dispatch('deployment-ready', ...$job);
+    }
+
     public function createRecoveryCode(): void
     {
         abort_unless(self::canAccess(), 403);
@@ -156,6 +183,10 @@ final class ManageDeployment extends SettingsPage
     {
         if (preg_match('/\AGitHub release unavailable \(HTTP (\d{3})\)\.\z/', $exception->getMessage(), $match)) {
             return 'گیت‌هاب دریافت بسته را نپذیرفت؛ HTTP '.$match[1].'. دسترسی مخزن و توکن را بررسی کنید.';
+        }
+
+        if ($exception instanceof ConnectionException) {
+            return 'ارتباط خروجی هاست برقرار نشد. از بخش «نصب بسته از دستگاه» استفاده کنید؛ این روش به اتصال هاست به گیت‌هاب نیاز ندارد.';
         }
 
         return match ($exception->getMessage()) {

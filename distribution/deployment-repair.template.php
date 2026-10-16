@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $publics[] = __DIR__.'/_releases/'.$id;
             }
             $files = json_decode(base64_decode('__DEPLOYMENT_REPAIR_PAYLOAD__', true), true, 512, JSON_THROW_ON_ERROR);
-            $allowed = ['app/Support/Deployment/DeploymentManager.php', 'Modules/Admin/Filament/Pages/ManageDeployment.php', 'resources/views/filament/manage-deployment.blade.php', '@public/assets/deployment.js'];
+            $allowed = ['app/Support/Deployment/DeploymentManager.php', 'Modules/Admin/Filament/Pages/ManageDeployment.php', 'resources/views/filament/manage-deployment.blade.php', '@public/assets/deployment.js', 'app/Support/Deployment/GitHubRelease.php'];
             if (array_keys($files) !== $allowed) {
                 throw new RuntimeException('فایل تعمیر معتبر نیست.');
             }
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             $success = true;
-            $message = 'تعمیر انجام شد. به صفحهٔ به‌روزرسانی برگردید و دریافت و نصب را یک‌بار بزنید؛ بستهٔ آماده ادامه پیدا می‌کند.';
+            $message = 'تعمیر انجام شد. به صفحهٔ به‌روزرسانی برگردید و دریافت و نصب را یک‌بار بزنید؛ مسیر دریافت جایگزین و نصب بسته از دستگاه در پنل فعال شد.';
         } catch (Throwable $exception) {
             foreach ($changed as $path) {
                 rename($backups[$path], $path);

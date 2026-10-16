@@ -69,6 +69,127 @@ final class DeploymentManager
         }
     }
 
+    public function startUpload(int $size, string $checksum, int $owner): string
+    {
+        if ($owner < 1 || $size < 1 || $size > 268435456 || ! preg_match('/\A[a-f0-9]{64}\z/i', $checksum)) {
+            throw new RuntimeException('Invalid uploaded package.');
+        }
+        $layout = $this->layout();
+        $lock = $layout->lock();
+        try {
+            $this->uploadReady($layout);
+            $directory = $layout->root.'/deployments';
+            if (! is_dir($directory)) {
+                mkdir($directory, 0700, true);
+            }
+            $metadata = 'deployments/upload-'.$owner.'.json';
+            $old = $layout->read($metadata);
+            if (preg_match('/\A[a-f0-9]{32}\z/', $old['id'] ?? '')) {
+                $previous = $directory.'/upload-'.$old['id'].'.part';
+                if (is_file($previous)) {
+                    unlink($previous);
+                }
+            }
+            $id = bin2hex(random_bytes(16));
+            $path = $directory.'/upload-'.$id.'.part';
+            if (file_put_contents($path, '') === false) {
+                throw new RuntimeException('Cannot write uploaded package.');
+            }
+            chmod($path, 0600);
+            $layout->write($metadata, ['id' => $id, 'size' => $size, 'checksum' => strtolower($checksum), 'expires' => time() + 3600]);
+
+            return $id;
+        } finally {
+            fclose($lock);
+        }
+    }
+
+    public function uploadChunk(string $id, int $offset, string $encoded, int $owner): int
+    {
+        if (strlen($encoded) > 350000 || $offset < 0) {
+            throw new RuntimeException('Invalid uploaded package.');
+        }
+        $bytes = base64_decode($encoded, true);
+        if ($bytes === false || strlen($bytes) < 1 || strlen($bytes) > 262144) {
+            throw new RuntimeException('Invalid uploaded package.');
+        }
+        $layout = $this->layout();
+        $lock = $layout->lock();
+        try {
+            $this->uploadReady($layout);
+            [$metadata, $path] = $this->uploadedFile($layout, $id, $owner);
+            clearstatcache(true, $path);
+            if (filesize($path) !== $offset || $offset + strlen($bytes) > $metadata['size']) {
+                throw new RuntimeException('Upload offset mismatch.');
+            }
+            if (file_put_contents($path, $bytes, FILE_APPEND | LOCK_EX) !== strlen($bytes)) {
+                throw new RuntimeException('Cannot write uploaded package.');
+            }
+
+            return $offset + strlen($bytes);
+        } finally {
+            fclose($lock);
+        }
+    }
+
+    public function finishUpload(string $id, int $owner): array
+    {
+        $layout = $this->layout();
+        $lock = $layout->lock();
+        $path = null;
+        try {
+            $this->uploadReady($layout);
+            [$metadata, $path] = $this->uploadedFile($layout, $id, $owner);
+            clearstatcache(true, $path);
+            if (filesize($path) !== $metadata['size'] || ! hash_equals($metadata['checksum'], hash_file('sha256', $path))) {
+                throw new RuntimeException('Uploaded package checksum mismatch.');
+            }
+            $layout->pruneUnused();
+            $releaseId = bin2hex(random_bytes(16));
+            app(ReleaseArchive::class)->extract($path, $layout, $releaseId, config('app.url'));
+            $token = bin2hex(random_bytes(32));
+            $layout->write('deployment-job.json', ['id' => $releaseId, 'token_hash' => hash('sha256', $token), 'expires' => time() + 600, 'state' => 'prepared', 'release' => ['sha256' => $metadata['checksum'], 'transport' => 'admin_upload']]);
+
+            return ['id' => $releaseId, 'token' => $token];
+        } finally {
+            if ($path !== null && is_file($path)) {
+                unlink($path);
+                $metadataFile = $layout->root.'/deployments/upload-'.$owner.'.json';
+                if (is_file($metadataFile)) {
+                    unlink($metadataFile);
+                }
+            }
+            fclose($lock);
+        }
+    }
+
+    private function uploadReady(ReleaseLayout $layout): void
+    {
+        if (is_file($layout->root.'/deployment-maintenance.json')) {
+            throw new RuntimeException('Recover the interrupted deployment before starting another.');
+        }
+        if (! is_file($layout->root.'/recovery.token')) {
+            throw new RuntimeException('Create and save a recovery code before deploying.');
+        }
+        if (disk_free_space($layout->root) < 1800000000) {
+            throw new RuntimeException('At least 1.8 GB of free disk space is required.');
+        }
+    }
+
+    private function uploadedFile(ReleaseLayout $layout, string $id, int $owner): array
+    {
+        if ($owner < 1 || ! preg_match('/\A[a-f0-9]{32}\z/', $id)) {
+            throw new RuntimeException('Invalid uploaded package.');
+        }
+        $metadata = $layout->read('deployments/upload-'.$owner.'.json');
+        $path = $layout->root.'/deployments/upload-'.$id.'.part';
+        if (($metadata['id'] ?? '') !== $id || ($metadata['expires'] ?? 0) < time() || ! is_file($path)) {
+            throw new RuntimeException('Invalid uploaded package.');
+        }
+
+        return [$metadata, $path];
+    }
+
     public function status(): array
     {
         $job = $this->layout()->read('deployment-job.json');

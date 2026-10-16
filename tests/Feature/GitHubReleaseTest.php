@@ -71,4 +71,49 @@ final class GitHubReleaseTest extends TestCase
             unlink($path);
         }
     }
+
+    public function test_public_download_survives_api_connection_failure_without_leaking_token(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'public-release');
+        $bytes = 'public-production-package';
+        Http::fake(function (Request $request, array $options) use ($bytes) {
+            if (str_contains($request->url(), 'api.github.com')) {
+                return Http::failedConnection();
+            }
+            $contents = str_contains($request->url(), 'UPDATE-SHA256SUMS') ? hash('sha256', $bytes).'  divaraap-update.zip' : $bytes;
+            file_put_contents($options['sink'], $contents);
+
+            return Http::response($contents);
+        });
+        try {
+            $result = (new GitHubRelease)->download('owner/project', 'main', 'private-secret', $path);
+            $this->assertSame('public_https', $result['transport']);
+            $this->assertSame($bytes, file_get_contents($path));
+            Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'github.com/owner/project/releases/download/') && ! $request->hasHeader('Authorization'));
+            $this->assertFileDoesNotExist($path.'.sha256');
+        } finally {
+            unlink($path);
+        }
+    }
+
+    public function test_public_fallback_rejects_a_tampered_zip(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'public-release');
+        Http::fake(function (Request $request, array $options) {
+            if (str_contains($request->url(), 'api.github.com')) {
+                return Http::response('', 403);
+            }
+            $contents = str_contains($request->url(), 'UPDATE-SHA256SUMS') ? str_repeat('a', 64).'  divaraap-update.zip' : 'tampered';
+            file_put_contents($options['sink'], $contents);
+
+            return Http::response($contents);
+        });
+        try {
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('checksum verification failed');
+            (new GitHubRelease)->download('owner/project', 'main', '', $path);
+        } finally {
+            unlink($path);
+        }
+    }
 }

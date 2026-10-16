@@ -1,4 +1,5 @@
 import json
+import hashlib
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -41,4 +42,31 @@ with sync_playwright() as p:
         assert not errors, errors
         print(scenario + ': exactly one install request; result visible; no browser errors')
         page.close()
+    page = browser.new_page()
+    calls = []
+    page.route('**/handoff-upload', lambda route: route.fulfill(body='''<html><body><div wire:id="upload-fixture"><div id="deployment-status"></div><div data-deployment-upload><input type="file" data-deployment-package><input type="file" data-deployment-checksum><button data-deployment-upload-start>upload</button></div></div></body></html>''', content_type='text/html'))
+    page.route('**/deployment-runner.php', lambda route: (calls.append(json.loads(route.request.post_data)), route.fulfill(json={'ok': True, 'message': 'upload installed'}))[-1])
+    page.goto('http://127.0.0.1:8000/handoff-upload')
+    page.evaluate('''() => {
+        window.uploadCalls=[];
+        window.Livewire={find:()=>({$call:async(method,...args)=>{
+            window.uploadCalls.push([method,...args]);
+            if(method==='startPackageUpload')return 'a'.repeat(32);
+            if(method==='uploadPackageChunk')return args[1]+atob(args[2]).length;
+            if(method==='finishPackageUpload')document.body.dispatchEvent(new CustomEvent('deployment-ready',{bubbles:true,detail:{id:'a'.repeat(32),token:'b'.repeat(64)}}));
+        }})};
+    }''')
+    page.add_script_tag(content=script)
+    data=b'x'*600000
+    digest=hashlib.sha256(data).hexdigest()
+    page.locator('[data-deployment-package]').set_input_files({'name':'divaraap-update.zip','mimeType':'application/zip','buffer':data})
+    page.locator('[data-deployment-checksum]').set_input_files({'name':'UPDATE-SHA256SUMS.txt','mimeType':'text/plain','buffer':(digest+'  divaraap-update.zip').encode()})
+    page.locator('[data-deployment-upload-start]').click()
+    page.wait_for_function("document.getElementById('deployment-status').textContent.includes('upload installed')")
+    recorded=page.evaluate('window.uploadCalls')
+    assert recorded[0]==['startPackageUpload',len(data),digest]
+    assert [call[2] for call in recorded if call[0]=='uploadPackageChunk']==[0,262144,524288]
+    assert recorded[-1][0]=='finishPackageUpload' and calls==[job]
+    print('Offline package upload: three bounded chunks, verified checksum input, one final install request')
+    page.close()
     browser.close()
