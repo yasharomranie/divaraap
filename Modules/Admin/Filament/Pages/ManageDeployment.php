@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\SettingsPage;
 use Filament\Schemas\Schema;
+use Livewire\Attributes\Locked;
 use Modules\Site\App\Settings\DeploymentSettings;
 use Throwable;
 use UnitEnum;
@@ -24,6 +25,27 @@ final class ManageDeployment extends SettingsPage
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-arrow-up-tray';
 
     public ?string $recoveryCode = null;
+
+    #[Locked]
+    public ?array $pendingDeployment = null;
+
+    #[Locked]
+    public array $deploymentStatus = [];
+
+    protected function afterFill(): void
+    {
+        $this->refreshDeploymentStatus();
+    }
+
+    public function refreshDeploymentStatus(): void
+    {
+        abort_unless(self::canAccess(), 403);
+        try {
+            $this->deploymentStatus = app(DeploymentManager::class)->status();
+        } catch (Throwable) {
+            $this->deploymentStatus = [];
+        }
+    }
 
     public static function canAccess(): bool
     {
@@ -98,9 +120,14 @@ final class ManageDeployment extends SettingsPage
                 set_time_limit(240);
             }
             $job = app(DeploymentManager::class)->prepare();
+            $this->pendingDeployment = $job;
+            $this->deploymentStatus = ['state' => 'prepared', 'message' => 'بسته آماده شد؛ در حال فرستادن درخواست نصب. صفحه را نبندید.'];
             $this->dispatch('deployment-ready', ...$job);
         } catch (Throwable $exception) {
-            Notification::make()->danger()->title('آماده‌سازی انجام نشد')->body($this->safeError($exception))->persistent()->send();
+            $this->pendingDeployment = null;
+            $diagnostic = class_basename($exception).' | '.basename($exception->getFile()).':'.$exception->getLine();
+            $this->deploymentStatus = ['state' => 'failed', 'message' => $this->safeError($exception).' | '.$diagnostic];
+            Notification::make()->danger()->title('آماده‌سازی انجام نشد')->body($this->deploymentStatus['message'])->persistent()->send();
         }
     }
 
@@ -127,6 +154,10 @@ final class ManageDeployment extends SettingsPage
 
     private function safeError(Throwable $exception): string
     {
+        if (preg_match('/\AGitHub release unavailable \(HTTP (\d{3})\)\.\z/', $exception->getMessage(), $match)) {
+            return 'گیت‌هاب دریافت بسته را نپذیرفت؛ HTTP '.$match[1].'. دسترسی مخزن و توکن را بررسی کنید.';
+        }
+
         return match ($exception->getMessage()) {
             'Deployment is available only in the shared-hosting installation package.' => 'این قابلیت فقط در بستهٔ نصب هاست اشتراکی فعال است.',
             'Create and save a recovery code before deploying.' => 'ابتدا کد بازیابی بسازید و در جای امن ذخیره کنید.',

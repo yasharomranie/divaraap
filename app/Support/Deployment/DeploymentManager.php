@@ -32,7 +32,13 @@ final class DeploymentManager
             }
             $previousJob = $layout->read('deployment-job.json');
             if (($previousJob['state'] ?? null) === 'prepared' && ($previousJob['expires'] ?? 0) > time()) {
-                throw new RuntimeException('An update is already prepared. Retry after ten minutes.');
+                $layout->code($previousJob['id']);
+                $token = bin2hex(random_bytes(32));
+                $previousJob['token_hash'] = hash('sha256', $token);
+                $previousJob['expires'] = time() + 600;
+                $layout->write('deployment-job.json', $previousJob);
+
+                return ['id' => $previousJob['id'], 'token' => $token];
             }
             $layout->pruneUnused();
             if (disk_free_space($layout->root) < 1800000000) {
@@ -61,6 +67,24 @@ final class DeploymentManager
             flock($lock, LOCK_UN);
             fclose($lock);
         }
+    }
+
+    public function status(): array
+    {
+        $job = $this->layout()->read('deployment-job.json');
+        $messages = [
+            'prepared' => 'بسته آماده است؛ برای ادامهٔ نصب، دکمهٔ دریافت و نصب را بزنید. دانلود دوباره انجام نمی‌شود.',
+            'running' => 'نصب روی سرور شروع شده است. دوباره نصب را شروع نکنید؛ وضعیت را بررسی کنید.',
+            'completed' => 'آخرین نصب با موفقیت تمام شده است.',
+            'failed' => 'نصب قبلی متوقف شده است. پیش از تلاش مجدد، صفحهٔ بازیابی را بررسی کنید.',
+            'recovered' => 'بازیابی ثبت شده است؛ می‌توانید وضعیت سایت را بررسی کنید.',
+        ];
+        $state = $job['state'] ?? '';
+        if ($state === 'prepared' && ($job['expires'] ?? 0) <= time()) {
+            $messages['prepared'] = 'مهلت بستهٔ آماده تمام شده است؛ دکمهٔ دریافت و نصب، نسخه را دوباره بررسی و دریافت می‌کند.';
+        }
+
+        return isset($messages[$state]) ? ['state' => $state, 'message' => $messages[$state]] : [];
     }
 
     public function recoveryCode(): string
