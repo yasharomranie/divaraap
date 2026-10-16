@@ -8,10 +8,11 @@ import { inboxBadge, inboxPane, inboxThread } from './modules/inbox';
 import { listingGallery } from './modules/gallery';
 import { locationPicker } from './modules/location-picker';
 import { contactReveal, shareAction } from './modules/reveal';
-import { disclosureGroup, navigationDrawer, searchSuggest, stickyHeader } from './modules/navigation';
+import { appNavigation, disclosureGroup, navigationDrawer, searchSuggest, stickyHeader } from './modules/navigation';
 
 const behaviors: readonly Behavior<never>[] = [
     navigationDrawer,
+    appNavigation,
     disclosureGroup,
     stickyHeader,
     searchSuggest,

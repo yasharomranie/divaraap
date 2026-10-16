@@ -2,6 +2,7 @@
 
 @php
     $paths = [
+        'home' => '<path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
         'search' => '<path d="M21 21l-4.3-4.3"/><circle cx="11" cy="11" r="7"/>',
         'close' => '<path d="M6 6l12 12M18 6L6 18"/>',
         'menu' => '<path d="M4 7h16M4 12h16M4 17h16"/>',

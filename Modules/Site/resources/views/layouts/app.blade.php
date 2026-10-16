@@ -61,7 +61,7 @@
     @livewireStyles
     <style id="site-appearance">{!! \App\Support\AppearanceTheme::css(\App\Support\AppearanceTheme::current()) !!}</style>
 </head>
-<body
+<body class="app-shell {{ $chromeless ? 'app-shell--auth' : 'app-shell--navigation' }} {{ request()->routeIs('home') ? 'app-shell--home' : '' }} {{ request()->routeIs('listings.show') ? 'app-shell--detail' : '' }}" data-app-shell
     @if($isAuthenticated && config('hosting.profile') === 'shared')
         data-inbox-poll-url="{{ route('conversations.updates', [], false) }}"
         data-inbox-poll-interval="{{ config('hosting.poll_interval_ms', 5000) }}"
@@ -80,7 +80,7 @@
 <header class="site-header" data-sticky-header>
     <div class="shell shell--wide">
         <div class="site-header__bar">
-            <div class="row">
+            <div class="row site-header__identity">
                 <button
                     type="button"
                     class="icon-button site-header__menu-trigger"
@@ -122,7 +122,7 @@
             </form>
 
             <div class="site-header__actions" data-disclosure-group>
-                <details class="menu site-header__desktop-only" data-disclosure>
+                <details class="menu app-location" data-disclosure>
                     <summary class="location-trigger">
                         <x-ui.icon name="map-pin"/>
                         <span data-location-label>{{ __('site::messages.all_locations') }}</span>
@@ -203,7 +203,7 @@
                     </a>
                 @endauth
 
-                <a href="{{ $sellRoute }}" class="button button--primary button--small">
+                <a href="{{ $sellRoute }}" class="button button--primary button--small site-header__sell">
                     <x-ui.icon name="plus"/>
                     <span>{{ __('site::messages.sell') }}</span>
                 </a>
@@ -361,6 +361,10 @@
         </div>
     </div>
 </footer>
+@endunless
+
+@unless($chromeless)
+    @include('site::partials.mobile-navigation')
 @endunless
 
 @livewireScripts

@@ -12,6 +12,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Modules\Location\Support\CountryCodeManager;
 use Modules\Site\App\Settings\GeneralSettings;
@@ -94,118 +95,140 @@ class ManageGeneralSettings extends SettingsPage
     {
         $defaults = $this->defaultFormData();
 
-        return $schema
-            ->components([
-                TextInput::make('site_name')->label(__('site::admin.site_name'))->extraInputAttributes(['dir' => 'auto'])
-                    ->label(__('site::admin.site_name'))
-                    ->default($defaults['site_name'])
-                    ->required()
-                    ->maxLength(255),
-                Textarea::make('site_description')->label(__('site::admin.site_description'))
-                    ->default($defaults['site_description'])
-                    ->rows(3)
-                    ->maxLength(500),
-                HomeSlideFormSchema::make(
-                    $defaults['home_slides'],
-                    fn ($state): array => $this->normalizeHomeSlides($state),
-                ),
-                FileUpload::make('site_logo')->label(__('site::admin.site_logo'))
-                    ->image()
-                    ->disk(LocalMedia::disk())
-                    ->directory(LocalMedia::managedDirectory('settings'))
-                    ->visibility('public'),
-                TextInput::make('sender_name')->label(__('site::admin.sender_name'))->extraInputAttributes(['dir' => 'auto'])
-                    ->label(__('site::admin.sender_name'))
-                    ->default($defaults['sender_name'])
-                    ->required()
-                    ->maxLength(120),
-                TextInput::make('sender_email')->label(__('site::admin.sender_email'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.sender_email'))
-                    ->email()
-                    ->default($defaults['sender_email'])
-                    ->required()
-                    ->maxLength(255),
-                Select::make('default_language')->label(__('site::admin.default_language'))
-                    ->options($this->localeOptions())
-                    ->default($defaults['default_language'])
-                    ->required()
-                    ->searchable(),
-                CountryCodeSelect::make('default_country_code')->label(__('site::admin.default_country'))
-                    ->default($defaults['default_country_code'])
-                    ->required()
-                    ->helperText(__('site::admin.used_as_the_default_country_in_panel_forms')),
-                Select::make('currencies')->label(__('site::admin.currencies'))
-                    ->options(['IRR' => Money::currencyLabel('IRR')])
-                    ->multiple()
-                    ->default(['IRR'])
-                    ->disabled()
-                    ->dehydrated()
-                    ->afterStateHydrated(fn (Select $component) => $component->state(['IRR']))
-                    ->dehydrateStateUsing(fn (): array => ['IRR']),
-                TextInput::make('linkedin_url')->label(__('site::admin.linkedin_url'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.linkedin_url'))
-                    ->url()
-                    ->default($defaults['linkedin_url'])
-                    ->nullable()
-                    ->maxLength(255),
-                TextInput::make('instagram_url')->label(__('site::admin.instagram_url'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.instagram_url'))
-                    ->url()
-                    ->default($defaults['instagram_url'])
-                    ->nullable()
-                    ->maxLength(255),
-                PhoneInput::make('whatsapp')->label(__('site::admin.whatsapp'))
-                    ->defaultCountry(CountryCodeManager::defaultCountryIso2())
-                    ->default($defaults['whatsapp'])
-                    ->nullable()
-                    ->formatAsYouType()
-                    ->helperText(__('site::admin.use_international_format_example_905551112233')),
-                Toggle::make('enable_google_maps')->label(__('site::admin.google_maps_enabled'))
-                    ->default($defaults['enable_google_maps']),
-                TextInput::make('google_maps_api_key')->label(__('site::admin.google_maps_api_key'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.google_maps_api_key'))
-                    ->password()
-                    ->revealable()
-                    ->nullable()
-                    ->maxLength(255)
-                    ->helperText(__('site::admin.required_to_enable_map_fields_in_listing_forms')),
-                Toggle::make('enable_google_login')->label(__('site::admin.google_login_enabled'))
-                    ->default($defaults['enable_google_login']),
-                TextInput::make('google_client_id')->label(__('site::admin.google_client_id'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.google_client_id'))
-                    ->nullable()
-                    ->maxLength(255),
-                TextInput::make('google_client_secret')->label(__('site::admin.google_client_secret'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.google_client_secret'))
-                    ->password()
-                    ->revealable()
-                    ->nullable()
-                    ->maxLength(255),
-                Toggle::make('enable_facebook_login')->label(__('site::admin.facebook_login_enabled'))
-                    ->default($defaults['enable_facebook_login']),
-                TextInput::make('facebook_client_id')->label(__('site::admin.facebook_client_id'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.facebook_client_id'))
-                    ->nullable()
-                    ->maxLength(255),
-                TextInput::make('facebook_client_secret')->label(__('site::admin.facebook_client_secret'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.facebook_client_secret'))
-                    ->password()
-                    ->revealable()
-                    ->nullable()
-                    ->maxLength(255),
-                Toggle::make('enable_apple_login')->label(__('site::admin.apple_login_enabled'))
-                    ->default($defaults['enable_apple_login']),
-                TextInput::make('apple_client_id')->label(__('site::admin.apple_client_id'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.apple_client_id'))
-                    ->nullable()
-                    ->maxLength(255),
-                TextInput::make('apple_client_secret')->label(__('site::admin.apple_client_secret'))->extraInputAttributes(['dir' => 'ltr'])
-                    ->label(__('site::admin.apple_client_secret'))
-                    ->password()
-                    ->revealable()
-                    ->nullable()
-                    ->maxLength(255),
-            ]);
+        $fields = [
+            TextInput::make('site_name')->label(__('site::admin.site_name'))->extraInputAttributes(['dir' => 'auto'])
+                ->label(__('site::admin.site_name'))
+                ->default($defaults['site_name'])
+                ->required()
+                ->maxLength(255),
+            Textarea::make('site_description')->label(__('site::admin.site_description'))
+                ->default($defaults['site_description'])
+                ->rows(3)
+                ->columnSpanFull()
+                ->maxLength(500),
+            HomeSlideFormSchema::make(
+                $defaults['home_slides'],
+                fn ($state): array => $this->normalizeHomeSlides($state),
+            ),
+            FileUpload::make('site_logo')->label(__('site::admin.site_logo'))
+                ->image()
+                ->disk(LocalMedia::disk())
+                ->directory(LocalMedia::managedDirectory('settings'))
+                ->visibility('public'),
+            TextInput::make('sender_name')->label(__('site::admin.sender_name'))->extraInputAttributes(['dir' => 'auto'])
+                ->label(__('site::admin.sender_name'))
+                ->default($defaults['sender_name'])
+                ->required()
+                ->maxLength(120),
+            TextInput::make('sender_email')->label(__('site::admin.sender_email'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.sender_email'))
+                ->email()
+                ->default($defaults['sender_email'])
+                ->required()
+                ->maxLength(255),
+            Select::make('default_language')->label(__('site::admin.default_language'))
+                ->options($this->localeOptions())
+                ->default($defaults['default_language'])
+                ->required()
+                ->searchable(),
+            CountryCodeSelect::make('default_country_code')->label(__('site::admin.default_country'))
+                ->default($defaults['default_country_code'])
+                ->required()
+                ->helperText(__('site::admin.used_as_the_default_country_in_panel_forms')),
+            Select::make('currencies')->label(__('site::admin.currencies'))
+                ->options(['IRR' => Money::currencyLabel('IRR')])
+                ->multiple()
+                ->default(['IRR'])
+                ->disabled()
+                ->dehydrated()
+                ->afterStateHydrated(fn (Select $component) => $component->state(['IRR']))
+                ->dehydrateStateUsing(fn (): array => ['IRR']),
+            TextInput::make('linkedin_url')->label(__('site::admin.linkedin_url'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.linkedin_url'))
+                ->url()
+                ->default($defaults['linkedin_url'])
+                ->nullable()
+                ->maxLength(255),
+            TextInput::make('instagram_url')->label(__('site::admin.instagram_url'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.instagram_url'))
+                ->url()
+                ->default($defaults['instagram_url'])
+                ->nullable()
+                ->maxLength(255),
+            PhoneInput::make('whatsapp')->label(__('site::admin.whatsapp'))
+                ->defaultCountry(CountryCodeManager::defaultCountryIso2())
+                ->default($defaults['whatsapp'])
+                ->nullable()
+                ->formatAsYouType()
+                ->helperText(__('site::admin.use_international_format_example_905551112233')),
+            Toggle::make('enable_google_maps')->label(__('site::admin.google_maps_enabled'))
+                ->default($defaults['enable_google_maps']),
+            TextInput::make('google_maps_api_key')->label(__('site::admin.google_maps_api_key'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.google_maps_api_key'))
+                ->password()
+                ->revealable()
+                ->nullable()
+                ->maxLength(255)
+                ->helperText(__('site::admin.required_to_enable_map_fields_in_listing_forms')),
+            Toggle::make('enable_google_login')->label(__('site::admin.google_login_enabled'))
+                ->default($defaults['enable_google_login']),
+            TextInput::make('google_client_id')->label(__('site::admin.google_client_id'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.google_client_id'))
+                ->nullable()
+                ->maxLength(255),
+            TextInput::make('google_client_secret')->label(__('site::admin.google_client_secret'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.google_client_secret'))
+                ->password()
+                ->revealable()
+                ->nullable()
+                ->maxLength(255),
+            Toggle::make('enable_facebook_login')->label(__('site::admin.facebook_login_enabled'))
+                ->default($defaults['enable_facebook_login']),
+            TextInput::make('facebook_client_id')->label(__('site::admin.facebook_client_id'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.facebook_client_id'))
+                ->nullable()
+                ->maxLength(255),
+            TextInput::make('facebook_client_secret')->label(__('site::admin.facebook_client_secret'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.facebook_client_secret'))
+                ->password()
+                ->revealable()
+                ->nullable()
+                ->maxLength(255),
+            Toggle::make('enable_apple_login')->label(__('site::admin.apple_login_enabled'))
+                ->default($defaults['enable_apple_login']),
+            TextInput::make('apple_client_id')->label(__('site::admin.apple_client_id'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.apple_client_id'))
+                ->nullable()
+                ->maxLength(255),
+            TextInput::make('apple_client_secret')->label(__('site::admin.apple_client_secret'))->extraInputAttributes(['dir' => 'ltr'])
+                ->label(__('site::admin.apple_client_secret'))
+                ->password()
+                ->revealable()
+                ->nullable()
+                ->maxLength(255),
+        ];
+        $pick = static fn (array $names): array => array_values(array_filter(
+            $fields,
+            static fn ($field): bool => in_array($field->getName(), $names, true),
+        ));
+
+        return $schema->components([
+            Section::make(__('site::mobile.settings_identity'))
+                ->description(__('site::mobile.settings_identity_hint'))
+                ->schema($pick(['site_name', 'site_description', 'site_logo']))
+                ->columns(['default' => 1, 'md' => 2])->columnSpanFull()->collapsible(),
+            Section::make(__('site::admin.homepage_slides'))
+                ->schema($pick(['home_slides']))->columnSpanFull()->collapsible()->collapsed(),
+            Section::make(__('site::mobile.settings_region'))
+                ->schema($pick(['default_language', 'default_country_code', 'currencies']))
+                ->columns(['default' => 1, 'md' => 2])->columnSpanFull()->collapsible(),
+            Section::make(__('site::mobile.settings_contact'))
+                ->schema($pick(['sender_name', 'sender_email', 'linkedin_url', 'instagram_url', 'whatsapp']))
+                ->columns(['default' => 1, 'md' => 2])->columnSpanFull()->collapsible()->collapsed(),
+            Section::make(__('site::mobile.settings_integrations'))
+                ->schema($pick(['enable_google_maps', 'google_maps_api_key', 'enable_google_login', 'google_client_id', 'google_client_secret', 'enable_facebook_login', 'facebook_client_id', 'facebook_client_secret', 'enable_apple_login', 'apple_client_id', 'apple_client_secret']))
+                ->columns(['default' => 1, 'md' => 2])->columnSpanFull()->collapsible()->collapsed(),
+        ]);
     }
 
     private function defaultFormData(): array

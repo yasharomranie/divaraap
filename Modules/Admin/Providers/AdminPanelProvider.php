@@ -54,6 +54,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->path('admin')
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin-accessibility'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.admin-mobile-navigation'))
             ->pages([LocalizedFileManager::class, ManageDeployment::class])
             ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->login()

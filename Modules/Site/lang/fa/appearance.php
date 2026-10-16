@@ -58,6 +58,7 @@ return [
     'font_page_title' => 'عنوان صفحات و ورود',
     'font_section_title' => 'عنوان بخش‌ها',
     'font_card_title' => 'عنوان کارت‌ها',
+    'font_mobile_navigation' => 'منوی ثابت پایین موبایل',
     'font_brand' => 'نام سایت در هدر',
     'font_navigation' => 'منو و انتخاب موقعیت',
     'font_drawer' => 'منوی موبایل',

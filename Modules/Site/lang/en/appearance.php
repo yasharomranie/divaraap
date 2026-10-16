@@ -58,6 +58,7 @@ return [
     'font_page_title' => 'Page title',
     'font_section_title' => 'Section title',
     'font_card_title' => 'Card title',
+    'font_mobile_navigation' => 'Mobile bottom navigation',
     'font_brand' => 'Brand',
     'font_navigation' => 'Navigation',
     'font_drawer' => 'Drawer',

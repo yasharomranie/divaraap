@@ -45,6 +45,7 @@ final class AppearanceTheme
             'page_title' => ['group' => 'headings', 'desktop' => 32, 'mobile' => 24, 'selector' => '.title-page'],
             'section_title' => ['group' => 'headings', 'desktop' => 26, 'mobile' => 19, 'selector' => '.title-section'],
             'card_title' => ['group' => 'headings', 'desktop' => 18, 'mobile' => 18, 'selector' => '.title-card, .card__title'],
+            'mobile_navigation' => ['group' => 'header', 'desktop' => 12, 'mobile' => 12, 'selector' => '.mobile-tabs__item'],
             'brand' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.brand'],
             'navigation' => ['group' => 'header', 'desktop' => 13, 'mobile' => 13, 'selector' => '.category-bar__link, .location-trigger, .menu__item'],
             'drawer' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.nav-list__item, .drawer__title'],
