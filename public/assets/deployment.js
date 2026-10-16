@@ -80,7 +80,7 @@
         refreshStatus();
     }, true);
     window.addEventListener('deployment-status-updated', (event) => {
-        if (typeof event.detail?.message === 'string') display(event.detail.message);
+        if (typeof event.detail?.message === 'string') display(event.detail.message + '\nآخرین بررسی: ' + new Date().toLocaleTimeString('fa-IR'));
         else display('هنوز وضعیت نصبی ثبت نشده است.');
     });
     let uploading = false;
@@ -124,6 +124,37 @@
             trigger.disabled = false;
         }
     });
+    let selectedAction = null;
+    let requestHooked = false;
+    document.addEventListener('click', (event) => {
+        const action = event.target instanceof Element ? event.target.closest('[data-deployment-action]') : null;
+        if (action) selectedAction = action.dataset.deploymentAction;
+    }, true);
+    const bindRequests = () => {
+        if (requestHooked || !window.Livewire?.hook) return;
+        requestHooked = true;
+        window.Livewire.hook('request', ({ payload, fail }) => {
+            const root = document.getElementById('deployment-status')?.closest('[wire\\:id]');
+            if (!root) return;
+            let data;
+            try { data = typeof payload === 'string' ? JSON.parse(payload) : payload; } catch { return; }
+            const component = data?.components?.find((entry) => {
+                try { return JSON.parse(entry.snapshot).memo.id === root.getAttribute('wire:id'); } catch { return false; }
+            });
+            if (!component) return;
+            if (component.calls?.some((call) => call.method === 'deploy' || (call.method === 'callMountedAction' && selectedAction === 'deploy'))) {
+                display('در حال دریافت و آماده‌سازی نسخه از گیت‌هاب؛ صفحه را باز نگه دارید.');
+            }
+            fail(({ status, preventDefault }) => {
+                preventDefault();
+                const advice = status === 419 ? 'نشست صفحه منقضی شده است؛ صفحه را تازه کنید.' : 'پاسخ معتبر درخواست دریافت نشد؛ وضعیت نصب را بررسی کنید.';
+                display(`خطای درخواست پنل (HTTP ${status}). ${advice}`);
+            });
+        });
+    };
+    document.addEventListener('livewire:init', bindRequests);
+    document.addEventListener('livewire:navigated', bindRequests);
+    bindRequests();
     const scan = () => {
         if (queued) install(queued);
         const element = document.querySelector('[data-deployment-job]');

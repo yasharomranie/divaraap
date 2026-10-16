@@ -20,7 +20,7 @@ final class DeploymentSettingsTest extends TestCase
     {
         Filament::setCurrentPanel(Filament::getPanel('admin'));
         $this->actingAs(User::where('email', 'a@a.com')->firstOrFail());
-        Livewire::test(ManageDeployment::class)->fillForm(['repository' => 'owner/project', 'ref' => 'main', 'github_token' => 'secret-test-token'])->call('save')->assertHasNoFormErrors()->assertSet('data.github_token', '');
+        Livewire::test(ManageDeployment::class)->fillForm(['repository' => 'owner/project', 'ref' => 'main', 'github_token' => 'secret-test-token'])->call('save')->assertHasNoFormErrors()->assertSet('data.github_token', '')->assertSee('توکن ذخیره شده است')->assertDontSee('secret-test-token');
         $raw = DB::table('settings')->where('group', 'deployment')->where('name', 'github_token')->value('payload');
         $this->assertStringNotContainsString('secret-test-token', $raw);
         $this->assertSame('secret-test-token', app(DeploymentSettings::class)->github_token);

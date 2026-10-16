@@ -64,7 +64,8 @@ with sync_playwright() as p:
         page.wait_for_function("document.getElementById('deployment-status').textContent.includes('database backup in progress')")
     assert len(installs)==1 and len(checks)==2
     page.evaluate("document.getElementById('deployment-status').textContent='stale browser text';document.body.dispatchEvent(new CustomEvent('deployment-status-updated',{bubbles:true,detail:{state:'prepared',message:'same server state refreshed'}}))")
-    assert page.locator('#deployment-status').inner_text()=='same server state refreshed'
+    assert page.locator('#deployment-status').inner_text().startswith('same server state refreshed')
+    assert 'آخرین بررسی' in page.locator('#deployment-status').inner_text()
     print('Status refresh: repeated reads after lost install response, no extra install, unchanged server state updates browser text')
     page.close()
     page = browser.new_page()

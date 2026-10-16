@@ -79,7 +79,7 @@ final class ManageDeployment extends SettingsPage
         return $schema->components([
             TextInput::make('repository')->label('مخزن گیت‌هاب')->required()->regex('~\A[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\z~')->maxLength(200)->extraInputAttributes(['dir' => 'ltr'])->helperText('نمونه: yasharomranie/divaraap'),
             TextInput::make('ref')->label('شاخه')->required()->regex('/\A[A-Za-z0-9_.-]{1,100}\z/')->maxLength(100)->extraInputAttributes(['dir' => 'ltr'])->helperText('بستهٔ آماده از انتشار deploy-main برای شاخهٔ main دریافت می‌شود.'),
-            TextInput::make('github_token')->label('توکن گیت‌هاب')->password()->maxLength(500)->autocomplete('new-password')->extraInputAttributes(['dir' => 'ltr'])->helperText('برای مخزن خصوصی: دسترسی Contents: Read-only. خالی بگذارید تا توکن ذخیره‌شده حفظ شود.'),
+            TextInput::make('github_token')->label('توکن گیت‌هاب')->password()->maxLength(500)->autocomplete('new-password')->extraInputAttributes(['dir' => 'ltr'])->helperText(fn (): string => (filled(app(DeploymentSettings::class)->github_token) ? 'توکن ذخیره شده است. خالی گذاشتن این فیلد، توکن قبلی را حفظ می‌کند.' : 'توکنی ذخیره نشده است. برای مخزن عمومی اختیاری است.').' برای مخزن خصوصی، دسترسی Contents: Read-only لازم است.'),
         ]);
     }
 
@@ -108,9 +108,9 @@ final class ManageDeployment extends SettingsPage
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('deploy')->extraAttributes(['style' => 'min-height:44px'])->label('دریافت و نصب آخرین نسخه')->requiresConfirmation()->modalDescription('از اطلاعات پایگاه داده پشتیبان گرفته می‌شود. هنگام نصب سایت موقتاً در دسترس نیست. کد بازیابی را از قبل ذخیره کنید.')->action('deploy'),
-            Action::make('rollback')->color('gray')->extraAttributes(['style' => 'min-height:44px'])->label('برگشت کد نسخهٔ قبلی')->requiresConfirmation()->modalDescription('فقط کد برمی‌گردد؛ تغییرات پایگاه داده برنمی‌گردد. مهاجرت‌ها باید با نسخهٔ قبلی سازگار باشند.')->action('rollback'),
-            Action::make('recovery')->color('gray')->extraAttributes(['style' => 'min-height:44px'])->label('ساخت کد بازیابی')->requiresConfirmation()->modalDescription('کد قبلی باطل می‌شود. کد جدید را خارج از سایت نگه دارید.')->action('createRecoveryCode'),
+            Action::make('deploy')->extraAttributes(['style' => 'min-height:44px', 'data-deployment-action' => 'deploy'])->label('دریافت و نصب آخرین نسخه')->requiresConfirmation()->modalDescription('از اطلاعات پایگاه داده پشتیبان گرفته می‌شود. هنگام نصب سایت موقتاً در دسترس نیست. کد بازیابی را از قبل ذخیره کنید.')->action(fn () => $this->deploy()),
+            Action::make('rollback')->color('gray')->extraAttributes(['style' => 'min-height:44px', 'data-deployment-action' => 'rollback'])->label('برگشت کد نسخهٔ قبلی')->requiresConfirmation()->modalDescription('فقط کد برمی‌گردد؛ تغییرات پایگاه داده برنمی‌گردد. مهاجرت‌ها باید با نسخهٔ قبلی سازگار باشند.')->action(fn () => $this->rollback()),
+            Action::make('recovery')->color('gray')->extraAttributes(['style' => 'min-height:44px', 'data-deployment-action' => 'recovery'])->label('ساخت کد بازیابی')->requiresConfirmation()->modalDescription('کد قبلی باطل می‌شود. کد جدید را خارج از سایت نگه دارید.')->action(fn () => $this->createRecoveryCode()),
         ];
     }
 
