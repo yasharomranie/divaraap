@@ -12,6 +12,7 @@ html { scroll-padding-block: calc(var(--header-height) + 20px) calc(var(--app-na
 .app-shell :is(a, button, summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .app-shell .button { border-radius: 14px; }
 .app-shell .button--small, .app-shell .icon-button { min-height: 44px; min-width: 44px; }
+.app-shell :is(.input, .textarea, .site-search__input)::placeholder { color: var(--ink-500); opacity: 1; }
 .app-shell .input, .app-shell .select, .app-shell .textarea { border-radius: 12px; min-height: 48px; }
 .app-shell .site-header { backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom-color: color-mix(in srgb, var(--appearance-border) 55%, transparent); }
 .site-header__bar { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding-block: 12px; }
