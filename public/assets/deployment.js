@@ -6,6 +6,8 @@
     const attempted = new Set();
     let running = false;
     let queued = null;
+    let lastJob = null;
+    let checking = false;
     const display = (message) => {
         const status = document.getElementById('deployment-status');
         if (status) {
@@ -20,6 +22,7 @@
         const key = `${job.id}:${job.token}`;
         if (running || attempted.has(key)) return;
         if (!document.getElementById('deployment-status')) { queued = job; return; }
+        lastJob = job;
         attempted.add(key);
         queued = null;
         running = true;
@@ -52,6 +55,34 @@
             window.removeEventListener('beforeunload', notify);
         }
     };
+    const refreshStatus = async () => {
+        if (!lastJob || checking) return;
+        checking = true;
+        display('در حال خواندن وضعیت ثبت‌شده روی سرور…');
+        try {
+            const response = await fetch('/deployment-runner.php', {
+                method: 'POST', credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(15000),
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ action: 'status', ...lastJob }),
+            });
+            const result = await response.json();
+            if (!response.ok || result.ok !== true || typeof result.message !== 'string') throw new Error('Status unavailable');
+            display(result.message + '\nآخرین بررسی: ' + new Date().toLocaleTimeString('fa-IR'));
+        } catch {
+            display('پاسخ بررسی وضعیت دریافت نشد. این خطا به معنی توقف نصب نیست؛ دوباره نصب را شروع نکنید.');
+        } finally { checking = false; }
+    };
+    document.addEventListener('click', (event) => {
+        const trigger = event.target instanceof Element ? event.target.closest('[data-deployment-refresh]') : null;
+        if (!trigger || !lastJob) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        refreshStatus();
+    }, true);
+    window.addEventListener('deployment-status-updated', (event) => {
+        if (typeof event.detail?.message === 'string') display(event.detail.message);
+        else display('هنوز وضعیت نصبی ثبت نشده است.');
+    });
     let uploading = false;
     document.addEventListener('click', async (event) => {
         const trigger = event.target instanceof Element ? event.target.closest('[data-deployment-upload-start]') : null;

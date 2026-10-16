@@ -46,6 +46,7 @@ final class DeploymentManager
             if (($previousJob['state'] ?? null) === 'prepared' && ($previousJob['expires'] ?? 0) > time()) {
                 $token = bin2hex(random_bytes(32));
                 $previousJob['token_hash'] = hash('sha256', $token);
+                $previousJob['status_token_hash'] = hash('sha256', $token);
                 $previousJob['expires'] = time() + 600;
                 $layout->write('deployment-job.json', $previousJob);
 
@@ -71,7 +72,7 @@ final class DeploymentManager
                 }
             }
             $token = bin2hex(random_bytes(32));
-            $layout->write('deployment-job.json', ['id' => $id, 'token_hash' => hash('sha256', $token), 'expires' => time() + 600, 'state' => 'prepared', 'release' => $release]);
+            $layout->write('deployment-job.json', ['id' => $id, 'token_hash' => hash('sha256', $token), 'status_token_hash' => hash('sha256', $token), 'expires' => time() + 600, 'state' => 'prepared', 'release' => $release]);
 
             return ['id' => $id, 'token' => $token];
         } finally {
@@ -159,7 +160,7 @@ final class DeploymentManager
             $releaseId = bin2hex(random_bytes(16));
             app(ReleaseArchive::class)->extract($path, $layout, $releaseId, config('app.url'));
             $token = bin2hex(random_bytes(32));
-            $layout->write('deployment-job.json', ['id' => $releaseId, 'token_hash' => hash('sha256', $token), 'expires' => time() + 600, 'state' => 'prepared', 'release' => ['sha256' => $metadata['checksum'], 'transport' => 'admin_upload']]);
+            $layout->write('deployment-job.json', ['id' => $releaseId, 'token_hash' => hash('sha256', $token), 'status_token_hash' => hash('sha256', $token), 'expires' => time() + 600, 'state' => 'prepared', 'release' => ['sha256' => $metadata['checksum'], 'transport' => 'admin_upload']]);
 
             return ['id' => $releaseId, 'token' => $token];
         } finally {

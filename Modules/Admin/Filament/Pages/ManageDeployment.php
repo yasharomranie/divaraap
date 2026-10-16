@@ -44,8 +44,9 @@ final class ManageDeployment extends SettingsPage
         try {
             $this->deploymentStatus = app(DeploymentManager::class)->status();
         } catch (Throwable) {
-            $this->deploymentStatus = [];
+            $this->deploymentStatus = ['state' => 'unknown', 'message' => 'خواندن وضعیت نصب انجام نشد.'];
         }
+        $this->dispatch('deployment-status-updated', ...$this->deploymentStatus);
     }
 
     public static function canAccess(): bool

@@ -43,6 +43,52 @@ with sync_playwright() as p:
         print(scenario + ': exactly one install request; result visible; no browser errors')
         page.close()
     page = browser.new_page()
+    installs = []
+    checks = []
+    page.route('**/handoff-status', lambda route: route.fulfill(body='<html><body><div id="deployment-status"></div><button data-deployment-refresh>status</button></body></html>', content_type='text/html'))
+    def status_runner(route):
+        body = json.loads(route.request.post_data)
+        if body.get('action') == 'status':
+            checks.append(body)
+            route.fulfill(json={'ok':True,'state':'running','message':'database backup in progress'})
+        else:
+            installs.append(body)
+            route.abort()
+    page.route('**/deployment-runner.php', status_runner)
+    page.goto('http://127.0.0.1:8000/handoff-status')
+    page.add_script_tag(content=script)
+    page.evaluate('(job)=>document.body.dispatchEvent(new CustomEvent("deployment-ready",{bubbles:true,detail:job}))', job)
+    page.wait_for_function("document.getElementById('deployment-status').textContent.includes('ارتباط مرورگر')")
+    for _ in range(2):
+        page.locator('[data-deployment-refresh]').click()
+        page.wait_for_function("document.getElementById('deployment-status').textContent.includes('database backup in progress')")
+    assert len(installs)==1 and len(checks)==2
+    page.evaluate("document.getElementById('deployment-status').textContent='stale browser text';document.body.dispatchEvent(new CustomEvent('deployment-status-updated',{bubbles:true,detail:{state:'prepared',message:'same server state refreshed'}}))")
+    assert page.locator('#deployment-status').inner_text()=='same server state refreshed'
+    print('Status refresh: repeated reads after lost install response, no extra install, unchanged server state updates browser text')
+    page.close()
+    page = browser.new_page()
+    pending = []
+    page.route('**/handoff-running', lambda route: route.fulfill(body='<html><body><div id="deployment-status"></div><button data-deployment-refresh>status</button></body></html>', content_type='text/html'))
+    def running_runner(route):
+        body = json.loads(route.request.post_data)
+        if body.get('action') == 'status':
+            route.fulfill(json={'ok':True,'state':'running','message':'migration still running'})
+        else:
+            pending.append(route)
+    page.route('**/deployment-runner.php', running_runner)
+    page.goto('http://127.0.0.1:8000/handoff-running')
+    page.add_script_tag(content=script)
+    page.evaluate('(job)=>document.body.dispatchEvent(new CustomEvent("deployment-ready",{bubbles:true,detail:job}))', job)
+    page.wait_for_function("document.getElementById('deployment-status').textContent.includes('درخواست نصب ارسال شد')")
+    page.locator('[data-deployment-refresh]').click()
+    page.wait_for_function("document.getElementById('deployment-status').textContent.includes('migration still running')")
+    assert len(pending)==1
+    pending[0].fulfill(json={'ok':True,'message':'installation completed'})
+    page.wait_for_function("document.getElementById('deployment-status').textContent.includes('installation completed')")
+    print('Status while install is pending: independent request succeeds and the original install completes once')
+    page.close()
+    page = browser.new_page()
     calls = []
     page.route('**/handoff-upload', lambda route: route.fulfill(body='''<html><body><div wire:id="upload-fixture"><div id="deployment-status"></div><div data-deployment-upload><input type="file" data-deployment-package><input type="file" data-deployment-checksum><button data-deployment-upload-start>upload</button></div></div></body></html>''', content_type='text/html'))
     page.route('**/deployment-runner.php', lambda route: (calls.append(json.loads(route.request.post_data)), route.fulfill(json={'ok': True, 'message': 'upload installed'}))[-1])

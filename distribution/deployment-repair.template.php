@@ -39,73 +39,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             require $root.'/app/Support/Deployment/ReleaseLayout.php';
             $layout = new ReleaseLayout($root, __DIR__);
-            $lock = $layout->lock();
-            $job = $layout->read('deployment-job.json');
-            if (is_file($root.'/deployment-maintenance.json') || ($job['state'] ?? null) === 'running') {
-                throw new RuntimeException('نصب یا بازیابی هنوز در جریان است؛ در این وضعیت تعمیر انجام نمی‌شود.');
-            }
-            $state = $layout->read('active-release.json');
-            $ids = array_values(array_unique(array_filter([$state['current'] ?? null, ($job['state'] ?? null) === 'prepared' ? ($job['id'] ?? null) : null])));
-            $codes = [$root];
-            $publics = [__DIR__];
-            foreach ($ids as $id) {
-                try {
-                    $code = $layout->code($id);
-                } catch (RuntimeException $exception) {
-                    if ($id === ($state['current'] ?? null) || $exception->getMessage() !== 'Release is incomplete.') {
-                        throw $exception;
-                    }
+            if (($_POST['action'] ?? '') === 'status') {
+                $job = $layout->read('deployment-job.json');
+                $states = ['prepared' => 'آمادهٔ نصب', 'running' => 'نصب شروع شده است', 'completed' => 'نصب کامل شده است', 'failed' => 'نصب ناموفق بوده است', 'recovered' => 'بازیابی انجام شده است'];
+                $steps = ['bootstrap', 'database_backup', 'migrate', 'config:clear', 'route:clear', 'view:clear', 'config:cache', 'route:cache', 'view:cache', 'activate'];
+                $message = 'وضعیت ثبت‌شده: '.($states[$job['state'] ?? ''] ?? 'وضعیتی ثبت نشده است.');
+                if (in_array($job['step'] ?? '', $steps, true)) {
+                    $message .= ' | مرحله: '.$job['step'];
+                }
+                $message .= ' | حالت نگهداری: '.(is_file($root.'/deployment-maintenance.json') ? 'فعال' : 'غیرفعال');
+            } else {
+                $lock = $layout->lock();
+                $job = $layout->read('deployment-job.json');
+                if (is_file($root.'/deployment-maintenance.json') || ($job['state'] ?? null) === 'running') {
+                    throw new RuntimeException('نصب یا بازیابی هنوز در جریان است؛ در این وضعیت تعمیر انجام نمی‌شود.');
+                }
+                $state = $layout->read('active-release.json');
+                $ids = array_values(array_unique(array_filter([$state['current'] ?? null, ($job['state'] ?? null) === 'prepared' ? ($job['id'] ?? null) : null])));
+                $codes = [$root];
+                $publics = [__DIR__];
+                foreach ($ids as $id) {
+                    try {
+                        $code = $layout->code($id);
+                    } catch (RuntimeException $exception) {
+                        if ($id === ($state['current'] ?? null) || $exception->getMessage() !== 'Release is incomplete.') {
+                            throw $exception;
+                        }
 
-                    continue;
-                }
-                $codes[] = $code;
-                $publics[] = __DIR__.'/_releases/'.$id;
-            }
-            $files = json_decode(base64_decode('__DEPLOYMENT_REPAIR_PAYLOAD__', true), true, 512, JSON_THROW_ON_ERROR);
-            $allowed = ['app/Support/Deployment/DeploymentManager.php', 'Modules/Admin/Filament/Pages/ManageDeployment.php', 'resources/views/filament/manage-deployment.blade.php', '@public/assets/deployment.js', 'app/Support/Deployment/GitHubRelease.php'];
-            if (array_keys($files) !== $allowed) {
-                throw new RuntimeException('فایل تعمیر معتبر نیست.');
-            }
-            $backup = $root.'/deployments/handoff-repair-'.gmdate('Ymd-His').'-'.bin2hex(random_bytes(4));
-            if (! mkdir($backup, 0700, true)) {
-                throw new RuntimeException('ذخیرهٔ پشتیبان فایل‌های دیپلوی ممکن نیست.');
-            }
-            foreach ($files as $name => $contents) {
-                $publicFile = str_starts_with($name, '@public/');
-                $relative = $publicFile ? substr($name, 8) : $name;
-                foreach ($publicFile ? $publics : $codes as $base) {
-                    $path = $base.'/'.$relative;
-                    if (! is_file($path) || is_link($path) || ! is_writable(dirname($path))) {
-                        throw new RuntimeException('یکی از فایل‌های دیپلوی موجود یا قابل نوشتن نیست.');
+                        continue;
                     }
-                    $originals[$path] = file_get_contents($path);
-                    $backups[$path] = $backup.'/'.count($originals).'.bak';
-                    if (file_put_contents($backups[$path], $originals[$path], LOCK_EX) === false) {
-                        throw new RuntimeException('ذخیرهٔ پشتیبان فایل‌های دیپلوی ممکن نیست.');
+                    $codes[] = $code;
+                    $publics[] = __DIR__.'/_releases/'.$id;
+                }
+                $files = json_decode(base64_decode('__DEPLOYMENT_REPAIR_PAYLOAD__', true), true, 512, JSON_THROW_ON_ERROR);
+                $allowed = ['app/Support/Deployment/DeploymentManager.php', 'Modules/Admin/Filament/Pages/ManageDeployment.php', 'resources/views/filament/manage-deployment.blade.php', '@public/assets/deployment.js', '@public/deployment-runner.php', 'app/Support/Deployment/GitHubRelease.php'];
+                if (array_keys($files) !== $allowed) {
+                    throw new RuntimeException('فایل تعمیر معتبر نیست.');
+                }
+                $backup = $root.'/deployments/handoff-repair-'.gmdate('Ymd-His').'-'.bin2hex(random_bytes(4));
+                if (! mkdir($backup, 0700, true)) {
+                    throw new RuntimeException('ذخیرهٔ پشتیبان فایل‌های دیپلوی ممکن نیست.');
+                }
+                foreach ($files as $name => $contents) {
+                    $publicFile = str_starts_with($name, '@public/');
+                    $relative = $publicFile ? substr($name, 8) : $name;
+                    foreach ($name === '@public/deployment-runner.php' ? [__DIR__] : ($publicFile ? $publics : $codes) as $base) {
+                        $path = $base.'/'.$relative;
+                        if (! is_file($path) || is_link($path) || ! is_writable(dirname($path))) {
+                            throw new RuntimeException('یکی از فایل‌های دیپلوی موجود یا قابل نوشتن نیست.');
+                        }
+                        $originals[$path] = file_get_contents($path);
+                        $backups[$path] = $backup.'/'.count($originals).'.bak';
+                        if (file_put_contents($backups[$path], $originals[$path], LOCK_EX) === false) {
+                            throw new RuntimeException('ذخیرهٔ پشتیبان فایل‌های دیپلوی ممکن نیست.');
+                        }
+                        chmod($backups[$path], fileperms($path) & 0777);
+                        $temp = $path.'.handoff-'.bin2hex(random_bytes(6)).'.tmp';
+                        $temporary[$path] = $temp;
+                        if (file_put_contents($temp, $contents, LOCK_EX) !== strlen($contents)) {
+                            throw new RuntimeException('نوشتن فایل تعمیر ممکن نیست.');
+                        }
+                        chmod($temp, fileperms($path) & 0777);
                     }
-                    chmod($backups[$path], fileperms($path) & 0777);
-                    $temp = $path.'.handoff-'.bin2hex(random_bytes(6)).'.tmp';
-                    $temporary[$path] = $temp;
-                    if (file_put_contents($temp, $contents, LOCK_EX) !== strlen($contents)) {
-                        throw new RuntimeException('نوشتن فایل تعمیر ممکن نیست.');
+                }
+                if (file_put_contents($backup.'/manifest.json', json_encode(array_keys($originals), JSON_THROW_ON_ERROR)) === false) {
+                    throw new RuntimeException('ثبت پشتیبان فایل‌های دیپلوی ممکن نیست.');
+                }
+                foreach ($temporary as $path => $temp) {
+                    if (! rename($temp, $path)) {
+                        throw new RuntimeException('جایگزینی فایل دیپلوی ممکن نیست.');
                     }
-                    chmod($temp, fileperms($path) & 0777);
+                    $changed[] = $path;
+                    if (function_exists('opcache_invalidate')) {
+                        opcache_invalidate($path, true);
+                    }
                 }
+                $success = true;
+                $message = 'تعمیر انجام شد. به صفحهٔ به‌روزرسانی برگردید و دریافت و نصب را یک‌بار بزنید؛ بستهٔ ناقص قبلی مانع دریافت خودکار نسخهٔ تازه نخواهد شد.';
             }
-            if (file_put_contents($backup.'/manifest.json', json_encode(array_keys($originals), JSON_THROW_ON_ERROR)) === false) {
-                throw new RuntimeException('ثبت پشتیبان فایل‌های دیپلوی ممکن نیست.');
-            }
-            foreach ($temporary as $path => $temp) {
-                if (! rename($temp, $path)) {
-                    throw new RuntimeException('جایگزینی فایل دیپلوی ممکن نیست.');
-                }
-                $changed[] = $path;
-                if (function_exists('opcache_invalidate')) {
-                    opcache_invalidate($path, true);
-                }
-            }
-            $success = true;
-            $message = 'تعمیر انجام شد. به صفحهٔ به‌روزرسانی برگردید و دریافت و نصب را یک‌بار بزنید؛ بستهٔ ناقص قبلی مانع دریافت خودکار نسخهٔ تازه نخواهد شد.';
         } catch (Throwable $exception) {
             foreach ($changed as $path) {
                 rename($backups[$path], $path);
@@ -138,7 +149,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <form method="post">
 <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf'], ENT_QUOTES, 'UTF-8') ?>">
 <label for="code">کد بازیابی ساخته‌شده در پنل</label><input id="code" name="code" type="password" required autocomplete="off" dir="ltr">
-<button type="submit">اصلاح بخش به‌روزرسانی</button>
+<button type="submit" name="action" value="status">فقط بررسی وضعیت؛ بدون تغییر فایل‌ها</button>
+<button type="submit" name="action" value="repair">اصلاح بخش به‌روزرسانی</button>
 </form>
 <?php } ?>
 <p><a href="/admin/manage-deployment?handoff=2">بازگشت به به‌روزرسانی سایت</a></p>

@@ -42,6 +42,7 @@ final class DeploymentHandoffTest extends TestCase
             $saved = $layout->read('deployment-job.json');
             $this->assertSame(hash('sha256', $job['token']), $saved['token_hash']);
             $this->assertSame('prepared', $saved['state']);
+            $this->assertSame(hash('sha256', $job['token']), $saved['status_token_hash']);
             $this->assertSame('persistent-environment', file_get_contents($root.'/.env'));
             $status = (new DeploymentManager)->status();
             $this->assertSame('prepared', $status['state']);
@@ -102,6 +103,18 @@ final class DeploymentHandoffTest extends TestCase
         $this->instance(DeploymentManager::class, $manager);
         Livewire::test(ManageDeployment::class)->call('deploy')->assertSet('pendingDeployment', $job)
             ->assertSee('data-deployment-job', false)->assertDispatched('deployment-ready', id: $job['id'], token: $job['token']);
+    }
+
+    public function test_refresh_dispatches_the_same_status_on_every_click(): void
+    {
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        $this->actingAs(User::where('email', 'a@a.com')->firstOrFail());
+        $manager = Mockery::mock(new DeploymentManager);
+        $manager->shouldReceive('status')->andReturn(['state' => 'prepared', 'message' => 'unchanged prepared state']);
+        $this->instance(DeploymentManager::class, $manager);
+        $page = Livewire::test(ManageDeployment::class);
+        $page->call('refreshDeploymentStatus')->assertDispatched('deployment-status-updated', state: 'prepared', message: 'unchanged prepared state');
+        $page->call('refreshDeploymentStatus')->assertDispatched('deployment-status-updated', state: 'prepared', message: 'unchanged prepared state');
     }
 
     public function test_preparation_error_exposes_only_safe_diagnostics(): void
