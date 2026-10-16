@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Deployment;
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -19,6 +20,11 @@ final class GitHubRelease
             return $this->downloadFromApi($repository, $ref, $token, $target);
         } catch (ConnectionException) {
             return $this->downloadPublic($repository, $ref, $target);
+        } catch (RequestException $exception) {
+            if (in_array($exception->response->status(), [403, 429, 500, 502, 503, 504], true)) {
+                return $this->downloadPublic($repository, $ref, $target);
+            }
+            throw $exception;
         } catch (RuntimeException $exception) {
             if (preg_match('/\AGitHub release unavailable \(HTTP (?:403|429|500|502|503|504)\)\.\z/', $exception->getMessage())) {
                 return $this->downloadPublic($repository, $ref, $target);

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Support\Deployment\GitHubRelease;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Client\Request;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Tests\TestCase;
@@ -112,6 +114,28 @@ final class GitHubReleaseTest extends TestCase
             $this->expectException(RuntimeException::class);
             $this->expectExceptionMessage('checksum verification failed');
             (new GitHubRelease)->download('owner/project', 'main', '', $path);
+        } finally {
+            unlink($path);
+        }
+    }
+
+    public function test_transport_http_exception_still_uses_verified_public_release(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'github-release');
+        $bytes = 'verified-public-production-zip';
+        Http::fake(function (Request $request, array $options) use ($bytes) {
+            if (str_contains($request->url(), 'api.github.com')) {
+                throw new RequestException(new \Illuminate\Http\Client\Response(new Response(403)));
+            }
+            $body = str_ends_with($request->url(), '.txt') ? hash('sha256', $bytes).'  divaraap-update.zip' : $bytes;
+            file_put_contents($options['sink'], $body);
+
+            return Http::response($body);
+        });
+        try {
+            $result = (new GitHubRelease)->download('owner/project', 'main', '', $path);
+            $this->assertSame('public_https', $result['transport']);
+            $this->assertSame($bytes, file_get_contents($path));
         } finally {
             unlink($path);
         }
