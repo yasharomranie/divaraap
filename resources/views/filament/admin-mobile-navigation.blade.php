@@ -4,7 +4,7 @@
             ['label' => __('site::mobile.admin_home'), 'icon' => 'chart', 'url' => url('/admin'), 'active' => request()->routeIs('filament.admin.pages.dashboard')],
             ['label' => __('site::mobile.admin_listings'), 'icon' => 'tag', 'url' => url('/admin/listings'), 'active' => request()->routeIs('filament.admin.resources.listings.*')],
             ['label' => __('site::mobile.admin_site'), 'icon' => 'globe', 'url' => url('/'), 'active' => false],
-            ['label' => __('site::mobile.admin_settings'), 'icon' => 'settings', 'url' => url('/admin/manage-general-settings'), 'active' => request()->routeIs('filament.admin.pages.manage-general-settings', 'filament.admin.pages.manage-appearance-settings', 'filament.admin.pages.manage-deployment')],
+            ['label' => __('site::mobile.admin_settings'), 'icon' => 'settings', 'url' => url('/admin/manage-general-settings'), 'active' => request()->routeIs('filament.admin.pages.manage-general-settings', 'filament.admin.pages.manage-appearance-settings', 'filament.admin.pages.manage-deployment', 'filament.admin.pages.production-deploy')],
         ];
     @endphp
     <nav class="admin-mobile-tabs" aria-label="{{ __('site::mobile.admin_navigation') }}" x-data>

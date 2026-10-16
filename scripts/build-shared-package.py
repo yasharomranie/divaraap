@@ -51,6 +51,8 @@ shutil.copy2(root / 'distribution/private.htaccess', private / '.htaccess')
 shutil.copy2(root / 'distribution/INSTALL_FA.md', build / 'INSTALL_FA.md')
 shutil.copy2(root / 'distribution/CREATE-INSTALLATION-KEY.html', build / 'CREATE-INSTALLATION-KEY.html')
 shutil.copy2(root / 'docs/DEPLOYMENT_FA.md', build / 'DEPLOYMENT_FA.md')
+shutil.copy2(root / 'docs/CRON_DEPLOYMENT_FA.md', build / 'CRON_DEPLOYMENT_FA.md')
+shutil.copy2(root / 'scripts/cpanel-cron.txt', build / 'cpanel-cron.txt')
 for name in ['storage/app/public', 'storage/app/private', 'storage/framework/cache/data', 'storage/framework/sessions', 'storage/framework/views', 'storage/logs', 'bootstrap/cache']:
     (private / name).mkdir(parents=True, exist_ok=True)
 for module in (private / 'Modules').iterdir():

@@ -28,7 +28,9 @@ jobs:
       - run: npm ci && npm run build
       - run: php artisan filament:assets
       - run: php artisan vendor:publish --tag=filament-phone-input-assets --force
-      - run: python3 tests/Packaging/test_public_installer.py
+      - run: |
+          python3 tests/Packaging/test_public_installer.py
+          python3 tests/Packaging/test_cpanel_cron.py
       - run: python3 scripts/prepare-local-assets.py
       - run: python3 scripts/build-shared-package.py --output "$RUNNER_TEMP/shared-release"
       - run: python3 scripts/finalize-shared-package.py --public-release --output "$RUNNER_TEMP/shared-release"
