@@ -1,0 +1,13 @@
+.site-header { background: var(--appearance-header); color: var(--appearance-header-text); }
+.site-header .brand, .site-header .location-trigger, .site-header .category-bar__link { color: var(--appearance-header-text); }
+.site-footer { background: var(--appearance-footer); color: var(--appearance-footer-text); }
+.site-footer__heading, .site-footer__link, .site-footer__bottom, .locale-list__item { color: var(--appearance-footer-text); }
+.hero { background: var(--appearance-hero); }
+.listing-card__price, .text-price, .plan-card__price { color: var(--appearance-price); }
+.button--primary, .panel-nav__item.is-active, .thread__bubble--out, .badge--solid, .brand__mark { background: var(--appearance-primary); color: var(--appearance-on-primary); }
+.button--primary:hover { background: color-mix(in srgb, var(--appearance-primary) 85%, #808080); color: var(--appearance-on-primary); }
+.button--accent, .thread-preview__badge { color: var(--appearance-on-accent); }
+.panel-layout .card, .thread-layout, .thread__composer { background: var(--appearance-panel); }
+.promo-banner { background: var(--appearance-banner); color: var(--appearance-on-banner); }
+.promo-banner__text { color: var(--appearance-on-banner); }
+.site-header .category-bar__link.is-active { background: var(--appearance-primary); color: var(--appearance-on-primary); }

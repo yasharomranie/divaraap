@@ -59,6 +59,7 @@
     <link rel="stylesheet" href="{{ asset('assets/fonts/vazirmatn/font.css') }}">
     @vite(['resources/ts/app.ts'])
     @livewireStyles
+    <style id="site-appearance">{!! \App\Support\AppearanceTheme::css(\App\Support\AppearanceTheme::current()) !!}</style>
 </head>
 <body
     @if($isAuthenticated && config('hosting.profile') === 'shared')

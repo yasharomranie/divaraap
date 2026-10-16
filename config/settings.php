@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Modules\Site\App\Settings\AppearanceSettings;
 use Modules\Site\App\Settings\DeploymentSettings;
 use Modules\Site\App\Settings\GeneralSettings;
 use Spatie\LaravelData\Data;
@@ -14,6 +15,7 @@ use Spatie\LaravelSettings\SettingsRepositories\RedisSettingsRepository;
 return [
     'settings' => [
         GeneralSettings::class,
+        AppearanceSettings::class,
         DeploymentSettings::class,
     ],
 
