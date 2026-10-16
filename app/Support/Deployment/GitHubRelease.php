@@ -80,13 +80,14 @@ final class GitHubRelease
     {
         $base = 'https://github.com/'.$repository.'/releases/download/deploy-'.$ref.'/';
         $checksums = $target.'.sha256';
+        $fresh = '?download=1&request='.bin2hex(random_bytes(12));
         try {
-            $this->publicFile($base.'UPDATE-SHA256SUMS.txt', $checksums, 16384);
+            $this->publicFile($base.'UPDATE-SHA256SUMS.txt'.$fresh, $checksums, 16384);
             $text = file_get_contents($checksums);
             if (! preg_match('/\A([a-f0-9]{64})[ \t]+\*?divaraap-update\.zip\s*\z/i', $text, $match)) {
                 throw new RuntimeException('Verified public checksum is missing.');
             }
-            $this->publicFile($base.'divaraap-update.zip', $target, 268435456);
+            $this->publicFile($base.'divaraap-update.zip'.$fresh, $target, 268435456);
             if (! hash_equals(strtolower($match[1]), hash_file('sha256', $target))) {
                 throw new RuntimeException('Update download or checksum verification failed.');
             }
@@ -112,7 +113,7 @@ final class GitHubRelease
                     throw new RuntimeException('Update download is too large.');
                 }
             }])->connectTimeout(15)->timeout($limit > 16384 ? 150 : 30)
-                ->withHeaders(['User-Agent' => 'Divaraap-Deploy'])->get($url);
+                ->withHeaders(['User-Agent' => 'Divaraap-Deploy', 'Cache-Control' => 'no-cache'])->get($url);
             if ($response->redirect()) {
                 $url = $response->header('Location');
 

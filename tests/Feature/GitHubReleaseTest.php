@@ -127,7 +127,7 @@ final class GitHubReleaseTest extends TestCase
             if (str_contains($request->url(), 'api.github.com')) {
                 throw new RequestException(new \Illuminate\Http\Client\Response(new Response(403)));
             }
-            $body = str_ends_with($request->url(), '.txt') ? hash('sha256', $bytes).'  divaraap-update.zip' : $bytes;
+            $body = str_contains($request->url(), 'UPDATE-SHA256SUMS.txt') ? hash('sha256', $bytes).'  divaraap-update.zip' : $bytes;
             file_put_contents($options['sink'], $body);
 
             return Http::response($body);
@@ -136,6 +136,7 @@ final class GitHubReleaseTest extends TestCase
             $result = (new GitHubRelease)->download('owner/project', 'main', '', $path);
             $this->assertSame('public_https', $result['transport']);
             $this->assertSame($bytes, file_get_contents($path));
+            Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'request=') && $request->hasHeader('Cache-Control', 'no-cache'));
         } finally {
             unlink($path);
         }
