@@ -49,7 +49,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $codes = [$root];
             $publics = [__DIR__];
             foreach ($ids as $id) {
-                $codes[] = $layout->code($id);
+                try {
+                    $code = $layout->code($id);
+                } catch (RuntimeException $exception) {
+                    if ($id === ($state['current'] ?? null) || $exception->getMessage() !== 'Release is incomplete.') {
+                        throw $exception;
+                    }
+
+                    continue;
+                }
+                $codes[] = $code;
                 $publics[] = __DIR__.'/_releases/'.$id;
             }
             $files = json_decode(base64_decode('__DEPLOYMENT_REPAIR_PAYLOAD__', true), true, 512, JSON_THROW_ON_ERROR);
@@ -96,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             $success = true;
-            $message = 'تعمیر انجام شد. به صفحهٔ به‌روزرسانی برگردید و دریافت و نصب را یک‌بار بزنید؛ مسیر دریافت جایگزین و نصب بسته از دستگاه در پنل فعال شد.';
+            $message = 'تعمیر انجام شد. به صفحهٔ به‌روزرسانی برگردید و دریافت و نصب را یک‌بار بزنید؛ بستهٔ ناقص قبلی مانع دریافت خودکار نسخهٔ تازه نخواهد شد.';
         } catch (Throwable $exception) {
             foreach ($changed as $path) {
                 rename($backups[$path], $path);

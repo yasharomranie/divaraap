@@ -18,6 +18,6 @@ payload = base64.b64encode(json.dumps({name: (root / source).read_text() for nam
 template = (root / 'distribution/deployment-repair.template.php').read_text()
 output = Path(args.output)
 output.mkdir(parents=True, exist_ok=True)
-for name in ['deployment-repair-v1.php', 'deployment-repair-v2.php']:
+for name in ['deployment-repair-v1.php', 'deployment-repair-v2.php', 'deployment-repair-v3.php']:
     (output / name).write_text(template.replace('__DEPLOYMENT_REPAIR_PAYLOAD__', payload))
-print('Recovery-code protected deployment repair v1/v2 generated.')
+print('Recovery-code protected deployment repair v1/v2/v3 generated.')

@@ -32,7 +32,18 @@ final class DeploymentManager
             }
             $previousJob = $layout->read('deployment-job.json');
             if (($previousJob['state'] ?? null) === 'prepared' && ($previousJob['expires'] ?? 0) > time()) {
-                $layout->code($previousJob['id']);
+                try {
+                    $layout->code($previousJob['id']);
+                } catch (RuntimeException $exception) {
+                    if ($exception->getMessage() !== 'Release is incomplete.') {
+                        throw $exception;
+                    }
+                    $previousJob['state'] = 'failed';
+                    $previousJob['expires'] = 0;
+                    $layout->write('deployment-job.json', $previousJob);
+                }
+            }
+            if (($previousJob['state'] ?? null) === 'prepared' && ($previousJob['expires'] ?? 0) > time()) {
                 $token = bin2hex(random_bytes(32));
                 $previousJob['token_hash'] = hash('sha256', $token);
                 $previousJob['expires'] = time() + 600;
