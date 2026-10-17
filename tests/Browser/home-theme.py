@@ -68,6 +68,9 @@ with sync_playwright() as p:
         assert css('.hero__title', 'font-size') == '36px'
         assert css('.listing-card__title', 'font-size') == '21px'
         assert css('#hero-search', 'font-size') == '18px'
+        for favorite in page.locator('.listing-card__favorite').all():
+            box = favorite.bounding_box()
+            assert box and 44 <= box['width'] <= 48 and 44 <= box['height'] <= 48, box
         for card in page.locator('.listing-card').all():
             assert card.evaluate('(el)=>el.scrollWidth <= el.clientWidth + 1')
         page.screenshot(path='/tmp/home-theme-desktop.png', full_page=True)

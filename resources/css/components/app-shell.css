@@ -57,7 +57,7 @@ html { scroll-padding-block: calc(var(--header-height) + 20px) calc(var(--app-na
 .app-shell .listing-card { border-radius: 18px; border-color: color-mix(in srgb, var(--appearance-border) 65%, transparent); }
 .app-shell .listing-card:hover { box-shadow: none; border-color: var(--accent); }
 .app-shell .listing-card__media { aspect-ratio: 1.15; margin: 6px 6px 0; border-radius: 13px; overflow: hidden; }
-.app-shell .listing-card__media > a { display: block; height: 100%; }
+.app-shell .listing-card__media > a:not(.listing-card__favorite) { display: block; height: 100%; }
 .app-shell .listing-card__body { gap: 8px; padding: 12px; min-width: 0; }
 .app-shell .listing-card__title { order: -1; line-height: 1.8; min-height: 3.6em; }
 .app-shell .listing-card__price { margin-block-start: auto; overflow-wrap: anywhere; }
