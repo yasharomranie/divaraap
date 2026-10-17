@@ -56,7 +56,7 @@
         <h3 class="listing-card__title text-clamp-2" dir="auto">
             <a href="{{ route('listings.show', $listing) }}">{{ $listing->getAttribute('title') }}</a>
         </h3>
-        @if(filled($listing->getAttribute('description')))<p class="listing-card__excerpt">{{ \Illuminate\Support\Str::limit(strip_tags((string) $listing->getAttribute('description')), 80) }}</p>@endif
+        @if(filled($listing->getAttribute('description')))<p class="listing-card__excerpt" dir="auto">{{ \Illuminate\Support\Str::limit(strip_tags((string) $listing->getAttribute('description')), 80) }}</p>@endif
         <div class="listing-card__meta">
             @if($place !== '')
                 <span class="listing-card__place"><x-ui.icon name="map-pin" class="listing-card__place-icon"/>{{ $place }}</span>
