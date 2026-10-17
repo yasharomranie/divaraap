@@ -1,5 +1,5 @@
 :root {
-    --app-nav-height: calc(76px + env(safe-area-inset-bottom, 0px));
+    --app-nav-height: calc(88px + env(safe-area-inset-bottom, 0px));
     --header-height: 124px;
 }
 
@@ -32,15 +32,20 @@ html { scroll-padding-block: calc(var(--header-height) + 20px) calc(var(--app-na
 .app-location .menu__panel { width: min(340px, calc(100vw - 32px)); inset-inline-end: 0; border-radius: 18px; }
 .site-header__menu-trigger { border: 1px solid var(--line-hairline); border-radius: 12px; }
 
-.mobile-tabs { position: fixed; inset-inline: 0; bottom: 0; z-index: 65; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: var(--app-nav-height); padding: 8px max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--surface-raised); border-top: 1px solid var(--line-hairline); }
-.mobile-tabs__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; min-height: 58px; border-radius: 12px; color: var(--ink-600); font-size: var(--font-mobile-navigation, .75rem); font-weight: 500; line-height: 1.6; text-align: center; }
+.mobile-tabs { position: fixed; inset-inline: 0; bottom: 0; z-index: 65; isolation: isolate; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: var(--app-nav-height); padding: 8px max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); filter: drop-shadow(0 -4px 12px rgb(15 23 42 / 7%)); }
+.mobile-tabs::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--surface-raised); border-radius: 24px 24px 0 0; -webkit-mask: radial-gradient(circle 42px at 50% 0, transparent 41px, #000 42px); mask: radial-gradient(circle 42px at 50% 0, transparent 41px, #000 42px); }
+.mobile-tabs__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; min-height: 64px; border-radius: 12px; color: var(--ink-600); font-size: var(--font-mobile-navigation, .75rem); font-weight: 500; line-height: 1.6; text-align: center; }
 .mobile-tabs__icon { position: relative; display: grid; place-items: center; min-width: 40px; height: 30px; border-radius: 10px; }
-.mobile-tabs__icon > svg { width: 23px; height: 23px; }
+.mobile-tabs__icon > svg { width: 24px; height: 24px; }
 .mobile-tabs__item[aria-current="page"] { color: var(--accent); font-weight: 680; }
 .mobile-tabs__item[aria-current="page"] .mobile-tabs__icon { background: var(--accent-soft); }
-.mobile-tabs__item--create .mobile-tabs__icon { width: 44px; height: 34px; background: var(--appearance-primary); color: var(--appearance-on-primary); }
-.mobile-tabs__item--create[aria-current="page"] .mobile-tabs__icon { background: var(--accent); color: var(--appearance-on-accent); }
+.mobile-tabs__item--create { justify-content: flex-start; gap: 6px; margin-top: -36px; color: var(--ink-900); }
+.mobile-tabs__item--create .mobile-tabs__icon { flex-shrink: 0; width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: var(--appearance-on-accent); box-shadow: 0 5px 14px color-mix(in srgb, var(--accent) 22%, transparent); }
+.mobile-tabs__item--create .mobile-tabs__icon > svg { width: 32px; height: 32px; }
+.mobile-tabs__item--create[aria-current="page"] .mobile-tabs__icon { background: var(--accent); color: var(--appearance-on-accent); outline: 2px solid var(--accent); outline-offset: 4px; }
 .mobile-tabs__item:active { background: var(--surface-sunken); }
+.mobile-tabs__item--create:active { background: transparent; }
+.mobile-tabs__item--create:active .mobile-tabs__icon { background: color-mix(in srgb, var(--accent) 85%, var(--ink-900)); }
 .mobile-tabs__badge { position: absolute; top: -2px; inset-inline-end: -3px; border: 2px solid var(--surface-raised); border-radius: 999px; min-width: 20px; padding-inline: 3px; background: var(--critical); color: #fff; font-size: .625rem; }
 .mobile-tabs__badge.is-hidden { display: none; }
 .app-shell .action-bar { bottom: var(--app-nav-height); padding-bottom: 12px; backdrop-filter: none; background: var(--surface-raised); z-index: 64; }
