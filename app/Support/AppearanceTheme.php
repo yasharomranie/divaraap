@@ -41,7 +41,7 @@ final class AppearanceTheme
             'lead' => ['group' => 'general', 'desktop' => 18, 'mobile' => 18, 'selector' => '.text-lead'],
             'muted' => ['group' => 'general', 'desktop' => 13, 'mobile' => 13, 'selector' => '.text-muted'],
             'meta' => ['group' => 'general', 'desktop' => 12, 'mobile' => 12, 'selector' => '.text-meta, .text-eyebrow, .breadcrumb'],
-            'hero_title' => ['group' => 'headings', 'desktop' => 52, 'mobile' => 32, 'selector' => '.title-hero'],
+            'hero_title' => ['group' => 'headings', 'desktop' => 36, 'mobile' => 26, 'selector' => '.title-hero'],
             'page_title' => ['group' => 'headings', 'desktop' => 32, 'mobile' => 24, 'selector' => '.title-page'],
             'section_title' => ['group' => 'headings', 'desktop' => 26, 'mobile' => 19, 'selector' => '.title-section'],
             'card_title' => ['group' => 'headings', 'desktop' => 18, 'mobile' => 18, 'selector' => '.title-card, .card__title'],
@@ -49,7 +49,7 @@ final class AppearanceTheme
             'brand' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.brand'],
             'navigation' => ['group' => 'header', 'desktop' => 13, 'mobile' => 13, 'selector' => '.category-bar__link, .location-trigger, .menu__item'],
             'drawer' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.nav-list__item, .drawer__title'],
-            'search' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.site-search__input'],
+            'search' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.site-search__input, .marketplace-hero .input'],
             'listing_title' => ['group' => 'listing', 'desktop' => 18, 'mobile' => 18, 'selector' => '.listing-card__title'],
             'listing_price' => ['group' => 'listing', 'desktop' => 16, 'mobile' => 16, 'selector' => '.listing-card__price'],
             'listing_meta' => ['group' => 'listing', 'desktop' => 12, 'mobile' => 12, 'selector' => '.listing-card__meta'],
@@ -60,9 +60,9 @@ final class AppearanceTheme
             'seller' => ['group' => 'listing', 'desktop' => 16, 'mobile' => 16, 'selector' => '.seller-card__name, .contact-panel__value'],
             'reviews' => ['group' => 'listing', 'desktop' => 16, 'mobile' => 16, 'selector' => '.review-item__body'],
             'filters' => ['group' => 'listing', 'desktop' => 13, 'mobile' => 13, 'selector' => '.filter-group__title, .result-bar__count, .chip'],
-            'category' => ['group' => 'home', 'desktop' => 13, 'mobile' => 13, 'selector' => '.category-card__name, .pill'],
+            'category' => ['group' => 'home', 'desktop' => 13, 'mobile' => 13, 'selector' => '.category-card__name, .pill, .home-sidebar__categories > a'],
             'category_count' => ['group' => 'home', 'desktop' => 12, 'mobile' => 12, 'selector' => '.category-card__count'],
-            'statistics' => ['group' => 'home', 'desktop' => 26, 'mobile' => 26, 'selector' => '.stat-card__value'],
+            'statistics' => ['group' => 'home', 'desktop' => 26, 'mobile' => 26, 'selector' => '.stat-card__value, .hero__stat strong'],
             'statistics_label' => ['group' => 'home', 'desktop' => 12, 'mobile' => 12, 'selector' => '.stat-card__label, .hero__stats'],
             'banner_title' => ['group' => 'home', 'desktop' => 21, 'mobile' => 21, 'selector' => '.promo-banner__title'],
             'banner_text' => ['group' => 'home', 'desktop' => 13, 'mobile' => 13, 'selector' => '.promo-banner__text'],
@@ -180,7 +180,7 @@ final class AppearanceTheme
         $css = 'html:root{'.self::variables($data).'}';
         $css .= '@media(min-width:64rem){html:root{'.self::variables($data, 'desktop').'}}';
         foreach (self::fonts() as $key => $font) {
-            $css .= implode(',', array_map(static fn (string $selector): string => 'html '.$selector, explode(', ', $font['selector'])));
+            $css .= implode(',', array_map(static fn (string $selector): string => ($selector === 'body' ? 'html body.app-shell' : 'html body.app-shell '.$selector), explode(', ', $font['selector'])));
             $css .= '{font-size:var(--font-'.str_replace('_', '-', $key).');}';
         }
 

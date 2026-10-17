@@ -71,11 +71,24 @@ final class HomeSlideDefaults
             ->filter(fn ($slide): bool => is_array($slide))
             ->values();
 
-        return $normalized
-            ->concat(collect($defaults)->slice($normalized->count()))
-            ->take(count($defaults))
-            ->values()
-            ->all();
+        return $normalized->isEmpty() ? $defaults : $normalized->take(5)->all();
+    }
+
+    public static function forDisplay(mixed $slides): array
+    {
+        $defaults = self::defaults();
+
+        return array_map(static function (array $slide) use ($defaults): array {
+            foreach ($defaults as $index => $default) {
+                foreach (['badge', 'title', 'subtitle', 'primary_button_text', 'secondary_button_text'] as $field) {
+                    if ($slide[$field] === $default[$field]) {
+                        $slide[$field] = __('site::home.slide_'.$index.'_'.$field);
+                    }
+                }
+            }
+
+            return $slide;
+        }, self::normalize($slides));
     }
 
     private static function normalizeImagePath(mixed $value): string

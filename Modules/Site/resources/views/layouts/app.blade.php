@@ -1,5 +1,6 @@
 @php
     $settings = $generalSettings ?? [];
+    $appearance = \App\Support\AppearanceTheme::current();
     $siteName = $settings['site_name'] ?? config('app.name', 'OpenClassify');
     $siteDescription = $settings['site_description'] ?? __('site::messages.tagline');
     if ($siteDescription === 'The marketplace for buying and selling everything.') {
@@ -45,7 +46,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="{{ $appearance['colors']['header'] }}">
     <title>@hasSection('title')@yield('title') — {{ $siteName }}@else{{ $siteName }}@endif</title>
     <meta name="description" content="@hasSection('description')@yield('description')@else{{ $siteDescription }}@endif">
     <meta property="og:site_name" content="{{ $siteName }}">
@@ -59,7 +60,7 @@
     <link rel="stylesheet" href="{{ asset('assets/fonts/vazirmatn/font.css') }}">
     @vite(['resources/ts/app.ts'])
     @livewireStyles
-    <style id="site-appearance">{!! \App\Support\AppearanceTheme::css(\App\Support\AppearanceTheme::current()) !!}</style>
+    <style id="site-appearance">{!! \App\Support\AppearanceTheme::css($appearance) !!}</style>
 </head>
 <body class="app-shell {{ $chromeless ? 'app-shell--auth' : 'app-shell--navigation' }} {{ request()->routeIs('home') ? 'app-shell--home' : '' }} {{ request()->routeIs('listings.show') ? 'app-shell--detail' : '' }}" data-app-shell
     @if($isAuthenticated && config('hosting.profile') === 'shared')

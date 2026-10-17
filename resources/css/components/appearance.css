@@ -11,3 +11,5 @@
 .promo-banner { background: var(--appearance-banner); color: var(--appearance-on-banner); }
 .promo-banner__text { color: var(--appearance-on-banner); }
 .site-header .category-bar__link.is-active { background: var(--appearance-primary); color: var(--appearance-on-primary); }
+
+.app-shell .promo-banner__title { color: var(--appearance-on-banner); }

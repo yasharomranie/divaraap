@@ -4,59 +4,96 @@
 @section('description', __('site::messages.hero_lead'))
 
 @section('content')
-<section class="hero marketplace-hero">
-    <div class="shell shell--wide">
-        <div class="marketplace-hero__layout">
-            <div class="hero__inner">
-                <p class="marketplace-hero__eyebrow"><span aria-hidden="true"></span>{{ __('site::mobile.eyebrow') }}</p>
-                <h1 class="title-hero hero__title">{{ __('site::messages.hero_title') }}</h1>
-                <p class="text-lead hero__lead">{{ __('site::messages.hero_lead') }}</p>
+@php
+    $slides = \Modules\Site\App\Support\HomeSlideDefaults::forDisplay($generalSettings['home_slides'] ?? []);
+@endphp
+<h1 class="visually-hidden">{{ $slides[0]['title'] }}</h1>
+<div class="shell shell--wide home-workspace">
+    <aside class="home-sidebar" aria-label="{{ __('site::messages.categories') }}">
+        <div class="home-sidebar__head"><x-ui.icon name="grid"/><h2 class="title-card">{{ __('site::messages.categories') }}</h2></div>
+        <nav class="home-sidebar__categories">
+            <a href="{{ route('listings.index') }}" class="home-sidebar__all"><x-ui.icon name="sparkle"/>{{ __('site::home.browse') }}<x-ui.icon name="chevron-left"/></a>
+            @foreach($categories as $category)
+                <a href="{{ route('listings.index', ['category' => $category->getKey()]) }}">
+                    <span class="home-sidebar__icon">@if($category->iconUrl())<img src="{{ $category->iconUrl() }}" alt="">@else<x-ui.icon name="grid"/>@endif</span>
+                    <span>{{ $category->displayName() }}</span><x-ui.icon name="chevron-left"/>
+                </a>
+            @endforeach
+        </nav>
+        <a href="{{ auth()->check() ? route('panel.listings.create') : route('login') }}" class="home-sidebar__sell"><x-ui.icon name="plus"/><strong>{{ __('site::home.sell') }}</strong><span>{{ __('site::home.sell_text') }}</span></a>
+    </aside>
+    <div class="home-workspace__main">
+<section class="hero marketplace-hero" data-home-showcase aria-label="{{ __('site::home.highlights') }}">
+    <div class="home-showcase__frame">
+        <div class="home-search-strip">
                 <form action="{{ route('listings.index') }}" method="GET" class="hero__search" role="search" data-location-search>
+                    <label class="visually-hidden" for="hero-search">{{ __('site::home.search_hint') }}</label>
                     <div class="hero__search-row">
-                        <span class="input-affix">
-                            <x-ui.icon name="search" class="input-affix__icon"/>
-                            <label class="visually-hidden" for="hero-search">{{ __('site::messages.search') }}</label>
-                            <input id="hero-search" type="search" name="search" class="input" placeholder="{{ __('site::messages.search_placeholder') }}">
-                        </span>
-                        <button type="submit" class="button button--accent button--large">{{ __('site::messages.search') }}<x-ui.icon name="arrow-left"/></button>
+                        <span class="input-affix"><x-ui.icon name="search" class="input-affix__icon"/><input id="hero-search" type="search" name="search" class="input" placeholder="{{ __('site::home.search_hint') }}"></span>
+                        <button type="submit" class="button button--accent">{{ __('site::messages.search') }}<x-ui.icon name="arrow-left"/></button>
                     </div>
                 </form>
-                <div class="hero__stats">
-                    <span class="hero__stat"><strong>{{ \App\Support\PersianLocale::number($listingCount) }}</strong> {{ __('site::messages.active_listings') }}</span>
-                    <span class="hero__stat"><strong>{{ \App\Support\PersianLocale::number($categoryCount) }}</strong> {{ __('site::messages.categories') }}</span>
-                    <span class="hero__stat"><strong>{{ \App\Support\PersianLocale::number($userCount) }}</strong> {{ __('site::messages.members') }}</span>
-                </div>
-            </div>
-            <div class="marketplace-hero__discovery">
-                <div class="marketplace-hero__discovery-head"><span class="marketplace-hero__symbol"><x-ui.icon name="sparkle"/></span><span>{{ __('site::mobile.discover') }}</span><x-ui.icon name="arrow-left"/></div>
-                @if($recentListings->isNotEmpty())
-                    @php($heroListing = $recentListings->first())
-                    <a class="discovery-card" href="{{ route('listings.show', $heroListing) }}">
-                        <div class="discovery-card__image">
-                            @if($heroListing->primaryImageUrl('card'))
-                                <img src="{{ $heroListing->primaryImageUrl('card') }}" alt="" fetchpriority="high">
-                            @else
-                                <x-ui.icon name="tag"/>
-                            @endif
-                            <span class="discovery-card__label"><x-ui.icon name="clock"/>{{ __('site::mobile.fresh') }}</span>
+        </div>
+        <details class="home-showcase__details" data-home-details>
+            <summary class="home-showcase__summary">
+                <span><span class="text-eyebrow">{{ __('site::home.highlights') }}</span><strong class="title-card" dir="auto">{{ $slides[0]['title'] }}</strong><span class="home-showcase__summary-link">{{ __('site::home.open_showcase') }}<x-ui.icon name="chevron-down"/></span></span>
+                @if($previewImage = \Modules\Site\App\Support\LocalMedia::url($slides[0]['image_path']))<img src="{{ $previewImage }}" alt="" width="120" height="100">@endif
+            </summary>
+        <div class="marketplace-hero__layout">
+            <div class="home-showcase__slides" aria-live="polite" aria-atomic="true">
+                @foreach($slides as $index => $slide)
+                    <div id="home-slide-{{ $index }}" class="home-showcase__slide" data-home-slide @if($index > 0) hidden @endif>
+                        <div class="hero__inner">
+                            <p class="marketplace-hero__eyebrow"><span aria-hidden="true"></span>{{ $slide['badge'] }}</p>
+                            <h2 class="title-hero hero__title" dir="auto">{{ $slide['title'] }}</h2>
+                            <p class="text-lead hero__lead" dir="auto">{{ $slide['subtitle'] }}</p>
+                            <div class="home-showcase__actions">
+                                <a href="{{ $index === 1 ? route('categories.index') : route('listings.index') }}" class="button button--primary">{{ $slide['primary_button_text'] }}<x-ui.icon name="arrow-left"/></a>
+                                <a href="{{ auth()->check() ? route('panel.listings.create') : route('login') }}" class="home-showcase__sell">{{ $slide['secondary_button_text'] }}<x-ui.icon name="plus"/></a>
+                            </div>
                         </div>
-                        <div class="discovery-card__body"><span dir="auto">{{ $heroListing->getAttribute('title') }}</span><strong><bdi>{{ $heroListing->panelPriceLabel() }}</bdi></strong><span class="discovery-card__action"><x-ui.icon name="arrow-left"/></span></div>
-                    </a>
-                @else
-                    <div class="discovery-card discovery-card--empty"><x-ui.icon name="tag"/><p>{{ __('site::mobile.trust_title') }}</p></div>
+                        <div class="home-showcase__visual">
+                            @if($image = \Modules\Site\App\Support\LocalMedia::url($slide['image_path']))
+                                <img src="{{ $image }}" alt="" width="800" height="500" @if($index === 0) fetchpriority="high" @else loading="lazy" @endif>
+                            @else
+                                <x-ui.icon name="grid"/>
+                            @endif
+                            <span class="home-showcase__stamp"><x-ui.icon name="inbox"/>{{ __('site::mobile.direct') }}</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="home-showcase__toolbar">
+                @if(count($slides) > 1)
+                    <div class="home-showcase__controls {{ count($slides) > 3 ? 'home-showcase__controls--many' : '' }}" data-home-controls hidden>
+                        <button type="button" class="icon-button" data-home-previous aria-label="{{ __('site::home.previous') }}"><x-ui.icon name="chevron-right"/></button>
+                        <div class="home-showcase__positions">
+                            @foreach($slides as $index => $slide)
+                                <button type="button" data-home-position="{{ $index }}" aria-controls="home-slide-{{ $index }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="{{ __('site::home.slide', ['number' => $index + 1, 'total' => count($slides)]) }}"><span></span></button>
+                            @endforeach
+                        </div>
+                        <button type="button" class="icon-button" data-home-next aria-label="{{ __('site::home.next') }}"><x-ui.icon name="chevron-left"/></button>
+                    </div>
                 @endif
-                <p class="marketplace-hero__note"><x-ui.icon name="users"/>{{ __('site::mobile.direct') }}</p>
+            </div>
+        </div>
+        </details>
+        <div class="home-market-pulse">
+            <p><x-ui.icon name="sparkle"/>{{ __('site::mobile.hero_note') }}</p>
+            <div class="hero__stats">
+                <span class="hero__stat"><strong>{{ \App\Support\PersianLocale::number($listingCount) }}</strong> {{ __('site::messages.active_listings') }}</span>
+                <span class="hero__stat"><strong>{{ \App\Support\PersianLocale::number($categoryCount) }}</strong> {{ __('site::messages.categories') }}</span>
             </div>
         </div>
     </div>
 </section>
 
-<div class="shell shell--wide page">
+<div class="home-feed page">
     <div class="stack stack--section">
         @if($categories->isNotEmpty())
-        <section class="section">
+        <section class="section home-category-section">
             <div class="section__head">
-                <h2 class="title-section">{{ __('site::messages.popular_categories') }}</h2>
+                <div><p class="text-eyebrow">{{ __('site::home.categories_hint') }}</p><h2 class="title-section">{{ __('site::messages.popular_categories') }}</h2></div>
                 <a href="{{ route('categories.index') }}" class="text-link">{{ __('site::messages.explore_all') }}</a>
             </div>
 
@@ -80,7 +117,7 @@
         @if($featuredListings->isNotEmpty())
         <section class="section">
             <div class="section__head">
-                <h2 class="title-section">{{ __('site::messages.featured') }}</h2>
+                <div><p class="text-eyebrow">{{ __('site::home.featured_hint') }}</p><h2 class="title-section">{{ __('site::messages.featured') }}</h2></div>
                 <a href="{{ route('listings.index', ['sort' => 'relevance']) }}" class="text-link">{{ __('site::messages.view_all') }}</a>
             </div>
 
@@ -94,7 +131,7 @@
 
         <section class="section">
             <div class="section__head">
-                <h2 class="title-section">{{ __('site::messages.recent_listings') }}</h2>
+                <div><p class="text-eyebrow">{{ __('site::home.recent_hint') }}</p><h2 class="title-section">{{ __('site::messages.recent_listings') }}</h2></div>
                 <a href="{{ route('listings.index', ['sort' => 'newest']) }}" class="text-link">{{ __('site::messages.view_all') }}</a>
             </div>
 
@@ -109,9 +146,11 @@
             @endif
         </section>
 
-        <section class="promo-banner">
+        <section class="promo-banner home-sell-banner">
+            <span class="home-sell-banner__icon" aria-hidden="true"><x-ui.icon name="plus"/></span>
+            <p class="text-eyebrow">{{ __('site::home.sell_hint') }}</p>
             <h2 class="promo-banner__title">{{ __('site::messages.sell_something') }}</h2>
-            <p class="promo-banner__text">{{ __('site::messages.hero_lead') }}</p>
+            <p class="promo-banner__text">{{ __('site::home.sell_text') }}</p>
             <div class="row row--wrap">
                 <a href="{{ auth()->check() ? route('panel.listings.create') : route('register') }}" class="button button--secondary">
                     {{ __('site::messages.post_listing_cta') }}
@@ -121,6 +160,8 @@
                 </a>
             </div>
         </section>
+    </div>
+</div>
     </div>
 </div>
 @endsection

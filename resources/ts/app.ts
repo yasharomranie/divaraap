@@ -5,12 +5,14 @@ import { characterCounter, confirmAction, dependentSelect, imagePreview, ratingI
 import { favoriteToggle } from './modules/favorite-toggle';
 import { filterDrawer, listingFilters, viewModeToggle } from './modules/listing-filters';
 import { inboxBadge, inboxPane, inboxThread } from './modules/inbox';
+import { homeShowcase } from './modules/home-showcase';
 import { listingGallery } from './modules/gallery';
 import { locationPicker } from './modules/location-picker';
 import { contactReveal, shareAction } from './modules/reveal';
 import { appNavigation, disclosureGroup, navigationDrawer, searchSuggest, stickyHeader } from './modules/navigation';
 
 const behaviors: readonly Behavior<never>[] = [
+    homeShowcase,
     navigationDrawer,
     appNavigation,
     disclosureGroup,

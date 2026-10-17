@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'slide_0_badge' => 'Start somewhere close',
+    'slide_0_title' => 'Good finds. Just a search away.',
+    'slide_0_subtitle' => 'For your home, your work, your everyday. Discover local listings and talk directly with sellers.',
+    'slide_0_primary_button_text' => 'Discover listings',
+    'slide_0_secondary_button_text' => 'Post my listing',
+    'slide_1_badge' => 'A category for every possibility',
+    'slide_1_title' => 'From your first home to your next phone.',
+    'slide_1_subtitle' => 'Choose a category, explore fresh listings and find something that fits your life.',
+    'slide_1_primary_button_text' => 'Explore categories',
+    'slide_1_secondary_button_text' => 'Start selling',
+    'slide_2_badge' => 'Closer than you think',
+    'slide_2_title' => 'A new owner. A new story.',
+    'slide_2_subtitle' => 'Give good things a second chapter and discover your next find around the corner.',
+    'slide_2_primary_button_text' => 'See new listings',
+    'slide_2_secondary_button_text' => 'Post a listing',
+    'open_showcase' => 'Explore the showcase',
+    'highlights' => 'Today’s showcase',
+    'previous' => 'Previous slide',
+    'next' => 'Next slide',
+    'slide' => 'Slide :number of :total',
+    'search_hint' => 'What are you looking for?',
+    'browse' => 'All listings',
+    'categories_hint' => 'Find your starting point',
+    'recent_hint' => 'Fresh on the marketplace',
+    'featured_hint' => 'Listings in the spotlight',
+    'sell_hint' => 'Make room for something new',
+    'sell_text' => 'Take a photo, post your listing and talk directly with interested buyers.',
+    'explore' => 'Explore something good',
+    'sell' => 'Something to sell?',
+    'saved' => 'Save it for later',
+];
