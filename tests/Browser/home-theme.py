@@ -5,12 +5,12 @@ from playwright.sync_api import sync_playwright
 base = os.environ.get('HOME_THEME_TEST_URL', 'http://127.0.0.1:8000').rstrip('/')
 assert urlparse(base).hostname in ['127.0.0.1', 'localhost']
 changes = {
-    'colors.accent': '#c52648',
-    'colors.page': '#fff5ef',
-    'colors.surface': '#fffdf9',
-    'colors.hero': '#fff0dc',
-    'colors.header': '#ffeddf',
-    'colors.price': '#8f1733',
+    'colors.accent': '#234bde',
+    'colors.page': '#fafaf8',
+    'colors.surface': '#ffffff',
+    'colors.hero': '#f0f1ec',
+    'colors.header': '#ffffff',
+    'colors.price': '#17221b',
     'typography.hero_title.mobile': 26,
     'typography.hero_title.desktop': 36,
     'typography.listing_title.mobile': 19,
@@ -41,32 +41,30 @@ with sync_playwright() as p:
         page.goto(base + '/', wait_until='networkidle')
         def css(selector, property):
             return page.locator(selector).first.evaluate('(el, property) => getComputedStyle(el).getPropertyValue(property)', property)
-        assert css('body', 'background-color') == 'rgb(255, 245, 239)'
-        assert css('.site-header', 'background-color') == 'rgb(255, 237, 223)'
-        assert css('.listing-card__price', 'color') == 'rgb(143, 23, 51)'
+        assert css('body', 'background-color') == 'rgb(250, 250, 248)'
+        assert css('.site-header', 'background-color') == 'rgb(255, 255, 255)'
+        assert css('.listing-card__price', 'color') == 'rgb(23, 34, 27)'
         assert css('.listing-card__title', 'font-size') == '19px'
         assert css('#hero-search', 'font-size') == '17px'
-        assert not page.locator('[data-home-details]').evaluate('(el) => el.open')
-        assert page.locator('.home-showcase__summary > img').evaluate('(el) => el.complete && el.naturalWidth > 0')
+        assert page.locator('[data-home-details], .home-sidebar, .home-workspace, .home-collage').count() == 0
+        assert page.locator('.home-directory a').count() > 1
+        assert page.locator('.home-product-grid').last.evaluate('(el) => getComputedStyle(el).gridTemplateColumns.split(" ").length') == 2
         assert page.locator('.mobile-tabs').is_visible()
-        assert not page.locator('.home-sidebar').is_visible()
         assert page.locator('[data-home-next]').count() == 1
-        page.locator('.home-showcase__summary').click()
-        assert css('.hero__title', 'font-size') == '26px'
+        assert css('.home-intro .title-hero', 'font-size') == '26px'
         heading = page.locator('[data-home-slide]:visible h2').inner_text()
         page.locator('[data-home-next]').click()
         assert page.locator('[data-home-slide]:visible h2').inner_text() != heading
         page.locator('[data-home-position="0"]').focus()
         page.keyboard.press('ArrowLeft')
         assert page.locator('[data-home-position="2"]').get_attribute('aria-current') == 'true'
-        page.locator('.home-showcase__summary').click()
         for width in [360, 390, 768, 1024, 1440]:
             page.set_viewport_size({'width': width, 'height': 1000})
             page.wait_for_timeout(100)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
-        assert page.locator('.home-sidebar').is_visible()
+        assert page.locator('.home-product-grid').last.evaluate('(el) => getComputedStyle(el).gridTemplateColumns.split(" ").length') == 4
         assert not page.locator('.mobile-tabs').is_visible()
-        assert css('.hero__title', 'font-size') == '36px'
+        assert css('.home-intro .title-hero', 'font-size') == '36px'
         assert css('.listing-card__title', 'font-size') == '21px'
         assert css('#hero-search', 'font-size') == '18px'
         for favorite in page.locator('.listing-card__favorite').all():
@@ -74,19 +72,21 @@ with sync_playwright() as p:
             assert box and 44 <= box['width'] <= 48 and 44 <= box['height'] <= 48, box
         for card in page.locator('.listing-card').all():
             assert card.evaluate('(el)=>el.scrollWidth <= el.clientWidth + 1')
-        assert page.locator('[data-home-slide]:visible .home-collage__card').count() > 0
-        assert page.locator('[data-home-slide]:visible .home-collage__card img').first.evaluate('(el) => el.complete && el.naturalWidth > 0')
+        assert page.locator('[data-home-slide]:visible .home-editorial__picture > img').first.evaluate('(el) => el.complete && el.naturalWidth > 0')
+        page.locator('#hero-search').focus()
+        page.evaluate('document.activeElement?.blur(); window.scrollTo(0,0)')
         page.screenshot(path='/tmp/home-theme-desktop.png', full_page=True)
         page.screenshot(path='/tmp/adorax-home-desktop.png')
         page.set_viewport_size({'width': 390, 'height': 844})
+        page.evaluate('document.activeElement?.blur(); window.scrollTo(0,0)')
         page.screenshot(path='/tmp/home-theme-mobile.png', full_page=True)
         page.screenshot(path='/tmp/adorax-home-mobile.png')
         page.locator('#hero-search').fill('گوشی')
-        page.locator('.hero__search button[type=submit]').click()
+        page.locator('.home-search button[type=submit]').click()
         page.wait_for_url('**/listings?**')
         assert 'search=' in page.url
         assert not errors, errors
-        print('Saved admin colors and mobile/desktop fonts verified in computed styles; showcase click/keyboard, compact mobile, sidebar, 5 viewport sizes and search passed.')
+        print('Saved admin colors and mobile/desktop fonts verified in computed styles; showcase click/keyboard, new full-width editorial structure, 2/4-column product grids, 5 viewport sizes and search passed.')
     finally:
         restored = {key: original[key.split('.')[0]][key.split('.')[1]] if len(key.split('.')) == 2 else original[key.split('.')[0]][key.split('.')[1]][key.split('.')[2]] for key in changes}
         save(restored)

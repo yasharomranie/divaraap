@@ -49,7 +49,7 @@ final class AppearanceTheme
             'brand' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.brand'],
             'navigation' => ['group' => 'header', 'desktop' => 13, 'mobile' => 13, 'selector' => '.category-bar__link, .location-trigger, .menu__item'],
             'drawer' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.nav-list__item, .drawer__title'],
-            'search' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.site-search__input, .marketplace-hero .input'],
+            'search' => ['group' => 'header', 'desktop' => 16, 'mobile' => 16, 'selector' => '.site-search__input, .home-search .input'],
             'listing_title' => ['group' => 'listing', 'desktop' => 18, 'mobile' => 18, 'selector' => '.listing-card__title'],
             'listing_price' => ['group' => 'listing', 'desktop' => 16, 'mobile' => 16, 'selector' => '.listing-card__price'],
             'listing_meta' => ['group' => 'listing', 'desktop' => 12, 'mobile' => 12, 'selector' => '.listing-card__meta'],

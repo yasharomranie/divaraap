@@ -4,12 +4,6 @@ export const homeShowcase = defineBehavior<HTMLElement>({
     name: 'home-showcase',
     selector: '[data-home-showcase]',
     mount(element) {
-        const details = element.querySelector<HTMLDetailsElement>('[data-home-details]');
-        const desktop = window.matchMedia('(min-width: 64rem)');
-        if (details !== null) {
-            details.open = desktop.matches;
-            desktop.addEventListener('change', () => { details.open = desktop.matches; });
-        }
         const slides = Array.from(element.querySelectorAll<HTMLElement>('[data-home-slide]'));
         const positions = Array.from(element.querySelectorAll<HTMLButtonElement>('[data-home-position]'));
         const controls = element.querySelector<HTMLElement>('[data-home-controls]');

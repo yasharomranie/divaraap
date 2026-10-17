@@ -3,6 +3,15 @@
 declare(strict_types=1);
 
 return [
+    'new_title' => 'Good things,',
+    'new_title_end' => 'found again.',
+    'new_eyebrow' => 'For your next find and a fresh start',
+    'new_lead' => 'Less searching. Better finds. Direct conversations.',
+    'new_discover' => 'Fresh discoveries',
+    'new_spotlight' => 'In today’s spotlight',
+    'new_more' => 'There is more to discover',
+    'new_sell' => 'Something you no longer need. Exactly what someone else is looking for.',
+
     'fresh_finds' => 'A few fresh finds to start with',
     'explore_market' => 'Explore the marketplace',
     'filter_listings' => 'Filter listings',

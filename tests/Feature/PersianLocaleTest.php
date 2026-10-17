@@ -17,7 +17,7 @@ class PersianLocaleTest extends TestCase
             ->assertSuccessful()
             ->assertSee('lang="fa"', false)
             ->assertSee('dir="rtl"', false)
-            ->assertSee('آنچه نیاز دارید، در نزدیکی شماست.')
+            ->assertSee('چیزهای خوب،')->assertSee('دوباره پیدا می‌شوند.')
             ->assertSee('فارسی')
             ->assertSee('assets/fonts/vazirmatn/font.css', false);
     }
@@ -45,7 +45,7 @@ class PersianLocaleTest extends TestCase
             ->assertSuccessful()
             ->assertSee('lang="en"', false)
             ->assertSee('dir="ltr"', false)
-            ->assertSee('Find what you need, close to home.');
+            ->assertSee('Good things,')->assertSee('found again.');
     }
 
     public function test_unsupported_language_does_not_replace_the_session(): void
