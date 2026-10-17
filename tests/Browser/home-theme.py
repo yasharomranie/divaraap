@@ -47,6 +47,7 @@ with sync_playwright() as p:
         assert css('.listing-card__title', 'font-size') == '19px'
         assert css('#hero-search', 'font-size') == '17px'
         assert not page.locator('[data-home-details]').evaluate('(el) => el.open')
+        assert page.locator('.home-showcase__summary > img').evaluate('(el) => el.complete && el.naturalWidth > 0')
         assert page.locator('.mobile-tabs').is_visible()
         assert not page.locator('.home-sidebar').is_visible()
         assert page.locator('[data-home-next]').count() == 1
@@ -73,9 +74,13 @@ with sync_playwright() as p:
             assert box and 44 <= box['width'] <= 48 and 44 <= box['height'] <= 48, box
         for card in page.locator('.listing-card').all():
             assert card.evaluate('(el)=>el.scrollWidth <= el.clientWidth + 1')
+        assert page.locator('[data-home-slide]:visible .home-collage__card').count() > 0
+        assert page.locator('[data-home-slide]:visible .home-collage__card img').first.evaluate('(el) => el.complete && el.naturalWidth > 0')
         page.screenshot(path='/tmp/home-theme-desktop.png', full_page=True)
+        page.screenshot(path='/tmp/adorax-home-desktop.png')
         page.set_viewport_size({'width': 390, 'height': 844})
         page.screenshot(path='/tmp/home-theme-mobile.png', full_page=True)
+        page.screenshot(path='/tmp/adorax-home-mobile.png')
         page.locator('#hero-search').fill('گوشی')
         page.locator('.hero__search button[type=submit]').click()
         page.wait_for_url('**/listings?**')

@@ -6,6 +6,7 @@
 @section('content')
 @php
     $slides = \Modules\Site\App\Support\HomeSlideDefaults::forDisplay($generalSettings['home_slides'] ?? []);
+    $showcaseListings = $recentListings->filter(fn ($listing) => filled($listing->primaryImageUrl('card')))->take(3)->values();
 @endphp
 <h1 class="visually-hidden">{{ $slides[0]['title'] }}</h1>
 <div class="shell shell--wide home-workspace">
@@ -37,7 +38,7 @@
         <details class="home-showcase__details" data-home-details>
             <summary class="home-showcase__summary">
                 <span><span class="text-eyebrow">{{ __('site::home.highlights') }}</span><strong class="title-card" dir="auto">{{ $slides[0]['title'] }}</strong><span class="home-showcase__summary-link">{{ __('site::home.open_showcase') }}<x-ui.icon name="chevron-down"/></span></span>
-                @if($previewImage = \Modules\Site\App\Support\LocalMedia::url($slides[0]['image_path']))<img src="{{ $previewImage }}" alt="" width="120" height="100">@endif
+                @if($previewImage = (! str_starts_with($slides[0]['image_path'], 'images/home-slides/') || $showcaseListings->isEmpty()) ? \Modules\Site\App\Support\LocalMedia::url($slides[0]['image_path']) : $showcaseListings->first()->primaryImageUrl('card'))<img src="{{ $previewImage }}" alt="" width="120" height="100">@endif
             </summary>
         <div class="marketplace-hero__layout">
             <div class="home-showcase__slides" aria-live="polite" aria-atomic="true">
@@ -53,7 +54,17 @@
                             </div>
                         </div>
                         <div class="home-showcase__visual">
-                            @if($image = \Modules\Site\App\Support\LocalMedia::url($slide['image_path']))
+                            @if(str_starts_with($slide['image_path'], 'images/home-slides/') && $showcaseListings->isNotEmpty())
+                                <div class="home-collage" aria-label="{{ __('site::home.fresh_finds') }}">
+                                    @foreach($showcaseListings as $pick)
+                                        <a class="home-collage__card" href="{{ route('listings.show', $pick) }}">
+                                            <img src="{{ $pick->primaryImageUrl('card') }}" alt="{{ $pick->getAttribute('title') }}" width="280" height="300" @if($index > 0) loading="lazy" @endif>
+                                            <span dir="auto">{{ $pick->getAttribute('title') }}</span>
+                                            <strong><bdi>{{ $pick->panelPriceLabel() }}</bdi></strong>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @elseif($image = \Modules\Site\App\Support\LocalMedia::url($slide['image_path']))
                                 <img src="{{ $image }}" alt="" width="800" height="500" @if($index === 0) fetchpriority="high" @else loading="lazy" @endif>
                             @else
                                 <x-ui.icon name="grid"/>
@@ -90,6 +101,12 @@
 
 <div class="home-feed page">
     <div class="stack stack--section">
+        <nav class="home-feed-navigation" aria-label="{{ __('site::home.explore_market') }}">
+            <a href="#latest" class="is-current"><x-ui.icon name="clock"/>{{ __('site::messages.recent_listings') }}</a>
+            @if($featuredListings->isNotEmpty())<a href="#featured"><x-ui.icon name="sparkle"/>{{ __('site::messages.featured') }}</a>@endif
+            <a href="{{ route('listings.index') }}"><x-ui.icon name="sliders"/>{{ __('site::home.filter_listings') }}</a>
+        </nav>
+
         @if($categories->isNotEmpty())
         <section class="section home-category-section">
             <div class="section__head">
@@ -115,7 +132,7 @@
         @endif
 
         @if($featuredListings->isNotEmpty())
-        <section class="section">
+        <section class="section home-featured-section" id="featured">
             <div class="section__head">
                 <div><p class="text-eyebrow">{{ __('site::home.featured_hint') }}</p><h2 class="title-section">{{ __('site::messages.featured') }}</h2></div>
                 <a href="{{ route('listings.index', ['sort' => 'relevance']) }}" class="text-link">{{ __('site::messages.view_all') }}</a>
@@ -129,7 +146,7 @@
         </section>
         @endif
 
-        <section class="section">
+        <section class="section home-recent-section" id="latest">
             <div class="section__head">
                 <div><p class="text-eyebrow">{{ __('site::home.recent_hint') }}</p><h2 class="title-section">{{ __('site::messages.recent_listings') }}</h2></div>
                 <a href="{{ route('listings.index', ['sort' => 'newest']) }}" class="text-link">{{ __('site::messages.view_all') }}</a>

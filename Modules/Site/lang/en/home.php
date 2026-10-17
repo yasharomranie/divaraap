@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'fresh_finds' => 'A few fresh finds to start with',
+    'explore_market' => 'Explore the marketplace',
+    'filter_listings' => 'Filter listings',
+
     'slide_0_badge' => 'Start somewhere close',
     'slide_0_title' => 'Good finds. Just a search away.',
     'slide_0_subtitle' => 'For your home, your work, your everyday. Discover local listings and talk directly with sellers.',
