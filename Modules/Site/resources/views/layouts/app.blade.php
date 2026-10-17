@@ -62,7 +62,7 @@
     @livewireStyles
     <style id="site-appearance">{!! \App\Support\AppearanceTheme::css($appearance) !!}</style>
 </head>
-<body class="app-shell {{ $chromeless ? 'app-shell--auth' : 'app-shell--navigation' }} {{ request()->routeIs('home') ? 'app-shell--home' : '' }} {{ request()->routeIs('listings.show') ? 'app-shell--detail' : '' }}" data-app-shell
+<body class="app-shell {{ $chromeless ? 'app-shell--auth' : 'app-shell--navigation' }} {{ request()->routeIs('home') ? 'app-shell--home' : '' }} {{ request()->routeIs('listings.show') ? 'app-shell--detail' : '' }} {{ request()->routeIs('panel.listings.create') ? 'app-shell--create' : '' }}" data-app-shell
     @if($isAuthenticated && config('hosting.profile') === 'shared')
         data-inbox-poll-url="{{ route('conversations.updates', [], false) }}"
         data-inbox-poll-interval="{{ config('hosting.poll_interval_ms', 5000) }}"

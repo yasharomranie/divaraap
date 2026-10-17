@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 return [
+    'add_photos' => 'Add photos',
+    'add_videos' => 'Add videos',
+    'cover_photo' => 'Cover photo',
+    'optional' => 'Optional',
+
     'dashboard' => 'Dashboard',
     'overview' => 'Overview',
     'my_listings' => 'My listings',

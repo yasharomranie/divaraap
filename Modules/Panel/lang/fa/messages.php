@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 return [
+    'add_photos' => 'افزودن عکس',
+    'add_videos' => 'افزودن ویدئو',
+    'cover_photo' => 'عکس اصلی',
+    'optional' => 'اختیاری',
+
     'dashboard' => 'داشبورد',
     'overview' => 'نمای کلی',
     'my_listings' => 'آگهی‌های من',
