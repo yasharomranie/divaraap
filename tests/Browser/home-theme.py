@@ -38,17 +38,19 @@ with sync_playwright() as p:
         errors = []
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.goto(base + '/lang/fa', wait_until='networkidle')
-        page.goto(base + '/', wait_until='networkidle')
+        response = page.goto(base + '/', wait_until='networkidle')
+        assert response and response.status == 200
         def css(selector, property):
             return page.locator(selector).first.evaluate('(el, property) => getComputedStyle(el).getPropertyValue(property)', property)
         assert css('body', 'background-color') == 'rgb(250, 250, 248)'
         assert css('.site-header', 'background-color') == 'rgb(255, 255, 255)'
         assert css('.listing-card__price', 'color') == 'rgb(23, 34, 27)'
         assert css('.listing-card__title', 'font-size') == '19px'
-        assert css('#hero-search', 'font-size') == '17px'
+        assert css('#mobile-market-query', 'font-size') == '17px'
         assert page.locator('[data-home-details], .home-sidebar, .home-workspace, .home-collage').count() == 0
         assert page.locator('.home-directory a').count() > 1
-        assert page.locator('.home-product-grid').last.evaluate('(el) => getComputedStyle(el).gridTemplateColumns.split(" ").length') == 2
+        assert page.locator('.home-collection--recent .home-product-grid').evaluate('(el) => el.scrollWidth > el.clientWidth')
+        assert page.locator('.home-collection--featured .home-product-grid').evaluate('(el) => getComputedStyle(el).gridTemplateColumns.split(" ").length') == 2
         assert page.locator('.mobile-tabs').is_visible()
         assert page.locator('[data-home-next]').count() == 1
         assert css('.home-intro .title-hero', 'font-size') == '26px'
@@ -81,10 +83,20 @@ with sync_playwright() as p:
         page.evaluate('document.activeElement?.blur(); window.scrollTo(0,0)')
         page.screenshot(path='/tmp/home-theme-mobile.png', full_page=True)
         page.screenshot(path='/tmp/adorax-home-mobile.png')
-        page.locator('#hero-search').fill('گوشی')
-        page.locator('.home-search button[type=submit]').click()
+        page.screenshot(path='/tmp/adorax-mobile-option-2.png')
+        assert page.locator('.mobile-market-profile').is_visible()
+        assert page.locator('.mobile-market-notifications').is_visible()
+        assert page.locator('.home-directory__start').is_visible()
+        assert page.locator('.listing-card__time-badge').first.is_visible()
+        page.locator('.app-location > summary').click()
+        assert page.locator('#header-country').is_visible()
+        page.locator('.app-location > summary').click()
+        page.locator('#mobile-market-query').fill('گوشی')
+        page.locator('.mobile-market-filter > summary').click()
+        page.locator('#mobile-filter-sort').select_option('price_asc')
+        page.locator('.mobile-market-filter button[type=submit]').click()
         page.wait_for_url('**/listings?**')
-        assert 'search=' in page.url
+        assert 'search=' in page.url and 'sort=price_asc' in page.url
         assert not errors, errors
         print('Saved admin colors and mobile/desktop fonts verified in computed styles; showcase click/keyboard, new full-width editorial structure, 2/4-column product grids, 5 viewport sizes and search passed.')
     finally:

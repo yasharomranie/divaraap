@@ -33,9 +33,13 @@
 
     @if($categories->isNotEmpty())
         <nav class="home-directory" aria-label="{{ __('site::messages.categories') }}">
+            <a href="{{ route('listings.index') }}" class="home-directory__start is-current"><span class="home-directory__icon"><x-ui.icon name="home"/></span><span class="category-card__name">{{ __('site::mobile.all') }}</span></a>
             @foreach($categories->take(8) as $category)
+                @php
+                    $mobileIcon = pathinfo((string) $category->icon, PATHINFO_FILENAME);
+                @endphp
                 <a href="{{ route('listings.index', ['category' => $category->getKey()]) }}">
-                    <span class="home-directory__icon">@if($category->iconUrl())<img src="{{ $category->iconUrl() }}" alt="" loading="lazy">@else<x-ui.icon name="grid"/>@endif</span>
+                    <span class="home-directory__icon">@if($category->iconUrl())<img src="{{ $category->iconUrl() }}" alt="" loading="lazy" class="directory-desktop-icon">@else<x-ui.icon name="grid" class="directory-desktop-icon"/>@endif<x-ui.icon :name="match($mobileIcon) { 'car' => 'car', 'home', 'home-garden', 'home_garden', 'home_tools' => 'sofa', 'electronics', 'phone', 'laptop' => 'smartphone', 'education' => 'briefcase', 'football', 'sports' => 'ball', 'shirt', 'fashion', 'clothing' => 'shirt', default => 'grid' }" class="directory-mobile-icon"/></span>
                     <span class="category-card__name">{{ $category->displayName() }}</span>
                     <x-ui.icon name="arrow-left"/>
                 </a>

@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 return [
+    'all' => 'همه',
+    'sort' => 'مرتب‌سازی',
+
     'navigation' => 'منوی اصلی',
     'my_account' => 'حساب من',
     'eyebrow' => 'بازار آنلاین، به سبک شما',

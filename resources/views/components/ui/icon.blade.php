@@ -2,6 +2,13 @@
 
 @php
     $paths = [
+        'smartphone' => '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 5h4M11 18h2"/>',
+        'car' => '<path d="M5 17H4a1 1 0 0 1-1-1v-5l2-6h14l2 6v5a1 1 0 0 1-1 1h-1M5 17v2M19 17v2M3 11h18M7 14h.01M17 14h.01M8 17h8"/>',
+        'sofa' => '<path d="M5 12V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5M5 17v3M19 17v3"/><path d="M3 11a2 2 0 0 1 2 2v2h14v-2a2 2 0 1 1 4 0v5H1v-5a2 2 0 0 1 2-2z"/>',
+        'shirt' => '<path d="M8 4l4 2 4-2 6 4-3 5-3-2v10H8V11l-3 2-3-5z"/>',
+        'briefcase' => '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 13l9 3 9-3M10 14v3h4v-3"/>',
+        'ball' => '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 0 2 5-5 4-5-4zM9 9L7 5M15 9l2-4M7 14l-4 1M17 14l4 1M12 18v3"/>',
+
         'home' => '<path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
         'search' => '<path d="M21 21l-4.3-4.3"/><circle cx="11" cy="11" r="7"/>',
         'close' => '<path d="M6 6l12 12M18 6L6 18"/>',

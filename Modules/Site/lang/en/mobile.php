@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 return [
+    'all' => 'All',
+    'sort' => 'Sort by',
+
     'navigation' => 'Main navigation',
     'my_account' => 'Account',
     'eyebrow' => 'Your everyday marketplace',

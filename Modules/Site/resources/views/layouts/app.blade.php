@@ -96,7 +96,7 @@
                         @if($siteLogoUrl)
                             <img src="{{ $siteLogoUrl }}" alt="">
                         @else
-                            {{ mb_substr($siteName, 0, 1) }}
+                            <span class="brand__initial">{{ mb_substr($siteName, 0, 1) }}</span><x-ui.icon name="tag" class="brand__mobile-symbol"/>
                         @endif
                     </span>
                     <span class="brand__name">{{ $siteName }}</span>
@@ -123,6 +123,11 @@
             </form>
 
             <div class="site-header__actions" data-disclosure-group>
+                <a class="mobile-market-notifications" href="{{ $isAuthenticated ? route('panel.notifications.index') : route('login') }}" aria-label="{{ __('notification::messages.notifications') }}"><x-ui.icon name="bell"/>@if($notificationCount > 0)<span class="mobile-market-notifications__dot"></span>@endif</a>
+                <a class="mobile-market-profile" href="{{ $isAuthenticated ? route('panel.index') : route('login') }}" aria-label="{{ __('site::messages.account') }}">
+                    @if($isAuthenticated && ($avatar = auth()->user()->getFilamentAvatarUrl()))<img src="{{ $avatar }}" alt="">@else<x-ui.icon name="user"/>@endif
+                </a>
+
                 <details class="menu app-location" data-disclosure>
                     <summary class="location-trigger">
                         <x-ui.icon name="map-pin"/>
@@ -211,6 +216,8 @@
             </div>
         </div>
     </div>
+
+    <div class="shell shell--wide mobile-market-search-shell">@include('site::partials.mobile-search')</div>
 
     <nav class="category-bar" aria-label="{{ __('site::messages.categories') }}">
         <div class="shell shell--wide">
@@ -313,7 +320,7 @@
             <div class="site-footer__column">
                 <a href="{{ route('home') }}" class="brand">
                     <span class="brand__mark">
-                        @if($siteLogoUrl)<img src="{{ $siteLogoUrl }}" alt="">@else{{ mb_substr($siteName, 0, 1) }}@endif
+                        @if($siteLogoUrl)<img src="{{ $siteLogoUrl }}" alt="">@else<span class="brand__initial">{{ mb_substr($siteName, 0, 1) }}</span><x-ui.icon name="tag" class="brand__mobile-symbol"/>@endif
                     </span>
                     <span class="brand__name">{{ $siteName }}</span>
                 </a>
