@@ -31,10 +31,16 @@ jobs:
       - run: |
           python3 tests/Packaging/test_public_installer.py
           python3 tests/Packaging/test_cpanel_cron.py
+          php tests/Packaging/cpanel-release.php
+          python3 tests/Packaging/test_cpanel_deploy.py
       - run: python3 scripts/prepare-local-assets.py
       - run: python3 scripts/build-shared-package.py --output "$RUNNER_TEMP/shared-release"
       - run: python3 scripts/finalize-shared-package.py --public-release --output "$RUNNER_TEMP/shared-release"
       - run: python3 scripts/build-update-package.py --output "$RUNNER_TEMP/shared-release"
+      - run: |
+          cp "$RUNNER_TEMP/shared-release/divaraap-update.zip" "$RUNNER_TEMP/shared-release/cpanel-$GITHUB_SHA.zip"
+          cd "$RUNNER_TEMP/shared-release"
+          sha256sum "cpanel-$GITHUB_SHA.zip" > "cpanel-$GITHUB_SHA.zip.sha256"
       - run: python3 scripts/build-carbon-repair.py --output "$RUNNER_TEMP/shared-release"
       - run: python3 scripts/build-deployment-repair.py --output "$RUNNER_TEMP/shared-release"
       - env:
@@ -42,4 +48,4 @@ jobs:
         shell: bash
         run: |
           gh release view deploy-main >/dev/null 2>&1 || gh release create deploy-main --target "$GITHUB_SHA" --title 'Shared hosting main' --notes 'Production update and public installer with bundled dependencies. Generate a private installation key using CREATE-INSTALLATION-KEY.html before installing.'
-          gh release upload deploy-main "$RUNNER_TEMP/shared-release/divaraap-update.zip" "$RUNNER_TEMP/shared-release/UPDATE-SHA256SUMS.txt" "$RUNNER_TEMP/shared-release/divaraap-shared-install.zip" "$RUNNER_TEMP/shared-release/SHA256SUMS.txt" distribution/installer-diagnostics.php config/database.php "$RUNNER_TEMP/shared-release/carbon-repair.zip" "$RUNNER_TEMP/shared-release/CARBON-SHA256SUMS.txt" "$RUNNER_TEMP/shared-release/deployment-repair-v1.php" "$RUNNER_TEMP/shared-release/deployment-repair-v2.php" "$RUNNER_TEMP/shared-release/deployment-repair-v3.php" "$RUNNER_TEMP/shared-release/deployment-repair-v4.php" "$RUNNER_TEMP/shared-release/deployment-repair-v5.php" "$RUNNER_TEMP/shared-release/deployment-repair-v6.php" --clobber
+          gh release upload deploy-main "$RUNNER_TEMP/shared-release/divaraap-update.zip" "$RUNNER_TEMP/shared-release/UPDATE-SHA256SUMS.txt" "$RUNNER_TEMP/shared-release/divaraap-shared-install.zip" "$RUNNER_TEMP/shared-release/SHA256SUMS.txt" "$RUNNER_TEMP/shared-release/cpanel-$GITHUB_SHA.zip" "$RUNNER_TEMP/shared-release/cpanel-$GITHUB_SHA.zip.sha256" distribution/installer-diagnostics.php config/database.php "$RUNNER_TEMP/shared-release/carbon-repair.zip" "$RUNNER_TEMP/shared-release/CARBON-SHA256SUMS.txt" "$RUNNER_TEMP/shared-release/deployment-repair-v1.php" "$RUNNER_TEMP/shared-release/deployment-repair-v2.php" "$RUNNER_TEMP/shared-release/deployment-repair-v3.php" "$RUNNER_TEMP/shared-release/deployment-repair-v4.php" "$RUNNER_TEMP/shared-release/deployment-repair-v5.php" "$RUNNER_TEMP/shared-release/deployment-repair-v6.php" --clobber
