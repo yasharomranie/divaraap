@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 final class HomePresentationTest extends TestCase
 {
-    public function test_home_renders_saved_slide_content_image_and_buttons_without_default_slides(): void
+    public function test_home_omits_retired_showcase_without_deleting_saved_settings(): void
     {
         $settings = app(GeneralSettings::class);
         $slide = HomeSlideDefaults::defaults()[0];
@@ -24,9 +24,10 @@ final class HomePresentationTest extends TestCase
         $settings->save();
         $response = $this->get('/')->assertSuccessful();
         foreach (['A custom shop window', 'A description saved by the administrator', 'A custom badge', 'Custom browse', 'Custom sell', 'home-slides/custom.jpg'] as $text) {
-            $response->assertSee($text, false);
+            $response->assertDontSee($text, false);
         }
-        $response->assertDontSee('id="home-slide-1"', false)->assertDontSee('data-home-controls', false);
+        $response->assertDontSee('data-home-showcase', false)->assertDontSee('data-home-controls', false);
+        $this->assertSame([$slide], app(GeneralSettings::class)->refresh()->home_slides);
     }
 
     public function test_normalization_keeps_one_to_five_slides_and_the_saved_order(): void
@@ -50,12 +51,12 @@ final class HomePresentationTest extends TestCase
         $this->assertSame('My own subtitle', $slides[0]['subtitle']);
     }
 
-    public function test_saved_slide_markup_is_escaped(): void
+    public function test_retired_slide_markup_is_not_rendered(): void
     {
         $settings = app(GeneralSettings::class);
         $settings->home_slides = [array_replace(HomeSlideDefaults::defaults()[0], ['title' => '<script>window.injected=true</script>'])];
         $settings->save();
         $this->get('/')->assertSuccessful()->assertDontSee('<script>window.injected=true</script>', false)
-            ->assertSee('&lt;script&gt;window.injected=true&lt;/script&gt;', false);
+            ->assertDontSee('&lt;script&gt;window.injected=true&lt;/script&gt;', false);
     }
 }

@@ -4,10 +4,6 @@
 @section('description', __('site::messages.hero_lead'))
 
 @section('content')
-@php
-    $slides = \Modules\Site\App\Support\HomeSlideDefaults::forDisplay($generalSettings['home_slides'] ?? []);
-    $spotlight = $recentListings->first(fn ($listing) => filled($listing->primaryImageUrl('card')));
-@endphp
 <div class="shell shell--wide home-canvas">
     <header class="home-intro">
         <div class="home-intro__copy">
@@ -49,50 +45,6 @@
     @endif
 
     @includeIf('advertising::slot', ['placementKey' => 'home-top', 'position' => 0])
-
-    <section class="home-editorial" data-home-showcase aria-label="{{ __('site::home.highlights') }}">
-        <div class="home-editorial__slides" aria-live="polite" aria-atomic="true">
-            @foreach($slides as $index => $slide)
-                @php
-                    $customImage = ! str_starts_with($slide['image_path'], 'images/home-slides/');
-                    $editorialImage = $customImage ? \Modules\Site\App\Support\LocalMedia::url($slide['image_path']) : $spotlight?->primaryImageUrl('card');
-                @endphp
-                <div id="home-slide-{{ $index }}" class="home-editorial__slide" data-home-slide @if($index > 0) hidden @endif>
-                    <div class="home-editorial__story">
-                        <span class="home-section-number" aria-hidden="true">{{ \App\Support\PersianLocale::number($index + 1) }} / {{ \App\Support\PersianLocale::number(count($slides)) }}</span>
-                        <p class="text-eyebrow">{{ $slide['badge'] }}</p>
-                        <h2 class="title-section" dir="auto">{{ $slide['title'] }}</h2>
-                        <p class="text-body" dir="auto">{{ $slide['subtitle'] }}</p>
-                        <div class="home-editorial__actions">
-                            <a href="{{ route('listings.index') }}" class="home-arrow-link">{{ $slide['primary_button_text'] }}<x-ui.icon name="arrow-left"/></a>
-                            <a href="{{ auth()->check() ? route('panel.listings.create') : route('login') }}">{{ $slide['secondary_button_text'] }}</a>
-                        </div>
-                    </div>
-                    <div class="home-editorial__picture">
-                        @if($editorialImage)
-                            <img src="{{ $editorialImage }}" alt="{{ $customImage ? $slide['title'] : $spotlight?->getAttribute('title') }}" width="900" height="700" @if($index === 0) fetchpriority="high" @else loading="lazy" @endif>
-                        @else
-                            <div class="home-editorial__placeholder"><x-ui.icon name="tag"/><span>{{ __('site::home.new_discover') }}</span></div>
-                        @endif
-                        @if(! $customImage && $spotlight)
-                            <a class="home-editorial__caption" href="{{ route('listings.show', $spotlight) }}"><span><span class="text-meta">{{ __('site::mobile.fresh') }}</span><strong dir="auto">{{ $spotlight->getAttribute('title') }}</strong></span><bdi>{{ $spotlight->panelPriceLabel() }}</bdi><x-ui.icon name="arrow-left"/></a>
-                        @endif
-                    </div>
-                </div>
-            @endforeach
-        </div>
-        @if(count($slides) > 1)
-            <div class="home-editorial__controls" data-home-controls hidden>
-                <button type="button" data-home-previous aria-label="{{ __('site::home.previous') }}"><x-ui.icon name="arrow-right"/></button>
-                <div class="home-editorial__positions">
-                    @foreach($slides as $index => $slide)
-                        <button type="button" data-home-position="{{ $index }}" aria-controls="home-slide-{{ $index }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="{{ __('site::home.slide', ['number' => $index + 1, 'total' => count($slides)]) }}"><span></span></button>
-                    @endforeach
-                </div>
-                <button type="button" data-home-next aria-label="{{ __('site::home.next') }}"><x-ui.icon name="arrow-left"/></button>
-            </div>
-        @endif
-    </section>
 
     @if($featuredListings->isNotEmpty())
         <section class="home-collection home-collection--featured" id="featured">

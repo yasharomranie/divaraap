@@ -57,14 +57,8 @@ with sync_playwright() as p:
         assert recent.bounding_box()['height'] < 180
         assert page.locator('.home-collection--featured .home-product-grid').evaluate('(el) => getComputedStyle(el).gridTemplateColumns.split(" ").length') == 2
         assert page.locator('.mobile-tabs').is_visible()
-        assert page.locator('[data-home-next]').count() == 1
+        assert page.locator('[data-home-showcase], [data-home-slide], [data-home-controls]').count() == 0
         assert css('.home-intro .title-hero', 'font-size') == '26px'
-        heading = page.locator('[data-home-slide]:visible h2').inner_text()
-        page.locator('[data-home-next]').click()
-        assert page.locator('[data-home-slide]:visible h2').inner_text() != heading
-        page.locator('[data-home-position="0"]').focus()
-        page.keyboard.press('ArrowLeft')
-        assert page.locator('[data-home-position="2"]').get_attribute('aria-current') == 'true'
         for width in [360, 390, 768, 1024, 1440]:
             page.set_viewport_size({'width': width, 'height': 1000})
             page.wait_for_timeout(100)
@@ -79,7 +73,6 @@ with sync_playwright() as p:
             assert box and 44 <= box['width'] <= 48 and 44 <= box['height'] <= 48, box
         for card in page.locator('.listing-card').all():
             assert card.evaluate('(el)=>el.scrollWidth <= el.clientWidth + 1')
-        assert page.locator('[data-home-slide]:visible .home-editorial__picture > img').first.evaluate('(el) => el.complete && el.naturalWidth > 0')
         page.locator('#hero-search').focus()
         page.evaluate('document.activeElement?.blur(); window.scrollTo(0,0)')
         page.screenshot(path='/tmp/home-theme-desktop.png', full_page=True)
@@ -103,7 +96,7 @@ with sync_playwright() as p:
         page.wait_for_url('**/listings?**')
         assert 'search=' in page.url and 'sort=price_asc' in page.url
         assert not errors, errors
-        print('Admin colors and responsive typography, compact horizontal latest cards, showcase keyboard controls, 2/4-column featured grids, five viewport sizes and search passed.')
+        print('Admin colors and responsive typography, compact horizontal latest cards, retired showcase absent, 2/4-column featured grids, five viewport sizes and search passed.')
     finally:
         restored = {key: original[key.split('.')[0]][key.split('.')[1]] if len(key.split('.')) == 2 else original[key.split('.')[0]][key.split('.')[1]][key.split('.')[2]] for key in changes}
         save(restored)
