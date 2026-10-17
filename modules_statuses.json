@@ -16,5 +16,6 @@
     "Notification": true,
     "Promotion": true,
     "Offer": true,
-    "Page": true
+    "Page": true,
+    "Advertising": true
 }

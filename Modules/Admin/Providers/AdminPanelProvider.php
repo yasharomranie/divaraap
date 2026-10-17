@@ -28,6 +28,7 @@ use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Modules\Admin\Filament\Pages\LocalizedFileManager;
 use Modules\Admin\Filament\Pages\ManageDeployment;
 use Modules\Admin\Filament\Pages\ProductionDeploy;
+use Modules\Advertising\AdvertisingPlugin;
 use Modules\Category\CategoryPlugin;
 use Modules\Demo\App\Http\Middleware\ResolveDemoRequest;
 use Modules\Listing\ListingPlugin;
@@ -96,6 +97,7 @@ class AdminPanelProvider extends PanelProvider
                 PromotionPlugin::make(),
                 OfferPlugin::make(),
                 PagePlugin::make(),
+                AdvertisingPlugin::make(),
             ])
             ->pages([Dashboard::class])
             ->middleware([

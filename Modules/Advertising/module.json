@@ -1,0 +1,10 @@
+{
+    "name": "Advertising",
+    "alias": "advertising",
+    "description": "Scheduled banner placements",
+    "priority": 0,
+    "providers": [
+        "Modules\\Advertising\\Providers\\AdvertisingServiceProvider"
+    ],
+    "files": []
+}

@@ -19,6 +19,8 @@
             @endif
         </header>
 
+        @includeIf('advertising::slot', ['placementKey' => 'page-top', 'position' => 0])
+
         <div class="card">
             <div class="card__body">
                 <div class="prose" dir="auto">
@@ -34,6 +36,8 @@
                 </div>
             </div>
         </div>
+
+        @includeIf('advertising::slot', ['placementKey' => 'page-bottom', 'position' => 0])
 
         <p class="text-meta">
             {{ __('page::messages.last_updated', ['date' => \App\Support\PersianLocale::date($page->getAttribute('updated_at'))]) }}

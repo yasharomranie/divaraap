@@ -48,6 +48,8 @@
         </nav>
     @endif
 
+    @includeIf('advertising::slot', ['placementKey' => 'home-top', 'position' => 0])
+
     <section class="home-editorial" data-home-showcase aria-label="{{ __('site::home.highlights') }}">
         <div class="home-editorial__slides" aria-live="polite" aria-atomic="true">
             @foreach($slides as $index => $slide)
@@ -109,6 +111,7 @@
             <div class="home-product-grid">
                 @foreach($recentListings as $listing)
                     <x-ui.listing-card :listing="$listing" :favorited="in_array((int) $listing->getKey(), $favoriteListingIds, true)"/>
+                    @includeIf('advertising::slot', ['placementKey' => 'home-feed', 'position' => $loop->iteration])
                 @endforeach
             </div>
         @else

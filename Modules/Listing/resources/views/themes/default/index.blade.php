@@ -173,6 +173,7 @@
                     <div class="grid grid--listings" data-listing-collection data-view-mode="grid">
                         @foreach($listings as $listing)
                             <x-ui.listing-card :listing="$listing" :favorited="in_array((int) $listing->getKey(), $favoriteListingIds, true)"/>
+                            @includeIf('advertising::slot', ['placementKey' => filled($search) ? 'search-feed' : ($selectedCategory ? 'category-feed' : 'listings-feed'), 'position' => ($listings->firstItem() - 1) + $loop->iteration])
                         @endforeach
                     </div>
 

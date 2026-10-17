@@ -133,6 +133,8 @@
                     </div>
                 </section>
 
+                @includeIf('advertising::slot', ['placementKey' => 'listing-details', 'position' => 0])
+
                 @if($listingVideos->isNotEmpty())
                     <section class="card">
                         <div class="card__head"><h2 class="card__title">{{ __('site::messages.details') }}</h2></div>
@@ -286,6 +288,8 @@
                 @endauth
             </aside>
         </div>
+
+        @includeIf('advertising::slot', ['placementKey' => 'listing-related', 'position' => 0])
 
         @if($relatedListings->isNotEmpty())
             <section class="section">

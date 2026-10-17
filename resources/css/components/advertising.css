@@ -1,0 +1,13 @@
+.advertising-banner { display: block; position: relative; min-width: 0; width: 100%; grid-column: 1 / -1; margin: 8px 0; border: 1px solid var(--appearance-border); border-radius: 14px; overflow: hidden; background: var(--appearance-surface); }
+.advertising-banner__label { display: block; padding: 5px 10px; color: var(--appearance-muted); font-size: 10px; line-height: 1.5; }
+.advertising-banner > a, .advertising-banner picture { display: block; }
+.advertising-banner img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: contain; }
+.advertising-banner > a:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.advertising-banner--mobile { display: none; }
+@media (max-width: 63.999rem) {
+    .advertising-banner { border-radius: 12px; }
+    .advertising-banner img { aspect-ratio: 2 / 1; }
+    .advertising-banner--mobile { display: block; }
+    .advertising-banner--desktop { display: none; }
+    .home-canvas > .advertising-banner { order: 0; }
+}
