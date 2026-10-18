@@ -14,7 +14,7 @@ The approved scope contains 67 features across eight phases. `product-roadmap.js
 
 Use the normal cPanel release path. Migrations add product metrics and moderation metadata; existing banner images and priorities remain in place. Operations controls appear under the operations navigation group. The existing user resource assigns the new staff roles; no second account or role system is created.
 
-New display formats, charging, buyer tools and seller tools are pending their respective phases. Phase 2 campaign foundations are delivered below; advertising analytics and delivery controls remain pending. Payment providers, notification delivery providers, AI providers and map providers require separate concrete integration choices before claiming live external functionality. No external paid service is enabled in phase 1.
+New display formats, charging, buyer tools and seller tools are pending their respective phases. Phase 2 campaign foundations are delivered below; advertising analytics and delivery controls are detailed in the phase 2 deliveries below. Payment providers, notification delivery providers, AI providers and map providers require separate concrete integration choices before claiming live external functionality. No external paid service is enabled in phase 1.
 
 ## Phase 2 — campaign foundations
 
@@ -24,7 +24,7 @@ Target categories use existing active category IDs, cities use existing Location
 
 Validation: campaign lifecycle/targeting, actual listing/search integration, Filament create/validation, authorization and all previous feature tests. Browser checks cover Persian RTL campaign and banner forms at 390px and 1440px with no horizontal overflow or JavaScript errors. This delivery adds one migration; the normal cPanel deployment runs it. No manual database or document-root edits are required.
 
-Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 16–19 remain pending: limit-based stop, previews, warnings and downloadable reports. Opt-in weighted campaign allocation is delivered below. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
+Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 17–19 remain pending: previews, warnings and downloadable reports. Opt-in weighted campaign allocation is delivered below. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
 
 ## Phase 2 — advertising measurement
 
@@ -34,7 +34,7 @@ Each served variant receives an encrypted two-hour token bound to its session, b
 
 Advertising → Advertising statistics is available only to active advertising managers and full admins. It shows the last 30 application-calendar days grouped by banner, placement, device or day, optionally filtered by campaign, with impressions, clicks and CTR. Reports are limited to 100 grouped rows. Persian dates use the existing calendar helper. Counts are exposures, not unique people. No IP, session identifier, raw token, visitor fingerprint or private message is stored in the event table. Old events are removed after 90 days on subsequent ingestion once per day; there is no new scheduler. Disabling telemetry in Operations settings disables both issuance and ingestion. Retention is not a hard scheduled deletion guarantee.
 
-Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, additional conversion types, allocation, budgets and warnings remain pending their roadmap entries.
+Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, additional conversion types, payment/billing and warnings remain pending their roadmap entries.
 
 ## Phase 2 — conversation attribution
 
@@ -66,6 +66,18 @@ Within a selected group, creatives follow assignment priority then assignment ID
 
 Validation: 2,000-seed tests for equal campaign weights despite 8-versus-1 creatives, 3:1 weights, independent-banner unit weight, priority rotation, no-repeat exhaustion and deterministic pagination reconstruction. Renderer tests cover inactive campaigns and device fallback; all previous priority/random/cap tests still pass. Filament validates weight limits and saves the explicit placement mode. Browser checks cover Persian RTL fields at 390px and 1440px. One additive campaign-column migration runs through normal cPanel deployment.
 
+## Phase 2 — automatic delivery stops
+
+Feature 16 adds optional total impression_limit, click_limit and cost_limit to campaigns. Any reached limit stops the campaign in subsequent delivery requests; all its banners inherit the stop, regardless of placement, weight or creative count. Existing manual pause, start/end dates, targeting and moderation retain precedence. When a limited campaign is excluded, eligible independent or other-campaign banners remain available. Raising a limit can automatically permit delivery again without clearing history or toggling banner activation. Limited campaigns fail closed when operations telemetry is disabled; unlimited campaigns retain previous behavior. The campaign table displays the reason for a delivery stop alongside totals.
+
+The event insertion transaction updates persistent recorded_impressions/recorded_clicks and recorded_cost under a campaign row lock only after a new receipt is inserted. Replays do not add totals, and conversion events are not billed. Counters survive raw-event retention. The additive migration initializes counts from retained, nondeleted historical impression/click records; earlier purged history cannot be reconstructed and historical estimated cost starts at zero. Totals thereafter persist for the life of the campaign and do not reset daily. Automatic counters use saveQuietly to avoid flooding the administrative activity log, while limit/rate edits are audited.
+
+Cost limits are internal estimates in IRR, separate from planned_budget and from future paid billing. Managers configure cost per single viewable impression and per click, both initially zero. The encrypted exposure token snapshots rates at serving time; changing rates affects future exposures. No payment provider, invoice or monetary deduction is introduced. Delivery stops at the cost limit or when the balance cannot cover the larger of the current impression/click rates. With zero rates, no cost accrues. The planning-budget field does not control delivery.
+
+Already served valid exposures can still record actual impressions/clicks and their snapshotted costs after an automatic stop; these may exceed limits. This is explicitly a subsequent-delivery control, not a strict financial reservation or physical visibility guarantee across in-flight requests/tabs. Those events bypass only the automatic limits, not manual pause, schedules, assignment checks, token validity or consent. The original click attribution pipeline remains in force. Private visitor details and message text are not added to counters.
+
+Validation covers threshold boundaries, replay deduplication, in-flight events, price snapshots, cost balance, automatic resumption, history retention, independent fallback, telemetry opt-out, scheduling and form bounds. Real Chromium confirmed an actual viewable impression stopping a campaign, independent fallback on reload, stop reason in the admin table and Persian forms at 390px/1440px. The single migration runs through the existing cPanel release path; no new cron or manual database work is needed.
+
 ## Progress
 
 | ID | Phase | Feature | Status |
@@ -85,7 +97,7 @@ Validation: 2,000-seed tests for equal campaign weights despite 8-versus-1 creat
 | 13 | 2 | هدف‌گیری صفحهٔ مشخص | verified |
 | 14 | 2 | محدودیت دفعات نمایش | verified |
 | 15 | 2 | سهم نمایش کمپین | verified |
-| 16 | 2 | توقف خودکار کمپین | pending |
+| 16 | 2 | توقف خودکار کمپین | verified |
 | 17 | 2 | پیش‌نمایش جایگاه | pending |
 | 18 | 2 | هشدار مشکلات کمپین | pending |
 | 19 | 2 | گزارش تبلیغ‌دهنده | pending |

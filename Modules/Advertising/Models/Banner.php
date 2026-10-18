@@ -71,9 +71,9 @@ final class Banner extends Model
         return $this->belongsTo(Campaign::class);
     }
 
-    public function eligibleForCampaign(array $context): bool
+    public function eligibleForCampaign(array $context, bool $forDelivery = true): bool
     {
-        return $this->campaign_id === null || ($this->campaign && $this->campaign->eligible($context));
+        return $this->campaign_id === null || ($this->campaign && $this->campaign->eligible($context, $forDelivery));
     }
 
     public function assignments(): HasMany

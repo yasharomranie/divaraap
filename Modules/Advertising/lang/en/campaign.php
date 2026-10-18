@@ -10,7 +10,7 @@ return [
     'traffic' => 'Visits',
     'conversation' => 'Conversations',
     'planned_budget' => 'Planned budget (IRR)',
-    'budget_hint' => 'Planning only. No billing, budget deduction or automatic budget stop in this delivery.',
+    'budget_hint' => 'Planning metadata only. Use Estimated cost limit to stop delivery by cost; no payment or billing occurs.',
     'optional_campaign' => 'Optional. Campaign schedule and targeting also apply; banner approval and schedule remain required.',
     'categories' => 'Categories',
     'cities' => 'Cities',

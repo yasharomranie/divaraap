@@ -32,7 +32,7 @@ final class AdvertisingEvent extends Model
             return;
         }
         $banner = Banner::query()->available()->with('campaign')->find($data['banner']);
-        if (! $banner || $banner->campaign_id !== $data['campaign'] || ! $banner->eligibleForCampaign($data['context']) || ($kind === 'click' && ! $banner->destination())) {
+        if (! $banner || $banner->campaign_id !== $data['campaign'] || ! $banner->eligibleForCampaign($data['context'], forDelivery: false) || ($kind === 'click' && ! $banner->destination())) {
             return;
         }
         $placement = BannerPlacement::query()->where('key', $data['placement'])->where('is_active', true)->first();
@@ -51,6 +51,9 @@ final class AdvertisingEvent extends Model
                 'receipt' => $receipt, 'target_listing_id' => $targetListingId,
                 'event_date' => now()->toDateString(), 'created_at' => now(), 'updated_at' => now(),
             ]);
+            if ($inserted && $data['campaign'] !== null) {
+                Campaign::recordDelivery((int) $data['campaign'], $kind, $data['pricing'] ?? []);
+            }
             if ($inserted && $kind === 'impression' && ($data['visitor'] ?? null) !== null) {
                 FrequencyCount::record($data['visitor'], $data['frequency'] ?? []);
             }
