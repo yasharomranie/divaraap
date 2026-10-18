@@ -17,6 +17,7 @@
             <h1 class="title-page">{{ __('favorite::messages.favorites') }}</h1>
         </header>
 
+        <a class="button button--ghost" href="{{ route('history.index') }}">{{ __('favorite::history.title') }}</a>
         @if($requiresLogin)
             <x-ui.empty-state icon="heart" :title="__('favorite::messages.no_favorites')" :text="__('favorite::messages.no_favorites_hint')">
                 <a href="{{ route('login') }}" class="button button--primary">{{ __('site::messages.login') }}</a>

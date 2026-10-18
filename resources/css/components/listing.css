@@ -366,3 +366,10 @@
 .comparison-page input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent-strong); }
 .comparison-page label { display: flex; gap: var(--space-2); align-items: center; min-height: 44px; }
 .listing-card__compare .button { min-height: 44px; font-size: 12px; }
+
+.history-entry { display: flex; gap: var(--space-3); padding: var(--space-3); border: 1px solid var(--line-hairline); border-radius: var(--radius-md); }
+.history-entry img { width: 72px; height: 72px; object-fit: cover; border-radius: var(--radius-sm); max-width: none; }
+.history-entry__body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.history-entry__body .title-card { font-size: 16px; }
+.history-entry__body .text-muted { font-size: 12px; }
+.history-entry__body .button { min-height: 44px; }

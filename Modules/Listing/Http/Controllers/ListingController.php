@@ -11,6 +11,7 @@ use Modules\Admin\Models\ProductEvent;
 use Modules\Category\Models\Category;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Favorite\App\Models\FavoriteSearch;
+use Modules\Favorite\App\Support\ListingHistory;
 use Modules\Listing\Models\Listing;
 use Modules\Listing\Support\ListingCustomFieldSchemaBuilder;
 use Modules\Location\Models\Country;
@@ -144,6 +145,7 @@ class ListingController extends Controller
     public function show(Listing $listing)
     {
         $listing->trackViewBy(auth()->id());
+        app(ListingHistory::class)->record($listing);
 
         $listing->loadMissing([
             'user:id,name,email',

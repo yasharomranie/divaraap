@@ -5,8 +5,14 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Favorite\App\Http\Controllers\ComparisonController;
 use Modules\Favorite\App\Http\Controllers\FavoriteController;
+use Modules\Favorite\App\Http\Controllers\HistoryController;
 
 Route::middleware('web')->group(function () {
+    Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+    Route::post('/history/preferences', [HistoryController::class, 'configure'])->middleware('throttle:30,1')->name('history.configure');
+    Route::delete('/history/{listing}', [HistoryController::class, 'remove'])->whereNumber('listing')->name('history.remove');
+    Route::delete('/history', [HistoryController::class, 'clear'])->name('history.clear');
+
     Route::get('/compare', [ComparisonController::class, 'index'])->name('comparison.index');
     Route::post('/compare/{listing}', [ComparisonController::class, 'add'])->middleware('throttle:60,1')->name('comparison.add');
     Route::delete('/compare/{listing}', [ComparisonController::class, 'remove'])->whereNumber('listing')->name('comparison.remove');

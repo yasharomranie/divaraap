@@ -38,6 +38,7 @@
                 <p class="text-muted">{{ trans_choice('site::messages.results_count', $filteredListingsTotal, ['count' => \App\Support\PersianLocale::number($filteredListingsTotal)]) }}</p>
             </div>
 
+            <a class="button button--ghost button--small" href="{{ route('history.index') }}">{{ __('favorite::history.title') }}</a>
             @auth
                 <form method="POST" action="{{ route('favorites.searches.store') }}">
                     @csrf

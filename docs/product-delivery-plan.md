@@ -127,7 +127,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 21 | 3 | دنبال‌کردن فروشنده | verified |
 | 22 | 3 | مقایسهٔ آگهی‌ها | verified |
 | 23 | 3 | هشدار کاهش قیمت | verified |
-| 24 | 3 | سابقهٔ مشاهده | pending |
+| 24 | 3 | سابقهٔ مشاهده | verified |
 | 25 | 3 | مجموعه‌های شخصی | pending |
 | 26 | 3 | جست‌وجوی بهتر فارسی | pending |
 | 27 | 3 | جست‌وجو روی نقشه | pending |
@@ -188,7 +188,7 @@ A durable publication ledger records each listing's first active Eloquent save a
 
 Notifications are generated when the user opens the notification inbox or My alerts, with at most 50 new publication records per subscription per visit. Reopen to continue a larger backlog. There is no cron, queue worker, email, SMS or push dependency and no claim of background real-time delivery. Publication and delivery receipts persist; per-alert locks and transactions make repeated inbox visits idempotent. Price alerts compare the current active listing against the lowest observed price since activation using decimal arithmetic; currency changes reset the baseline. Intermediate price changes while the user is absent are not price-history events. Inactive, expired or deleted listings cannot expose content through these notifications.
 
-One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison is delivered below; viewing history, collections, improved Persian search, maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
+One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison is delivered below; viewing history is delivered below; collections, improved Persian search, maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
 
 Validation: 271 PHPUnit tests / 3113 assertions passed, including 10 buyer-alert tests; browser checks exercised all three opt-in controls, real notification generation and Persian layouts at 390px and 1440px. Production assets and localization checks passed.
 
@@ -201,3 +201,13 @@ Every comparison request rechecks active status, expiration and soft deletion, p
 The RTL table scrolls inside a keyboard-focusable, labeled region on mobile; page width remains bounded. Markup escapes titles, labels and values. Responses are private/no-store and noindex. This delivery adds no migration or third-party service. The existing cPanel Update from Remote / Deploy HEAD Commit flow builds the new styles. Future shareable comparison dossiers remain separate roadmap feature 64.
 
 Validation: 277 PHPUnit tests / 3159 assertions passed, including six comparison tests. Real Chromium exercised guest card/detail selection, limit errors, same-session persistence, separate-session isolation, remove/clear and differences filtering at 390px and 1440px. Production asset build, route/config caching and localization checks passed.
+
+## Phase 3 — recently viewed listings
+
+Feature 24 adds `/history` and entry links from browse results and Favorites. A successful detail visit records only a listing ID and last-viewed timestamp in the existing browser session. Repeated visits move the listing to the front without duplicates. The history is bounded to 50 entries from the past 30 days and displays 12 per page. Session expiration can end availability sooner; there is no background deletion job or cross-device synchronization. The existing view counter keeps its previous behavior and is never incremented by rendering history.
+
+Pause/resume, idempotent remove and clear are CSRF-protected native forms. Pausing preserves previous entries; clearing does not resume recording. The preference lasts for the browser session. An authentication identity change clears the entry list while preserving the pause preference. Owner visits and inactive-account visits are not recorded. Every read rechecks public active status, expiration and soft deletion and discards unavailable entries. Queries stay in Listing; history does not introduce cross-module joins or new database tables.
+
+The Persian mobile-first list uses existing site tokens, localized dates with explicit application timezone, lazy thumbnails, accessible controls and escaped titles. Responses are private/no-store and noindex. No migration, worker, cron or external service is required. Use the normal cPanel release flow; no manual host changes are needed.
+
+Validation: 283 PHPUnit tests / 3256 assertions passed, including six history tests. Real Chromium verified detail visits, recent ordering, pause/resume, removal/clear, independent browser sessions and account-switch isolation at 390px and 1440px. Production assets, localization, config cache and route cache passed.

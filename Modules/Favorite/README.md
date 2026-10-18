@@ -15,3 +15,7 @@ BuyerPublication stores one first-active receipt per listing. BuyerAlert owns cu
 ## Listing comparison
 
 ListingComparison keeps at most three same-category public listings in the existing browser session. ComparisonController exposes the GET screen and CSRF-protected add, remove and clear operations. Listing owns eligibility queries; the existing custom-field formatter optionally returns stable keys for row alignment. No comparison database, login requirement or externally shareable URL is introduced. Every read prunes stale selections. The public page is private/no-store and noindex.
+
+## Recently viewed
+
+ListingHistory stores ID/timestamp pairs in the existing session, bounded to 50 entries and 30 days. ListingController records eligible detail visits independently of its existing view counter. HistoryController provides private/no-store reads, pause/resume and CSRF-protected removal/clear. Identity changes discard previous entries; pause preference remains. Unavailable listings are pruned on access, and no listing titles, searches, IP addresses or user-agent details are stored in history. No database or cross-device synchronization is added.
