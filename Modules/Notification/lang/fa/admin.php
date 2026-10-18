@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'advertising' => 'تبلیغات',
     'action_url' => 'نشانی اقدام',
     'body' => 'متن',
     'listing' => 'آگهی',

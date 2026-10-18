@@ -76,7 +76,7 @@ class UserNotificationResource extends Resource
         ])->defaultSort('id', 'desc')->filters([
             SelectFilter::make('type')->label(__('notification::admin.type'))->options([
                 'offer' => __('notification::admin.offer'), 'message' => __('notification::admin.message'), 'review' => __('notification::admin.review'),
-                'listing' => __('notification::admin.listing'), 'promotion' => __('notification::admin.promotion'), 'saved_search' => __('notification::admin.saved_search'),
+                'advertising' => __('notification::admin.advertising'), 'listing' => __('notification::admin.listing'), 'promotion' => __('notification::admin.promotion'), 'saved_search' => __('notification::admin.saved_search'),
             ]),
         ])->actions(ResourceTableActions::editDelete());
     }

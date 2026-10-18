@@ -14,6 +14,8 @@ class UserNotification extends Model
 {
     use SoftDeletes;
 
+    public const TYPE_ADVERTISING = 'advertising';
+
     public const TYPE_OFFER = 'offer';
 
     public const TYPE_MESSAGE = 'message';

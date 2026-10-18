@@ -64,6 +64,15 @@ final class Campaign extends Model
         return true;
     }
 
+    public static function healthIssues(): array
+    {
+        return self::query()->where('is_active', true)->whereNotNull('ends_at')->where('ends_at', '<=', now()->addDay())
+            ->get(['id', 'title', 'ends_at'])->map(fn (self $campaign) => [
+                'subject_type' => 'campaign', 'subject_id' => $campaign->id, 'subject_title' => $campaign->title,
+                'code' => $campaign->ends_at->lessThanOrEqualTo(now()) ? 'campaign_ended' : 'campaign_ending',
+            ])->all();
+    }
+
     public function deliveryState(): string
     {
         if (! $this->is_active) {

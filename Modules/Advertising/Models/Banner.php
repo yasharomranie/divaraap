@@ -53,6 +53,40 @@ final class Banner extends Model
         });
     }
 
+    public static function healthIssues(): array
+    {
+        $issues = [];
+        $banners = self::query()->where('is_active', true)->where('review_status', 'approved')
+            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()))->with('campaign:id,is_active')->get();
+        foreach ($banners as $banner) {
+            if ($banner->campaign_id !== null && ! $banner->campaign?->is_active) {
+                continue;
+            }
+            $codes = [];
+            foreach (['image' => 'image_missing', 'mobile_image' => 'mobile_image_missing'] as $field => $code) {
+                if ($field === 'mobile_image' && ! filled($banner->$field)) {
+                    continue;
+                }
+                try {
+                    $exists = filled($banner->$field) && Storage::disk('public')->exists($banner->$field);
+                } catch (\Throwable) {
+                    $exists = false;
+                }
+                if (! $exists) {
+                    $codes[] = $code;
+                }
+            }
+            if (filled($banner->url) && $banner->destination() === null) {
+                $codes[] = 'link_invalid';
+            }
+            foreach ($codes as $code) {
+                $issues[] = ['subject_type' => 'banner', 'subject_id' => $banner->id, 'subject_title' => $banner->title, 'code' => $code];
+            }
+        }
+
+        return $issues;
+    }
+
     public static function previewOptions(): array
     {
         return self::query()->orderByDesc('id')->pluck('title', 'id')->all();

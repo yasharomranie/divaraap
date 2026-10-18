@@ -24,7 +24,7 @@ Target categories use existing active category IDs, cities use existing Location
 
 Validation: campaign lifecycle/targeting, actual listing/search integration, Filament create/validation, authorization and all previous feature tests. Browser checks cover Persian RTL campaign and banner forms at 390px and 1440px with no horizontal overflow or JavaScript errors. This delivery adds one migration; the normal cPanel deployment runs it. No manual database or document-root edits are required.
 
-Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 18–19 remain pending: warnings and downloadable reports. Protected placement previews are delivered below. Opt-in weighted campaign allocation is delivered below. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
+Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Feature 19 remains pending: downloadable advertiser reports. Protected placement previews are delivered below. Opt-in weighted campaign allocation is delivered below. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
 
 ## Phase 2 — advertising measurement
 
@@ -34,7 +34,7 @@ Each served variant receives an encrypted two-hour token bound to its session, b
 
 Advertising → Advertising statistics is available only to active advertising managers and full admins. It shows the last 30 application-calendar days grouped by banner, placement, device or day, optionally filtered by campaign, with impressions, clicks and CTR. Reports are limited to 100 grouped rows. Persian dates use the existing calendar helper. Counts are exposures, not unique people. No IP, session identifier, raw token, visitor fingerprint or private message is stored in the event table. Old events are removed after 90 days on subsequent ingestion once per day; there is no new scheduler. Disabling telemetry in Operations settings disables both issuance and ingestion. Retention is not a hard scheduled deletion guarantee.
 
-Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, additional conversion types, payment/billing and warnings remain pending their roadmap entries.
+Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, additional conversion types and payment/billing remain pending their roadmap entries.
 
 ## Phase 2 — conversation attribution
 
@@ -88,6 +88,18 @@ The renderer does not call BannerRenderer, issue exposure tokens, reserve advert
 
 Validation covers draft rendering, no trackers/links/product scripts, unchanged stopped-campaign totals and frequency rows, device warnings, bad inputs, deleted records, active-role authorization and HTML escaping. Chromium confirmed responsive Persian controls, true iframe dimensions, mobile/desktop currentSrc and real image aspect ratios, sandboxing and zero advertising event requests. CSS/Vite build, localization and existing public renderer tests pass. This delivery adds no database migration.
 
+## Phase 2 — advertising health warnings
+
+Feature 18 adds Advertising → Advertising warnings using the existing advertising.manage permission. Opening the page or choosing Check again runs a check for the current active admin/advertising manager. No background timer, independent cron, email or SMS delivery is assumed. The page shows its last successful check and errors instead of claiming an incomplete scan is healthy. The dashboard displays up to 100 open warnings per viewer with edit links; results describe the last scan, not a continuously monitored remote service.
+
+Checks cover missing/inaccessible main images, configured mobile images, invalid nonempty HTTP(S) destination URLs, enabled campaigns ending within 24 hours and enabled campaigns already ended. A missing optional mobile image uses the existing desktop fallback; an empty optional link is valid. Active approved unexpired banners are inspected, with manually disabled/deleted campaigns and banners omitted; drafts and rejected creatives do not spam managers. Storage uses the existing public disk. URL validity follows Banner::destination; no arbitrary target URL is fetched, no remote availability or redirect/TLS check is claimed. The scan never disables ads, changes media, resets counters or bypasses review.
+
+A soft-deletable advertising_warnings ledger holds recipient, source, issue code, timestamps and resolution state. It is not a second notification inbox: delivery uses Notification::UserNotification::publish and the existing unread/read UI. A unique recipient/source/code fingerprint and row lock create one notification per unresolved episode, with transaction retries for concurrent checks. Reading/deleting a notification does not resubmit the warning. When the issue disappears on a subsequent scan it is closed; if it recurs, the same ledger row is reopened and a new notification is generated once. End-soon and ended are separate states. Warnings are per authorized viewer; scanning one account does not notify all staff. No private destination URL, upload path, image contents or token is copied into notification bodies.
+
+Source queries stay in Banner and Campaign, notification writes stay behind the Notification model API, and no cross-module SQL join is used. The new advertising notification type is translated and filterable in the existing notification resource. Diagnostics and notification writes share a database transaction, so a failed check does not leave partially published episodes. Existing inbox retention remains unchanged; warning state is retained for deduplication rather than relying on a cache TTL.
+
+Validation covers duplicate checks, read notifications, resolution and recurrence, optional media/link behavior, deadline transition, ignored inactive/deleted subjects, separate authorized viewers, access denial and escaping. Chromium verified Persian controls and warning cards at 390px/1440px, safe edit links, retry feedback and no destination-secret disclosure. The additive warning-table migration runs with the normal cPanel deployment.
+
 ## Progress
 
 | ID | Phase | Feature | Status |
@@ -109,7 +121,7 @@ Validation covers draft rendering, no trackers/links/product scripts, unchanged 
 | 15 | 2 | سهم نمایش کمپین | verified |
 | 16 | 2 | توقف خودکار کمپین | verified |
 | 17 | 2 | پیش‌نمایش جایگاه | verified |
-| 18 | 2 | هشدار مشکلات کمپین | pending |
+| 18 | 2 | هشدار مشکلات کمپین | verified |
 | 19 | 2 | گزارش تبلیغ‌دهنده | pending |
 | 20 | 3 | هشدار آگهی دلخواه | pending |
 | 21 | 3 | دنبال‌کردن فروشنده | pending |
