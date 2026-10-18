@@ -31,7 +31,7 @@ final class Banner extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 
     protected $table = 'advertising_banners';
@@ -40,7 +40,7 @@ final class Banner extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'new_tab' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime'];
+        return ['daily_frequency_cap' => 'integer', 'is_active' => 'boolean', 'new_tab' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime'];
     }
 
     protected static function booted(): void
@@ -51,6 +51,19 @@ final class Banner extends Model
                 $banner->is_active = false;
             }
         });
+    }
+
+    public function frequencyLimits(): array
+    {
+        $limits = [];
+        if ($this->daily_frequency_cap !== null) {
+            $limits['banner:'.$this->id] = max(1, $this->daily_frequency_cap);
+        }
+        if ($this->campaign?->daily_frequency_cap !== null) {
+            $limits['campaign:'.$this->campaign_id] = max(1, $this->campaign->daily_frequency_cap);
+        }
+
+        return $limits;
     }
 
     public function campaign(): BelongsTo

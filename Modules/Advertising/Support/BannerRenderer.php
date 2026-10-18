@@ -31,7 +31,7 @@ final class BannerRenderer
         if ($slot === null) {
             return [];
         }
-        $assignments = $placement->assignments->filter(fn ($a) => $a->banner && filled($a->banner->image) && $a->banner->eligibleForCampaign($context));
+        $assignments = $placement->assignments->filter(fn ($a) => $a->banner && filled($a->banner->image) && $a->banner->eligibleForCampaign($context) && app(AdvertisingFrequency::class)->allows($a->banner));
         if ($placement->ordering === 'random') {
             $seed = request()->hasSession() ? request()->session()->getId() : now()->toDateString();
             $assignments = $assignments->sortBy(fn ($a) => hash('sha256', $seed.'|'.$key.'|'.$a->id));

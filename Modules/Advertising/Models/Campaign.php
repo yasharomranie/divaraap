@@ -21,7 +21,7 @@ final class Campaign extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime', 'planned_budget' => 'integer', 'category_ids' => 'array', 'city_ids' => 'array', 'page_paths' => 'array'];
+        return ['daily_frequency_cap' => 'integer', 'is_active' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime', 'planned_budget' => 'integer', 'category_ids' => 'array', 'city_ids' => 'array', 'page_paths' => 'array'];
     }
 
     protected static function booted(): void
@@ -62,6 +62,6 @@ final class Campaign extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['title', 'goal', 'is_active', 'starts_at', 'ends_at', 'planned_budget', 'category_ids', 'city_ids', 'page_paths'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['title', 'goal', 'is_active', 'starts_at', 'ends_at', 'planned_budget', 'category_ids', 'city_ids', 'page_paths', 'daily_frequency_cap'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 }

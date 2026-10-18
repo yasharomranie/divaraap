@@ -41,6 +41,7 @@ final class CampaignResource extends AdvertisingResource
         return $schema->schema([
             TextInput::make('title')->label(__('advertising::admin.title'))->required()->maxLength(150),
             Select::make('goal')->label(__('advertising::campaign.goal'))->options(collect(['awareness', 'traffic', 'conversation'])->mapWithKeys(fn ($goal) => [$goal => __('advertising::campaign.'.$goal)])->all())->required()->default('awareness'),
+            TextInput::make('daily_frequency_cap')->label(__('advertising::metrics.daily_cap'))->integer()->minValue(1)->maxValue(10000)->helperText(__('advertising::metrics.daily_cap_hint')),
             Toggle::make('is_active')->label(__('advertising::admin.is_active'))->default(false),
             TextInput::make('planned_budget')->label(__('advertising::campaign.planned_budget'))->integer()->minValue(0)->maxValue(1000000000000)->helperText(__('advertising::campaign.budget_hint')),
             DateTimePicker::make('starts_at')->label(__('advertising::admin.starts_at'))->timezone(config('app.timezone'))->seconds(false),

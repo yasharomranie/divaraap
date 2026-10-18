@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\DB;
 use Modules\Admin\App\Settings\OperationsSettings;
+use Modules\Advertising\Support\AdvertisingFrequency;
 use Modules\Advertising\Support\AdvertisingToken;
 use Modules\Listing\Models\Listing;
 
@@ -37,14 +39,22 @@ final class AdvertisingEvent extends Model
         if (! $placement || ! in_array($placement->device, ['both', $device], true) || ! in_array($banner->device, ['both', $device], true) || ! $placement->assignments()->where('banner_id', $banner->id)->exists()) {
             return;
         }
+        if (($data['visitor'] ?? null) !== null && ! hash_equals($data['visitor'], app(AdvertisingFrequency::class)->visitor())) {
+            return;
+        }
         $targetListingId = $kind === 'click' ? Listing::advertisingDestinationId((string) $banner->destination()) : null;
         $receipt = hash('sha256', $data['nonce'].'|'.$kind);
-        self::query()->insertOrIgnore([
-            'banner_id' => $banner->id, 'campaign_id' => $data['campaign'],
-            'placement' => $data['placement'], 'device' => $device, 'kind' => $kind,
-            'receipt' => $receipt, 'target_listing_id' => $targetListingId,
-            'event_date' => now()->toDateString(), 'created_at' => now(), 'updated_at' => now(),
-        ]);
+        DB::transaction(function () use ($banner, $data, $device, $kind, $receipt, $targetListingId): void {
+            $inserted = self::query()->insertOrIgnore([
+                'banner_id' => $banner->id, 'campaign_id' => $data['campaign'],
+                'placement' => $data['placement'], 'device' => $device, 'kind' => $kind,
+                'receipt' => $receipt, 'target_listing_id' => $targetListingId,
+                'event_date' => now()->toDateString(), 'created_at' => now(), 'updated_at' => now(),
+            ]);
+            if ($inserted && $kind === 'impression' && ($data['visitor'] ?? null) !== null) {
+                FrequencyCount::record($data['visitor'], $data['frequency'] ?? []);
+            }
+        });
         if ($kind === 'click') {
             $click = self::query()->where('receipt', $receipt)->first();
             $previous = json_decode((string) request()->cookie('advertising_attribution', ''), true);

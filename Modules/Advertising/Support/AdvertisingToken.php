@@ -26,6 +26,7 @@ final class AdvertisingToken
             'banner' => $banner->id, 'campaign' => $banner->campaign_id,
             'placement' => $placement, 'device' => $device,
             'context' => ['category_id' => $context['category_id'] ?? null, 'city_id' => $context['city_id'] ?? null, 'path' => request()->path()],
+            'frequency' => $banner->frequencyLimits(), 'visitor' => $banner->frequencyLimits() === [] ? null : app(AdvertisingFrequency::class)->visitor(),
             'session' => self::sessionKey(), 'nonce' => Str::random(32),
             'issued' => now()->timestamp, 'expires' => now()->addHours(2)->timestamp,
         ], JSON_THROW_ON_ERROR));

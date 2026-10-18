@@ -24,7 +24,7 @@ Target categories use existing active category IDs, cities use existing Location
 
 Validation: campaign lifecycle/targeting, actual listing/search integration, Filament create/validation, authorization and all previous feature tests. Browser checks cover Persian RTL campaign and banner forms at 390px and 1440px with no horizontal overflow or JavaScript errors. This delivery adds one migration; the normal cPanel deployment runs it. No manual database or document-root edits are required.
 
-Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 14–19 remain pending: frequency caps, campaign shares, limit-based stop, previews, warnings and downloadable reports. A saved campaign goal does not imply conversion tracking is already active.
+Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 15–19 remain pending: campaign shares, limit-based stop, previews, warnings and downloadable reports. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
 
 ## Phase 2 — advertising measurement
 
@@ -34,7 +34,7 @@ Each served variant receives an encrypted two-hour token bound to its session, b
 
 Advertising → Advertising statistics is available only to active advertising managers and full admins. It shows the last 30 application-calendar days grouped by banner, placement, device or day, optionally filtered by campaign, with impressions, clicks and CTR. Reports are limited to 100 grouped rows. Persian dates use the existing calendar helper. Counts are exposures, not unique people. No IP, session identifier, raw token, visitor fingerprint or private message is stored in the event table. Old events are removed after 90 days on subsequent ingestion once per day; there is no new scheduler. Disabling telemetry in Operations settings disables both issuance and ingestion. Retention is not a hard scheduled deletion guarantee.
 
-Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, additional conversion types, caps, allocation, budgets and warnings remain pending their roadmap entries.
+Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, additional conversion types, allocation, budgets and warnings remain pending their roadmap entries.
 
 ## Phase 2 — conversation attribution
 
@@ -45,6 +45,16 @@ The Conversation module emits ConversationStarted only after a newly created con
 The existing statistics page now includes New conversations for each grouping and campaign filter; it does not claim purchases or unique buyers. This is action-day reporting rather than a click cohort conversion rate. One additive migration adds target_listing_id and source_click_id. Existing click records without a destination snapshot cannot be backfilled as conversions. There is no frontend conversion endpoint, new scheduler, payment or document-root change. Store views and service requests remain unimplemented until the respective modules exist, so roadmap entry 10 remains in_progress.
 
 Validation includes actual authenticated conversation requests, existing-thread exclusion, matching destination/window/telemetry rules, latest eligible click, external URL rejection, public payload validation, and analytics failure isolation. Chromium confirmed immediate internal navigation, the HttpOnly attribution cookie, a single stored conversion and Persian reports at 390px/1440px.
+
+## Phase 2 — daily frequency limits
+
+Feature 14 adds nullable daily_frequency_cap to the existing Banner and Campaign models and forms (1–10,000; empty means unlimited). Campaign caps are shared across all member banners, devices and placements; banner and campaign limits must both permit display. Existing priority/random ordering, scheduling, approval and request-wide capacity remain in force. Once a cap is reached, subsequent requests filter that banner before selection, allowing the next eligible banner at a slot. Existing feed slot offsets and no-repeat behavior are preserved. The application-calendar day determines reset; this is not a rolling 24-hour window.
+
+Only successfully inserted viewable impression events increase frequency counts; page render, click, conversion and duplicate exposure receipts do not. Impression insertion and counter increments share one database transaction. Each visitor/scope/subject/day bucket has a unique database constraint, and increments are atomic. The browser receives an encrypted HttpOnly SameSite=Lax 30-day first-party cookie only when limited ads are evaluated. HTTPS sets Secure. Buckets store an HMAC of the random browser value rather than its raw value, IP or account ID. One request loads all current-day counts once. Cookies are browser-specific and survive normal login session rotation; deleting cookies or switching browsers creates a new counter. Event tokens for capped exposures bind to that browser fingerprint. Events and frequency buckets remain separate in the Advertising module without cross-module SQL joins.
+
+These are delivery limits applied to later server responses, not a hard physical visibility guarantee across already loaded tabs. Already issued exposures are still recorded accurately and may take the total above the configured cap; they are not silently discarded to force the report to match the cap. JavaScript, cookie or network blocking can prevent measurement/enforcement. Newly enabled limits start counting subsequent capped exposures and do not reconstruct earlier visitor history. Capped ads are suppressed when operations telemetry is disabled, while independent uncapped ads continue to render without tracking. Old frequency buckets are purged after seven days on later capped-impression ingestion once per day; no independent cron is introduced and retention is not a scheduled-deletion guarantee.
+
+Validation covers render-versus-impression counting, duplicate receipts, browser separation and replay rejection, shared campaign limits, stricter banner limits, next-day reset, telemetry opt-out and Filament validation. Real Chromium checked a loaded/viewable capped banner disappearing on reload in favor of its fallback, independent browser counters, the HttpOnly cookie and Persian forms at 390px/1440px. One additive migration runs during the normal cPanel deploy.
 
 ## Progress
 
@@ -63,7 +73,7 @@ Validation includes actual authenticated conversation requests, existing-thread 
 | 11 | 2 | هدف‌گیری دسته‌بندی | verified |
 | 12 | 2 | هدف‌گیری شهر | verified |
 | 13 | 2 | هدف‌گیری صفحهٔ مشخص | verified |
-| 14 | 2 | محدودیت دفعات نمایش | pending |
+| 14 | 2 | محدودیت دفعات نمایش | verified |
 | 15 | 2 | سهم نمایش کمپین | pending |
 | 16 | 2 | توقف خودکار کمپین | pending |
 | 17 | 2 | پیش‌نمایش جایگاه | pending |

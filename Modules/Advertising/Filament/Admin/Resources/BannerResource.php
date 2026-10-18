@@ -20,8 +20,8 @@ use Filament\Tables\Table;
 use Modules\Admin\Support\Filament\ResourceTableActions;
 use Modules\Advertising\Filament\Admin\Resources\BannerResource\Pages;
 use Modules\Advertising\Models\Banner;
-use Modules\Advertising\Models\Campaign;
 use Modules\Advertising\Models\BannerPlacement;
+use Modules\Advertising\Models\Campaign;
 use Modules\Site\App\Support\LocalMedia;
 
 final class BannerResource extends AdvertisingResource
@@ -51,6 +51,7 @@ final class BannerResource extends AdvertisingResource
             TextInput::make('url')->label(__('advertising::admin.url'))->url()->maxLength(2048)->extraInputAttributes(['dir' => 'ltr']),
             Toggle::make('new_tab')->label(__('advertising::admin.new_tab'))->default(false),
             Select::make('device')->label(__('advertising::admin.device'))->options(['both' => __('advertising::admin.both'), 'mobile' => __('advertising::admin.mobile'), 'desktop' => __('advertising::admin.desktop')])->required()->default('both'),
+            TextInput::make('daily_frequency_cap')->label(__('advertising::metrics.daily_cap'))->integer()->minValue(1)->maxValue(10000)->helperText(__('advertising::metrics.daily_cap_hint')),
             Toggle::make('is_active')->label(__('advertising::admin.is_active'))->default(true),
             DateTimePicker::make('starts_at')->label(__('advertising::admin.starts_at'))->timezone(config('app.timezone'))->seconds(false),
             DateTimePicker::make('ends_at')->label(__('advertising::admin.ends_at'))->timezone(config('app.timezone'))->seconds(false)->after('starts_at'),
