@@ -14,7 +14,7 @@ final class AppearanceTheme
         return [
             'accent' => '#0066cc',
             'primary' => '#0b0b0c',
-            'page' => '#f5f5f7',
+            'page' => '#ffffff',
             'surface' => '#ffffff',
             'header' => '#ffffff',
             'footer' => '#ffffff',
