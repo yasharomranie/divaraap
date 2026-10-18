@@ -24,7 +24,7 @@ Target categories use existing active category IDs, cities use existing Location
 
 Validation: campaign lifecycle/targeting, actual listing/search integration, Filament create/validation, authorization and all previous feature tests. Browser checks cover Persian RTL campaign and banner forms at 390px and 1440px with no horizontal overflow or JavaScript errors. This delivery adds one migration; the normal cPanel deployment runs it. No manual database or document-root edits are required.
 
-Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 15–19 remain pending: campaign shares, limit-based stop, previews, warnings and downloadable reports. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
+Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 16–19 remain pending: limit-based stop, previews, warnings and downloadable reports. Opt-in weighted campaign allocation is delivered below. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
 
 ## Phase 2 — advertising measurement
 
@@ -56,6 +56,16 @@ These are delivery limits applied to later server responses, not a hard physical
 
 Validation covers render-versus-impression counting, duplicate receipts, browser separation and replay rejection, shared campaign limits, stricter banner limits, next-day reset, telemetry opt-out and Filament validation. Real Chromium checked a loaded/viewable capped banner disappearing on reload in favor of its fallback, independent browser counters, the HttpOnly cookie and Persian forms at 390px/1440px. One additive migration runs during the normal cPanel deploy.
 
+## Phase 2 — campaign share allocation
+
+Feature 15 adds delivery_weight (1–1,000, default 1) to the existing Campaign model. Existing placements keep their current priority/random mode. To enable weighting, edit a placement and select Campaign shares. No global switch silently changes delivery. The campaign form and table expose its weight; placement table exposes ordering. Both use existing advertising.manage authorization and activity logging.
+
+Eligibility, moderation, campaign/banner schedules, targeting, placement and banner device constraints, daily browser frequency limits and page capacity remain authoritative. Allocation only sees eligible assignments. Each campaign is one weighted group regardless of its number of creatives; each independent banner is its own group with weight 1. At each virtual feed opportunity, a deterministic session/day/placement seed selects an eligible group in proportion to its weight. A weight of 3 against 1 means about 75% of selections across many independent seeds while both groups remain available. This is selection probability, not a guaranteed impression, click, budget, reservation or paid-inventory percentage. Static placements keep their selection within the same session/day/pool rather than changing on every refresh.
+
+Within a selected group, creatives follow assignment priority then assignment ID. With repeat enabled they cycle in that order. With repeat disabled each creative appears once in the virtual sequence; exhausted groups leave the pool and remaining weights renormalize. Thus complete nonrepeating feeds remain limited by inventory and their aggregate creative counts are not a promised campaign percentage. More creatives do not inflate initial group weight. Eligibility changes can alter the virtual sequence. The existing absolute insertion offset is used across pagination, and matching device pools receive the same selection. There are no extra database writes or new client assets for selection; the allocator uses bounded memory and reconstructs the prefix when reading a later virtual slot.
+
+Validation: 2,000-seed tests for equal campaign weights despite 8-versus-1 creatives, 3:1 weights, independent-banner unit weight, priority rotation, no-repeat exhaustion and deterministic pagination reconstruction. Renderer tests cover inactive campaigns and device fallback; all previous priority/random/cap tests still pass. Filament validates weight limits and saves the explicit placement mode. Browser checks cover Persian RTL fields at 390px and 1440px. One additive campaign-column migration runs through normal cPanel deployment.
+
 ## Progress
 
 | ID | Phase | Feature | Status |
@@ -74,7 +84,7 @@ Validation covers render-versus-impression counting, duplicate receipts, browser
 | 12 | 2 | هدف‌گیری شهر | verified |
 | 13 | 2 | هدف‌گیری صفحهٔ مشخص | verified |
 | 14 | 2 | محدودیت دفعات نمایش | verified |
-| 15 | 2 | سهم نمایش کمپین | pending |
+| 15 | 2 | سهم نمایش کمپین | verified |
 | 16 | 2 | توقف خودکار کمپین | pending |
 | 17 | 2 | پیش‌نمایش جایگاه | pending |
 | 18 | 2 | هشدار مشکلات کمپین | pending |

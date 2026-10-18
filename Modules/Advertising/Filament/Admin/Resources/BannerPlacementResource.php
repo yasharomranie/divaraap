@@ -51,7 +51,7 @@ final class BannerPlacementResource extends AdvertisingResource
             Select::make('device')->label(__('advertising::admin.device'))->options(['both' => __('advertising::admin.both'), 'mobile' => __('advertising::admin.mobile'), 'desktop' => __('advertising::admin.desktop')])->required(),
             TextInput::make('first_after')->label(__('advertising::admin.first_after'))->integer()->minValue(1)->maxValue(10000)->required()->visible(fn ($record) => str_ends_with($record?->key ?? '', '-feed')),
             TextInput::make('interval')->label(__('advertising::admin.interval'))->integer()->minValue(1)->maxValue(10000)->required()->visible(fn ($record) => str_ends_with($record?->key ?? '', '-feed')),
-            Select::make('ordering')->label(__('advertising::admin.ordering'))->options(['priority' => __('advertising::admin.priority'), 'random' => __('advertising::admin.random')])->required(),
+            Select::make('ordering')->label(__('advertising::admin.ordering'))->options(['priority' => __('advertising::admin.priority'), 'random' => __('advertising::admin.random'), 'campaign' => __('advertising::metrics.campaign_ordering')])->required()->helperText(__('advertising::metrics.campaign_ordering_hint')),
             Toggle::make('repeat')->label(__('advertising::admin.repeat'))->helperText(__('advertising::admin.repeat_hint'))->visible(fn ($record) => str_ends_with($record?->key ?? '', '-feed')),
         ]);
     }
@@ -62,6 +62,7 @@ final class BannerPlacementResource extends AdvertisingResource
             TextColumn::make('key')->label(__('advertising::admin.placement'))->formatStateUsing(fn ($state) => __('advertising::admin.'.$state)),
             IconColumn::make('is_active')->label(__('advertising::admin.is_active'))->boolean(),
             TextColumn::make('assignments_count')->counts('assignments')->label(__('advertising::admin.banners')),
+            TextColumn::make('ordering')->label(__('advertising::admin.ordering'))->formatStateUsing(fn ($state) => $state === 'campaign' ? __('advertising::metrics.campaign_ordering') : __('advertising::admin.'.$state)),
             TextColumn::make('first_after')->label(__('advertising::admin.first_after')),
             TextColumn::make('interval')->label(__('advertising::admin.interval')),
         ])->actions([EditAction::make()]);

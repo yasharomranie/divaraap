@@ -41,6 +41,7 @@ final class CampaignResource extends AdvertisingResource
         return $schema->schema([
             TextInput::make('title')->label(__('advertising::admin.title'))->required()->maxLength(150),
             Select::make('goal')->label(__('advertising::campaign.goal'))->options(collect(['awareness', 'traffic', 'conversation'])->mapWithKeys(fn ($goal) => [$goal => __('advertising::campaign.'.$goal)])->all())->required()->default('awareness'),
+            TextInput::make('delivery_weight')->label(__('advertising::metrics.delivery_weight'))->integer()->minValue(1)->maxValue(1000)->required()->default(1)->helperText(__('advertising::metrics.delivery_weight_hint')),
             TextInput::make('daily_frequency_cap')->label(__('advertising::metrics.daily_cap'))->integer()->minValue(1)->maxValue(10000)->helperText(__('advertising::metrics.daily_cap_hint')),
             Toggle::make('is_active')->label(__('advertising::admin.is_active'))->default(false),
             TextInput::make('planned_budget')->label(__('advertising::campaign.planned_budget'))->integer()->minValue(0)->maxValue(1000000000000)->helperText(__('advertising::campaign.budget_hint')),
@@ -59,6 +60,7 @@ final class CampaignResource extends AdvertisingResource
             TextColumn::make('goal')->label(__('advertising::campaign.goal'))->formatStateUsing(fn ($state) => __('advertising::campaign.'.$state)),
             IconColumn::make('is_active')->label(__('advertising::admin.is_active'))->boolean(),
             TextColumn::make('banners_count')->counts('banners')->label(__('advertising::admin.banners')),
+            TextColumn::make('delivery_weight')->label(__('advertising::metrics.delivery_weight'))->numeric(),
             TextColumn::make('planned_budget')->label(__('advertising::campaign.planned_budget'))->numeric(),
             TextColumn::make('starts_at')->label(__('advertising::admin.starts_at'))->dateTime()->timezone(config('app.timezone')),
             TextColumn::make('ends_at')->label(__('advertising::admin.ends_at'))->dateTime()->timezone(config('app.timezone')),

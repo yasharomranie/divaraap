@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'delivery_weight' => 'Delivery weight',
+    'delivery_weight_hint' => 'Only affects placements using Campaign shares. Weight 3 versus 1 means approximately three times the selection chance among eligible campaigns, not guaranteed impressions or clicks. Adding creatives does not increase campaign weight.',
+    'campaign_ordering' => 'Campaign shares',
+    'campaign_ordering_hint' => 'Eligibility, dates, category, city, device and daily caps apply first, then campaign weight, then creative priority within that campaign. Each independent banner has weight 1. Without repeat, used creatives leave the feed sequence; with repeat, campaign creatives rotate in priority order. Selection is stable per session and day; shares are approximate across many sessions and feed slots.',
     'daily_cap' => 'Daily viewable impressions per browser',
     'daily_cap_hint' => 'Empty means unlimited. Counts all placements; campaign limits are shared across its banners. Resets on application-calendar days. Counting starts when enabled. Requires telemetry; capped ads are hidden when telemetry is off. Applies to subsequent requests; already open tabs can still display banners. Clearing cookies or using another browser starts a separate counter.',
     'conversations' => 'New conversations',

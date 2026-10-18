@@ -45,7 +45,15 @@ final class BannerRenderer
             if ($items->isEmpty() || (! $placement->repeat && $slot >= $items->count())) {
                 continue;
             }
-            $output[$device] = $items[$slot % $items->count()]->banner;
+            if ($placement->ordering === 'campaign') {
+                $session = request()->hasSession() ? request()->session()->getId() : 'guest';
+                $assignment = app(CampaignAllocation::class)->select($items, $slot, $placement->repeat, $session.'|'.now()->toDateString().'|'.$key);
+                if ($assignment) {
+                    $output[$device] = $assignment->banner;
+                }
+            } else {
+                $output[$device] = $items[$slot % $items->count()]->banner;
+            }
         }
         if ($output !== [] && ! app(AdvertisingCapacity::class)->reserve($key, $position)) {
             return [];
