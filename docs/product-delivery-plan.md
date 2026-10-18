@@ -130,7 +130,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 24 | 3 | سابقهٔ مشاهده | verified |
 | 25 | 3 | مجموعه‌های شخصی | verified |
 | 26 | 3 | جست‌وجوی بهتر فارسی | verified |
-| 27 | 3 | جست‌وجو روی نقشه | pending |
+| 27 | 3 | جست‌وجو روی نقشه | verified |
 | 28 | 3 | پیشنهادهای مرتبط | pending |
 | 29 | 4 | داشبورد عملکرد آگهی | pending |
 | 30 | 4 | راهنمای بهبود آگهی | pending |
@@ -188,7 +188,7 @@ A durable publication ledger records each listing's first active Eloquent save a
 
 Notifications are generated when the user opens the notification inbox or My alerts, with at most 50 new publication records per subscription per visit. Reopen to continue a larger backlog. There is no cron, queue worker, email, SMS or push dependency and no claim of background real-time delivery. Publication and delivery receipts persist; per-alert locks and transactions make repeated inbox visits idempotent. Price alerts compare the current active listing against the lowest observed price since activation using decimal arithmetic; currency changes reset the baseline. Intermediate price changes while the user is absent are not price-history events. Inactive, expired or deleted listings cannot expose content through these notifications.
 
-One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison is delivered below; viewing history is delivered below; collections are delivered below; improved Persian search is delivered below; maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
+One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison is delivered below; viewing history is delivered below; collections are delivered below; improved Persian search is delivered below; maps are delivered below; recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
 
 Validation: 271 PHPUnit tests / 3113 assertions passed, including 10 buyer-alert tests; browser checks exercised all three opt-in controls, real notification generation and Persian layouts at 390px and 1440px. Production assets and localization checks passed.
 
@@ -235,3 +235,15 @@ Queries are bounded to 120 characters and eight distinct normalized terms. Unsup
 Validation: 296 PHPUnit tests passed, including seven new Persian-search tests. Baseline public marketplace and buyer-alert tests passed. Browser checks exercise the visible mobile/desktop search inputs, legacy Arabic content, reordered Persian-digit queries and focusable correction links. Production asset build and localization checks passed. No database migration is required; use the standard cPanel update/deploy flow.
 
 After the final canonical term-order adjustment, all 17 Persian-search and buyer-alert tests passed again (107 assertions). Legacy labels and signatures are retained; only new signatures use the canonical order.
+
+## Phase 3 — map search and owner location workflow
+
+Feature 27 adds `/listings/map`, entered from browse results while preserving current filters. It uses the existing browse pipeline for Persian search, category, country/city, seller, date, price and sort. Only active, unexpired, undeleted listings with supported coordinates are included. No location is guessed for missing data. Locations are rounded to three decimals for the public payload, and bounding-box matching uses the same rounded coordinates, so narrowing bounds does not expose the original precision. The supported Web Mercator latitude range is ±85.05112878 degrees, longitude ±180. Zero coordinates are valid; dateline-crossing bounds use a grouped longitude OR. Partial, malformed, reversed or unsupported bounds return 422.
+
+The first 200 matching records are displayed with an explicit shown/total notice and deterministic tie-breaking; the accessible list paginates those same 200 records, 20 per page. Refine filters or use Search this area for other results. Markers at the same rounded coordinate are grouped; popups contain DOM text nodes and generated listing links. No contact fields or raw precise coordinates are included in the public payload. Public listings remain usable without JavaScript or when the base-map provider fails.
+
+Leaflet 1.9.4 and its CSS are bundled locally and loaded lazily on map screens. The browser requests standard OpenStreetMap tiles with attribution; no paid API key, PHP shell, cron, geocoding request or automatic visitor geolocation is introduced. The existing Google Maps setting is not altered. The SDK disables animations and uses keyboard interaction, labeled native controls and touch-sized targets. User-driven area searches reload through the normal GET pipeline; map panning does not create repeated server searches. Region bounds are clamped before navigation. A 12-second tile timeout offers fallback/retry instead of an indefinite loading status. SDK instances are removed on Livewire navigation.
+
+Owners can optionally choose, manually enter or delete their map location from My listings, dashboard or Edit listing. Owner-only authenticated CSRF-protected mutations validate coordinates and active account status, round saved coordinates, and transactionally update only latitude/longitude. Price, moderation state and other fields remain unchanged. Pending/rejected listings remain unavailable on the public map until approved. Native coordinate entry/save/clear works without JavaScript. The feature reuses existing coordinate columns and adds no migration.
+
+Validation: the full suite passed 304 PHPUnit tests; the eight map tests passed again after rounded-bound privacy checks (62 assertions). Coverage includes public eligibility, zero coordinates, invalid bounds, dateline wrapping, result caps, shared filters, title escaping, payload privacy and owner authorization/mutations. TypeScript build, focused ESLint, localization, production route/config caches and cPanel packaging checks passed. Chromium at 390px and 1440px exercised grouped markers, popups, search-area links, owner selection/save/delete, no-JavaScript native entry, attribution and failed-provider fallback. Tile responses were mocked: live OpenStreetMap access is blocked by this environment proxy (HTTP tunnel 403), so live provider delivery is not verified. Check actual tile loading after deployment. Standard cPanel Update from Remote / Deploy HEAD Commit builds and deploys all assets; no manual host setup is required.

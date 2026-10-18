@@ -35,6 +35,7 @@
         @if(\App\Support\PersianSearch::terms($search) === null)
             <p id="search-error" role="alert"><a class="search-error-desktop" href="#site-search-input">{{ __('listing::search.limit') }}</a><a class="search-error-mobile" href="#mobile-market-query">{{ __('listing::search.limit') }}</a></p>
         @endif
+        <a class="button button--secondary button--small" href="{{ route('listings.map', request()->except(['page', 'west', 'east', 'south', 'north'])) }}">{{ __('listing::map.title') }}</a>
         <div class="panel-head">
             <div class="panel-head__text">
                 <h1 class="title-page">{{ $selectedCategory?->displayName() ?? __('site::messages.all_listings') }}</h1>

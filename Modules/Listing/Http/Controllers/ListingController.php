@@ -7,6 +7,8 @@ namespace Modules\Listing\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Support\Money;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Validator;
 use Modules\Admin\Models\ProductEvent;
 use Modules\Category\Models\Category;
 use Modules\Conversation\App\Models\Conversation;
@@ -14,6 +16,7 @@ use Modules\Favorite\App\Models\FavoriteSearch;
 use Modules\Favorite\App\Support\ListingHistory;
 use Modules\Listing\Models\Listing;
 use Modules\Listing\Support\ListingCustomFieldSchemaBuilder;
+use Modules\Listing\Support\ListingMapBounds;
 use Modules\Location\Models\Country;
 use Modules\Offer\Models\Offer;
 use Modules\Report\Models\Report;
@@ -26,6 +29,15 @@ class ListingController extends Controller
 
     public function index()
     {
+        if (request()->routeIs('listings.map')) {
+            $validator = Validator::make(request()->query(), [
+                'search' => ['nullable', 'string'], 'min_price' => ['nullable', 'string'], 'max_price' => ['nullable', 'string'],
+                'sort' => ['nullable', 'string'], 'date_filter' => ['nullable', 'string'],
+                'category' => ['nullable', 'integer', 'min:1'], 'country' => ['nullable', 'integer', 'min:1'],
+                'city' => ['nullable', 'integer', 'min:1'], 'user' => ['nullable', 'integer', 'min:1'],
+            ]);
+            abort_unless($validator->passes(), 422);
+        }
         $searchInput = request('search', '');
         abort_unless(is_string($searchInput) || $searchInput === null, 422);
         $search = trim((string) $searchInput);
@@ -92,6 +104,18 @@ class ListingController extends Controller
                 'category_ids' => $listingDirectory['filterIds'],
             ])
             ->applyBrowseSort($sort);
+
+        if (request()->routeIs('listings.map')) {
+            $bounds = ListingMapBounds::fromQuery(request()->query());
+            $results = Listing::mapResults($listingsQuery, $bounds);
+            $mapPoints = $results['points'];
+            $mapTotal = $results['total'];
+            $currentPage = min(10, LengthAwarePaginator::resolveCurrentPage());
+            $listings = new LengthAwarePaginator($results['listings']->forPage($currentPage, 20)->values(), count($mapPoints), 20, $currentPage, ['path' => route('listings.map'), 'query' => request()->query()]);
+            $categoryOptions = Category::filterOptions();
+
+            return response()->view('listing::map', compact('bounds', 'mapPoints', 'mapTotal', 'listings', 'categoryOptions', 'search', 'categoryId', 'countryId', 'cityId', 'countries', 'cities', 'minPriceInput', 'maxPriceInput', 'dateFilter', 'sort', 'sellerUserId'))->header('X-Robots-Tag', 'noindex, follow');
+        }
 
         $filteredListingsTotal = (clone $listingsQuery)->count();
 

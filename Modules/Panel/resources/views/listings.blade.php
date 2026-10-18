@@ -70,6 +70,7 @@
 
                     <div class="data-row__actions">
                         <a href="{{ route('listings.show', $listing) }}" class="button button--ghost button--small">{{ __('panel::messages.view') }}</a>
+                        <a href="{{ route('listings.location', $listing) }}" class="button button--ghost button--small">{{ __('listing::map.location') }}</a>
                         <a href="{{ route('panel.listings.edit', $listing) }}" class="button button--secondary button--small">{{ __('panel::messages.edit') }}</a>
 
                         @if($listing->statusValue() !== 'sold')

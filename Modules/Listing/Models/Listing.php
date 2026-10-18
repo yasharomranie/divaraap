@@ -130,6 +130,39 @@ class Listing extends Model implements HasMedia
         return $this->hasMany(Video::class)->ordered();
     }
 
+    public function updateMapLocationFor(User $user, ?float $latitude, ?float $longitude): void
+    {
+        DB::transaction(function () use ($user, $latitude, $longitude): void {
+            $locked = self::whereKey($this->id)->lockForUpdate()->firstOrFail();
+            $locked->assertOwnedBy($user);
+            $locked->forceFill(['latitude' => $latitude, 'longitude' => $longitude])->save();
+        });
+    }
+
+    public static function mapResults(Builder $query, ?array $bounds): array
+    {
+        $query = clone $query;
+        $query->active()->whereBetween('latitude', [-85.05112878, 85.05112878])->whereBetween('longitude', [-180, 180])
+            ->where(fn (Builder $active) => $active->whereNull('expires_at')->orWhere('expires_at', '>', now()));
+        if ($bounds !== null) {
+            $query->whereRaw('ROUND(latitude, 3) BETWEEN ? AND ?', [$bounds['south'], $bounds['north']]);
+            if ($bounds['west'] < $bounds['east']) {
+                $query->whereRaw('ROUND(longitude, 3) BETWEEN ? AND ?', [$bounds['west'], $bounds['east']]);
+            } else {
+                $query->where(fn (Builder $longitude) => $longitude->whereRaw('ROUND(longitude, 3) >= ?', [$bounds['west']])->orWhereRaw('ROUND(longitude, 3) <= ?', [$bounds['east']]));
+            }
+        }
+        $total = (clone $query)->count();
+        $listings = $query->orderBy('id')->limit(200)->get(['id', 'title', 'price', 'currency', 'latitude', 'longitude', 'category_id', 'city', 'country']);
+        $points = $listings->map(fn (self $listing) => [
+            'id' => $listing->id, 'title' => $listing->title, 'price' => $listing->panelPriceLabel(),
+            'lat' => round((float) $listing->latitude, 3), 'lng' => round((float) $listing->longitude, 3),
+            'url' => route('listings.show', $listing->id),
+        ])->all();
+
+        return compact('total', 'listings', 'points');
+    }
+
     public function comparisonPlaceLabel(): string
     {
         $country = trim((string) $this->country);

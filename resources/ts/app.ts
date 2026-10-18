@@ -1,4 +1,6 @@
 import '../css/app.css';
+import { listingLocation } from './modules/listing-location';
+import { listingMap } from './modules/listing-map';
 import { advertisingMetrics } from './modules/advertising-metrics';
 
 import { startBehaviors, type Behavior } from './core/behavior';
@@ -13,6 +15,8 @@ import { contactReveal, shareAction } from './modules/reveal';
 import { appNavigation, disclosureGroup, navigationDrawer, searchSuggest, stickyHeader } from './modules/navigation';
 
 const behaviors: readonly Behavior<never>[] = [
+    listingMap,
+    listingLocation,
     advertisingMetrics,
     homeShowcase,
     navigationDrawer,
