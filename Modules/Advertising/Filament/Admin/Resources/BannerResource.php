@@ -20,6 +20,7 @@ use Filament\Tables\Table;
 use Modules\Admin\Support\Filament\ResourceTableActions;
 use Modules\Advertising\Filament\Admin\Resources\BannerResource\Pages;
 use Modules\Advertising\Models\Banner;
+use Modules\Advertising\Models\Campaign;
 use Modules\Advertising\Models\BannerPlacement;
 use Modules\Site\App\Support\LocalMedia;
 
@@ -42,6 +43,7 @@ final class BannerResource extends AdvertisingResource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
+            Select::make('campaign_id')->label(__('advertising::campaign.campaign'))->options(fn () => Campaign::options())->searchable()->exists(Campaign::class, 'id')->helperText(__('advertising::campaign.optional_campaign')),
             TextInput::make('title')->label(__('advertising::admin.title'))->required()->maxLength(150),
             TextInput::make('alt')->label(__('advertising::admin.alt'))->required()->maxLength(200),
             FileUpload::make('image')->label(__('advertising::admin.image'))->image()->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->disk('public')->directory(LocalMedia::managedDirectory('banners'))->visibility('public')->maxSize(4096)->required()->helperText(__('advertising::admin.image_hint')),
@@ -64,6 +66,7 @@ final class BannerResource extends AdvertisingResource
         return $table->columns([
             ImageColumn::make('image')->label(__('advertising::admin.image'))->disk('public')->imageWidth(80)->imageHeight(32),
             TextColumn::make('title')->label(__('advertising::admin.title'))->searchable()->sortable(),
+            TextColumn::make('campaign.title')->label(__('advertising::campaign.campaign'))->placeholder('—'),
             IconColumn::make('is_active')->label(__('advertising::admin.is_active'))->boolean(),
             TextColumn::make('review_status')->label(__('admin::operations.review_status'))->formatStateUsing(fn ($state) => __('admin::operations.review_'.$state))->badge(),
             TextColumn::make('device')->label(__('advertising::admin.device'))->formatStateUsing(fn ($state) => __('advertising::admin.'.$state)),

@@ -41,7 +41,7 @@
       "id": 7,
       "phase": 2,
       "title": "مدیریت کمپین",
-      "status": "pending"
+      "status": "verified"
     },
     {
       "id": 8,
@@ -65,19 +65,19 @@
       "id": 11,
       "phase": 2,
       "title": "هدف‌گیری دسته‌بندی",
-      "status": "pending"
+      "status": "verified"
     },
     {
       "id": 12,
       "phase": 2,
       "title": "هدف‌گیری شهر",
-      "status": "pending"
+      "status": "verified"
     },
     {
       "id": 13,
       "phase": 2,
       "title": "هدف‌گیری صفحهٔ مشخص",
-      "status": "pending"
+      "status": "verified"
     },
     {
       "id": 14,

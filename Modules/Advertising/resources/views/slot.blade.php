@@ -1,5 +1,5 @@
 @php
-    $banners = app(\Modules\Advertising\Support\BannerRenderer::class)->at($placementKey, $position ?? 0);
+    $banners = app(\Modules\Advertising\Support\BannerRenderer::class)->at($placementKey, $position ?? 0, $advertisingContext ?? []);
 @endphp
 @foreach($banners as $device => $banner)
     <aside class="advertising-banner advertising-banner--{{ $device }}" aria-label="{{ __('advertising::admin.sponsored') }}" data-banner="{{ $banner->id }}" data-placement="{{ $placementKey }}">

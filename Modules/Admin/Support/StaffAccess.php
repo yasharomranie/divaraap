@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Admin\Support;
 
 use Modules\Advertising\Models\Banner;
+use Modules\Advertising\Models\Campaign;
 use Modules\Advertising\Models\BannerPlacement;
 
 final class StaffAccess
@@ -19,6 +20,7 @@ final class StaffAccess
     {
         return match ($model) {
             Banner::class,
+            Campaign::class,
             BannerPlacement::class => 'advertising.manage',
             default => null,
         };

@@ -51,6 +51,6 @@ final class BannerPlacement extends Model
     public static function available(string $key): ?self
     {
         return self::query()->where('key', $key)->where('is_active', true)
-            ->with(['assignments.banner' => fn ($q) => $q->available()])->first();
+            ->with(['assignments.banner' => fn ($q) => $q->available()->with('campaign')])->first();
     }
 }

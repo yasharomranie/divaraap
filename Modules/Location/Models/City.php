@@ -21,6 +21,20 @@ class City extends Model
 
     protected $casts = ['is_active' => 'boolean'];
 
+    public static function advertisingIdForLocation(string $city, string $country): ?int
+    {
+        if (trim($city) === '' || trim($country) === '') {
+            return null;
+        }
+
+        return static::query()->active()->where('name', $city)->whereHas('country', fn (Builder $query) => $query->where('name', $country))->value('id');
+    }
+
+    public static function advertisingOptions(): array
+    {
+        return static::query()->active()->with('country')->orderBy('name')->get()->mapWithKeys(fn (self $city) => [$city->id => $city->displayName()])->all();
+    }
+
     public static function namesForOperations(array $ids): array
     {
         return static::query()->whereIn('id', $ids)->pluck('name', 'id')->all();

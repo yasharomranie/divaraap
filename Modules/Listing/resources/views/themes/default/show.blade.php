@@ -133,7 +133,7 @@
                     </div>
                 </section>
 
-                @includeIf('advertising::slot', ['placementKey' => 'listing-details', 'position' => 0])
+                @includeIf('advertising::slot', ['placementKey' => 'listing-details', 'position' => 0, 'advertisingContext' => ['category_id' => $listing->category_id, 'city_name' => (string) $listing->city, 'country_name' => (string) $listing->country]])
 
                 @if($listingVideos->isNotEmpty())
                     <section class="card">
@@ -289,7 +289,7 @@
             </aside>
         </div>
 
-        @includeIf('advertising::slot', ['placementKey' => 'listing-related', 'position' => 0])
+        @includeIf('advertising::slot', ['placementKey' => 'listing-related', 'position' => 0, 'advertisingContext' => ['category_id' => $listing->category_id, 'city_name' => (string) $listing->city, 'country_name' => (string) $listing->country]])
 
         @if($relatedListings->isNotEmpty())
             <section class="section">

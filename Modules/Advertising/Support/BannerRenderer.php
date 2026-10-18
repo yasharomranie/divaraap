@@ -6,13 +6,23 @@ namespace Modules\Advertising\Support;
 
 use Modules\Admin\Support\AdvertisingCapacity;
 use Modules\Advertising\Models\BannerPlacement;
+use Modules\Location\Models\City;
 
 final class BannerRenderer
 {
     private array $placements = [];
 
-    public function at(string $key, int $position = 0): array
+    private array $cities = [];
+
+    public function at(string $key, int $position = 0, array $context = []): array
     {
+        if (! isset($context['city_id']) && isset($context['city_name'], $context['country_name'])) {
+            $locationKey = json_encode([$context['city_name'], $context['country_name']]);
+            if (! array_key_exists($locationKey, $this->cities)) {
+                $this->cities[$locationKey] = City::advertisingIdForLocation($context['city_name'], $context['country_name']);
+            }
+            $context['city_id'] = $this->cities[$locationKey];
+        }
         if (! array_key_exists($key, $this->placements)) {
             $this->placements[$key] = BannerPlacement::available($key);
         }
@@ -21,7 +31,7 @@ final class BannerRenderer
         if ($slot === null) {
             return [];
         }
-        $assignments = $placement->assignments->filter(fn ($a) => $a->banner && filled($a->banner->image));
+        $assignments = $placement->assignments->filter(fn ($a) => $a->banner && filled($a->banner->image) && $a->banner->eligibleForCampaign($context));
         if ($placement->ordering === 'random') {
             $seed = request()->hasSession() ? request()->session()->getId() : now()->toDateString();
             $assignments = $assignments->sortBy(fn ($a) => hash('sha256', $seed.'|'.$key.'|'.$a->id));

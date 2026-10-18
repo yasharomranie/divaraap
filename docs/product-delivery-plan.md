@@ -14,7 +14,17 @@ The approved scope contains 67 features across eight phases. `product-roadmap.js
 
 Use the normal cPanel release path. Migrations add product metrics and moderation metadata; existing banner images and priorities remain in place. Operations controls appear under the operations navigation group. The existing user resource assigns the new staff roles; no second account or role system is created.
 
-New display formats, campaigns, charging, buyer tools and seller tools are pending their respective phases. Payment providers, notification delivery providers, AI providers and map providers require separate concrete integration choices before claiming live external functionality. No external paid service is enabled in phase 1.
+New display formats, charging, buyer tools and seller tools are pending their respective phases. Phase 2 campaign foundations are delivered below; advertising analytics and delivery controls remain pending. Payment providers, notification delivery providers, AI providers and map providers require separate concrete integration choices before claiming live external functionality. No external paid service is enabled in phase 1.
+
+## Phase 2 — campaign foundations
+
+Features 7, 11, 12 and 13 connect to the existing advertising module. Admin and active advertising managers can create campaigns under Advertising → Campaigns, then select the campaign on each existing banner. Campaigns have a shared goal, activation switch, schedule and optional planned budget in IRR. Planned budget is metadata only: no payment, spending calculation or budget-based stop is claimed. A banner can belong to one campaign and a campaign can contain multiple banners. Both campaign and banner schedules must permit display; campaign edits cannot bypass banner review. Soft-deleting or pausing a campaign suppresses its banners without deleting images or assignments. Detaching a banner makes it independent again. Existing independent banners and per-placement priorities remain supported.
+
+Target categories use existing active category IDs, cities use existing Location IDs and page targeting uses exact URL paths without query parameters. Empty targeting lists mean unrestricted. Every nonempty targeting dimension must match. Categories match the selected browse category or listing category exactly; descendants are not inferred. Cities match the explicit browse selection or listing's stored city and country, never guessed visitor geolocation. Unknown or missing context fails closed. Home and content pages have no category/city context, so campaigns with these restrictions do not appear there. Paths are normalized for leading/trailing slashes and do not change placement ordering. The request renderer eager-loads campaigns and shares the existing capacity service; no tracking queries or new scheduler are introduced.
+
+Validation: campaign lifecycle/targeting, actual listing/search integration, Filament create/validation, authorization and all previous feature tests. Browser checks cover Persian RTL campaign and banner forms at 390px and 1440px with no horizontal overflow or JavaScript errors. This delivery adds one migration; the normal cPanel deployment runs it. No manual database or document-root edits are required.
+
+Phase 2 features 8–10 and 14–19 remain pending: viewable impressions, clicks/CTR, conversions, frequency caps, campaign shares, limit-based stop, previews, warnings and downloadable reports. A saved campaign goal does not imply conversion tracking is already active.
 
 ## Progress
 
@@ -26,13 +36,13 @@ New display formats, campaigns, charging, buyer tools and seller tools are pendi
 | 4 | 1 | تحلیل مراحل ثبت آگهی | verified |
 | 5 | 1 | گزارش جست‌وجوی بدون نتیجه | verified |
 | 6 | 1 | کنترل ظرفیت تبلیغات | verified |
-| 7 | 2 | مدیریت کمپین | pending |
+| 7 | 2 | مدیریت کمپین | verified |
 | 8 | 2 | آمار نمایش واقعی | pending |
 | 9 | 2 | آمار کلیک و نرخ کلیک | pending |
 | 10 | 2 | سنجش اقدام پس از کلیک | pending |
-| 11 | 2 | هدف‌گیری دسته‌بندی | pending |
-| 12 | 2 | هدف‌گیری شهر | pending |
-| 13 | 2 | هدف‌گیری صفحهٔ مشخص | pending |
+| 11 | 2 | هدف‌گیری دسته‌بندی | verified |
+| 12 | 2 | هدف‌گیری شهر | verified |
+| 13 | 2 | هدف‌گیری صفحهٔ مشخص | verified |
 | 14 | 2 | محدودیت دفعات نمایش | pending |
 | 15 | 2 | سهم نمایش کمپین | pending |
 | 16 | 2 | توقف خودکار کمپین | pending |
