@@ -24,7 +24,7 @@ Target categories use existing active category IDs, cities use existing Location
 
 Validation: campaign lifecycle/targeting, actual listing/search integration, Filament create/validation, authorization and all previous feature tests. Browser checks cover Persian RTL campaign and banner forms at 390px and 1440px with no horizontal overflow or JavaScript errors. This delivery adds one migration; the normal cPanel deployment runs it. No manual database or document-root edits are required.
 
-Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 17–19 remain pending: previews, warnings and downloadable reports. Opt-in weighted campaign allocation is delivered below. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
+Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 18–19 remain pending: warnings and downloadable reports. Protected placement previews are delivered below. Opt-in weighted campaign allocation is delivered below. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
 
 ## Phase 2 — advertising measurement
 
@@ -78,6 +78,16 @@ Already served valid exposures can still record actual impressions/clicks and th
 
 Validation covers threshold boundaries, replay deduplication, in-flight events, price snapshots, cost balance, automatic resumption, history retention, independent fallback, telemetry opt-out, scheduling and form bounds. Real Chromium confirmed an actual viewable impression stopping a campaign, independent fallback on reload, stop reason in the admin table and Persian forms at 390px/1440px. The single migration runs through the existing cPanel release path; no new cron or manual database work is needed.
 
+## Phase 2 — protected banner and placement preview
+
+Feature 17 adds Advertising → Advertising preview, plus Preview links on saved banner rows and edit pages. Active advertising managers and full admins can choose a saved banner, a supported placement and a 390px mobile or 1200px desktop iframe viewport. The page clearly labels the viewport dimensions and provides keyboard-focusable internal scrolling without overflowing the admin page. Unsaved form edits are not previewed. Draft, paused and unapproved creatives can be inspected without making them public; deleted records are excluded. Device incompatibility produces an explicit warning.
+
+Public slots and previews share the same creative.blade.php markup, image source selection, alt escaping and production advertising styles. The preview loads the saved AppearanceTheme variables and Persian font, using a CSS-only Vite entry, with no application tracking JavaScript. The iframe is sandboxed with allow-same-origin only, allowing same-origin fonts while blocking scripts, forms, popups and navigation; destination anchors are omitted. The authenticated render route checks advertising.manage and active status before loading data, validates placement/device inputs, and sets private/no-store, SAMEORIGIN and noindex/nofollow headers. No public query flag disables tracking on real advertising slots.
+
+The renderer does not call BannerRenderer, issue exposure tokens, reserve advertising capacity, generate a frequency cookie or mutate campaign totals. It only invokes the shared creative template with trackingToken=null and isPreview=true. Generic sample listing cards illustrate feed context, show the configured first-after value and cap placeholder cards at six. This is a clearly labeled sample placement, not a complete reproduction of the site's live page, a simulation of targeting, or publication approval. The actual site continues to apply moderation, schedules, targeting, caps, weights and allocation.
+
+Validation covers draft rendering, no trackers/links/product scripts, unchanged stopped-campaign totals and frequency rows, device warnings, bad inputs, deleted records, active-role authorization and HTML escaping. Chromium confirmed responsive Persian controls, true iframe dimensions, mobile/desktop currentSrc and real image aspect ratios, sandboxing and zero advertising event requests. CSS/Vite build, localization and existing public renderer tests pass. This delivery adds no database migration.
+
 ## Progress
 
 | ID | Phase | Feature | Status |
@@ -98,7 +108,7 @@ Validation covers threshold boundaries, replay deduplication, in-flight events, 
 | 14 | 2 | محدودیت دفعات نمایش | verified |
 | 15 | 2 | سهم نمایش کمپین | verified |
 | 16 | 2 | توقف خودکار کمپین | verified |
-| 17 | 2 | پیش‌نمایش جایگاه | pending |
+| 17 | 2 | پیش‌نمایش جایگاه | verified |
 | 18 | 2 | هشدار مشکلات کمپین | pending |
 | 19 | 2 | گزارش تبلیغ‌دهنده | pending |
 | 20 | 3 | هشدار آگهی دلخواه | pending |

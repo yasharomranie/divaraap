@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Advertising\Filament\Admin\Resources;
 
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -18,6 +19,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Modules\Admin\Support\Filament\ResourceTableActions;
+use Modules\Advertising\Filament\Admin\Pages\AdvertisingPreview;
 use Modules\Advertising\Filament\Admin\Resources\BannerResource\Pages;
 use Modules\Advertising\Models\Banner;
 use Modules\Advertising\Models\BannerPlacement;
@@ -73,7 +75,7 @@ final class BannerResource extends AdvertisingResource
             TextColumn::make('device')->label(__('advertising::admin.device'))->formatStateUsing(fn ($state) => __('advertising::admin.'.$state)),
             TextColumn::make('starts_at')->label(__('advertising::admin.starts_at'))->dateTime()->timezone(config('app.timezone')),
             TextColumn::make('ends_at')->label(__('advertising::admin.ends_at'))->dateTime()->timezone(config('app.timezone')),
-        ])->filters([TernaryFilter::make('is_active')->label(__('advertising::admin.is_active'))])->actions(ResourceTableActions::editDelete())->defaultSort('id', 'desc');
+        ])->filters([TernaryFilter::make('is_active')->label(__('advertising::admin.is_active'))])->actions([Action::make('preview')->label(__('advertising::preview.action'))->icon('heroicon-o-eye')->url(fn (Banner $record) => AdvertisingPreview::getUrl(['banner' => $record->id])), ...ResourceTableActions::editDelete()])->defaultSort('id', 'desc');
     }
 
     public static function getPages(): array

@@ -48,6 +48,11 @@ final class BannerPlacement extends Model
         return intdiv($position - $this->first_after, $this->interval);
     }
 
+    public static function forPreview(string $key): self
+    {
+        return self::query()->where('key', $key)->firstOrFail();
+    }
+
     public static function available(string $key): ?self
     {
         return self::query()->where('key', $key)->where('is_active', true)

@@ -53,6 +53,16 @@ final class Banner extends Model
         });
     }
 
+    public static function previewOptions(): array
+    {
+        return self::query()->orderByDesc('id')->pluck('title', 'id')->all();
+    }
+
+    public static function forPreview(int $id): self
+    {
+        return self::query()->findOrFail($id);
+    }
+
     public function frequencyLimits(): array
     {
         $limits = [];
