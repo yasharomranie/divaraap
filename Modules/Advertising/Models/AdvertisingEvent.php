@@ -92,22 +92,38 @@ final class AdvertisingEvent extends Model
         ]);
     }
 
-    public static function report(?int $campaignId, string $dimension): array
+    public static function report(?int $campaignId, string $dimension, ?string $from = null, ?string $to = null): array
+    {
+        $rows = [];
+        foreach (self::reportRows($campaignId, $dimension, $from, $to) as $row) {
+            $rows[] = $row;
+            if (count($rows) >= 100) {
+                break;
+            }
+        }
+
+        return $rows;
+    }
+
+    public static function reportRows(?int $campaignId, string $dimension, ?string $from = null, ?string $to = null): \Generator
     {
         $field = in_array($dimension, ['banner_id', 'placement', 'device', 'event_date'], true) ? $dimension : 'event_date';
-        $rows = self::query()->where('event_date', '>=', now()->subDays(29)->toDateString())
+        $query = self::query()->whereBetween('event_date', [$from ?? now()->subDays(29)->toDateString(), $to ?? now()->toDateString()])
             ->when($campaignId, fn ($query) => $query->where('campaign_id', $campaignId))
             ->select($field)->selectRaw("SUM(CASE WHEN kind = 'impression' THEN 1 ELSE 0 END) AS impressions")
             ->selectRaw("SUM(CASE WHEN kind = 'click' THEN 1 ELSE 0 END) AS clicks")
             ->selectRaw("SUM(CASE WHEN kind = 'conversion' THEN 1 ELSE 0 END) AS conversations")
-            ->groupBy($field)->orderBy($field, 'desc')->limit(100)->get();
-        $names = $field === 'banner_id' ? Banner::withTrashed()->whereIn('id', $rows->pluck('banner_id'))->pluck('title', 'id')->all() : [];
-
-        return $rows->map(fn ($row) => [
-            'label' => $names[$row->$field] ?? $row->$field,
-            'impressions' => (int) $row->impressions, 'clicks' => (int) $row->clicks,
-            'conversations' => (int) $row->conversations,
-            'ctr' => $row->impressions ? round(100 * $row->clicks / $row->impressions, 2) : null,
-        ])->all();
+            ->groupBy($field)->orderBy($field, 'desc');
+        foreach ($query->lazy(200)->chunk(200) as $chunk) {
+            $names = $field === 'banner_id' ? Banner::withTrashed()->whereIn('id', $chunk->pluck('banner_id'))->pluck('title', 'id')->all() : [];
+            foreach ($chunk as $row) {
+                yield [
+                    'label' => $names[$row->$field] ?? $row->$field,
+                    'impressions' => (int) $row->impressions, 'clicks' => (int) $row->clicks,
+                    'conversations' => (int) $row->conversations,
+                    'ctr' => $row->impressions ? round(100 * $row->clicks / $row->impressions, 2) : null,
+                ];
+            }
+        }
     }
 }

@@ -3,6 +3,14 @@
 declare(strict_types=1);
 
 return [
+    'from' => 'From date',
+    'to' => 'To date',
+    'download' => 'Download CSV report',
+    'csv_campaign' => 'Campaign',
+    'group_label' => 'Group label',
+    'archived' => 'Archived',
+    'export_hint' => 'Choose dates within the last 90 days using Gregorian dates. The Excel-compatible file includes every grouped row matching these filters, ISO dates and numeric values. This is a performance report, not an invoice. Campaign lifetime usage can differ from period totals.',
+    'period' => 'Selected date range; up to 100 rows on screen. Dates use the application timezone.',
     'delivery_weight' => 'Delivery weight',
     'delivery_weight_hint' => 'Only affects placements using Campaign shares. Weight 3 versus 1 means approximately three times the selection chance among eligible campaigns, not guaranteed impressions or clicks. Adding creatives does not increase campaign weight.',
     'campaign_ordering' => 'Campaign shares',
@@ -23,7 +31,6 @@ return [
     'clicks' => 'Clicks',
     'ctr' => 'CTR',
     'empty' => 'No events recorded in this period.',
-    'period' => 'Last 30 days; up to 100 rows. Dates use the application timezone.',
     'definition' => 'An impression requires a loaded image with at least 50% of the banner visible for one second in an active tab. Each served banner counts at most one impression and click. CTR = clicks / impressions × 100.',
     'limitations' => 'These are not unique people. Reloading creates a new exposure. A quick click may precede an impression, so CTR can exceed 100%. Blockers and network failures undercount. No personal details or IP addresses are stored.',
     'tracking_toggle' => 'Disabling telemetry in operations settings also disables advertising tracking.',

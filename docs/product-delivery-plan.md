@@ -24,7 +24,7 @@ Target categories use existing active category IDs, cities use existing Location
 
 Validation: campaign lifecycle/targeting, actual listing/search integration, Filament create/validation, authorization and all previous feature tests. Browser checks cover Persian RTL campaign and banner forms at 390px and 1440px with no horizontal overflow or JavaScript errors. This delivery adds one migration; the normal cPanel deployment runs it. No manual database or document-root edits are required.
 
-Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Feature 19 remains pending: downloadable advertiser reports. Protected placement previews are delivered below. Opt-in weighted campaign allocation is delivered below. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
+Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Feature 19 is delivered in the downloadable reports section below. Protected placement previews are delivered below. Opt-in weighted campaign allocation is delivered below. Daily browser frequency caps are delivered below. A saved campaign goal does not imply conversion tracking is already active.
 
 ## Phase 2 — advertising measurement
 
@@ -34,7 +34,7 @@ Each served variant receives an encrypted two-hour token bound to its session, b
 
 Advertising → Advertising statistics is available only to active advertising managers and full admins. It shows the last 30 application-calendar days grouped by banner, placement, device or day, optionally filtered by campaign, with impressions, clicks and CTR. Reports are limited to 100 grouped rows. Persian dates use the existing calendar helper. Counts are exposures, not unique people. No IP, session identifier, raw token, visitor fingerprint or private message is stored in the event table. Old events are removed after 90 days on subsequent ingestion once per day; there is no new scheduler. Disabling telemetry in Operations settings disables both issuance and ingestion. Retention is not a hard scheduled deletion guarantee.
 
-Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, additional conversion types and payment/billing remain pending their roadmap entries.
+Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports are delivered below; additional conversion types and payment/billing remain pending their roadmap entries.
 
 ## Phase 2 — conversation attribution
 
@@ -122,7 +122,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 16 | 2 | توقف خودکار کمپین | verified |
 | 17 | 2 | پیش‌نمایش جایگاه | verified |
 | 18 | 2 | هشدار مشکلات کمپین | verified |
-| 19 | 2 | گزارش تبلیغ‌دهنده | pending |
+| 19 | 2 | گزارش تبلیغ‌دهنده | verified |
 | 20 | 3 | هشدار آگهی دلخواه | pending |
 | 21 | 3 | دنبال‌کردن فروشنده | pending |
 | 22 | 3 | مقایسهٔ آگهی‌ها | pending |
@@ -171,3 +171,11 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 65 | 8 | راهنمای قیمت | pending |
 | 66 | 8 | فروشگاه‌های منتخب محله | pending |
 | 67 | 8 | اشتراک فهرست انتخاب‌ها | pending |
+
+## Phase 2 — downloadable reports and integrated acceptance
+
+Feature 19 adds a protected UTF-8 CSV download to Advertising statistics. The table and download share campaign, grouping and application-calendar date filters, defaulting to 30 days within the retained 90-day window. Archived campaigns and deleted banner names remain reportable. The screen shows up to 100 grouped rows; streaming CSV includes every matching group in bounded batches. Dates in inputs and CSV are Gregorian ISO dates; numeric cells remain Excel-compatible. Formula-like text cells are escaped. No visitor IDs, private messages or tokens are exported. Campaign lifetime counters can differ from period reports. This report is not a billing invoice.
+
+Integrated acceptance: 261 PHPUnit tests / 3059 assertions passed, production asset build passed, and real Chromium checks passed in Persian at 390px and 1440px. Checks covered all six advertising management pages, actual filtered CSV downloads and totals, preview isolation, and advertising-manager access with user/deployment administration denied. No migration is added by this report delivery. Feature 10 remains partial: new conversations after internal listing clicks are supported; store and service-request conversions await those modules.
+
+Deployment and module review: use cPanel Update from Remote, then Deploy HEAD Commit after the release workflow succeeds. Keep the existing document root and installed data. Review Campaigns, Banners, Banner placements, Advertising statistics (including CSV), Advertising preview and Advertising warnings. Warning scans run on page entry/manual checks, not continuously in the background. Display weights express relative probabilities; limits affect subsequent responses and already served exposures may overshoot. Review this module as a whole before starting the next module.

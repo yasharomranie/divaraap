@@ -39,6 +39,17 @@ final class Campaign extends Model
         return $this->hasMany(Banner::class, 'campaign_id');
     }
 
+    public static function reportOptions(): array
+    {
+        return self::withTrashed()->orderBy('title')->get(['id', 'title', 'deleted_at'])
+            ->mapWithKeys(fn (self $campaign) => [$campaign->id => $campaign->title.($campaign->trashed() ? ' · '.__('advertising::metrics.archived') : '')])->all();
+    }
+
+    public static function reportTitle(?int $id): string
+    {
+        return $id === null ? __('advertising::metrics.all') : (string) self::withTrashed()->findOrFail($id)->title;
+    }
+
     public static function options(): array
     {
         return self::query()->orderBy('title')->pluck('title', 'id')->all();
