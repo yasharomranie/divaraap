@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Modules\Favorite\App\Models;
 
+use App\Support\Money;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Category\Models\Category;
+use Modules\Location\Models\Country;
 use Modules\User\App\Models\User;
 
 class FavoriteSearch extends Model
@@ -25,6 +27,20 @@ class FavoriteSearch extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public static function browseFilters(array $data): array
+    {
+        $location = Country::browseSelection(! empty($data['country']) ? (int) $data['country'] : null, ! empty($data['city']) ? (int) $data['city'] : null);
+
+        return self::normalizeFilters([
+            'search' => trim((string) ($data['search'] ?? '')),
+            'category' => ! empty($data['category']) ? (int) $data['category'] : null,
+            'country' => $location['country_id'], 'city' => $location['city_id'],
+            'user' => ! empty($data['user']) ? (int) $data['user'] : null,
+            'min_price' => Money::valid($data['min_price'] ?? null, 'IRR') ? Money::decimal($data['min_price']) : null,
+            'max_price' => Money::valid($data['max_price'] ?? null, 'IRR') ? Money::decimal($data['max_price']) : null,
+        ]);
     }
 
     public static function normalizeFilters(array $filters): array

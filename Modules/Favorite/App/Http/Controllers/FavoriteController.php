@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Modules\Category\Models\Category;
 use Modules\Conversation\App\Models\Conversation;
+use Modules\Favorite\App\Models\BuyerAlert;
 use Modules\Favorite\App\Models\FavoriteSearch;
 use Modules\Listing\Models\Listing;
 use Modules\User\App\Models\User;
@@ -65,7 +66,10 @@ class FavoriteController extends Controller
             $favoriteSellers = $user->favoriteSellersPage();
         }
 
+        $alertPreferences = $user ? BuyerAlert::preferencesFor($user->id) : [];
+
         return view('favorite::index', [
+            'alertPreferences' => $alertPreferences,
             'activeTab' => $activeTab,
             'statusFilter' => $statusFilter,
             'selectedCategoryId' => $selectedCategoryId,
@@ -100,15 +104,18 @@ class FavoriteController extends Controller
 
     public function storeSearch(Request $request)
     {
+        $request->merge(['category' => $request->input('category', $request->input('category_id'))]);
         $data = $request->validate([
             'search' => ['nullable', 'string', 'max:120'],
-            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'category' => ['nullable', 'integer', 'exists:categories,id'],
+            'country' => ['nullable', 'integer', 'exists:countries,id'],
+            'city' => ['nullable', 'integer', 'exists:cities,id'],
+            'user' => ['nullable', 'integer', 'exists:users,id'],
+            'min_price' => ['nullable', 'string', 'max:24'],
+            'max_price' => ['nullable', 'string', 'max:24'],
         ]);
 
-        $filters = FavoriteSearch::normalizeFilters([
-            'search' => $data['search'] ?? null,
-            'category' => $data['category_id'] ?? null,
-        ]);
+        $filters = FavoriteSearch::browseFilters($data);
 
         if ($filters === []) {
             return back()->with('error', __('favorite::messages.select_filter'));
@@ -129,9 +136,26 @@ class FavoriteController extends Controller
             abort(403);
         }
 
+        BuyerAlert::disableSource($request->user()->id, 'search', $favoriteSearch->id);
         $favoriteSearch->delete();
 
         return back()->with('success', __('favorite::messages.search_removed'));
+    }
+
+    public function alerts(Request $request)
+    {
+        BuyerAlert::refreshFor($request->user());
+
+        return view('favorite::alerts', ['alerts' => BuyerAlert::pageFor($request->user()->id)]);
+    }
+
+    public function configureAlert(Request $request)
+    {
+        abort_unless((string) $request->user()->status === 'active', 403);
+        $data = $request->validate(['kind' => ['required', 'in:search,seller,price'], 'source_id' => ['required', 'integer', 'min:1'], 'enabled' => ['required', 'boolean']]);
+        BuyerAlert::configure($request->user(), $data['kind'], (int) $data['source_id'], (bool) $data['enabled']);
+
+        return back()->with('success', __('favorite::alerts.saved'));
     }
 
     private function emptyPaginator(): LengthAwarePaginator

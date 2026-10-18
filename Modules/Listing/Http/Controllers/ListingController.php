@@ -113,10 +113,9 @@ class ListingController extends Controller
             $favoriteListingIds = auth()->user()->favoriteListingIds();
             $conversationListingMap = Conversation::listingMapForBuyer($userId);
 
-            $isCurrentSearchSaved = FavoriteSearch::isSavedForUser(auth()->user(), [
-                'search' => $search,
-                'category' => $categoryId,
-            ]);
+            $isCurrentSearchSaved = FavoriteSearch::isSavedForUser(auth()->user(), FavoriteSearch::browseFilters([
+                'search' => $search, 'category' => $categoryId, 'country' => $countryId, 'city' => $cityId, 'user' => $sellerUserId, 'min_price' => $minPrice, 'max_price' => $maxPrice,
+            ]));
         }
 
         return view($this->themes->view('listing', 'index'), compact(

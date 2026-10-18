@@ -8,12 +8,14 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\Favorite\App\Models\BuyerAlert;
 use Modules\Notification\Models\UserNotification;
 
 class NotificationController extends Controller
 {
     public function index(Request $request): View
     {
+        BuyerAlert::refreshFor($request->user());
         $userId = (int) $request->user()->getKey();
 
         return view('notification::index', [

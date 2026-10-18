@@ -123,10 +123,10 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 17 | 2 | پیش‌نمایش جایگاه | verified |
 | 18 | 2 | هشدار مشکلات کمپین | verified |
 | 19 | 2 | گزارش تبلیغ‌دهنده | verified |
-| 20 | 3 | هشدار آگهی دلخواه | pending |
-| 21 | 3 | دنبال‌کردن فروشنده | pending |
+| 20 | 3 | هشدار آگهی دلخواه | verified |
+| 21 | 3 | دنبال‌کردن فروشنده | verified |
 | 22 | 3 | مقایسهٔ آگهی‌ها | pending |
-| 23 | 3 | هشدار کاهش قیمت | pending |
+| 23 | 3 | هشدار کاهش قیمت | verified |
 | 24 | 3 | سابقهٔ مشاهده | pending |
 | 25 | 3 | مجموعه‌های شخصی | pending |
 | 26 | 3 | جست‌وجوی بهتر فارسی | pending |
@@ -179,3 +179,15 @@ Feature 19 adds a protected UTF-8 CSV download to Advertising statistics. The ta
 Integrated acceptance: 261 PHPUnit tests / 3059 assertions passed, production asset build passed, and real Chromium checks passed in Persian at 390px and 1440px. Checks covered all six advertising management pages, actual filtered CSV downloads and totals, preview isolation, and advertising-manager access with user/deployment administration denied. No migration is added by this report delivery. Feature 10 remains partial: new conversations after internal listing clicks are supported; store and service-request conversions await those modules.
 
 Deployment and module review: use cPanel Update from Remote, then Deploy HEAD Commit after the release workflow succeeds. Keep the existing document root and installed data. Review Campaigns, Banners, Banner placements, Advertising statistics (including CSV), Advertising preview and Advertising warnings. Warning scans run on page entry/manual checks, not continuously in the background. Display weights express relative probabilities; limits affect subsequent responses and already served exposures may overshoot. Review this module as a whole before starting the next module.
+
+## Phase 3 — buyer alerts module
+
+Features 20, 21 and 23 extend existing saved searches, followed sellers and saved listings. Each source has an explicit opt-in control in Favorites; My alerts manages the same preferences. No duplicate favorite/follow system is introduced. Unfollowing, unsaving or deleting the source disables its alert. Controls validate source ownership, require an active authenticated user, and cap enabled subscriptions at 20 per user. Repeated enable requests preserve pending work. Re-enabling starts from the current publication cursor and price baseline.
+
+A durable publication ledger records each listing's first active Eloquent save after installation, including pending-to-active approval. No old listing backlog is imported. Ordinary edits and repeated publication do not produce another new-listing notification. Search alerts use the same category descendants, search matching, country/city, seller and IRR price bounds as browse results; saved-search links now preserve these filters and use the actual search_term field. Deleted categories/locations fail closed. Only currently active, unexpired listings from other users can notify. Overlapping searches deduplicate per recipient/listing. Seller and search alerts can each notify for the same listing because they are different opt-in reasons.
+
+Notifications are generated when the user opens the notification inbox or My alerts, with at most 50 new publication records per subscription per visit. Reopen to continue a larger backlog. There is no cron, queue worker, email, SMS or push dependency and no claim of background real-time delivery. Publication and delivery receipts persist; per-alert locks and transactions make repeated inbox visits idempotent. Price alerts compare the current active listing against the lowest observed price since activation using decimal arithmetic; currency changes reset the baseline. Intermediate price changes while the user is absent are not price-history events. Inactive, expired or deleted listings cannot expose content through these notifications.
+
+One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison, viewing history, collections, improved Persian search, maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
+
+Validation: 271 PHPUnit tests / 3113 assertions passed, including 10 buyer-alert tests; browser checks exercised all three opt-in controls, real notification generation and Persian layouts at 390px and 1440px. Production assets and localization checks passed.

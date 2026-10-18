@@ -23,6 +23,7 @@ use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Conversation\App\Models\ConversationMessage;
+use Modules\Favorite\App\Models\BuyerAlert;
 use Modules\Favorite\App\Models\FavoriteListing;
 use Modules\Favorite\App\Models\FavoriteSearch;
 use Modules\Favorite\App\Models\FavoriteSeller;
@@ -193,6 +194,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         $isFavorite = $this->favoriteListings()->whereKey($listing->getKey())->exists();
 
         if ($isFavorite) {
+            BuyerAlert::disableSource((int) $this->id, 'price', (int) $listing->id);
             $this->favoriteListings()->detach($listing->getKey());
 
             return false;
@@ -212,6 +214,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         $isFavorite = $this->favoriteSellers()->whereKey($seller->getKey())->exists();
 
         if ($isFavorite) {
+            BuyerAlert::disableSource((int) $this->id, 'seller', (int) $seller->id);
             $this->favoriteSellers()->detach($seller->getKey());
 
             return false;

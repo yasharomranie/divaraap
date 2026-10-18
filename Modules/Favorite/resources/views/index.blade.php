@@ -11,7 +11,7 @@
 @endphp
 
 @section('content')
-<div class="shell shell--wide page">
+<div class="shell shell--wide page buyer-favorites">
     <div class="stack stack--loose">
         <header class="stack stack--tight">
             <h1 class="title-page">{{ __('favorite::messages.favorites') }}</h1>
@@ -22,6 +22,7 @@
                 <a href="{{ route('login') }}" class="button button--primary">{{ __('site::messages.login') }}</a>
             </x-ui.empty-state>
         @else
+            <p><a href="{{ route('favorites.alerts') }}" class="button button--secondary">{{ __('favorite::alerts.title') }}</a></p>
             <nav class="chip-row">
                 @foreach($tabs as $key => $label)
                     <a href="{{ route('favorites.index', ['tab' => $key]) }}" class="pill {{ $activeTab === $key ? 'is-active' : '' }}">{{ $label }}</a>
@@ -49,7 +50,8 @@
                 @if($favoriteListings->isNotEmpty())
                     <div class="grid grid--listings">
                         @foreach($favoriteListings as $listing)
-                            <x-ui.listing-card :listing="$listing" :favorited="true"/>
+                            <div class="stack stack--tight"><x-ui.listing-card :listing="$listing" :favorited="true"/>
+                            @include('favorite::partials.alert-toggle', ['kind' => 'price', 'sourceId' => $listing->id, 'enabled' => $alertPreferences['price:'.$listing->id] ?? false, 'subject' => $listing->title])</div>
                         @endforeach
                     </div>
                     {{ $favoriteListings->links('components.pagination') }}
@@ -65,7 +67,7 @@
                             @foreach($favoriteSearches as $search)
                                 <div class="data-row" style="grid-template-columns: minmax(0,1fr) auto">
                                     <div class="data-row__main">
-                                        <p class="data-row__title">{{ $search->getAttribute('term') ?: __('site::messages.all_listings') }}</p>
+                                        <p class="data-row__title">{{ $search->label ?: __('site::messages.all_listings') }}</p>
                                         <p class="data-row__meta">
                                             <time datetime="{{ $search->getAttribute('created_at')?->toIso8601String() }}">
                                                 {{ $search->getAttribute('created_at')?->diffForHumans() }}
@@ -73,7 +75,8 @@
                                         </p>
                                     </div>
                                     <div class="data-row__actions">
-                                        <a href="{{ route('listings.index', array_filter(['search' => $search->getAttribute('term'), 'category' => $search->getAttribute('category_id')])) }}" class="button button--secondary button--small">
+                                        @include('favorite::partials.alert-toggle', ['kind' => 'search', 'sourceId' => $search->id, 'enabled' => $alertPreferences['search:'.$search->id] ?? false, 'subject' => $search->label])
+                                        <a href="{{ route('listings.index', $search->filters ?? []) }}" class="button button--secondary button--small">
                                             {{ __('favorite::messages.run_search') }}
                                         </a>
                                         <form method="POST" action="{{ route('favorites.searches.destroy', $search) }}">
@@ -96,12 +99,12 @@
                         <div class="data-list">
                             @foreach($favoriteSellers as $seller)
                                 <div class="data-row" style="grid-template-columns: auto minmax(0,1fr) auto">
-                                    <span class="avatar">{{ \App\Support\UserDirectory::initials((string) $seller->getAttribute('name')) }}</span>
                                     <div class="data-row__main">
                                         <p class="data-row__title">{{ $seller->getAttribute('name') }}</p>
                                         <p class="data-row__meta">{{ __('user::messages.seller_since', ['date' => \App\Support\PersianLocale::date($seller->getAttribute('created_at'))]) }}</p>
                                     </div>
                                     <div class="data-row__actions">
+                                        @include('favorite::partials.alert-toggle', ['kind' => 'seller', 'sourceId' => $seller->id, 'enabled' => $alertPreferences['seller:'.$seller->id] ?? false, 'subject' => $seller->name])
                                         <a href="{{ route('sellers.show', $seller) }}" class="button button--secondary button--small">{{ __('site::messages.view_profile') }}</a>
                                         <button type="button" class="button button--ghost button--small" data-favorite-toggle="{{ route('favorites.sellers.toggle', $seller) }}">
                                             {{ __('favorite::messages.remove') }}

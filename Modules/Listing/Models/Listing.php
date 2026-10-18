@@ -28,6 +28,7 @@ use Modules\Listing\States\RejectedListingStatus;
 use Modules\Listing\States\SoldListingStatus;
 use Modules\Listing\Support\ListingImageViewData;
 use Modules\Listing\Support\ListingPanelHelper;
+use Modules\Location\Models\Country;
 use Modules\Site\App\Support\LocalMedia;
 use Modules\User\App\Models\User;
 use Modules\Video\Models\Video;
@@ -125,6 +126,31 @@ class Listing extends Model implements HasMedia
     public function videos()
     {
         return $this->hasMany(Video::class)->ordered();
+    }
+
+    public static function buyerAlertListings(array $ids, array $filters = [], ?int $excludeUser = null): Collection
+    {
+        $directory = ! empty($filters['category']) ? Category::listingDirectory((int) $filters['category']) : null;
+        if ($directory !== null && ! $directory['selectedCategory']) {
+            return collect();
+        }
+        $category = $directory['filterIds'] ?? null;
+        $location = ! empty($filters['country']) || ! empty($filters['city'])
+            ? Country::browseSelection(! empty($filters['country']) ? (int) $filters['country'] : null, ! empty($filters['city']) ? (int) $filters['city'] : null)
+            : ['country_id' => null, 'city_id' => null, 'selected_country_name' => null, 'selected_city_name' => null];
+        if ((! empty($filters['country']) && $location['country_id'] !== (int) $filters['country']) || (! empty($filters['city']) && $location['city_id'] !== (int) $filters['city'])) {
+            return collect();
+        }
+
+        return self::query()->active()->whereIn('id', $ids)
+            ->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->when($excludeUser, fn (Builder $query) => $query->where('user_id', '!=', $excludeUser))
+            ->forBrowseFilters([
+                'search' => $filters['search'] ?? '', 'category_ids' => $category,
+                'user_id' => $filters['seller'] ?? $filters['user'] ?? null,
+                'country' => $location['selected_country_name'], 'city' => $location['selected_city_name'],
+                'min_price' => $filters['min_price'] ?? null, 'max_price' => $filters['max_price'] ?? null,
+            ])->get();
     }
 
     public function scopePublicFeed(Builder $query): Builder

@@ -43,6 +43,11 @@
                     @csrf
                     <input type="hidden" name="search" value="{{ $search }}">
                     <input type="hidden" name="category" value="{{ $categoryId }}">
+                    <input type="hidden" name="country" value="{{ $countryId }}">
+                    <input type="hidden" name="city" value="{{ $cityId }}">
+                    <input type="hidden" name="user" value="{{ $sellerUserId }}">
+                    <input type="hidden" name="min_price" value="{{ $minPriceInput }}">
+                    <input type="hidden" name="max_price" value="{{ $maxPriceInput }}">
                     <button type="submit" class="button button--secondary button--small" @disabled($isCurrentSearchSaved)>
                         <x-ui.icon name="heart"/>
                         <span>{{ $isCurrentSearchSaved ? __('site::messages.saved') : __('site::messages.save') }}</span>

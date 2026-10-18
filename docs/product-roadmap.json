@@ -119,13 +119,13 @@
       "id": 20,
       "phase": 3,
       "title": "هشدار آگهی دلخواه",
-      "status": "pending"
+      "status": "verified"
     },
     {
       "id": 21,
       "phase": 3,
       "title": "دنبال‌کردن فروشنده",
-      "status": "pending"
+      "status": "verified"
     },
     {
       "id": 22,
@@ -137,7 +137,7 @@
       "id": 23,
       "phase": 3,
       "title": "هشدار کاهش قیمت",
-      "status": "pending"
+      "status": "verified"
     },
     {
       "id": 24,

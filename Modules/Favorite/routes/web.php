@@ -11,6 +11,8 @@ Route::middleware('web')->group(function () {
     });
 
     Route::middleware('auth')->prefix('favorites')->name('favorites.')->group(function () {
+        Route::get('/alerts', [FavoriteController::class, 'alerts'])->name('alerts');
+        Route::post('/alerts', [FavoriteController::class, 'configureAlert'])->middleware('throttle:30,1')->name('alerts.configure');
         Route::post('/listings/{listing}/toggle', [FavoriteController::class, 'toggleListing'])->name('listings.toggle');
         Route::post('/sellers/{seller}/toggle', [FavoriteController::class, 'toggleSeller'])->name('sellers.toggle');
         Route::post('/searches', [FavoriteController::class, 'storeSearch'])->name('searches.store');

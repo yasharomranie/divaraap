@@ -368,3 +368,12 @@
         display: none;
     }
 }
+
+.buyer-favorites .data-row { grid-template-columns: minmax(0, 1fr) !important; }
+.buyer-favorites .data-row__actions { flex-wrap: wrap; justify-content: flex-start; }
+.buyer-favorites .data-row__actions .button { white-space: normal; }
+@media (min-width: 768px) {
+    .buyer-favorites .data-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+}
+
+.buyer-alerts .card { padding: var(--space-4); overflow-wrap: anywhere; }
