@@ -128,7 +128,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 22 | 3 | مقایسهٔ آگهی‌ها | verified |
 | 23 | 3 | هشدار کاهش قیمت | verified |
 | 24 | 3 | سابقهٔ مشاهده | verified |
-| 25 | 3 | مجموعه‌های شخصی | pending |
+| 25 | 3 | مجموعه‌های شخصی | verified |
 | 26 | 3 | جست‌وجوی بهتر فارسی | pending |
 | 27 | 3 | جست‌وجو روی نقشه | pending |
 | 28 | 3 | پیشنهادهای مرتبط | pending |
@@ -188,7 +188,7 @@ A durable publication ledger records each listing's first active Eloquent save a
 
 Notifications are generated when the user opens the notification inbox or My alerts, with at most 50 new publication records per subscription per visit. Reopen to continue a larger backlog. There is no cron, queue worker, email, SMS or push dependency and no claim of background real-time delivery. Publication and delivery receipts persist; per-alert locks and transactions make repeated inbox visits idempotent. Price alerts compare the current active listing against the lowest observed price since activation using decimal arithmetic; currency changes reset the baseline. Intermediate price changes while the user is absent are not price-history events. Inactive, expired or deleted listings cannot expose content through these notifications.
 
-One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison is delivered below; viewing history is delivered below; collections, improved Persian search, maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
+One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison is delivered below; viewing history is delivered below; collections are delivered below; improved Persian search, maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
 
 Validation: 271 PHPUnit tests / 3113 assertions passed, including 10 buyer-alert tests; browser checks exercised all three opt-in controls, real notification generation and Persian layouts at 390px and 1440px. Production assets and localization checks passed.
 
@@ -211,3 +211,15 @@ Pause/resume, idempotent remove and clear are CSRF-protected native forms. Pausi
 The Persian mobile-first list uses existing site tokens, localized dates with explicit application timezone, lazy thumbnails, accessible controls and escaped titles. Responses are private/no-store and noindex. No migration, worker, cron or external service is required. Use the normal cPanel release flow; no manual host changes are needed.
 
 Validation: 283 PHPUnit tests / 3256 assertions passed, including six history tests. Real Chromium verified detail visits, recent ordering, pause/resume, removal/clear, independent browser sessions and account-switch isolation at 390px and 1440px. Production assets, localization, config cache and route cache passed.
+
+## Phase 3 — private saved-listing collections
+
+Feature 25 extends the existing favorites pivot with a nullable collection ID. Signed-in active users can create up to 50 private named collections, rename them, move saved listings between collections or Unfiled, and filter Favorites by collection together with existing category/status filters. Each saved listing belongs to at most one collection. There is no parallel bookmark store, public sharing or automatic conversion of viewed listings into favorites. The account owns collections across sessions; guest access requires login.
+
+User-row transactions serialize create, rename, delete and move operations. Ownership is checked for both collection and saved-listing membership. Duplicate trimmed case-folded names are rejected per user using a signature and the existing PostgreSQL/MySQL-compatible active-record uniqueness helper. Deleted names can be reused. Removing a collection soft-deletes it and clears references on active and soft-deleted favorite pivots without removing saved listings or disabling price alerts. Deleted/foreign collections and unsaved/other-user listings cannot be assigned. Inactive users cannot mutate collections.
+
+The normal favorite save flow now restores a previously soft-deleted favorite instead of violating its existing unique key. Restored favorites start unfiled with a new saved timestamp; remembering an already active favorite preserves its collection. Collection move/delete leaves the original saved timestamp and alert preference unchanged. Existing favorite category/status and one-year display filters remain in force. Collection filters reuse the existing favorites relation without introducing new cross-module SQL joins.
+
+Mobile controls use existing tokens, labeled native inputs/selects, a wrapped utility navigation, preserved invalid rename input, actionable empty-folder states and a two-step native delete disclosure. Collection and Favorites responses are private/no-store; collection management is noindex. One additive migration creates favorite_collections and its nullable pivot reference; standard cPanel deployment runs it without manual SQL or host configuration.
+
+Validation: 289 PHPUnit tests / 3316 assertions passed, including six collection tests; 16 collection/buyer-alert tests passed again after final form/navigation adjustments. Chromium exercised create, move, filtering, rename, confirmed delete, preserved bookmarks and auth denial at 390px and 1440px. Asset build, localization and production config/route caching passed.

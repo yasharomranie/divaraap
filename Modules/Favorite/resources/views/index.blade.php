@@ -17,14 +17,19 @@
             <h1 class="title-page">{{ __('favorite::messages.favorites') }}</h1>
         </header>
 
-        <a class="button button--ghost" href="{{ route('history.index') }}">{{ __('favorite::history.title') }}</a>
+        <nav class="row row--wrap" aria-label="{{ __('favorite::collections.tools') }}">
+            <a class="button button--ghost button--small" href="{{ route('history.index') }}">{{ __('favorite::history.title') }}</a>
+            <a class="button button--ghost button--small" href="{{ route('comparison.index') }}">{{ __('favorite::comparison.title') }}</a>
+            @unless($requiresLogin)
+                <a class="button button--ghost button--small" href="{{ route('favorites.alerts') }}">{{ __('favorite::alerts.title') }}</a>
+                <a class="button button--ghost button--small" href="{{ route('collections.index') }}">{{ __('favorite::collections.title') }}</a>
+            @endunless
+        </nav>
         @if($requiresLogin)
             <x-ui.empty-state icon="heart" :title="__('favorite::messages.no_favorites')" :text="__('favorite::messages.no_favorites_hint')">
                 <a href="{{ route('login') }}" class="button button--primary">{{ __('site::messages.login') }}</a>
             </x-ui.empty-state>
         @else
-            <p><a href="{{ route('favorites.alerts') }}" class="button button--secondary">{{ __('favorite::alerts.title') }}</a></p>
-            <a class="button button--ghost" href="{{ route('comparison.index') }}">{{ __('favorite::comparison.title') }}</a>
             <nav class="chip-row">
                 @foreach($tabs as $key => $label)
                     <a href="{{ route('favorites.index', ['tab' => $key]) }}" class="pill {{ $activeTab === $key ? 'is-active' : '' }}">{{ $label }}</a>
@@ -34,6 +39,12 @@
             @if($activeTab === 'listings')
                 <form method="GET" action="{{ route('favorites.index') }}" class="row row--wrap" data-filter-form>
                     <input type="hidden" name="tab" value="listings">
+                    <label class="visually-hidden" for="fav-collection">{{ __('favorite::collections.choose') }}</label>
+                    <select id="fav-collection" name="collection" class="select" style="max-width:230px" data-filter-auto>
+                        <option value="">{{ __('favorite::collections.all') }}</option>
+                        <option value="none" @selected($collectionFilter === 'none')>{{ __('favorite::collections.none') }}</option>
+                        @foreach($collections as $id => $name)<option value="{{ $id }}" @selected($collectionFilter === (int) $id)>{{ $name }}</option>@endforeach
+                    </select>
                     <label class="visually-hidden" for="fav-status">{{ __('panel::messages.status') }}</label>
                     <select id="fav-status" name="status" class="select" style="max-width:190px" data-filter-auto>
                         <option value="all" @selected($statusFilter === 'all')>{{ __('site::messages.all') }}</option>
@@ -47,20 +58,28 @@
                             <option value="{{ $id }}" @selected($selectedCategoryId === (int) $id)>{{ \Modules\Category\Models\Category::localizedName($name) }}</option>
                         @endforeach
                     </select>
+                    <button type="submit" class="button button--secondary button--small">{{ __('favorite::collections.apply') }}</button>
                 </form>
 
                 @if($favoriteListings->isNotEmpty())
                     <div class="grid grid--listings">
                         @foreach($favoriteListings as $listing)
                             <div class="stack stack--tight"><x-ui.listing-card :listing="$listing" :favorited="true"/>
-                            @include('favorite::partials.alert-toggle', ['kind' => 'price', 'sourceId' => $listing->id, 'enabled' => $alertPreferences['price:'.$listing->id] ?? false, 'subject' => $listing->title])</div>
+                            @include('favorite::partials.alert-toggle', ['kind' => 'price', 'sourceId' => $listing->id, 'enabled' => $alertPreferences['price:'.$listing->id] ?? false, 'subject' => $listing->title])
+                            @include('favorite::partials.collection-move', ['listing' => $listing])</div>
                         @endforeach
                     </div>
                     {{ $favoriteListings->links('components.pagination') }}
                 @else
+                    @if($collectionFilter !== null)
+                    <x-ui.empty-state icon="heart" :title="__('favorite::collections.empty_group')" :text="__('favorite::collections.move_hint')">
+                        <a href="{{ route('favorites.index') }}" class="button button--secondary">{{ __('favorite::collections.favorites') }}</a>
+                    </x-ui.empty-state>
+                    @else
                     <x-ui.empty-state icon="heart" :title="__('favorite::messages.no_favorites')" :text="__('favorite::messages.no_favorites_hint')">
                         <a href="{{ route('listings.index') }}" class="button button--secondary">{{ __('site::messages.browse') }}</a>
                     </x-ui.empty-state>
+                    @endif
                 @endif
             @elseif($activeTab === 'searches')
                 @if($favoriteSearches->isNotEmpty())

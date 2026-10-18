@@ -200,7 +200,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
             return false;
         }
 
-        $this->favoriteListings()->syncWithoutDetaching([$listing->getKey()]);
+        FavoriteListing::rememberFor($this, (int) $listing->getKey());
 
         return true;
     }
@@ -227,7 +227,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function rememberListing(Listing $listing): void
     {
-        $this->favoriteListings()->syncWithoutDetaching([$listing->getKey()]);
+        FavoriteListing::rememberFor($this, (int) $listing->getKey());
     }
 
     public function unreadInboxCount(): int
@@ -272,11 +272,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->favoriteListingIds();
     }
 
-    public function favoriteListingsPage(string $statusFilter = 'all', ?int $categoryId = null, int $perPage = 10): LengthAwarePaginator
+    public function favoriteListingsPage(string $statusFilter = 'all', ?int $categoryId = null, int $perPage = 10, int|string|null $collection = null): LengthAwarePaginator
     {
         return $this->favoriteListings()
             ->with(['category:id,name', 'user:id,name'])
             ->wherePivot('created_at', '>=', now()->subYear())
+            ->when($collection === 'none', fn ($query) => $query->whereNull('favorite_listings.collection_id'))
+            ->when(is_int($collection), fn ($query) => $query->where('favorite_listings.collection_id', $collection))
+            ->withPivot('collection_id')
             ->when($statusFilter === 'active', fn ($query) => $query->where('status', 'active'))
             ->when($categoryId, fn ($query) => $query->where('category_id', $categoryId))
             ->orderByPivot('created_at', 'desc')

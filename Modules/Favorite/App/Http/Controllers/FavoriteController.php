@@ -11,6 +11,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Modules\Category\Models\Category;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Favorite\App\Models\BuyerAlert;
+use Modules\Favorite\App\Models\FavoriteCollection;
 use Modules\Favorite\App\Models\FavoriteSearch;
 use Modules\Listing\Models\Listing;
 use Modules\User\App\Models\User;
@@ -39,6 +40,14 @@ class FavoriteController extends Controller
 
         $user = $request->user();
         $requiresLogin = ! $user;
+        $collections = $user ? FavoriteCollection::optionsFor($user->id) : [];
+        $collectionFilter = $request->input('collection');
+        if ($collectionFilter !== 'none') {
+            $collectionFilter = $request->integer('collection') ?: null;
+            if ($collectionFilter && $user) {
+                FavoriteCollection::assertOwned($user->id, $collectionFilter);
+            }
+        }
 
         $categories = Category::filterOptions();
 
@@ -48,7 +57,7 @@ class FavoriteController extends Controller
         $buyerConversationListingMap = [];
 
         if ($user && $activeTab === 'listings') {
-            $favoriteListings = $user->favoriteListingsPage($statusFilter, $selectedCategoryId);
+            $favoriteListings = $user->favoriteListingsPage($statusFilter, $selectedCategoryId, 10, $collectionFilter);
 
             if ($favoriteListings->isNotEmpty()) {
                 $buyerConversationListingMap = Conversation::listingMapForBuyer(
@@ -68,8 +77,10 @@ class FavoriteController extends Controller
 
         $alertPreferences = $user ? BuyerAlert::preferencesFor($user->id) : [];
 
-        return view('favorite::index', [
+        return response()->view('favorite::index', [
             'alertPreferences' => $alertPreferences,
+            'collections' => $collections,
+            'collectionFilter' => $collectionFilter,
             'activeTab' => $activeTab,
             'statusFilter' => $statusFilter,
             'selectedCategoryId' => $selectedCategoryId,
@@ -79,7 +90,7 @@ class FavoriteController extends Controller
             'favoriteSellers' => $favoriteSellers,
             'buyerConversationListingMap' => $buyerConversationListingMap,
             'requiresLogin' => $requiresLogin,
-        ]);
+        ])->header('Cache-Control', 'private, no-store');
     }
 
     public function toggleListing(Request $request, Listing $listing)

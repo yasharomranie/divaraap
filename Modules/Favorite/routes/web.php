@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Favorite\App\Http\Controllers\CollectionController;
 use Modules\Favorite\App\Http\Controllers\ComparisonController;
 use Modules\Favorite\App\Http\Controllers\FavoriteController;
 use Modules\Favorite\App\Http\Controllers\HistoryController;
@@ -20,6 +21,14 @@ Route::middleware('web')->group(function () {
 
     Route::prefix('favorites')->name('favorites.')->group(function () {
         Route::get('/', [FavoriteController::class, 'index'])->name('index');
+    });
+
+    Route::middleware('auth')->prefix('collections')->name('collections.')->group(function (): void {
+        Route::get('/', [CollectionController::class, 'index'])->name('index');
+        Route::post('/', [CollectionController::class, 'save'])->middleware('throttle:30,1')->name('store');
+        Route::put('/{collection}', [CollectionController::class, 'save'])->whereNumber('collection')->name('update');
+        Route::delete('/{collection}', [CollectionController::class, 'remove'])->whereNumber('collection')->name('destroy');
+        Route::post('/listings/{listing}', [CollectionController::class, 'move'])->whereNumber('listing')->middleware('throttle:60,1')->name('move');
     });
 
     Route::middleware('auth')->prefix('favorites')->name('favorites.')->group(function () {

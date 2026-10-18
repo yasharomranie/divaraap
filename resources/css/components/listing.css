@@ -373,3 +373,10 @@
 .history-entry__body .title-card { font-size: 16px; }
 .history-entry__body .text-muted { font-size: 12px; }
 .history-entry__body .button { min-height: 44px; }
+
+.collection-entry, .collection-create { border: 1px solid var(--line-hairline); border-radius: var(--radius-md); padding: var(--space-4); }
+.collection-entry .input, .collection-create .input { min-width: 0; width: 100%; }
+.collection-entry summary { cursor: pointer; min-height: 44px; display: list-item; padding-block: var(--space-2); }
+.collection-move { display: flex; gap: var(--space-2); min-width: 0; }
+.collection-move .select { flex: 1; min-width: 0; width: 0; }
+.collection-entry .button, .collection-move .button { min-height: 44px; }
