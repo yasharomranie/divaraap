@@ -41,6 +41,11 @@ class Category extends Model
 
     protected $casts = ['is_active' => 'boolean'];
 
+    public static function namesForOperations(array $ids): array
+    {
+        return static::query()->whereIn('id', $ids)->pluck('name', 'id')->all();
+    }
+
     public static function uniqueSlug(string $name): string
     {
         $base = Str::slug($name);

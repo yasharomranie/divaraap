@@ -10,6 +10,11 @@ use Modules\Listing\Models\Listing;
 
 class ListingOverview extends StatsOverviewWidget
 {
+    public static function canView(): bool
+    {
+        return (bool) auth()->user()?->hasRole('admin');
+    }
+
     protected static ?int $sort = 1;
 
     protected function getHeading(): ?string

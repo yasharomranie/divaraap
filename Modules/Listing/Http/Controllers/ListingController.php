@@ -7,6 +7,7 @@ namespace Modules\Listing\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Support\Money;
 use Illuminate\Http\JsonResponse;
+use Modules\Admin\Models\ProductEvent;
 use Modules\Category\Models\Category;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Favorite\App\Models\FavoriteSearch;
@@ -90,6 +91,10 @@ class ListingController extends Controller
             ->applyBrowseSort($sort);
 
         $filteredListingsTotal = (clone $listingsQuery)->count();
+
+        if ($filteredListingsTotal === 0 && ($search !== '' || $categoryId || $countryId || $cityId)) {
+            ProductEvent::record('search_empty', $search ?: '[filters]', ['category_id' => $categoryId, 'country_id' => $countryId, 'city_id' => $cityId]);
+        }
 
         $listings = $listingsQuery
             ->paginate(16)

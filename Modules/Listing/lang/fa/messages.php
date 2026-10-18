@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'hint_rejected' => 'آگهی رد شده است؛ پس از اصلاح، برای بررسی دوباره ارسال کنید.',
+
+    'status_rejected' => 'ردشده',
+
     'free' => 'رایگان',
     'contact_seller' => 'تماس با فروشنده',
     'view' => 'مشاهده',

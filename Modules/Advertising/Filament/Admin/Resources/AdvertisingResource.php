@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Modules\Advertising\Filament\Admin\Resources;
 
-use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Admin\Support\Filament\AccessControlledResource as Resource;
 use UnitEnum;
 
 abstract class AdvertisingResource extends Resource
 {
     public static function canViewAny(): bool
     {
-        return (bool) auth()->user()?->can('advertising.manage');
+        return (string) auth()->user()?->status === 'active' && (bool) auth()->user()?->can('advertising.manage');
     }
 
     public static function canCreate(): bool

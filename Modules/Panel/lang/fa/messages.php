@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 return [
+    'listing_resubmitted' => 'آگهی برای بررسی دوباره ارسال شد.',
+    'rejected' => 'ردشده',
+
     'add_photos' => 'افزودن عکس',
     'add_videos' => 'افزودن ویدئو',
     'cover_photo' => 'عکس اصلی',

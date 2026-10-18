@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 return [
+    'listing_resubmitted' => 'The listing has been submitted for review again.',
+    'rejected' => 'Rejected',
+
     'add_photos' => 'Add photos',
     'add_videos' => 'Add videos',
     'cover_photo' => 'Cover photo',

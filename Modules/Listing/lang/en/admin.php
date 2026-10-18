@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'rejected' => 'Rejected',
+
     'active' => 'Active',
     'add_an_option_and_press_enter' => 'Add an option and press Enter',
     'all_listings_in_the_system' => 'All listings in the system',

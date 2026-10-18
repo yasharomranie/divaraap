@@ -20,6 +20,11 @@ class Country extends Model
 
     protected $casts = ['is_active' => 'boolean'];
 
+    public static function namesForOperations(array $ids): array
+    {
+        return static::query()->whereIn('id', $ids)->pluck('name', 'id')->all();
+    }
+
     public static function localizedName(string $name, string $code): string
     {
         $code = strtoupper($code);

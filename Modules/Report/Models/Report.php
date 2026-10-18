@@ -7,9 +7,13 @@ namespace Modules\Report\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Report extends Model
 {
+    use LogsActivity;
     use SoftDeletes;
 
     public const SUBJECT_LISTING = 'listing';
@@ -23,6 +27,21 @@ class Report extends Model
     public const STATUS_RESOLVED = 'resolved';
 
     public const STATUS_DISMISSED = 'dismissed';
+
+    public static function moderationQueue(): Collection
+    {
+        return static::query()->whereIn('status', [self::STATUS_OPEN, self::STATUS_REVIEWING])->oldest()->limit(20)->get(['id', 'reason', 'details', 'created_at']);
+    }
+
+    public function moderate(bool $approve, ?string $note = null): void
+    {
+        $approve ? $this->resolve($note) : $this->dismiss($note);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logOnly(['status', 'resolved_at', 'reason'])->logOnlyDirty()->dontLogEmptyChanges();
+    }
 
     protected $fillable = [
         'subject_type',

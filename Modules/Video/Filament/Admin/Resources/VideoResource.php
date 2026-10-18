@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\Video\Filament\Admin\Resources;
 
 use BackedEnum;
-use Filament\Resources\Resource;
+use Modules\Admin\Support\Filament\AccessControlledResource as Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Modules\Video\Filament\Admin\Resources\VideoResource\Pages;

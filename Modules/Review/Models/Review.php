@@ -9,14 +9,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Review extends Model
 {
+    use LogsActivity;
     use SoftDeletes;
 
     public const MIN_RATING = 1;
 
     public const MAX_RATING = 5;
+
+    public static function moderationQueue(): Collection
+    {
+        return static::query()->where('is_approved', false)->whereNull('reviewed_at')->oldest()->limit(20)->get(['id', 'title', 'body', 'created_at']);
+    }
+
+    public function moderate(bool $approve, ?string $note = null): void
+    {
+        $this->forceFill(['is_approved' => $approve, 'reviewed_at' => now()])->save();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logOnly(['is_approved', 'reviewed_at', 'rating'])->logOnlyDirty()->dontLogEmptyChanges();
+    }
 
     protected $fillable = [
         'seller_id',
@@ -30,6 +48,7 @@ class Review extends Model
 
     protected $casts = [
         'rating' => 'integer',
+        'reviewed_at' => 'datetime',
         'is_approved' => 'boolean',
     ];
 

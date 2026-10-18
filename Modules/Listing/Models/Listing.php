@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Modules\Category\Models\Category;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Favorite\App\Models\FavoriteListing;
@@ -22,6 +24,7 @@ use Modules\Listing\States\ActiveListingStatus;
 use Modules\Listing\States\ExpiredListingStatus;
 use Modules\Listing\States\ListingStatus;
 use Modules\Listing\States\PendingListingStatus;
+use Modules\Listing\States\RejectedListingStatus;
 use Modules\Listing\States\SoldListingStatus;
 use Modules\Listing\Support\ListingImageViewData;
 use Modules\Listing\Support\ListingPanelHelper;
@@ -63,6 +66,19 @@ class Listing extends Model implements HasMedia
     ];
 
     protected $appends = ['location'];
+
+    public static function moderationQueue(): Collection
+    {
+        return static::query()->where('status', 'pending')->with('media')->oldest()->limit(20)->get(['id', 'title', 'description', 'images', 'category_id', 'created_at']);
+    }
+
+    public function moderate(bool $approve, ?string $note = null): void
+    {
+        if ($this->statusValue() !== 'pending') {
+            return;
+        }
+        $this->status->transitionTo($approve ? ActiveListingStatus::class : RejectedListingStatus::class);
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -287,6 +303,7 @@ class Listing extends Model implements HasMedia
     {
         return [
             'pending' => __('panel::messages.pending'),
+            'rejected' => __('panel::messages.rejected'),
             'active' => __('panel::messages.active'),
             'sold' => __('panel::messages.sold'),
             'expired' => __('panel::messages.expired'),
@@ -305,6 +322,7 @@ class Listing extends Model implements HasMedia
             'all' => (int) $counts->sum(),
             'active' => (int) ($counts['active'] ?? 0),
             'pending' => (int) ($counts['pending'] ?? 0),
+            'rejected' => (int) ($counts['rejected'] ?? 0),
             'sold' => (int) ($counts['sold'] ?? 0),
             'expired' => (int) ($counts['expired'] ?? 0),
         ];
@@ -436,6 +454,11 @@ class Listing extends Model implements HasMedia
                 'badge_class' => 'is-danger',
                 'hint' => __('listing::messages.hint_expired'),
             ],
+            'rejected' => [
+                'label' => __('listing::messages.status_rejected'),
+                'badge_class' => 'is-danger',
+                'hint' => __('listing::messages.hint_rejected'),
+            ],
             'pending' => [
                 'label' => __('listing::messages.status_pending'),
                 'badge_class' => 'is-warning',
@@ -565,6 +588,7 @@ class Listing extends Model implements HasMedia
             'sold' => __('listing::messages.status_sold'),
             'expired' => __('listing::messages.status_expired'),
             'pending' => __('listing::messages.status_pending'),
+            'rejected' => __('listing::messages.status_rejected'),
             default => __('listing::messages.status_active'),
         };
     }
@@ -626,46 +650,65 @@ class Listing extends Model implements HasMedia
 
     public function markAsSold(): void
     {
-        $this->forceFill([
-            'status' => 'sold',
-        ])->save();
+        DB::transaction(function (): void {
+            $locked = static::query()->lockForUpdate()->findOrFail($this->getKey());
+            $this->setRawAttributes($locked->getAttributes(), true);
+            if (in_array($locked->statusValue(), ['pending', 'rejected'], true)) {
+                throw ValidationException::withMessages(['status' => __('listing::messages.hint_pending')]);
+            }
+            $this->forceFill([
+                'status' => 'sold',
+            ])->save();
+        });
     }
 
     public function republish(): void
     {
-        $this->forceFill([
-            'status' => 'active',
-            'expires_at' => now()->addDays(self::DEFAULT_PANEL_EXPIRY_WINDOW_DAYS),
-        ])->save();
+        DB::transaction(function (): void {
+            $locked = static::query()->lockForUpdate()->findOrFail($this->getKey());
+            $this->setRawAttributes($locked->getAttributes(), true);
+            $this->forceFill([
+                'status' => in_array($locked->statusValue(), ['pending', 'rejected'], true) ? 'pending' : 'active',
+                'expires_at' => now()->addDays(self::DEFAULT_PANEL_EXPIRY_WINDOW_DAYS),
+            ])->save();
+        });
     }
 
     public function updateFromPanel(array $attributes): void
     {
-        $payload = Arr::only($attributes, [
-            'title',
-            'description',
-            'price',
-            'status',
-            'contact_phone',
-            'contact_email',
-            'country',
-            'city',
-            'expires_at',
-        ]);
+        DB::transaction(function () use ($attributes): void {
+            $locked = static::query()->lockForUpdate()->findOrFail($this->getKey());
+            $this->setRawAttributes($locked->getAttributes(), true);
+            $payload = Arr::only($attributes, [
+                'title',
+                'description',
+                'price',
+                'status',
+                'contact_phone',
+                'contact_email',
+                'country',
+                'city',
+                'expires_at',
+            ]);
 
-        if (array_key_exists('currency', $attributes)) {
-            $payload['currency'] = $this->currency ?: ListingPanelHelper::defaultCurrency();
-        }
+            if (array_key_exists('currency', $attributes)) {
+                $payload['currency'] = $this->currency ?: ListingPanelHelper::defaultCurrency();
+            }
 
-        if (array_key_exists('custom_fields', $attributes)) {
-            $payload['custom_fields'] = $attributes['custom_fields'];
-        }
+            if (array_key_exists('custom_fields', $attributes)) {
+                $payload['custom_fields'] = $attributes['custom_fields'];
+            }
 
-        if (isset($payload['price'])) {
-            $payload['price'] = Money::decimal($payload['price']);
-        }
+            if (isset($payload['price'])) {
+                $payload['price'] = Money::decimal($payload['price']);
+            }
 
-        $this->forceFill($payload)->save();
+            if (in_array($locked->statusValue(), ['pending', 'rejected'], true)) {
+                $payload['status'] = 'pending';
+            }
+
+            $this->forceFill($payload)->save();
+        });
     }
 
     public static function createFromFrontend(array $data, null|int|string $userId): self
@@ -749,6 +792,7 @@ class Listing extends Model implements HasMedia
             default => match ((string) $status) {
                 'active' => ActiveListingStatus::class,
                 'pending' => PendingListingStatus::class,
+                'rejected' => RejectedListingStatus::class,
                 'sold' => SoldListingStatus::class,
                 'expired' => ExpiredListingStatus::class,
                 default => throw new \InvalidArgumentException('Invalid listing status.'),

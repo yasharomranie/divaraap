@@ -25,6 +25,16 @@ use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class ManageGeneralSettings extends SettingsPage
 {
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->hasRole('admin');
+    }
+
+    public function canEdit(): bool
+    {
+        return self::canAccess();
+    }
+
     protected static string $settings = GeneralSettings::class;
 
     protected static ?string $title = 'General Settings';

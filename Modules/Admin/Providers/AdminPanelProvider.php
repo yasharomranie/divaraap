@@ -12,7 +12,6 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -25,8 +24,11 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Modules\Admin\Filament\Pages\AdminDashboard;
 use Modules\Admin\Filament\Pages\LocalizedFileManager;
 use Modules\Admin\Filament\Pages\ManageDeployment;
+use Modules\Admin\Filament\Pages\Operations;
+use Modules\Admin\Filament\Pages\OperationsSettings;
 use Modules\Admin\Filament\Pages\ProductionDeploy;
 use Modules\Advertising\AdvertisingPlugin;
 use Modules\Category\CategoryPlugin;
@@ -55,9 +57,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->default()
             ->path('admin')
+            ->homeUrl(fn (): string => auth()->user()?->hasRole('admin') ? url('/admin') : url('/admin/operations'))
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin-accessibility'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.admin-mobile-navigation'))
-            ->pages([LocalizedFileManager::class, ManageDeployment::class, ProductionDeploy::class])
+            ->pages([LocalizedFileManager::class, ManageDeployment::class, ProductionDeploy::class, Operations::class, OperationsSettings::class])
             ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->login()
             ->font('Vazirmatn', url: fn (): string => asset('assets/fonts/vazirmatn/font.css'), provider: LocalFontProvider::class)
@@ -99,7 +102,7 @@ class AdminPanelProvider extends PanelProvider
                 PagePlugin::make(),
                 AdvertisingPlugin::make(),
             ])
-            ->pages([Dashboard::class])
+            ->pages([AdminDashboard::class])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

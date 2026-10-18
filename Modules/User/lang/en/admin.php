@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'role_advertising-manager' => 'Advertising manager',
+    'role_moderator' => 'Moderator',
+    'role_support' => 'Support',
+
     'active' => 'Active',
     'banned' => 'Banned',
     'created_at' => 'Created at',

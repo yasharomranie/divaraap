@@ -21,6 +21,11 @@ class City extends Model
 
     protected $casts = ['is_active' => 'boolean'];
 
+    public static function namesForOperations(array $ids): array
+    {
+        return static::query()->whereIn('id', $ids)->pluck('name', 'id')->all();
+    }
+
     public static function ensureIranianCapitals(): void
     {
         $country = Country::withTrashed()->firstOrCreate(['code' => 'IR'], ['name' => 'Iran', 'phone_code' => '+98', 'is_active' => true]);

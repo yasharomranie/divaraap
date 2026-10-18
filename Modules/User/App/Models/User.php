@@ -96,13 +96,13 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public static function roleLabel(string $name): string
     {
-        return in_array($name, ['admin', 'member'], true) ? __('user::admin.role_'.$name) : $name;
+        return in_array($name, ['admin', 'member', 'advertising-manager', 'moderator', 'support'], true) ? __('user::admin.role_'.$name) : $name;
     }
 
     public function canAccessPanel(Panel $panel): bool
     {
         return match ($panel->getId()) {
-            'admin' => $this->hasRole('admin'),
+            'admin' => (string) $this->status === 'active' && ($this->hasRole('admin') || $this->can('admin-panel.access')),
             default => false,
         };
     }

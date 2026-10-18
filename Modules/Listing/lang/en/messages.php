@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'hint_rejected' => 'This listing was rejected. Edit and resubmit it for review.',
+
+    'status_rejected' => 'Rejected',
+
     'free' => 'Free',
     'contact_seller' => 'Contact Seller',
     'view' => 'View',

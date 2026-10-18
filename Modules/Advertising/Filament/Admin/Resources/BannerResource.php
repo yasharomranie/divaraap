@@ -65,6 +65,7 @@ final class BannerResource extends AdvertisingResource
             ImageColumn::make('image')->label(__('advertising::admin.image'))->disk('public')->imageWidth(80)->imageHeight(32),
             TextColumn::make('title')->label(__('advertising::admin.title'))->searchable()->sortable(),
             IconColumn::make('is_active')->label(__('advertising::admin.is_active'))->boolean(),
+            TextColumn::make('review_status')->label(__('admin::operations.review_status'))->formatStateUsing(fn ($state) => __('admin::operations.review_'.$state))->badge(),
             TextColumn::make('device')->label(__('advertising::admin.device'))->formatStateUsing(fn ($state) => __('advertising::admin.'.$state)),
             TextColumn::make('starts_at')->label(__('advertising::admin.starts_at'))->dateTime()->timezone(config('app.timezone')),
             TextColumn::make('ends_at')->label(__('advertising::admin.ends_at'))->dateTime()->timezone(config('app.timezone')),

@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'rejected' => 'ردشده',
+
     'active' => 'فعال',
     'add_an_option_and_press_enter' => 'گزینه را وارد کنید و Enter بزنید',
     'all_listings_in_the_system' => 'تمام آگهی‌های سامانه',

@@ -9,6 +9,11 @@ use Modules\Listing\Models\Listing;
 
 class ListingsTrendChart extends ChartWidget
 {
+    public static function canView(): bool
+    {
+        return (bool) auth()->user()?->hasRole('admin');
+    }
+
     protected static ?int $sort = 2;
 
     protected int|string|array $columnSpan = 'full';

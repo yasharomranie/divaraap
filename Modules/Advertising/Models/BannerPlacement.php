@@ -7,12 +7,20 @@ namespace Modules\Advertising\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 final class BannerPlacement extends Model
 {
+    use LogsActivity;
     use SoftDeletes;
 
     public const KEYS = ['home-top', 'home-feed', 'listings-feed', 'search-feed', 'category-feed', 'listing-details', 'listing-related', 'page-top', 'page-bottom'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logOnly(['key', 'is_active', 'first_after', 'interval', 'ordering', 'repeat', 'device'])->logOnlyDirty()->dontLogEmptyChanges();
+    }
 
     protected $table = 'advertising_placements';
 

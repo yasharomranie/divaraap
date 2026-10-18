@@ -8,11 +8,30 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 final class Banner extends Model
 {
+    use LogsActivity;
     use SoftDeletes;
+
+    public static function moderationQueue(): Collection
+    {
+        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'created_at']);
+    }
+
+    public function moderate(bool $approve, ?string $note = null): void
+    {
+        $this->forceFill(['review_status' => $approve ? 'approved' : 'rejected', 'is_active' => $approve])->save();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at'])->logOnlyDirty()->dontLogEmptyChanges();
+    }
 
     protected $table = 'advertising_banners';
 
@@ -21,6 +40,16 @@ final class Banner extends Model
     protected function casts(): array
     {
         return ['is_active' => 'boolean', 'new_tab' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime'];
+    }
+
+    protected static function booted(): void
+    {
+        self::saving(function (self $banner): void {
+            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url'])) {
+                $banner->review_status = 'pending';
+                $banner->is_active = false;
+            }
+        });
     }
 
     public function assignments(): HasMany
@@ -32,7 +61,7 @@ final class Banner extends Model
     {
         $now = now();
 
-        return $query->where('is_active', true)
+        return $query->where('is_active', true)->where('review_status', 'approved')
             ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', $now))
             ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', $now));
     }

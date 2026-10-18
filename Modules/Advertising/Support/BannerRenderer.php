@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Advertising\Support;
 
+use Modules\Admin\Support\AdvertisingCapacity;
 use Modules\Advertising\Models\BannerPlacement;
 
 final class BannerRenderer
@@ -35,6 +36,9 @@ final class BannerRenderer
                 continue;
             }
             $output[$device] = $items[$slot % $items->count()]->banner;
+        }
+        if ($output !== [] && ! app(AdvertisingCapacity::class)->reserve($key, $position)) {
+            return [];
         }
         if (isset($output['mobile'], $output['desktop']) && $output['mobile']->id === $output['desktop']->id) {
             return ['both' => $output['mobile']];

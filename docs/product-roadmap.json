@@ -1,0 +1,407 @@
+{
+  "version": 1,
+  "features": [
+    {
+      "id": 1,
+      "phase": 1,
+      "title": "نقش‌های مستقل مدیریت",
+      "status": "verified"
+    },
+    {
+      "id": 2,
+      "phase": 1,
+      "title": "سابقهٔ اقدامات",
+      "status": "verified"
+    },
+    {
+      "id": 3,
+      "phase": 1,
+      "title": "صف یکپارچهٔ بررسی",
+      "status": "verified"
+    },
+    {
+      "id": 4,
+      "phase": 1,
+      "title": "تحلیل مراحل ثبت آگهی",
+      "status": "verified"
+    },
+    {
+      "id": 5,
+      "phase": 1,
+      "title": "گزارش جست‌وجوی بدون نتیجه",
+      "status": "verified"
+    },
+    {
+      "id": 6,
+      "phase": 1,
+      "title": "کنترل ظرفیت تبلیغات",
+      "status": "verified"
+    },
+    {
+      "id": 7,
+      "phase": 2,
+      "title": "مدیریت کمپین",
+      "status": "pending"
+    },
+    {
+      "id": 8,
+      "phase": 2,
+      "title": "آمار نمایش واقعی",
+      "status": "pending"
+    },
+    {
+      "id": 9,
+      "phase": 2,
+      "title": "آمار کلیک و نرخ کلیک",
+      "status": "pending"
+    },
+    {
+      "id": 10,
+      "phase": 2,
+      "title": "سنجش اقدام پس از کلیک",
+      "status": "pending"
+    },
+    {
+      "id": 11,
+      "phase": 2,
+      "title": "هدف‌گیری دسته‌بندی",
+      "status": "pending"
+    },
+    {
+      "id": 12,
+      "phase": 2,
+      "title": "هدف‌گیری شهر",
+      "status": "pending"
+    },
+    {
+      "id": 13,
+      "phase": 2,
+      "title": "هدف‌گیری صفحهٔ مشخص",
+      "status": "pending"
+    },
+    {
+      "id": 14,
+      "phase": 2,
+      "title": "محدودیت دفعات نمایش",
+      "status": "pending"
+    },
+    {
+      "id": 15,
+      "phase": 2,
+      "title": "سهم نمایش کمپین",
+      "status": "pending"
+    },
+    {
+      "id": 16,
+      "phase": 2,
+      "title": "توقف خودکار کمپین",
+      "status": "pending"
+    },
+    {
+      "id": 17,
+      "phase": 2,
+      "title": "پیش‌نمایش جایگاه",
+      "status": "pending"
+    },
+    {
+      "id": 18,
+      "phase": 2,
+      "title": "هشدار مشکلات کمپین",
+      "status": "pending"
+    },
+    {
+      "id": 19,
+      "phase": 2,
+      "title": "گزارش تبلیغ‌دهنده",
+      "status": "pending"
+    },
+    {
+      "id": 20,
+      "phase": 3,
+      "title": "هشدار آگهی دلخواه",
+      "status": "pending"
+    },
+    {
+      "id": 21,
+      "phase": 3,
+      "title": "دنبال‌کردن فروشنده",
+      "status": "pending"
+    },
+    {
+      "id": 22,
+      "phase": 3,
+      "title": "مقایسهٔ آگهی‌ها",
+      "status": "pending"
+    },
+    {
+      "id": 23,
+      "phase": 3,
+      "title": "هشدار کاهش قیمت",
+      "status": "pending"
+    },
+    {
+      "id": 24,
+      "phase": 3,
+      "title": "سابقهٔ مشاهده",
+      "status": "pending"
+    },
+    {
+      "id": 25,
+      "phase": 3,
+      "title": "مجموعه‌های شخصی",
+      "status": "pending"
+    },
+    {
+      "id": 26,
+      "phase": 3,
+      "title": "جست‌وجوی بهتر فارسی",
+      "status": "pending"
+    },
+    {
+      "id": 27,
+      "phase": 3,
+      "title": "جست‌وجو روی نقشه",
+      "status": "pending"
+    },
+    {
+      "id": 28,
+      "phase": 3,
+      "title": "پیشنهادهای مرتبط",
+      "status": "pending"
+    },
+    {
+      "id": 29,
+      "phase": 4,
+      "title": "داشبورد عملکرد آگهی",
+      "status": "pending"
+    },
+    {
+      "id": 30,
+      "phase": 4,
+      "title": "راهنمای بهبود آگهی",
+      "status": "pending"
+    },
+    {
+      "id": 31,
+      "phase": 4,
+      "title": "پیشنهاد عنوان و توضیح",
+      "status": "pending"
+    },
+    {
+      "id": 32,
+      "phase": 4,
+      "title": "پیش‌نویس ماندگار",
+      "status": "pending"
+    },
+    {
+      "id": 33,
+      "phase": 4,
+      "title": "پاسخ‌های آماده",
+      "status": "pending"
+    },
+    {
+      "id": 34,
+      "phase": 4,
+      "title": "وضعیت موقت آگهی",
+      "status": "pending"
+    },
+    {
+      "id": 35,
+      "phase": 4,
+      "title": "ساخت آگهی از آگهی قبلی",
+      "status": "pending"
+    },
+    {
+      "id": 36,
+      "phase": 4,
+      "title": "زمان‌بندی انتشار آگهی",
+      "status": "pending"
+    },
+    {
+      "id": 37,
+      "phase": 4,
+      "title": "صفحهٔ فروشگاه",
+      "status": "pending"
+    },
+    {
+      "id": 38,
+      "phase": 4,
+      "title": "مدیریت گروهی آگهی‌ها",
+      "status": "pending"
+    },
+    {
+      "id": 39,
+      "phase": 5,
+      "title": "نشان‌های تأیید",
+      "status": "pending"
+    },
+    {
+      "id": 40,
+      "phase": 5,
+      "title": "زمان پاسخ‌گویی فروشنده",
+      "status": "pending"
+    },
+    {
+      "id": 41,
+      "phase": 5,
+      "title": "نظر معتبرتر",
+      "status": "pending"
+    },
+    {
+      "id": 42,
+      "phase": 5,
+      "title": "گزارش و مسدودسازی در گفتگو",
+      "status": "pending"
+    },
+    {
+      "id": 43,
+      "phase": 5,
+      "title": "پیشنهاد قیمت داخل چت",
+      "status": "pending"
+    },
+    {
+      "id": 44,
+      "phase": 5,
+      "title": "هماهنگی بازدید",
+      "status": "pending"
+    },
+    {
+      "id": 45,
+      "phase": 5,
+      "title": "چک‌لیست معاملهٔ هر دسته",
+      "status": "pending"
+    },
+    {
+      "id": 46,
+      "phase": 5,
+      "title": "تشخیص آگهی مشکوک و تکراری",
+      "status": "pending"
+    },
+    {
+      "id": 47,
+      "phase": 6,
+      "title": "کارت فروشگاه محلی",
+      "status": "pending"
+    },
+    {
+      "id": 48,
+      "phase": 6,
+      "title": "مجموعهٔ آگهی تبلیغ‌شده",
+      "status": "pending"
+    },
+    {
+      "id": 49,
+      "phase": 6,
+      "title": "کارت درخواست خدمات",
+      "status": "pending"
+    },
+    {
+      "id": 50,
+      "phase": 6,
+      "title": "بنر تعاملی با فیلتر آماده",
+      "status": "pending"
+    },
+    {
+      "id": 51,
+      "phase": 6,
+      "title": "حمایت از یک دسته",
+      "status": "pending"
+    },
+    {
+      "id": 52,
+      "phase": 6,
+      "title": "پیشنهاد دارای مهلت واقعی",
+      "status": "pending"
+    },
+    {
+      "id": 53,
+      "phase": 6,
+      "title": "تبلیغ ویدئویی اختیاری",
+      "status": "pending"
+    },
+    {
+      "id": 54,
+      "phase": 6,
+      "title": "کارت محتوای راهنما",
+      "status": "pending"
+    },
+    {
+      "id": 55,
+      "phase": 7,
+      "title": "پرداخت و صورتحساب",
+      "status": "pending"
+    },
+    {
+      "id": 56,
+      "phase": 7,
+      "title": "پنل سفارش تبلیغات",
+      "status": "pending"
+    },
+    {
+      "id": 57,
+      "phase": 7,
+      "title": "تقویم رزرو جایگاه",
+      "status": "pending"
+    },
+    {
+      "id": 58,
+      "phase": 7,
+      "title": "بستهٔ فروشندگان حرفه‌ای",
+      "status": "pending"
+    },
+    {
+      "id": 59,
+      "phase": 7,
+      "title": "بستهٔ ترکیبی تبلیغات",
+      "status": "pending"
+    },
+    {
+      "id": 60,
+      "phase": 7,
+      "title": "آزمایش دو طرح تبلیغ",
+      "status": "pending"
+    },
+    {
+      "id": 61,
+      "phase": 8,
+      "title": "دنبال این می‌گردم",
+      "status": "pending"
+    },
+    {
+      "id": 62,
+      "phase": 8,
+      "title": "به من خبر بده برای کالای کمیاب",
+      "status": "pending"
+    },
+    {
+      "id": 63,
+      "phase": 8,
+      "title": "درخواست خدمات محلی",
+      "status": "pending"
+    },
+    {
+      "id": 64,
+      "phase": 8,
+      "title": "پروندهٔ مقایسهٔ قابل اشتراک",
+      "status": "pending"
+    },
+    {
+      "id": 65,
+      "phase": 8,
+      "title": "راهنمای قیمت",
+      "status": "pending"
+    },
+    {
+      "id": 66,
+      "phase": 8,
+      "title": "فروشگاه‌های منتخب محله",
+      "status": "pending"
+    },
+    {
+      "id": 67,
+      "phase": 8,
+      "title": "اشتراک فهرست انتخاب‌ها",
+      "status": "pending"
+    }
+  ]
+}

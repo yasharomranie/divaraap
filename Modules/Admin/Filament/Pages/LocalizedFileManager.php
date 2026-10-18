@@ -10,6 +10,11 @@ use MWGuerra\FileManager\Filament\Pages\FileManager;
 
 final class LocalizedFileManager extends FileManager
 {
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->hasRole('admin');
+    }
+
     public static function getSlug(?Panel $panel = null): string
     {
         return 'file-manager';

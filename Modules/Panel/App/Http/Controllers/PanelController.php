@@ -186,6 +186,6 @@ class PanelController extends Controller
         $listing->assertOwnedBy($request->user());
         $listing->republish();
 
-        return back()->with('success', __('panel::messages.listing_republished'));
+        return back()->with('success', $listing->statusValue() === 'pending' ? __('panel::messages.listing_resubmitted') : __('panel::messages.listing_republished'));
     }
 }

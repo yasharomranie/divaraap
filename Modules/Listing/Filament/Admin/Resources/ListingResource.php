@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Modules\Listing\Filament\Admin\Resources;
 
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Modules\Admin\Support\Filament\AccessControlledResource as Resource;
 use Modules\Listing\Filament\Admin\Resources\ListingResource\Pages;
 use Modules\Listing\Models\Listing;
 use Modules\Listing\Support\Filament\AdminListingResourceSchema;

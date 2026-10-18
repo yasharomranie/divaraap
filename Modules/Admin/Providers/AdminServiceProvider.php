@@ -6,17 +6,21 @@ namespace Modules\Admin\Providers;
 
 use App\Support\Filament\AccessibleTableLinks;
 use App\Support\Filament\FileManagerNotificationMailbox;
+use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Events\ServingFilament;
 use Filament\Notifications\NotificationMailbox;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Modules\Admin\Http\Responses\StaffLoginResponse;
+use Modules\Admin\Support\AdvertisingCapacity;
 
 class AdminServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
         $this->loadTranslationsFrom(module_path('Admin', 'lang'), 'admin');
+        $this->loadViewsFrom(module_path('Admin', 'resources/views'), 'admin');
         Table::configureUsing(fn (Table $table) => $table->extraRecordLinkAttributes(
             fn (\Illuminate\Database\Eloquent\Model|array $record): array => AccessibleTableLinks::attributes($record), merge: true,
         ));
@@ -30,6 +34,8 @@ class AdminServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        $this->app->bind(LoginResponse::class, StaffLoginResponse::class);
+        $this->app->scoped(AdvertisingCapacity::class);
         $this->app->scoped(NotificationMailbox::class, FileManagerNotificationMailbox::class);
     }
 }

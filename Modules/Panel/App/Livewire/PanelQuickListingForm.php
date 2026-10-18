@@ -120,6 +120,8 @@ class PanelQuickListingForm extends Component
 
     public function render()
     {
+        \Modules\Admin\Models\ProductEvent::record('listing_step', (string) $this->currentStep);
+
         return view('panel::quick-create');
     }
 
@@ -295,6 +297,7 @@ class PanelQuickListingForm extends Component
 
         $this->isPublishing = false;
         session()->flash('success', __('panel::messages.listing_created'));
+        \Modules\Admin\Models\ProductEvent::record('listing_step', '5');
         $this->clearDraft();
 
         if (Route::has('panel.listings.edit')) {

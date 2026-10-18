@@ -10,6 +10,6 @@ trait HasAccessControlledPage
 
     public static function canAccess(): bool
     {
-        return (bool) auth()->user()?->can(static::getAccessPermission());
+        return (string) auth()->user()?->status === 'active' && (bool) auth()->user()?->can(static::getAccessPermission());
     }
 }

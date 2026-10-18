@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'role_advertising-manager' => 'مدیر تبلیغات',
+    'role_moderator' => 'بررسی‌کننده',
+    'role_support' => 'پشتیبان',
+
     'active' => 'فعال',
     'banned' => 'مسدود',
     'created_at' => 'زمان ایجاد',
