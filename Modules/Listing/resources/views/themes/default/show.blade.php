@@ -32,6 +32,10 @@
             @endforeach
         </nav>
 
+        <div class="row row--wrap">
+            <form method="POST" action="{{ route('comparison.add', $listing) }}">@csrf<button class="button button--secondary" type="submit">{{ __('favorite::comparison.add') }}</button></form>
+            <a class="button button--ghost" href="{{ route('comparison.index') }}">{{ __('favorite::comparison.title') }}</a>
+        </div>
         <div class="grid grid--split">
             <div class="stack stack--loose">
                 <section class="gallery" data-gallery>

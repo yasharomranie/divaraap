@@ -23,6 +23,7 @@
             </x-ui.empty-state>
         @else
             <p><a href="{{ route('favorites.alerts') }}" class="button button--secondary">{{ __('favorite::alerts.title') }}</a></p>
+            <a class="button button--ghost" href="{{ route('comparison.index') }}">{{ __('favorite::comparison.title') }}</a>
             <nav class="chip-row">
                 @foreach($tabs as $key => $label)
                     <a href="{{ route('favorites.index', ['tab' => $key]) }}" class="pill {{ $activeTab === $key ? 'is-active' : '' }}">{{ $label }}</a>

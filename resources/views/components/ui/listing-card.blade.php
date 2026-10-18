@@ -66,5 +66,9 @@
                 <time datetime="{{ $createdAt->toIso8601String() }}">{{ $createdAt->diffForHumans(short: true) }}</time>
             @endif
         </div>
+        <form method="POST" action="{{ route('comparison.add', $listing) }}" class="listing-card__compare">
+            @csrf
+            <button type="submit" class="button button--ghost button--small" aria-label="{{ __('favorite::comparison.add') }}: {{ $listing->title }}">{{ __('favorite::comparison.add') }}</button>
+        </form>
     </div>
 </article>

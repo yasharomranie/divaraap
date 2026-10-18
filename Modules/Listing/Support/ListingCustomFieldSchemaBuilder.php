@@ -37,7 +37,7 @@ class ListingCustomFieldSchemaBuilder
             ->all();
     }
 
-    public static function presentableValues(?int $categoryId, array $values): array
+    public static function presentableValues(?int $categoryId, array $values, bool $includeKeys = false): array
     {
         if ($values === []) {
             return [];
@@ -86,6 +86,7 @@ class ListingCustomFieldSchemaBuilder
             }
 
             $result[] = [
+                ...($includeKeys ? ['key' => (string) $key] : []),
                 'label' => $label,
                 'value' => $displayValue,
             ];

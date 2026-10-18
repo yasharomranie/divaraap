@@ -29,6 +29,7 @@ use Modules\Listing\States\SoldListingStatus;
 use Modules\Listing\Support\ListingImageViewData;
 use Modules\Listing\Support\ListingPanelHelper;
 use Modules\Location\Models\Country;
+use Modules\Location\Support\IranianCities;
 use Modules\Site\App\Support\LocalMedia;
 use Modules\User\App\Models\User;
 use Modules\Video\Models\Video;
@@ -126,6 +127,24 @@ class Listing extends Model implements HasMedia
     public function videos()
     {
         return $this->hasMany(Video::class)->ordered();
+    }
+
+    public function comparisonPlaceLabel(): string
+    {
+        $country = trim((string) $this->country);
+        $city = trim((string) $this->city);
+        if (in_array($country, ['Iran', 'IR', 'ایران'], true)) {
+            $city = IranianCities::label($city);
+            $country = Country::localizedName('Iran', 'IR');
+        }
+
+        return collect([$city, $country])->filter()->implode(' · ') ?: '—';
+    }
+
+    public static function comparisonListings(array $ids): Collection
+    {
+        return self::query()->active()->whereIn('id', $ids)->with('category:id,name')
+            ->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))->get();
     }
 
     public static function buyerAlertListings(array $ids, array $filters = [], ?int $excludeUser = null): Collection

@@ -125,7 +125,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 19 | 2 | گزارش تبلیغ‌دهنده | verified |
 | 20 | 3 | هشدار آگهی دلخواه | verified |
 | 21 | 3 | دنبال‌کردن فروشنده | verified |
-| 22 | 3 | مقایسهٔ آگهی‌ها | pending |
+| 22 | 3 | مقایسهٔ آگهی‌ها | verified |
 | 23 | 3 | هشدار کاهش قیمت | verified |
 | 24 | 3 | سابقهٔ مشاهده | pending |
 | 25 | 3 | مجموعه‌های شخصی | pending |
@@ -188,6 +188,16 @@ A durable publication ledger records each listing's first active Eloquent save a
 
 Notifications are generated when the user opens the notification inbox or My alerts, with at most 50 new publication records per subscription per visit. Reopen to continue a larger backlog. There is no cron, queue worker, email, SMS or push dependency and no claim of background real-time delivery. Publication and delivery receipts persist; per-alert locks and transactions make repeated inbox visits idempotent. Price alerts compare the current active listing against the lowest observed price since activation using decimal arithmetic; currency changes reset the baseline. Intermediate price changes while the user is absent are not price-history events. Inactive, expired or deleted listings cannot expose content through these notifications.
 
-One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison, viewing history, collections, improved Persian search, maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
+One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison is delivered below; viewing history, collections, improved Persian search, maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
 
 Validation: 271 PHPUnit tests / 3113 assertions passed, including 10 buyer-alert tests; browser checks exercised all three opt-in controls, real notification generation and Persian layouts at 390px and 1440px. Production assets and localization checks passed.
+
+## Phase 3 — listing comparison module
+
+Feature 22 adds guest and signed-in comparison through the shared listing card, listing detail and Favorites. Users explicitly add up to three listings from the same exact category. Add is idempotent; remove and clear are POST/DELETE CSRF-protected actions. Selected IDs stay in the existing browser session, without database tables, account synchronization or share links. Comparison URLs do not accept IDs from query parameters. A separate session starts empty.
+
+Every comparison request rechecks active status, expiration and soft deletion, preserves selection order and prunes unavailable or category-incompatible entries. Only public listing values are displayed. Price labels preserve original currencies without conversion; Iranian location labels follow the existing localization. Custom fields use the existing public display formatter with stable field keys, so matching labels do not merge unrelated fields. Missing values display a dash. Only-differences filtering compares the rendered values and stays off until there are at least two entries. A completely equal comparison has an explicit empty-differences message.
+
+The RTL table scrolls inside a keyboard-focusable, labeled region on mobile; page width remains bounded. Markup escapes titles, labels and values. Responses are private/no-store and noindex. This delivery adds no migration or third-party service. The existing cPanel Update from Remote / Deploy HEAD Commit flow builds the new styles. Future shareable comparison dossiers remain separate roadmap feature 64.
+
+Validation: 277 PHPUnit tests / 3159 assertions passed, including six comparison tests. Real Chromium exercised guest card/detail selection, limit errors, same-session persistence, separate-session isolation, remove/clear and differences filtering at 390px and 1440px. Production asset build, route/config caching and localization checks passed.
