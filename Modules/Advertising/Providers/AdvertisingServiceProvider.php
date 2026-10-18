@@ -16,6 +16,7 @@ final class AdvertisingServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadRoutesFrom(module_path('Advertising', 'routes/web.php'));
         $this->loadMigrationsFrom(module_path('Advertising', 'Database/migrations'));
         $this->loadViewsFrom(module_path('Advertising', 'resources/views'), 'advertising');
         $this->loadTranslationsFrom(module_path('Advertising', 'lang'), 'advertising');

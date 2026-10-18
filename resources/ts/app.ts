@@ -1,4 +1,5 @@
 import '../css/app.css';
+import { advertisingMetrics } from './modules/advertising-metrics';
 
 import { startBehaviors, type Behavior } from './core/behavior';
 import { characterCounter, confirmAction, dependentSelect, imagePreview, ratingInput, revealPanel } from './modules/forms';
@@ -12,6 +13,7 @@ import { contactReveal, shareAction } from './modules/reveal';
 import { appNavigation, disclosureGroup, navigationDrawer, searchSuggest, stickyHeader } from './modules/navigation';
 
 const behaviors: readonly Behavior<never>[] = [
+    advertisingMetrics,
     homeShowcase,
     navigationDrawer,
     appNavigation,

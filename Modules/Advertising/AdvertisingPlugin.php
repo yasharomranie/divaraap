@@ -26,6 +26,10 @@ final class AdvertisingPlugin implements Plugin
             return;
         }
 
+        $panel->discoverPages(
+            in: module_path('Advertising', 'Filament/Admin/Pages'),
+            for: 'Modules\\Advertising\\Filament\\Admin\\Pages',
+        );
         $panel->discoverResources(
             in: module_path('Advertising', 'Filament/Admin/Resources'),
             for: 'Modules\\Advertising\\Filament\\Admin\\Resources',

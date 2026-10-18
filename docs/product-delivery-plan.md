@@ -24,7 +24,17 @@ Target categories use existing active category IDs, cities use existing Location
 
 Validation: campaign lifecycle/targeting, actual listing/search integration, Filament create/validation, authorization and all previous feature tests. Browser checks cover Persian RTL campaign and banner forms at 390px and 1440px with no horizontal overflow or JavaScript errors. This delivery adds one migration; the normal cPanel deployment runs it. No manual database or document-root edits are required.
 
-Phase 2 features 8–10 and 14–19 remain pending: viewable impressions, clicks/CTR, conversions, frequency caps, campaign shares, limit-based stop, previews, warnings and downloadable reports. A saved campaign goal does not imply conversion tracking is already active.
+Phase 2 features 10 and 14–19 remain pending: conversions, frequency caps, campaign shares, limit-based stop, previews, warnings and downloadable reports. A saved campaign goal does not imply conversion tracking is already active.
+
+## Phase 2 — advertising measurement
+
+Features 8 and 9 add viewable impression and click measurement to the existing public banner renderer. An impression requires a successfully loaded image, at least 50% intersection and one continuous second while the document is visible. Hidden device variants, failed images and initial page rendering do not count. Trusted primary/keyboard and middle-button link clicks send a nonblocking same-origin keepalive request; the destination stays a direct link. No redirect service or shell command is required. Missing JavaScript, blockers or network errors can undercount. This is browser-reported viewability, not proof of a human viewer or an antifraud certification.
+
+Each served variant receives an encrypted two-hour token bound to its session, banner, campaign snapshot, placement, device variant and targeting context. The event endpoint uses web CSRF protection and rate limiting, checks the token and current banner approval/schedule, campaign targeting, active assignment and placement, and inserts a globally unique receipt per exposure and event kind. Concurrent replays use a database unique constraint, including cross-device replay. An exposure can produce at most one impression and one click. Reloading is a new exposure. Quick clicks can occur before one second, so CTR can exceed 100%; zero-impression CTR is shown as undefined. No impression is fabricated from a click. Campaign reassignment invalidates old exposure tokens; existing events retain their original campaign ID.
+
+Advertising → Advertising statistics is available only to active advertising managers and full admins. It shows the last 30 application-calendar days grouped by banner, placement, device or day, optionally filtered by campaign, with impressions, clicks and CTR. Reports are limited to 100 grouped rows. Persian dates use the existing calendar helper. Counts are exposures, not unique people. No IP, session identifier, raw token, visitor fingerprint or private message is stored in the event table. Old events are removed after 90 days on subsequent ingestion once per day; there is no new scheduler. Disabling telemetry in Operations settings disables both issuance and ingestion. Retention is not a hard scheduled deletion guarantee.
+
+Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, conversion attribution, caps, allocation, budgets and warnings remain pending their roadmap entries.
 
 ## Progress
 
@@ -37,8 +47,8 @@ Phase 2 features 8–10 and 14–19 remain pending: viewable impressions, clicks
 | 5 | 1 | گزارش جست‌وجوی بدون نتیجه | verified |
 | 6 | 1 | کنترل ظرفیت تبلیغات | verified |
 | 7 | 2 | مدیریت کمپین | verified |
-| 8 | 2 | آمار نمایش واقعی | pending |
-| 9 | 2 | آمار کلیک و نرخ کلیک | pending |
+| 8 | 2 | آمار نمایش واقعی | verified |
+| 9 | 2 | آمار کلیک و نرخ کلیک | verified |
 | 10 | 2 | سنجش اقدام پس از کلیک | pending |
 | 11 | 2 | هدف‌گیری دسته‌بندی | verified |
 | 12 | 2 | هدف‌گیری شهر | verified |
