@@ -67,6 +67,17 @@ class Listing extends Model implements HasMedia
 
     protected $appends = ['location'];
 
+    public static function advertisingDestinationId(string $url): ?int
+    {
+        $destination = parse_url($url);
+        $origin = parse_url((string) config('app.url'));
+        if (! is_array($destination) || ! is_array($origin) || strtolower($destination['host'] ?? '') !== strtolower($origin['host'] ?? '') || ($destination['scheme'] ?? '') !== ($origin['scheme'] ?? '') || ($destination['port'] ?? null) !== ($origin['port'] ?? null) || ! preg_match('~^/listings/([1-9][0-9]*)/?$~', $destination['path'] ?? '', $match)) {
+            return null;
+        }
+
+        return static::query()->where('status', 'active')->whereKey($match[1])->value('id');
+    }
+
     public static function moderationQueue(): Collection
     {
         return static::query()->where('status', 'pending')->with('media')->oldest()->limit(20)->get(['id', 'title', 'description', 'images', 'category_id', 'created_at']);

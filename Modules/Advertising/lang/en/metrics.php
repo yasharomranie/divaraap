@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'conversations' => 'New conversations',
+    'conversion_definition' => 'Conversation attribution: last eligible click in this browser within 24 hours, only for the same internal listing targeted by the banner. At most one new conversation per click; existing conversations are excluded. Cookie loss, blocked click tracking and network failures can undercount. Store visits and service requests are not yet measured.',
     'notes' => 'About these metrics',
     'title' => 'Advertising statistics',
     'all' => 'All campaigns and independent banners',

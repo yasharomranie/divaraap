@@ -24,7 +24,7 @@ Target categories use existing active category IDs, cities use existing Location
 
 Validation: campaign lifecycle/targeting, actual listing/search integration, Filament create/validation, authorization and all previous feature tests. Browser checks cover Persian RTL campaign and banner forms at 390px and 1440px with no horizontal overflow or JavaScript errors. This delivery adds one migration; the normal cPanel deployment runs it. No manual database or document-root edits are required.
 
-Phase 2 features 10 and 14–19 remain pending: conversions, frequency caps, campaign shares, limit-based stop, previews, warnings and downloadable reports. A saved campaign goal does not imply conversion tracking is already active.
+Phase 2 feature 10 now measures conversation starts for internal listing destinations; store and service-request actions await their owning modules. Features 14–19 remain pending: frequency caps, campaign shares, limit-based stop, previews, warnings and downloadable reports. A saved campaign goal does not imply conversion tracking is already active.
 
 ## Phase 2 — advertising measurement
 
@@ -34,7 +34,17 @@ Each served variant receives an encrypted two-hour token bound to its session, b
 
 Advertising → Advertising statistics is available only to active advertising managers and full admins. It shows the last 30 application-calendar days grouped by banner, placement, device or day, optionally filtered by campaign, with impressions, clicks and CTR. Reports are limited to 100 grouped rows. Persian dates use the existing calendar helper. Counts are exposures, not unique people. No IP, session identifier, raw token, visitor fingerprint or private message is stored in the event table. Old events are removed after 90 days on subsequent ingestion once per day; there is no new scheduler. Disabling telemetry in Operations settings disables both issuance and ingestion. Retention is not a hard scheduled deletion guarantee.
 
-Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, conversion attribution, caps, allocation, budgets and warnings remain pending their roadmap entries.
+Validation: feature tests cover replay/device/session/expiry handling, schedule/assignment/telemetry controls, attribution, report calculations, retention, validation and role isolation. Real Chromium checks cover offscreen and failed-image exclusion, visible impressions, click delivery, deduplication and Persian mobile/desktop reports. TypeScript/Vite build and localization checks pass. One additive event-table migration runs through the existing cPanel deployment. Downloadable advertiser reports, additional conversion types, caps, allocation, budgets and warnings remain pending their roadmap entries.
+
+## Phase 2 — conversation attribution
+
+Feature 10 is partially delivered for the currently available conversation flow. A valid tracked click whose destination matches the configured application origin and an active `/listings/{id}` page can receive attribution. The latest eligible internal-listing click available to the browser is carried in a Laravel-encrypted, HttpOnly, SameSite=Lax, 24-hour cookie containing only its click-event ID and timestamp. HTTPS requests set Secure. This separate cookie avoids overwriting attribution when a keepalive click request overlaps immediate navigation; it also survives login session regeneration. Out-of-order simultaneous clicks in multiple tabs can still undercount or choose the last received cookie. Cookie/network loss and different browsers prevent attribution. An old replay does not replace a newer click already present in the request cookie.
+
+The Conversation module emits ConversationStarted only after a newly created conversation and any supplied first message have succeeded. Advertising listens to that domain event; no cross-module SQL join, message text or user ID enters analytics. Opening an existing conversation, a failed/unauthorized action, another listing, an external link or an expired click does not produce a conversion. A database-unique receipt allows at most one conversion per source click. Attribution uses the click's campaign/placement/device snapshot and remains valid if a campaign is paused after the click. Source and target IDs stay within the advertising event table; the target is a public listing ID. Telemetry opt-out is checked again at conversion time. Listener failures are reported and do not block conversation creation.
+
+The existing statistics page now includes New conversations for each grouping and campaign filter; it does not claim purchases or unique buyers. This is action-day reporting rather than a click cohort conversion rate. One additive migration adds target_listing_id and source_click_id. Existing click records without a destination snapshot cannot be backfilled as conversions. There is no frontend conversion endpoint, new scheduler, payment or document-root change. Store views and service requests remain unimplemented until the respective modules exist, so roadmap entry 10 remains in_progress.
+
+Validation includes actual authenticated conversation requests, existing-thread exclusion, matching destination/window/telemetry rules, latest eligible click, external URL rejection, public payload validation, and analytics failure isolation. Chromium confirmed immediate internal navigation, the HttpOnly attribution cookie, a single stored conversion and Persian reports at 390px/1440px.
 
 ## Progress
 
@@ -49,7 +59,7 @@ Validation: feature tests cover replay/device/session/expiry handling, schedule/
 | 7 | 2 | مدیریت کمپین | verified |
 | 8 | 2 | آمار نمایش واقعی | verified |
 | 9 | 2 | آمار کلیک و نرخ کلیک | verified |
-| 10 | 2 | سنجش اقدام پس از کلیک | pending |
+| 10 | 2 | سنجش اقدام پس از کلیک | in_progress |
 | 11 | 2 | هدف‌گیری دسته‌بندی | verified |
 | 12 | 2 | هدف‌گیری شهر | verified |
 | 13 | 2 | هدف‌گیری صفحهٔ مشخص | verified |

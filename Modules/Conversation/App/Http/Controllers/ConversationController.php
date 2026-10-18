@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Modules\Conversation\App\Events\ConversationReadUpdated;
+use Modules\Conversation\App\Events\ConversationStarted;
 use Modules\Conversation\App\Events\InboxMessageCreated;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Conversation\App\Models\ConversationMessage;
@@ -104,6 +105,10 @@ class ConversationController extends Controller
         if ($messageBody !== '') {
             $message = $conversation->createMessageFor((int) $user->getKey(), $messageBody);
             $this->broadcastMessageCreated($conversation, $message, (int) $user->getKey());
+        }
+
+        if ($conversation->wasRecentlyCreated) {
+            event(new ConversationStarted((int) $listing->getKey()));
         }
 
         if ($request->expectsJson()) {

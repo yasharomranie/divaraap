@@ -7,8 +7,10 @@ namespace Modules\Advertising\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Cookie;
 use Modules\Admin\App\Settings\OperationsSettings;
 use Modules\Advertising\Support\AdvertisingToken;
+use Modules\Listing\Models\Listing;
 
 final class AdvertisingEvent extends Model
 {
@@ -35,15 +37,46 @@ final class AdvertisingEvent extends Model
         if (! $placement || ! in_array($placement->device, ['both', $device], true) || ! in_array($banner->device, ['both', $device], true) || ! $placement->assignments()->where('banner_id', $banner->id)->exists()) {
             return;
         }
+        $targetListingId = $kind === 'click' ? Listing::advertisingDestinationId((string) $banner->destination()) : null;
+        $receipt = hash('sha256', $data['nonce'].'|'.$kind);
         self::query()->insertOrIgnore([
             'banner_id' => $banner->id, 'campaign_id' => $data['campaign'],
             'placement' => $data['placement'], 'device' => $device, 'kind' => $kind,
-            'receipt' => hash('sha256', $data['nonce'].'|'.$kind),
+            'receipt' => $receipt, 'target_listing_id' => $targetListingId,
             'event_date' => now()->toDateString(), 'created_at' => now(), 'updated_at' => now(),
         ]);
+        if ($kind === 'click') {
+            $click = self::query()->where('receipt', $receipt)->first();
+            $previous = json_decode((string) request()->cookie('advertising_attribution', ''), true);
+            if ($click && $targetListingId && (! is_array($previous) || $click->id > ($previous['id'] ?? 0))) {
+                Cookie::queue(cookie('advertising_attribution', json_encode(['id' => $click->id, 'at' => $click->created_at->timestamp], JSON_THROW_ON_ERROR), 1440, '/', null, request()->isSecure(), true, false, 'lax'));
+            }
+        }
         if (Cache::add('advertising-event-retention', true, now()->addDay())) {
             self::withTrashed()->where('created_at', '<', now()->subDays(90))->forceDelete();
         }
+    }
+
+    public static function recordConversation(int $listingId): void
+    {
+        if (! request()->hasSession() || ! app(OperationsSettings::class)->telemetry_enabled) {
+            return;
+        }
+        $source = json_decode((string) request()->cookie('advertising_attribution', ''), true);
+        if (! is_array($source) || ! isset($source['id'], $source['at']) || $source['at'] < now()->subHours(24)->timestamp || $source['at'] > now()->timestamp) {
+            return;
+        }
+        $click = self::query()->whereKey($source['id'])->where('kind', 'click')->where('target_listing_id', $listingId)->where('created_at', '>=', now()->subHours(24))->first();
+        if (! $click) {
+            return;
+        }
+        self::query()->insertOrIgnore([
+            'banner_id' => $click->banner_id, 'campaign_id' => $click->campaign_id,
+            'placement' => $click->placement, 'device' => $click->device, 'kind' => 'conversion',
+            'receipt' => hash('sha256', 'conversation|'.$click->id),
+            'target_listing_id' => $listingId, 'source_click_id' => $click->id,
+            'event_date' => now()->toDateString(), 'created_at' => now(), 'updated_at' => now(),
+        ]);
     }
 
     public static function report(?int $campaignId, string $dimension): array
@@ -53,12 +86,14 @@ final class AdvertisingEvent extends Model
             ->when($campaignId, fn ($query) => $query->where('campaign_id', $campaignId))
             ->select($field)->selectRaw("SUM(CASE WHEN kind = 'impression' THEN 1 ELSE 0 END) AS impressions")
             ->selectRaw("SUM(CASE WHEN kind = 'click' THEN 1 ELSE 0 END) AS clicks")
+            ->selectRaw("SUM(CASE WHEN kind = 'conversion' THEN 1 ELSE 0 END) AS conversations")
             ->groupBy($field)->orderBy($field, 'desc')->limit(100)->get();
         $names = $field === 'banner_id' ? Banner::withTrashed()->whereIn('id', $rows->pluck('banner_id'))->pluck('title', 'id')->all() : [];
 
         return $rows->map(fn ($row) => [
             'label' => $names[$row->$field] ?? $row->$field,
             'impressions' => (int) $row->impressions, 'clicks' => (int) $row->clicks,
+            'conversations' => (int) $row->conversations,
             'ctr' => $row->impressions ? round(100 * $row->clicks / $row->impressions, 2) : null,
         ])->all();
     }

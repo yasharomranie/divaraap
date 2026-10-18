@@ -13,12 +13,12 @@
             </label>
         </div>
         <div class="ad-statistics__scroll" tabindex="0" role="region" aria-label="{{ __('advertising::metrics.title') }}">
-            <table><caption>{{ __('advertising::metrics.period') }}</caption><thead><tr><th scope="col">{{ __('advertising::metrics.'.$dimension) }}</th><th scope="col">{{ __('advertising::metrics.impressions') }}</th><th scope="col">{{ __('advertising::metrics.clicks') }}</th><th scope="col">{{ __('advertising::metrics.ctr') }}</th></tr></thead><tbody>
+            <table><caption>{{ __('advertising::metrics.period') }}</caption><thead><tr><th scope="col">{{ __('advertising::metrics.'.$dimension) }}</th><th scope="col">{{ __('advertising::metrics.impressions') }}</th><th scope="col">{{ __('advertising::metrics.clicks') }}</th><th scope="col">{{ __('advertising::metrics.ctr') }}</th><th scope="col">{{ __('advertising::metrics.conversations') }}</th></tr></thead><tbody>
             @forelse($this->rows as $row)
-                <tr><th scope="row">{{ $dimension === 'event_date' ? \App\Support\PersianLocale::date($row['label']) : (in_array($dimension, ['placement', 'device'], true) ? __('advertising::admin.'.$row['label']) : $row['label']) }}</th><td>{{ \App\Support\PersianLocale::number($row['impressions']) }}</td><td>{{ \App\Support\PersianLocale::number($row['clicks']) }}</td><td>{{ $row['ctr'] === null ? '—' : \App\Support\PersianLocale::number($row['ctr']).'٪' }}</td></tr>
-            @empty <tr><td colspan="4">{{ __('advertising::metrics.empty') }}</td></tr>@endforelse
+                <tr><th scope="row">{{ $dimension === 'event_date' ? \App\Support\PersianLocale::date($row['label']) : (in_array($dimension, ['placement', 'device'], true) ? __('advertising::admin.'.$row['label']) : $row['label']) }}</th><td>{{ \App\Support\PersianLocale::number($row['impressions']) }}</td><td>{{ \App\Support\PersianLocale::number($row['clicks']) }}</td><td>{{ $row['ctr'] === null ? '—' : \App\Support\PersianLocale::number($row['ctr']).'٪' }}</td><td>{{ \App\Support\PersianLocale::number($row['conversations']) }}</td></tr>
+            @empty <tr><td colspan="5">{{ __('advertising::metrics.empty') }}</td></tr>@endforelse
             </tbody></table>
         </div>
-        <details><summary>{{ __('advertising::metrics.notes') }}</summary><p>{{ __('advertising::metrics.limitations') }} {{ __('advertising::metrics.tracking_toggle') }}</p></details>
+        <details><summary>{{ __('advertising::metrics.notes') }}</summary><p>{{ __('advertising::metrics.limitations') }} {{ __('advertising::metrics.tracking_toggle') }} {{ __('advertising::metrics.conversion_definition') }}</p></details>
     </section>
 </x-filament-panels::page>
