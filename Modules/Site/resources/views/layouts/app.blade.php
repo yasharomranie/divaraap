@@ -114,6 +114,8 @@
                     placeholder="{{ __('site::messages.search_placeholder') }}"
                     class="site-search__input"
                     data-search-input
+                    maxlength="120"
+                    @if(request()->routeIs('listings.index') && \App\Support\PersianSearch::terms((string) request('search', '')) === null) aria-invalid="true" aria-describedby="search-error" @endif
                     autocomplete="off"
                 >
                 <button type="button" class="site-search__clear" data-search-clear hidden aria-label="{{ __('site::messages.clear') }}">

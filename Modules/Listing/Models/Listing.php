@@ -6,6 +6,7 @@ namespace Modules\Listing\Models;
 
 use App\Support\Money;
 use App\Support\PersianLocale;
+use App\Support\PersianSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -200,19 +201,24 @@ class Listing extends Model implements HasMedia
 
     public function scopeSearchTerm(Builder $query, string $search): Builder
     {
-        $search = trim($search);
-
-        if ($search === '') {
+        $terms = PersianSearch::terms($search);
+        if ($terms === null) {
+            return $query->whereRaw('1 = 0');
+        }
+        if ($terms === []) {
             return $query;
         }
+        $grammar = $query->getQuery()->getGrammar();
+        $columns = array_map(fn (string $column) => PersianSearch::sql($grammar->wrap($this->qualifyColumn($column))), ['title', 'description', 'city', 'country']);
+        foreach ($terms as $term) {
+            $query->where(function (Builder $match) use ($columns, $term): void {
+                foreach ($columns as $column) {
+                    $match->orWhereRaw($column." LIKE ? ESCAPE '!'", [PersianSearch::pattern($term)]);
+                }
+            });
+        }
 
-        return $query->where(function (Builder $searchQuery) use ($search): void {
-            $searchQuery
-                ->where('title', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%")
-                ->orWhere('city', 'like', "%{$search}%")
-                ->orWhere('country', 'like', "%{$search}%");
-        });
+        return $query;
     }
 
     public function scopeWithPanelIndexState(Builder $query): Builder

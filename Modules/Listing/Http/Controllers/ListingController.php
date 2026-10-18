@@ -26,7 +26,9 @@ class ListingController extends Controller
 
     public function index()
     {
-        $search = trim((string) request('search', ''));
+        $searchInput = request('search', '');
+        abort_unless(is_string($searchInput) || $searchInput === null, 422);
+        $search = trim((string) $searchInput);
 
         $categoryId = request()->integer('category');
         $categoryId = $categoryId > 0 ? $categoryId : null;

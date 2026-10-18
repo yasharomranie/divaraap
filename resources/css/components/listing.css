@@ -380,3 +380,9 @@
 .collection-move { display: flex; gap: var(--space-2); min-width: 0; }
 .collection-move .select { flex: 1; min-width: 0; width: 0; }
 .collection-entry .button, .collection-move .button { min-height: 44px; }
+
+.search-error-mobile { display: none; }
+@media (max-width: 63.999rem) {
+    .search-error-mobile { display: inline; }
+    .search-error-desktop { display: none; }
+}

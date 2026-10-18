@@ -39,7 +39,7 @@ final class BuyerAlertsTest extends TestCase
         $second = FavoriteSearch::storeForUser($buyer, ['search' => 'phone']);
         BuyerAlert::configure($buyer, 'search', $second->id, true);
         $listing = $this->listing($seller);
-        $this->listing($seller, ['title' => 'Unrelated']);
+        $this->listing($seller, ['title' => 'Unrelated', 'description' => 'An unrelated item']);
         $this->listing($buyer);
         $this->listing($seller, ['expires_at' => now()->subDay()]);
         $pending = $this->listing($seller, ['status' => 'pending']);

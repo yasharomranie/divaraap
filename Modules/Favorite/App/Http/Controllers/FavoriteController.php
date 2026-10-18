@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Modules\Favorite\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Support\PersianSearch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Validation\ValidationException;
 use Modules\Category\Models\Category;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Favorite\App\Models\BuyerAlert;
@@ -126,6 +128,9 @@ class FavoriteController extends Controller
             'max_price' => ['nullable', 'string', 'max:24'],
         ]);
 
+        if (PersianSearch::terms((string) ($data['search'] ?? '')) === null) {
+            throw ValidationException::withMessages(['search' => __('listing::search.limit')]);
+        }
         $filters = FavoriteSearch::browseFilters($data);
 
         if ($filters === []) {

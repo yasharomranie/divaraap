@@ -129,7 +129,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 23 | 3 | هشدار کاهش قیمت | verified |
 | 24 | 3 | سابقهٔ مشاهده | verified |
 | 25 | 3 | مجموعه‌های شخصی | verified |
-| 26 | 3 | جست‌وجوی بهتر فارسی | pending |
+| 26 | 3 | جست‌وجوی بهتر فارسی | verified |
 | 27 | 3 | جست‌وجو روی نقشه | pending |
 | 28 | 3 | پیشنهادهای مرتبط | pending |
 | 29 | 4 | داشبورد عملکرد آگهی | pending |
@@ -188,7 +188,7 @@ A durable publication ledger records each listing's first active Eloquent save a
 
 Notifications are generated when the user opens the notification inbox or My alerts, with at most 50 new publication records per subscription per visit. Reopen to continue a larger backlog. There is no cron, queue worker, email, SMS or push dependency and no claim of background real-time delivery. Publication and delivery receipts persist; per-alert locks and transactions make repeated inbox visits idempotent. Price alerts compare the current active listing against the lowest observed price since activation using decimal arithmetic; currency changes reset the baseline. Intermediate price changes while the user is absent are not price-history events. Inactive, expired or deleted listings cannot expose content through these notifications.
 
-One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison is delivered below; viewing history is delivered below; collections are delivered below; improved Persian search, maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
+One additive migration creates publication, preference and receipt tables; the standard cPanel release runs it. Existing favorites, account settings, public design and advertising behavior remain. Comparison is delivered below; viewing history is delivered below; collections are delivered below; improved Persian search is delivered below; maps and recommendations remain pending; this delivery completes the buyer-alert module, not all of phase 3.
 
 Validation: 271 PHPUnit tests / 3113 assertions passed, including 10 buyer-alert tests; browser checks exercised all three opt-in controls, real notification generation and Persian layouts at 390px and 1440px. Production assets and localization checks passed.
 
@@ -223,3 +223,15 @@ The normal favorite save flow now restores a previously soft-deleted favorite in
 Mobile controls use existing tokens, labeled native inputs/selects, a wrapped utility navigation, preserved invalid rename input, actionable empty-folder states and a two-step native delete disclosure. Collection and Favorites responses are private/no-store; collection management is noindex. One additive migration creates favorite_collections and its nullable pivot reference; standard cPanel deployment runs it without manual SQL or host configuration.
 
 Validation: 289 PHPUnit tests / 3316 assertions passed, including six collection tests; 16 collection/buyer-alert tests passed again after final form/navigation adjustments. Chromium exercised create, move, filtering, rename, confirmed delete, preserved bookmarks and auth denial at 390px and 1440px. Asset build, localization and production config/route caching passed.
+
+## Phase 3 — Persian search matching
+
+Feature 26 applies one shared normalization policy to existing listing search and buyer alerts. Arabic/Persian yeh and kaf forms, Persian/Arabic/Latin digits, common alef variants, short Arabic vowel marks, tatweel, spaces and joiners are folded at comparison time. Latin matching is case-insensitive. Each distinct query term must match title, description, city or country; terms can occur in different fields and in any order. Within a term, spaces and joiners in stored content do not block a match. Original listing text and displayed query remain unchanged.
+
+Listing owns the existing query scope. It uses qualified columns, portable LOWER/COALESCE/REPLACE and bound LIKE patterns with an explicit exclamation escape. Percent, underscore, exclamation and SQL-like input stay literal. Category, price, location, status and sorting continue through the existing browse flow. This is function-based substring matching, not typo correction, stemming, transliteration, semantic search or indexed full-text ranking. It adds no schema, external engine, scheduled task or dependency; large-catalog indexing remains a separate implementation choice.
+
+Queries are bounded to 120 characters and eight distinct normalized terms. Unsupported input returns no matches with a correction link to the visible mobile/desktop input; non-string query input returns 422. Both inputs declare the character limit and associate validation errors accessibly. New unsupported saved searches are rejected. Saved-search signatures normalize digit/letter variants, duplicate terms and term order. Existing legacy signatures are recognized through a memory-bounded per-user fallback, without rewriting old rows or labels. Soft-deleted searches stay excluded. Buyer alerts use the same Listing scope and existing deduplication.
+
+Validation: 296 PHPUnit tests passed, including seven new Persian-search tests. Baseline public marketplace and buyer-alert tests passed. Browser checks exercise the visible mobile/desktop search inputs, legacy Arabic content, reordered Persian-digit queries and focusable correction links. Production asset build and localization checks passed. No database migration is required; use the standard cPanel update/deploy flow.
+
+After the final canonical term-order adjustment, all 17 Persian-search and buyer-alert tests passed again (107 assertions). Legacy labels and signatures are retained; only new signatures use the canonical order.

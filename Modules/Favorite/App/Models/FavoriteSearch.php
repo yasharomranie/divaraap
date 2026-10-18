@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Favorite\App\Models;
 
 use App\Support\Money;
+use App\Support\PersianSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Category\Models\Category;
@@ -55,6 +56,10 @@ class FavoriteSearch extends Model
     public static function signatureFor(array $filters): string
     {
         $normalized = static::normalizeFilters($filters);
+        if (isset($normalized['search']) && ($terms = PersianSearch::terms((string) $normalized['search'])) !== null) {
+            sort($terms, SORT_STRING);
+            $normalized['search'] = implode(' ', $terms);
+        }
         $payload = json_encode($normalized);
 
         return hash('sha256', is_string($payload) ? $payload : '');
@@ -83,14 +88,32 @@ class FavoriteSearch extends Model
             return false;
         }
 
-        return $user->favoriteSearches()
-            ->where('signature', static::signatureFor($normalized))
-            ->exists();
+        return self::findForUser($user, $normalized) !== null;
+    }
+
+    private static function findForUser(User $user, array $filters): ?self
+    {
+        $signature = self::signatureFor($filters);
+        $exact = self::where('user_id', $user->id)->where('signature', $signature)->first();
+        if ($exact) {
+            return $exact;
+        }
+        foreach (self::where('user_id', $user->id)->lazyById(200) as $search) {
+            if (self::signatureFor($search->filters ?? []) === $signature) {
+                return $search;
+            }
+        }
+
+        return null;
     }
 
     public static function storeForUser(User $user, array $filters): self
     {
         $normalized = static::normalizeFilters($filters);
+        $existing = self::findForUser($user, $normalized);
+        if ($existing) {
+            return $existing;
+        }
         $signature = static::signatureFor($normalized);
         $categoryName = isset($normalized['category'])
             ? Category::query()->whereKey($normalized['category'])->value('name')
