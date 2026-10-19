@@ -32,6 +32,7 @@
     <p class="text-muted">{{ __('listing::improvement.privacy') }}</p>
     <p class="text-muted">{{ __('listing::improvement.moderation') }}</p>
     <div class="row row--wrap">
+        <a class="button button--secondary" href="{{ route('panel.listings.edit', $listing) }}#listing-text-suggestions">{{ __('listing::suggestions.title') }}</a>
         <a class="button button--primary" href="{{ route('panel.listings.edit', $listing) }}">{{ __('listing::improvement.edit') }}</a>
         <a class="button button--ghost" href="{{ route('panel.listings.performance', $listing) }}">{{ __('listing::performance.title') }}</a>
     </div>

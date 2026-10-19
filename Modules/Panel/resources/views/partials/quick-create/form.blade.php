@@ -174,6 +174,8 @@
                             @error('description')<p class="field__error">{{ $message }}</p>@enderror
                         </div>
 
+                        @include('panel::partials.listing-text-suggestions', ['suggestionTitleId' => 'listing-title', 'suggestionDescriptionId' => 'listing-description', 'suggestionCityId' => 'listing-city', 'suggestionCategoryId' => $selectedCategoryId])
+
                         <div class="field__row field__row--three">
                             <div class="field">
                                 <label class="field__label" for="listing-price">{{ __('panel::messages.price') }} ({{ \App\Support\Money::currencyLabel(\Modules\Listing\Support\ListingPanelHelper::defaultCurrency()) }})</label>

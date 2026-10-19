@@ -1,3 +1,4 @@
+import { listingTextSuggestions } from './modules/listing-text-suggestions';
 import { listingCreateLocation } from './modules/listing-create-location';
 import '../css/app.css';
 import { listingLocation } from './modules/listing-location';
@@ -16,6 +17,7 @@ import { contactReveal, shareAction } from './modules/reveal';
 import { appNavigation, disclosureGroup, navigationDrawer, searchSuggest, stickyHeader } from './modules/navigation';
 
 const behaviors: readonly Behavior<never>[] = [
+    listingTextSuggestions,
     listingCreateLocation,
     listingMap,
     listingLocation,
@@ -59,7 +61,8 @@ document.addEventListener('livewire:navigated', boot);
 
 document.addEventListener('toggle', event => {
     const target = event.target;
-    if (target instanceof HTMLDetailsElement && target.matches('[data-create-location]') && target.parentElement) {
-        startBehaviors([listingCreateLocation], target.parentElement);
+    if (target instanceof HTMLDetailsElement && target.parentElement) {
+        if (target.matches('[data-create-location]')) startBehaviors([listingCreateLocation], target.parentElement);
+        if (target.matches('[data-listing-text-suggestions]')) startBehaviors([listingTextSuggestions], target.parentElement);
     }
 }, true);

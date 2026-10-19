@@ -451,3 +451,14 @@
 @media (min-width: 48rem) { .listing-guide__checks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .listing-edit [id] { scroll-margin-top: calc(var(--header-height) + 24px); }
+
+.listing-text-tools { min-width: 0; margin-block: var(--space-4); padding: var(--space-3); border: 1px solid var(--line-hairline); border-radius: var(--radius-md); scroll-margin-top: calc(var(--header-height) + 24px); }
+.listing-text-tools summary { cursor: pointer; min-height: 44px; padding-block: var(--space-2); font-weight: 600; }
+.listing-text-tools summary:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
+.listing-text-tools__results, .listing-text-tools__option { display: grid; gap: var(--space-3); min-width: 0; }
+.listing-text-tools__option { padding-block: var(--space-3); border-top: 1px solid var(--line-hairline); }
+.listing-text-tools .textarea { width: 100%; min-width: 0; font-size: 14px; }
+.listing-text-tools .button { min-height: 44px; white-space: normal; }
+.listing-text-tools [role="status"] { overflow-wrap: anywhere; }
+.listing-text-tools summary { display: list-item; list-style: disclosure-closed inside; }
+.listing-text-tools[open] > summary, .listing-text-tools details[open] > summary { list-style-type: disclosure-open; }

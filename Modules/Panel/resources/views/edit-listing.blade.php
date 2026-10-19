@@ -44,6 +44,8 @@
                     @error('description')<p class="field__error">{{ $message }}</p>@enderror
                 </div>
 
+                @include('panel::partials.listing-text-suggestions', ['suggestionTitleId' => 'title', 'suggestionDescriptionId' => 'description', 'suggestionCityId' => 'city', 'suggestionCategoryId' => $listing->category_id])
+
                 <div class="field__row field__row--two">
                     <div class="field">
                         <label class="field__label" for="price">{{ __('panel::messages.price') }}</label>

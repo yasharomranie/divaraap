@@ -41,6 +41,13 @@ class Category extends Model
 
     protected $casts = ['is_active' => 'boolean'];
 
+    public static function textSuggestionLabel(?int $categoryId): string
+    {
+        $category = $categoryId ? static::query()->active()->find($categoryId, ['id', 'name']) : null;
+
+        return $category ? $category->displayName() : '';
+    }
+
     public static function namesForOperations(array $ids): array
     {
         return static::query()->whereIn('id', $ids)->pluck('name', 'id')->all();
