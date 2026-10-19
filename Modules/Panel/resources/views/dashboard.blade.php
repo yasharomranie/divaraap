@@ -58,6 +58,7 @@
                             </div>
                         </div>
                         <div class="data-row__actions">
+                            <a href="{{ route('panel.listings.improve', $listing) }}" class="button button--ghost button--small">{{ __('listing::improvement.title') }}</a>
                             <a href="{{ route('panel.listings.performance', $listing) }}" class="button button--ghost button--small">{{ __('listing::performance.title') }}</a>
                             <a href="{{ route('listings.location', $listing) }}" class="button button--ghost button--small">{{ __('listing::map.location') }}</a>
                             <a href="{{ route('panel.listings.edit', $listing) }}" class="button button--secondary button--small">{{ __('panel::messages.edit') }}</a>

@@ -50,6 +50,7 @@
         </div>
     </section>
     <div class="row row--wrap">
+        <a class="button button--secondary" href="{{ route('panel.listings.improve', $listing) }}">{{ __('listing::improvement.title') }}</a>
         <a class="button button--primary" href="{{ route('panel.listings.edit', $listing) }}">{{ __('listing::performance.edit') }}</a>
         <a class="button button--ghost" href="{{ route('listings.show', $listing) }}">{{ __('listing::performance.view_listing') }}</a>
     </div>

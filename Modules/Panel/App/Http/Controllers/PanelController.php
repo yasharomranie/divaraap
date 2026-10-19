@@ -7,6 +7,7 @@ namespace Modules\Panel\App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Modules\Listing\Models\Listing;
 use Modules\Listing\Support\ListingCustomFieldSchemaBuilder;
@@ -66,18 +67,19 @@ class PanelController extends Controller
         ]);
     }
 
-    public function editListing(Request $request, Listing $listing): View
+    public function editListing(Request $request, Listing $listing): Response
     {
         $listing->assertOwnedBy($request->user());
 
-        return view('panel::edit-listing', [
+        return response()->view('panel::edit-listing', [
             'listing' => $listing->loadPanelEditor(),
+            'guide' => $listing->improvementGuide(),
             'customFieldValues' => ListingCustomFieldSchemaBuilder::presentableValues(
                 $listing->category_id ? (int) $listing->category_id : null,
                 (array) $listing->custom_fields,
             ),
             'statusOptions' => Listing::panelStatusOptions(),
-        ]);
+        ])->header('Cache-Control', 'private, no-store')->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
     public function updateListing(UpdateListingRequest $request, Listing $listing): RedirectResponse

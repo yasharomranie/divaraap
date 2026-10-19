@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -28,6 +29,7 @@ use Modules\Listing\States\PendingListingStatus;
 use Modules\Listing\States\RejectedListingStatus;
 use Modules\Listing\States\SoldListingStatus;
 use Modules\Listing\Support\ListingImageViewData;
+use Modules\Listing\Support\ListingImprovementGuide;
 use Modules\Listing\Support\ListingPanelHelper;
 use Modules\Location\Models\Country;
 use Modules\Location\Support\IranianCities;
@@ -327,26 +329,39 @@ class Listing extends Model implements HasMedia
 
     public function galleryImageData(): array
     {
-        $mediaItems = $this->getMedia('listing-images');
-
-        if ($mediaItems->isNotEmpty()) {
-            return $mediaItems
-                ->map(fn (Media $media): array => [
-                    'gallery' => ListingImageViewData::fromMedia($media, 'gallery'),
-                    'thumb' => ListingImageViewData::fromMedia($media, 'thumb'),
-                ])
-                ->values()
-                ->all();
-        }
-
-        return collect($this->images ?? [])
+        $media = $this->getMedia('listing-images')->map(fn (Media $media): array => [
+            'gallery' => ListingImageViewData::fromMedia($media, 'gallery'),
+            'thumb' => ListingImageViewData::fromMedia($media, 'thumb'),
+        ]);
+        $legacy = collect($this->images ?? [])
             ->filter(fn ($value): bool => is_string($value) && trim($value) !== '')
             ->map(fn (string $url): array => [
                 'gallery' => ListingImageViewData::fromUrl($url),
                 'thumb' => ListingImageViewData::fromUrl($url),
-            ])
-            ->values()
-            ->all();
+            ]);
+
+        return $media->concat($legacy)->unique(fn (array $image): ?string => $image['gallery']['fallback'] ?? null)->values()->all();
+    }
+
+    public function improvementGuide(): array
+    {
+        $this->loadMissing('media');
+
+        return ListingImprovementGuide::evaluate($this->getAttributes(), count($this->galleryImageData()));
+    }
+
+    public function addPanelPhoto(User $user, UploadedFile $photo): void
+    {
+        DB::transaction(function () use ($user, $photo): void {
+            $locked = static::query()->lockForUpdate()->findOrFail($this->getKey());
+            $locked->assertOwnedBy($user);
+            abort_unless((string) $user->status === 'active', 403);
+            if (count($locked->galleryImageData()) >= (int) config('quick-listing.max_photo_count', 20)) {
+                throw ValidationException::withMessages(['photo' => __('listing::improvement.photo_limit')]);
+            }
+            $locked->attachListingImage($photo->getRealPath(), (string) Str::uuid().'.'.$photo->extension(), LocalMedia::disk());
+        });
+        $this->unsetRelation('media');
     }
 
     public function primaryImageData(string $context = 'card'): ?array

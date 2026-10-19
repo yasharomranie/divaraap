@@ -16,7 +16,12 @@
 
 <p><a class="button button--ghost" href="{{ route('panel.listings.performance', $listing) }}">{{ __('listing::performance.title') }}</a></p>
 <p><a class="button button--secondary" href="{{ route('listings.location', $listing) }}">{{ __('listing::map.location') }}</a></p>
-<form method="POST" action="{{ route('panel.listings.update', $listing) }}" class="grid grid--split">
+<details class="listing-guide-summary">
+    <summary>{{ __('listing::improvement.title') }} — {{ __('listing::improvement.progress', ['completed' => \App\Support\PersianLocale::number($guide['completed']), 'total' => \App\Support\PersianLocale::number($guide['total'])]) }}</summary>
+    <p>{{ __('listing::improvement.saved_only') }}</p>
+    <a class="button button--secondary" href="{{ route('panel.listings.improve', $listing) }}">{{ __('listing::improvement.open') }}</a>
+</details>
+<form method="POST" action="{{ route('panel.listings.update', $listing) }}" class="grid grid--split listing-edit">
     @csrf
     @method('PUT')
 
@@ -118,4 +123,5 @@
         </div>
     </aside>
 </form>
+@include('panel::partials.listing-photo-upload')
 @endsection
