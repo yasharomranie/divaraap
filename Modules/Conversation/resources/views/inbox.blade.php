@@ -12,6 +12,7 @@
         <h1 class="title-page">{{ __('conversation::messages.inbox') }}</h1>
         <p class="text-muted">{{ trans_choice('site::messages.results_count', $conversations->count(), ['count' => $conversations->count()]) }}</p>
     </div>
+    <a class="button button--secondary" href="{{ route('panel.saved-replies.index') }}">{{ __('conversation::replies.title') }}</a>
 </header>
 
 @if($conversations->isEmpty())
@@ -92,6 +93,7 @@
                         </div>
                     @endif
 
+                    @include('conversation::partials.saved-reply-picker')
                     <p class="field__error" data-thread-status role="alert"></p>
                     <form class="thread__composer" data-thread-form>
                         @csrf

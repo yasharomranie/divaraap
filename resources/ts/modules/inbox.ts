@@ -79,6 +79,19 @@ export const inboxThread = defineBehavior<HTMLElement>({
             });
         }
 
+        for (const reply of queryAll<HTMLButtonElement>('[data-saved-reply]', HTMLButtonElement, root)) {
+            reply.disabled = false;
+            reply.addEventListener('click', () => {
+                if (field.disabled) return;
+                const body = reply.dataset['savedReply'] ?? '';
+                if (field.value.trim() !== '' && field.value !== body && !window.confirm(reply.dataset['replyReplace'] ?? '')) return;
+                field.value = body;
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                root.querySelector<HTMLDetailsElement>('.saved-reply-picker')?.removeAttribute('open');
+                field.focus();
+            });
+        }
+
         const send = (): void => {
             if (field.disabled) return;
             const body = field.value.trim();

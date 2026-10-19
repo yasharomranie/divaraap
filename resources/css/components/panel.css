@@ -377,3 +377,15 @@
 }
 
 .buyer-alerts .card { padding: var(--space-4); overflow-wrap: anywhere; }
+
+.saved-replies { min-width: 0; }
+.saved-replies__item { padding: var(--space-4); overflow-wrap: anywhere; }
+.saved-replies__item > summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.saved-replies__item > form { margin-block-start: var(--space-3); }
+.saved-replies__item :is(button, summary), .saved-reply-picker :is(button, summary) { min-height: 44px; }
+.saved-replies__item summary, .saved-reply-picker summary { cursor: pointer; }
+.saved-replies__item summary:focus-visible, .saved-reply-picker summary:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 3px; }
+.saved-reply-picker { padding: var(--space-2) var(--space-3); border-block-start: 1px solid var(--line-hairline); min-width: 0; }
+.saved-reply-picker__list { max-height: 240px; overflow-y: auto; overscroll-behavior: contain; }
+.saved-reply-picker__entry { padding-block: var(--space-2); overflow-wrap: anywhere; }
+.saved-reply-picker__body { white-space: pre-wrap; overflow-wrap: anywhere; margin-block: var(--space-2); }

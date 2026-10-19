@@ -8,12 +8,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Http\Response;
 use Modules\Conversation\App\Events\ConversationReadUpdated;
 use Modules\Conversation\App\Events\ConversationStarted;
 use Modules\Conversation\App\Events\InboxMessageCreated;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Conversation\App\Models\ConversationMessage;
+use Modules\Conversation\App\Models\SavedReply;
 use Modules\Conversation\App\Support\QuickMessageCatalog;
 use Modules\Listing\Models\Listing;
 
@@ -33,7 +34,7 @@ class ConversationController extends Controller
         ))->header('Cache-Control', 'no-store, private');
     }
 
-    public function inbox(Request $request): View
+    public function inbox(Request $request): Response
     {
         $user = $request->user();
         $userId = $user ? (int) $user->getKey() : null;
@@ -63,13 +64,14 @@ class ConversationController extends Controller
             }
         }
 
-        return view('conversation::inbox', [
+        return response()->view('conversation::inbox', [
             'conversations' => $conversations,
             'selectedConversation' => $selectedConversation,
             'messageFilter' => $messageFilter,
             'quickMessages' => QuickMessageCatalog::all(),
             'requiresLogin' => $requiresLogin,
-        ]);
+            'savedReplies' => $user ? SavedReply::forOwner($user) : collect(),
+        ])->header('Cache-Control', 'private, no-store');
     }
 
     public function start(Request $request, Listing $listing): RedirectResponse|JsonResponse
