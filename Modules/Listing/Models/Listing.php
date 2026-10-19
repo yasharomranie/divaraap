@@ -370,28 +370,63 @@ class Listing extends Model implements HasMedia
 
     public function relatedSuggestions(int $limit = 8): Collection
     {
-        $baseQuery = static::query()
-            ->publicFeed()
-            ->with(['category:id,name', 'videos'])
-            ->whereKeyNot($this->getKey());
-
-        $primary = (clone $baseQuery)
-            ->forCategory($this->category_id ? (int) $this->category_id : null)
-            ->limit($limit)
-            ->get();
-
-        if ($primary->count() >= $limit) {
-            return $primary;
+        $limit = max(0, min(12, $limit));
+        $groups = Category::recommendationGroups($this->category_id ? (int) $this->category_id : null);
+        if ($limit === 0 || $groups['family'] === []) {
+            return collect();
+        }
+        $query = static::query()->active()->whereKeyNot($this->getKey())
+            ->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->whereIn('category_id', $groups['family'])
+            ->with(['category:id,name', 'media']);
+        $countryNames = $this->recommendationCountryNames();
+        if ($countryNames !== []) {
+            $query->whereIn(DB::raw("LOWER(TRIM(COALESCE(country, '')))"), $countryNames);
+        }
+        $placeholders = implode(',', array_fill(0, count($groups['primary']), '?'));
+        $query->orderByRaw("CASE WHEN category_id = ? THEN 0 WHEN category_id IN ({$placeholders}) THEN 1 ELSE 2 END", [$this->category_id, ...$groups['primary']]);
+        $city = mb_strtolower(trim((string) $this->city));
+        if ($countryNames !== [] && $city !== '' && $city !== 'other') {
+            $query->orderByRaw("CASE WHEN LOWER(TRIM(COALESCE(city, ''))) = ? THEN 0 ELSE 1 END", [$city]);
+        }
+        $currency = strtoupper(trim((string) $this->currency));
+        if ((float) $this->price > 0 && $currency !== '') {
+            $query->orderByRaw("CASE WHEN UPPER(TRIM(COALESCE(currency, ''))) = ? AND price > 0 THEN 0 ELSE 1 END", [$currency])
+                ->orderByRaw("CASE WHEN UPPER(TRIM(COALESCE(currency, ''))) = ? AND price > 0 THEN ABS(price - ?) ELSE NULL END ASC", [$currency, $this->price]);
         }
 
-        $missing = $limit - $primary->count();
-        $excludeIds = $primary->pluck('id')->push($this->getKey())->all();
-        $fallback = (clone $baseQuery)
-            ->whereNotIn('id', $excludeIds)
-            ->limit($missing)
-            ->get();
+        return $query->orderByDesc('created_at')->orderByDesc('id')->limit($limit)->get();
+    }
 
-        return $primary->concat($fallback)->values();
+    public function recommendationReasonKeys(self $candidate): array
+    {
+        $reasons = [(int) $candidate->category_id === (int) $this->category_id ? 'same_category' : 'related_category'];
+        $city = mb_strtolower(trim((string) $this->city));
+        if ($this->recommendationCountryNames() !== []
+            && in_array(mb_strtolower(trim((string) $candidate->country)), $this->recommendationCountryNames(), true)
+            && $city !== '' && $city !== 'other'
+            && $city === mb_strtolower(trim((string) $candidate->city))) {
+            $reasons[] = 'same_city';
+        }
+        $price = (float) $this->price;
+        if ($price > 0 && (float) $candidate->price > 0 && trim((string) $this->currency) !== ''
+            && strtoupper(trim((string) $this->currency)) === strtoupper(trim((string) $candidate->currency))
+            && abs((float) $candidate->price - $price) / $price <= 0.25) {
+            $reasons[] = 'close_price';
+        }
+
+        return $reasons;
+    }
+
+    private function recommendationCountryNames(): array
+    {
+        $country = mb_strtolower(trim((string) $this->country));
+
+        return match ($country) {
+            '' => [],
+            'iran', 'ir', 'ایران' => ['iran', 'ir', 'ایران'],
+            default => [$country],
+        };
     }
 
     public static function panelStatusOptions(): array

@@ -280,6 +280,52 @@ class Category extends Model
         ];
     }
 
+    public static function recommendationGroups(?int $categoryId): array
+    {
+        $empty = ['primary' => [], 'family' => []];
+        if (! $categoryId) {
+            return $empty;
+        }
+        $catalog = static::query()->active()->get(['id', 'parent_id'])->keyBy('id');
+        $selected = $catalog->get($categoryId);
+        if (! $selected) {
+            return $empty;
+        }
+        $visited = [];
+        $node = $selected;
+        while ($node) {
+            $id = (int) $node->getKey();
+            if (isset($visited[$id])) {
+                return $empty;
+            }
+            $visited[$id] = true;
+            if ($node->parent_id === null) {
+                break;
+            }
+            $node = $catalog->get((int) $node->parent_id);
+            if (! $node) {
+                return $empty;
+            }
+        }
+        $descendants = function (int $root) use ($catalog): array {
+            $ids = [$root => true];
+            $frontier = [$root];
+            while ($frontier !== []) {
+                $children = $catalog->filter(fn (self $category): bool => $category->parent_id !== null
+                    && in_array((int) $category->parent_id, $frontier, true)
+                    && ! isset($ids[(int) $category->getKey()]))->keys()->map(fn ($id): int => (int) $id)->all();
+                foreach ($children as $child) {
+                    $ids[$child] = true;
+                }
+                $frontier = $children;
+            }
+
+            return array_keys($ids);
+        };
+
+        return ['primary' => $descendants($categoryId), 'family' => $descendants((int) ($selected->parent_id ?? $categoryId))];
+    }
+
     public static function listingFilterIds(?int $selectedCategoryId, ?Collection $categories = null): ?array
     {
         if (! $selectedCategoryId) {

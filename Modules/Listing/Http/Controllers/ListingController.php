@@ -186,7 +186,7 @@ class ListingController extends Controller
         );
         $gallery = $listing->galleryImageData();
         $listingVideos = $listing->getRelation('videos');
-        $relatedListings = $listing->relatedSuggestions(12);
+        $relatedListings = $listing->relatedSuggestions(8);
         $themePillCategories = Category::themePills(10);
         $breadcrumbCategories = $listing->category
             ? $listing->category->breadcrumbTrail()

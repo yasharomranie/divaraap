@@ -296,13 +296,19 @@
         @includeIf('advertising::slot', ['placementKey' => 'listing-related', 'position' => 0, 'advertisingContext' => ['category_id' => $listing->category_id, 'city_name' => (string) $listing->city, 'country_name' => (string) $listing->country]])
 
         @if($relatedListings->isNotEmpty())
-            <section class="section">
+            <section class="section" aria-labelledby="related-listings-title" data-related-listings>
                 <div class="section__head">
-                    <h2 class="title-section">{{ __('site::messages.similar_listings') }}</h2>
+                    <div class="stack stack--tight">
+                        <h2 class="title-section" id="related-listings-title">{{ __('listing::recommendations.title') }}</h2>
+                        <p class="text-muted">{{ __('listing::recommendations.hint') }}</p>
+                    </div>
                 </div>
                 <div class="grid grid--listings">
-                    @foreach($relatedListings->take(10) as $related)
-                        <x-ui.listing-card :listing="$related"/>
+                    @foreach($relatedListings as $related)
+                        <div class="related-listing" data-related-id="{{ $related->getKey() }}">
+                            <x-ui.listing-card :listing="$related"/>
+                            <p class="related-listing__reason">@foreach($listing->recommendationReasonKeys($related) as $reason){{ $loop->first ? '' : ' · ' }}{{ __('listing::recommendations.'.$reason) }}@endforeach</p>
+                        </div>
                     @endforeach
                 </div>
             </section>

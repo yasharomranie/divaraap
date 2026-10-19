@@ -131,7 +131,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 25 | 3 | مجموعه‌های شخصی | verified |
 | 26 | 3 | جست‌وجوی بهتر فارسی | verified |
 | 27 | 3 | جست‌وجو روی نقشه | verified |
-| 28 | 3 | پیشنهادهای مرتبط | pending |
+| 28 | 3 | پیشنهادهای مرتبط | verified |
 | 29 | 4 | داشبورد عملکرد آگهی | pending |
 | 30 | 4 | راهنمای بهبود آگهی | pending |
 | 31 | 4 | پیشنهاد عنوان و توضیح | pending |
@@ -261,3 +261,14 @@ Validation: 24 relevant PHPUnit tests passed (344 assertions), including creatio
 Vite now builds with a relative base so lazy-loaded CSS and its image URLs resolve against the currently running JavaScript release. The previous default emitted `/build/assets/leaflet-*.css`, bypassing the cPanel release directory `/_releases/<revision>/build/`; a missing root CSS file rejected map initialization before controls appeared. This affected creation, owner editing and public maps. No server paths, DocumentRoot, listing data or tile provider settings change.
 
 Validation: `tests/Browser/release-map-assets.py` reproduces the CSS failure in the previously published archive on all three map screens, then verifies the repaired production build under a release prefix with root `/build` deliberately unavailable. It checks CSS application, zoom controls and selection/clearing in the creation picker. Tile responses are mocked; live OSM delivery remains separate from this confirmed asset-path defect. The existing Livewire creation browser flow and production build passed.
+
+
+## Phase 3 — related listing recommendations
+
+Feature 28 upgrades the existing detail-page related section rather than adding another feed. Up to eight active, unexpired, undeleted listings are recommended. The source listing is excluded. Categories must belong to the source category's active branch or its immediate parent's active branch; missing, inactive, deleted or cyclic source ancestry yields no results. Unrelated root categories never fill empty slots. When the source country is known, only that country is eligible, with legacy Iran aliases recognized. Unknown-country sources can match across countries but never claim a city match.
+
+Ranking is deterministic and lexicographic: exact category, descendants, then the immediate category family; within those groups, same city, comparable positive prices in the same known currency, absolute price distance, newest timestamp and ID. Featured/payment status does not override organic relevance; the existing related advertising placement remains separate. Zero/unknown prices do not produce a price-similarity claim or imply currency conversion. Reason labels state same/related category, same city where known, and similar price only within 25 percent. Ranking does not use browsing history, visitor identity, coordinates, favorites, tracking or a remote AI service. Original prices and listing data remain unchanged.
+
+Category owns its catalog lookup and guarded hierarchy traversal; Listing owns all candidate queries and ranking. Candidate results are SQL-limited to 12 even for larger callers; the public detail page requests eight. Category and media data load separately through eager loading; no new cross-module JOIN is introduced. No result set means no empty section, and the existing native listing-card links, favorites and comparison controls remain. The compact reasons use existing design tokens and wrap on mobile. There is no migration, route, permission, admin resource, worker, API key or new dependency.
+
+Validation: all 314 PHPUnit tests passed (3491 assertions), including six recommendation tests covering category hierarchy/order, city/price/currency behavior, eligibility, country aliases, bound input, deterministic limits, invalid ancestry, empty rendering and escaped titles. Chromium verified actual detail responses, expected recommendation order and reason labels, native keyboard navigation, Persian RTL/English LTR and no horizontal overflow at 360/390/768/1440px. Production asset build and localization checks passed. Browser fixtures are created with `php tests/Browser/listing-recommendation-fixtures.php`, exercised with `python3 tests/Browser/listing-recommendations.py`, and removed with `php tests/Browser/listing-recommendation-fixtures.php cleanup`, all in a development environment.
