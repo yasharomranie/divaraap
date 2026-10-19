@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Panel\App\Http\Controllers\ListingDraftPhotoController;
 use Modules\Panel\App\Http\Controllers\ListingImprovementController;
 use Modules\Panel\App\Http\Controllers\ListingPerformanceController;
 use Modules\Panel\App\Http\Controllers\ListingTextSuggestionController;
@@ -12,6 +13,7 @@ Route::middleware(['web', 'auth'])->prefix('panel')->name('panel.')->group(funct
     Route::get('/', [PanelController::class, 'index'])->name('index');
     Route::get('/my-listings', [PanelController::class, 'listings'])->name('listings.index');
     Route::post('/listing-text-suggestions', [ListingTextSuggestionController::class, 'generate'])->middleware('throttle:20,1')->name('listings.text-suggestions');
+    Route::get('/drafts/{draft}/photos/{file}', ListingDraftPhotoController::class)->where('draft', '[1-9][0-9]{0,17}')->whereUuid('file')->name('drafts.photo');
     Route::get('/create-listing', [PanelController::class, 'create'])->name('listings.create');
     Route::get('/my-listings/{listing}/improve', [ListingImprovementController::class, 'show'])->name('listings.improve');
     Route::post('/my-listings/{listing}/photos', [ListingImprovementController::class, 'photo'])->middleware('throttle:20,1')->name('listings.photos.store');

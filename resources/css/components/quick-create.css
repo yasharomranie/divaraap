@@ -62,3 +62,8 @@
     html body.app-shell .quick-create__actions .button { min-height: 46px; padding: 10px; font-size: 14px; border-radius: 10px; }
     .quick-create__actions .button--primary { background: var(--accent); color: var(--appearance-on-accent); border-color: var(--accent); }
 }
+
+.quick-create__draft { padding: var(--space-3); border: 1px solid var(--line-hairline); border-radius: var(--radius-md); }
+.quick-create__draft-actions { flex-wrap: wrap; gap: var(--space-2); }
+.quick-create__draft-actions .button { min-height: 44px; }
+.quick-create__draft-actions .button:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 3px; }

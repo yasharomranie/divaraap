@@ -20,6 +20,25 @@
             <p class="text-muted">{{ $this->currentStepHint }}</p>
         </header>
 
+        <section class="quick-create__draft stack stack--tight" aria-label="{{ __('panel::drafts.save') }}">
+            <p class="field__hint" role="status" aria-live="polite">
+                <span wire:loading>{{ __('panel::drafts.saving') }}</span>
+                <span wire:dirty>{{ __('panel::drafts.unsaved') }}</span>
+                <span wire:loading.remove wire:dirty.remove>{{ $draftConflict ? __('panel::drafts.conflict') : ($draftError ?: ($draftSavedAt ? __('panel::drafts.saved') : __('panel::drafts.empty'))) }}</span>
+            </p>
+            <div class="row quick-create__draft-actions">
+                @if($draftConflict)
+                    <button type="button" class="button button--secondary" wire:click="reloadDraft" wire:confirm="{{ __('panel::drafts.reload_confirm') }}" wire:loading.attr="disabled">{{ __('panel::drafts.reload') }}</button>
+                @else
+                    <button type="button" class="button button--secondary" wire:click="saveDraft" wire:loading.attr="disabled">{{ __('panel::drafts.save') }}</button>
+                    @if($draftId)
+                        <button type="button" class="button button--ghost" wire:click="discardDraft" wire:confirm="{{ __('panel::drafts.confirm') }}" wire:loading.attr="disabled">{{ __('panel::drafts.discard') }}</button>
+                    @endif
+                @endif
+            </div>
+            <p class="field__hint">{{ __('panel::drafts.hint') }}</p>
+        </section>
+
         <ol class="chip-row quick-create__steps" aria-label="{{ __('panel::messages.new_listing') }}">
             @foreach($steps as $number => $label)
                 <li>
@@ -70,11 +89,18 @@
                                     <span>{{ __('panel::messages.add_photos') }}</span>
                                     <input id="quick-photos" type="file" class="visually-hidden" wire:model="photos" multiple accept="image/jpeg,image/png" aria-describedby="quick-photos-hint">
                                 </label>
+                                @foreach($this->savedPhotos as $key => $file)
+                                    <figure class="upload__preview quick-create__thumbnail" wire:key="saved-photo-{{ $key }}">
+                                        <img src="{{ $file['url'] }}" alt="{{ __('panel::messages.photos') }}" loading="lazy">
+                                        <button type="button" class="icon-button quick-create__remove" wire:click="removeSavedFile('{{ $key }}')" aria-label="{{ __('favorite::messages.remove') }} {{ $file['name'] }}"><x-ui.icon name="close"/></button>
+                                        @if($loop->first)<figcaption class="quick-create__cover">{{ __('panel::messages.cover_photo') }}</figcaption>@endif
+                                    </figure>
+                                @endforeach
                                 @foreach($photos as $index => $photo)
                                     <figure class="upload__preview quick-create__thumbnail" wire:key="quick-photo-{{ $photo->getFilename() }}">
                                         <img src="{{ $photo->temporaryUrl() }}" alt="{{ __('panel::messages.photos') }} {{ $index + 1 }}">
                                         <button type="button" class="icon-button quick-create__remove" wire:click="removePhoto({{ $index }})" aria-label="{{ __('favorite::messages.remove') }} {{ $index + 1 }}"><x-ui.icon name="close"/></button>
-                                        @if($index === 0)<figcaption class="quick-create__cover">{{ __('panel::messages.cover_photo') }}</figcaption>@endif
+                                        @if($index === 0 && $this->savedPhotos === [])<figcaption class="quick-create__cover">{{ __('panel::messages.cover_photo') }}</figcaption>@endif
                                     </figure>
                                 @endforeach
                             </div>
@@ -91,6 +117,13 @@
                                     <span>{{ __('panel::messages.add_videos') }}</span>
                                     <input id="quick-videos" type="file" class="visually-hidden" wire:model="videos" multiple accept="{{ config('video.processing') === 'direct' ? 'video/mp4' : 'video/*' }}" @if(config('video.processing') === 'direct') aria-describedby="quick-videos-hint" @endif>
                                 </label>
+                                @foreach($this->savedVideos as $key => $file)
+                                    <div class="quick-create__thumbnail quick-create__video" wire:key="saved-video-{{ $key }}">
+                                        <x-ui.icon name="video"/>
+                                        <span class="text-clamp-2" dir="auto">{{ $file['name'] }}</span>
+                                        <button type="button" class="icon-button quick-create__remove" wire:click="removeSavedFile('{{ $key }}')" aria-label="{{ __('favorite::messages.remove') }} {{ $file['name'] }}"><x-ui.icon name="close"/></button>
+                                    </div>
+                                @endforeach
                                 @foreach($videos as $index => $video)
                                     <div class="quick-create__thumbnail quick-create__video" wire:key="quick-video-{{ $video->getFilename() }}">
                                         <x-ui.icon name="video"/>
@@ -164,13 +197,13 @@
                     <div class="stack">
                         <div class="field">
                             <label class="field__label" for="listing-title">{{ __('panel::messages.title') }}</label>
-                            <input id="listing-title" dir="auto" type="text" class="input" wire:model.blur="listingTitle" maxlength="70">
+                            <input id="listing-title" dir="auto" type="text" class="input" wire:model.live.debounce.800ms="listingTitle" maxlength="70">
                             @error('listingTitle')<p class="field__error">{{ $message }}</p>@enderror
                         </div>
 
                         <div class="field">
                             <label class="field__label" for="listing-description">{{ __('panel::messages.description') }}</label>
-                            <textarea id="listing-description" dir="auto" class="textarea" rows="4" wire:model.blur="description" maxlength="1450"></textarea>
+                            <textarea id="listing-description" dir="auto" class="textarea" rows="4" wire:model.live.debounce.800ms="description" maxlength="1450"></textarea>
                             @error('description')<p class="field__error">{{ $message }}</p>@enderror
                         </div>
 
@@ -179,7 +212,7 @@
                         <div class="field__row field__row--three">
                             <div class="field">
                                 <label class="field__label" for="listing-price">{{ __('panel::messages.price') }} ({{ \App\Support\Money::currencyLabel(\Modules\Listing\Support\ListingPanelHelper::defaultCurrency()) }})</label>
-                                <input id="listing-price" type="text" inputmode="decimal" step="0.01" min="0" class="input" wire:model.blur="price">
+                                <input id="listing-price" type="text" inputmode="decimal" step="0.01" min="0" class="input" wire:model.live.debounce.800ms="price">
                                 @error('price')<p class="field__error">{{ $message }}</p>@enderror
                             </div>
 
@@ -196,7 +229,7 @@
 
                             <div class="field">
                                 <label class="field__label" for="listing-city">{{ __('site::messages.city') }}</label>
-                                <select id="listing-city" class="select" wire:model="selectedCityId" @disabled($this->availableCities === [])>
+                                <select id="listing-city" class="select" wire:model.live="selectedCityId" @disabled($this->availableCities === [])>
                                     <option value="">{{ __('site::messages.all_cities') }}</option>
                                     @foreach($this->availableCities as $city)
                                         <option value="{{ $city['id'] }}">{{ $city['display_name'] ?? $city['name'] }}</option>
@@ -215,7 +248,7 @@
                                     <div class="field">
                                         <label class="field__label" for="custom-{{ $field['name'] }}">{{ __('listing::messages.field_labels')[$field['label']] ?? $field['label'] }}</label>
                                         @if(($field['type'] ?? 'text') === 'select')
-                                            <select id="custom-{{ $field['name'] }}" class="select" wire:model="customFieldValues.{{ $field['name'] }}">
+                                            <select id="custom-{{ $field['name'] }}" class="select" wire:model.live.debounce.800ms="customFieldValues.{{ $field['name'] }}">
                                                 <option value="">—</option>
                                                 @foreach($field['options'] ?? [] as $option)
                                                     <option value="{{ $option }}">{{ __('listing::messages.field_options')[$option] ?? $option }}</option>
@@ -223,17 +256,17 @@
                                             </select>
                                         @elseif(($field['type'] ?? 'text') === 'boolean')
                                             <label class="checkbox">
-                                                <input type="checkbox" id="custom-{{ $field['name'] }}" wire:model="customFieldValues.{{ $field['name'] }}">
+                                                <input type="checkbox" id="custom-{{ $field['name'] }}" wire:model.live.debounce.800ms="customFieldValues.{{ $field['name'] }}">
                                                 <span>{{ __('listing::messages.field_labels')[$field['label']] ?? $field['label'] }}</span>
                                             </label>
                                         @elseif(($field['type'] ?? 'text') === 'textarea')
-                                            <textarea id="custom-{{ $field['name'] }}" class="textarea" rows="3" wire:model="customFieldValues.{{ $field['name'] }}"></textarea>
+                                            <textarea id="custom-{{ $field['name'] }}" class="textarea" rows="3" wire:model.live.debounce.800ms="customFieldValues.{{ $field['name'] }}"></textarea>
                                         @else
                                             <input
                                                 id="custom-{{ $field['name'] }}"
                                                 type="text" @if(($field['type'] ?? 'text') === 'number') inputmode="decimal" @endif
                                                 class="input"
-                                                wire:model="customFieldValues.{{ $field['name'] }}"
+                                                wire:model.live.debounce.800ms="customFieldValues.{{ $field['name'] }}"
                                             >
                                         @endif
                                         @if(filled($field['help_text'] ?? null))
@@ -274,8 +307,11 @@
                             <div class="prose" dir="auto">{{ $description }}</div>
                         @endif
 
-                        @if($photos !== [])
+                        @if($photos !== [] || $this->savedPhotos !== [])
                             <div class="upload__grid">
+                                @foreach($this->savedPhotos as $file)
+                                    <figure class="upload__preview"><img src="{{ $file['url'] }}" alt=""></figure>
+                                @endforeach
                                 @foreach($photos as $photo)
                                     <figure class="upload__preview"><img src="{{ $photo->temporaryUrl() }}" alt=""></figure>
                                 @endforeach
@@ -303,7 +339,7 @@
                     @elseif($currentStep === 3)
                         <button type="button" class="button button--primary" wire:click="goToPreviewStep" wire:loading.attr="disabled">{{ __('panel::messages.next') }}</button>
                     @else
-                        <button type="button" class="button button--primary button--large" wire:click="publishListing" wire:loading.attr="disabled">
+                        <button type="button" class="button button--primary button--large" wire:click="publishListing" wire:loading.attr="disabled" @disabled($draftConflict)>
                             <span wire:loading.remove wire:target="publishListing">{{ __('site::messages.post_listing_cta') }}</span>
                             <span wire:loading wire:target="publishListing">{{ __('panel::messages.publishing') }}</span>
                         </button>

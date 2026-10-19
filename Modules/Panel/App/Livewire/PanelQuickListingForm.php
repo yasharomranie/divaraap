@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
@@ -19,6 +20,8 @@ use Modules\Admin\Models\ProductEvent;
 use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
 use Modules\Listing\Models\ListingCustomField;
+use Modules\Listing\Models\ListingDraft;
+use Modules\Listing\Support\DraftConflict;
 use Modules\Listing\Support\ListingCustomFieldSchemaBuilder;
 use Modules\Listing\Support\ListingPanelHelper;
 use Modules\Listing\Support\QuickListingCategorySuggester;
@@ -89,16 +92,119 @@ class PanelQuickListingForm extends Component
 
     public bool $isPublishing = false;
 
+    #[Locked]
     public bool $shouldPersistDraft = true;
+
+    #[Locked]
+    public ?int $draftId = null;
+
+    #[Locked]
+    public int $draftVersion = 0;
+
+    #[Locked]
+    public int $draftOwnerId = 0;
+
+    #[Locked]
+    public array $draftFiles = [];
+
+    #[Locked]
+    public array $draftUploadKeys = [];
+
+    #[Locked]
+    public array $draftRemovedFiles = [];
+
+    #[Locked]
+    public bool $draftConflict = false;
+
+    #[Locked]
+    public ?string $draftSavedAt = null;
+
+    #[Locked]
+    public ?string $draftError = null;
+
+    private array $publishingFiles = [];
 
     public ?string $publishError = null;
 
     public function mount(): void
     {
+        $this->draftOwnerId = (int) auth()->id();
+        abort_unless($this->draftOwnerId > 0, 403);
         $this->loadCategories();
         $this->loadLocations();
         $this->hydrateLocationDefaultsFromProfile();
         $this->restoreDraft();
+    }
+
+    public function hydrate(): void
+    {
+        abort_unless($this->draftOwnerId === (int) auth()->id() && $this->draftOwnerId > 0, 403);
+        $this->shouldPersistDraft = true;
+    }
+
+    public function saveDraft(): void
+    {
+        $this->persistDraft(true);
+    }
+
+    public function reloadDraft(): void
+    {
+        $this->resetDraftFields();
+        $this->restoreDraft();
+    }
+
+    public function discardDraft(): void
+    {
+        try {
+            if ($this->draftId) {
+                ListingDraft::consume(auth()->user(), $this->draftId, $this->draftVersion);
+            }
+        } catch (DraftConflict) {
+            $this->draftConflict = true;
+
+            return;
+        }
+        session()->forget($this->draftSessionKey());
+        $this->resetDraftFields();
+        $this->shouldPersistDraft = false;
+    }
+
+    private function resetDraftFields(): void
+    {
+        $this->reset('photos', 'videos', 'currentStep', 'categorySearch', 'selectedCategoryId', 'activeParentCategoryId', 'detectedCategoryId', 'detectedConfidence', 'detectedReason', 'detectedError', 'detectedAlternatives', 'listingTitle', 'price', 'description', 'selectedCountryId', 'selectedCityId', 'latitude', 'longitude', 'customFieldValues', 'listingCustomFields', 'draftId', 'draftVersion', 'draftFiles', 'draftUploadKeys', 'draftRemovedFiles', 'draftConflict', 'draftError', 'draftSavedAt');
+        $this->hydrateLocationDefaultsFromProfile();
+        $this->shouldPersistDraft = true;
+        $this->resetErrorBag();
+    }
+
+    public function getSavedPhotosProperty(): array
+    {
+        return $this->savedFilesOfType('photo', $this->photos);
+    }
+
+    public function getSavedVideosProperty(): array
+    {
+        return $this->savedFilesOfType('video', $this->videos);
+    }
+
+    private function savedFilesOfType(string $type, array $uploads): array
+    {
+        $visibleKeys = [];
+        foreach ($uploads as $upload) {
+            if ($upload instanceof TemporaryUploadedFile) {
+                $visibleKeys[] = $this->draftUploadKeys[$upload->getFilename()] ?? null;
+            }
+        }
+
+        return array_filter($this->draftFiles, fn ($file, $key) => $file['type'] === $type && ! in_array($key, $visibleKeys, true) && ! in_array($key, $this->draftRemovedFiles, true), ARRAY_FILTER_USE_BOTH);
+    }
+
+    public function removeSavedFile(string $key): void
+    {
+        if (isset($this->draftFiles[$key])) {
+            $this->draftRemovedFiles[] = $key;
+            unset($this->savedPhotos, $this->savedVideos);
+        }
     }
 
     protected function validationAttributes(): array
@@ -127,18 +233,12 @@ class PanelQuickListingForm extends Component
 
     public function render()
     {
+        if ($this->shouldPersistDraft) {
+            $this->persistDraft();
+        }
         ProductEvent::record('listing_step', (string) $this->currentStep);
 
         return view('panel::quick-create');
-    }
-
-    public function dehydrate(): void
-    {
-        if (! $this->shouldPersistDraft) {
-            return;
-        }
-
-        $this->persistDraft();
     }
 
     public function updatedPhotos(): void
@@ -162,6 +262,11 @@ class PanelQuickListingForm extends Component
             return;
         }
 
+        $key = $this->draftUploadKeys[$this->photos[$index]->getFilename()] ?? null;
+        if ($key) {
+            $this->draftRemovedFiles[] = $key;
+            unset($this->savedPhotos, $this->savedVideos);
+        }
         unset($this->photos[$index]);
         $this->photos = array_values($this->photos);
     }
@@ -172,6 +277,11 @@ class PanelQuickListingForm extends Component
             return;
         }
 
+        $key = $this->draftUploadKeys[$this->videos[$index]->getFilename()] ?? null;
+        if ($key) {
+            $this->draftRemovedFiles[] = $key;
+            unset($this->savedPhotos, $this->savedVideos);
+        }
         unset($this->videos[$index]);
         $this->videos = array_values($this->videos);
     }
@@ -220,7 +330,12 @@ class PanelQuickListingForm extends Component
 
     public function detectCategoryFromImage(): void
     {
-        if ($this->photos === []) {
+        $image = $this->photos[0] ?? null;
+        if (! $image && $this->savedPhotos !== [] && $this->draftId) {
+            $key = array_key_first($this->savedPhotos);
+            $image = ListingDraft::upload(ListingDraft::photoFor(auth()->user(), $this->draftId, $key));
+        }
+        if (! $image) {
             return;
         }
 
@@ -229,7 +344,7 @@ class PanelQuickListingForm extends Component
         $this->detectedReason = null;
         $this->detectedAlternatives = [];
 
-        $result = app(QuickListingCategorySuggester::class)->suggestFromImage($this->photos[0]);
+        $result = app(QuickListingCategorySuggester::class)->suggestFromImage($image);
 
         $this->isDetecting = false;
         $this->detectedCategoryId = $result['category_id'];
@@ -287,7 +402,21 @@ class PanelQuickListingForm extends Component
             $this->validateDetailsStep();
             $this->validateCustomFieldsStep();
 
-            $listing = $this->createListing();
+            if (! $this->persistDraft(true) || ! $this->draftId) {
+                $this->isPublishing = false;
+
+                return;
+            }
+            $listing = ListingDraft::consume(auth()->user(), $this->draftId, $this->draftVersion, function (array $files): Listing {
+                $this->publishingFiles = $files;
+
+                return $this->createListing();
+            });
+        } catch (DraftConflict) {
+            $this->draftConflict = true;
+            $this->isPublishing = false;
+
+            return;
         } catch (ValidationException $exception) {
             $this->isPublishing = false;
             $this->handlePublishValidationFailure($exception);
@@ -534,10 +663,9 @@ class PanelQuickListingForm extends Component
     {
         $this->validate([
             'photos' => [
-                'required',
+                $this->savedPhotos === [] ? 'required' : 'nullable',
                 'array',
-                'min:1',
-                'max:'.config('quick-listing.max_photo_count', 20),
+                'max:'.max(0, (int) config('quick-listing.max_photo_count', 20) - count($this->savedPhotos)),
             ],
             'photos.*' => [
                 'required',
@@ -554,7 +682,7 @@ class PanelQuickListingForm extends Component
             'videos' => [
                 'nullable',
                 'array',
-                'max:'.config('video.max_listing_videos', 5),
+                'max:'.max(0, (int) config('video.max_listing_videos', 5) - count($this->savedVideos)),
             ],
             'videos.*' => [
                 'required',
@@ -695,28 +823,18 @@ class PanelQuickListingForm extends Component
         $listing = Listing::createFromFrontend($payload, $user->getKey());
         $mediaDisk = $this->frontendMediaDisk();
 
-        foreach ($this->photos as $photo) {
-            if (! $photo instanceof TemporaryUploadedFile) {
-                continue;
+        $videoIndex = 0;
+        foreach ($this->publishingFiles as $file) {
+            $upload = ListingDraft::upload($file);
+            if ($file['type'] === 'photo') {
+                $listing->attachListingImage($upload->getRealPath(), $upload->getClientOriginalName(), $mediaDisk);
+            } else {
+                Video::createFromUploadedFile($listing, $upload, [
+                    'disk' => $mediaDisk,
+                    'sort_order' => ++$videoIndex,
+                    'title' => pathinfo($upload->getClientOriginalName(), PATHINFO_FILENAME),
+                ]);
             }
-
-            $listing->attachListingImage(
-                $photo->getRealPath(),
-                $photo->getClientOriginalName(),
-                $mediaDisk
-            );
-        }
-
-        foreach ($this->videos as $index => $video) {
-            if (! $video instanceof TemporaryUploadedFile) {
-                continue;
-            }
-
-            Video::createFromTemporaryUpload($listing, $video, [
-                'disk' => $mediaDisk,
-                'sort_order' => $index + 1,
-                'title' => pathinfo($video->getClientOriginalName(), PATHINFO_FILENAME),
-            ]);
         }
 
         return $listing;
@@ -867,7 +985,11 @@ class PanelQuickListingForm extends Component
 
     private function restoreDraft(): void
     {
-        $draft = session()->get($this->draftSessionKey(), []);
+        $stored = ListingDraft::currentFor(auth()->user());
+        if ($stored) {
+            $this->acceptDraft($stored);
+        }
+        $draft = $stored?->payload ?? session()->get($this->draftSessionKey(), []);
 
         if (! is_array($draft) || $draft === []) {
             return;
@@ -885,7 +1007,7 @@ class PanelQuickListingForm extends Component
         $this->listingTitle = (string) ($draft['listingTitle'] ?? '');
         $this->price = (string) ($draft['price'] ?? '');
         $this->description = (string) ($draft['description'] ?? '');
-        $this->selectedCountryId = isset($draft['selectedCountryId']) ? (int) $draft['selectedCountryId'] : $this->selectedCountryId;
+        $this->selectedCountryId = array_key_exists('selectedCountryId', $draft) ? (isset($draft['selectedCountryId']) ? (int) $draft['selectedCountryId'] : null) : $this->selectedCountryId;
         $this->selectedCityId = isset($draft['selectedCityId']) ? (int) $draft['selectedCityId'] : null;
         $this->latitude = is_scalar($draft['latitude'] ?? null) ? (string) $draft['latitude'] : '';
         $this->longitude = is_scalar($draft['longitude'] ?? null) ? (string) $draft['longitude'] : '';
@@ -896,9 +1018,16 @@ class PanelQuickListingForm extends Component
         }
     }
 
-    private function persistDraft(): void
+    private function persistDraft(bool $force = false): bool
     {
-        session()->put($this->draftSessionKey(), [
+        abort_unless($this->draftOwnerId === (int) auth()->id() && $this->draftOwnerId > 0, 403);
+        if ($this->draftConflict) {
+            return false;
+        }
+        if (! $force && ! $this->draftId && $this->listingTitle === '' && $this->description === '' && $this->price === '' && ! $this->selectedCategoryId && $this->photos === [] && $this->videos === [] && $this->latitude === '' && $this->longitude === '' && $this->currentStep === 1) {
+            return true;
+        }
+        $payload = [
             'currentStep' => $this->currentStep,
             'categorySearch' => $this->categorySearch,
             'selectedCategoryId' => $this->selectedCategoryId,
@@ -916,7 +1045,52 @@ class PanelQuickListingForm extends Component
             'customFieldValues' => $this->customFieldValues,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
-        ]);
+        ];
+        $uploads = [];
+        foreach (['photo' => $this->photos, 'video' => $this->videos] as $type => $files) {
+            foreach ($files as $file) {
+                if (! $file instanceof TemporaryUploadedFile) {
+                    continue;
+                }
+                $name = $file->getFilename();
+                $key = $this->draftUploadKeys[$name] ?? (string) Str::uuid();
+                $this->draftUploadKeys[$name] = $key;
+                if (! isset($this->draftFiles[$key])) {
+                    $uploads[$key] = ['file' => $file, 'type' => $type];
+                }
+            }
+        }
+        try {
+            $draft = ListingDraft::saveFor(auth()->user(), $this->draftId, $this->draftVersion, $payload, $uploads, $this->draftRemovedFiles);
+            $this->acceptDraft($draft);
+            $this->draftRemovedFiles = [];
+            $this->draftError = null;
+            $this->shouldPersistDraft = true;
+            session()->forget($this->draftSessionKey());
+
+            return true;
+        } catch (DraftConflict) {
+            $this->draftConflict = true;
+        } catch (Throwable $exception) {
+            if (! $exception instanceof ValidationException) {
+                report($exception);
+            }
+            $this->draftError = __('panel::drafts.failed');
+        }
+
+        return false;
+    }
+
+    private function acceptDraft(ListingDraft $draft): void
+    {
+        $this->draftId = (int) $draft->getKey();
+        $this->draftVersion = $draft->version;
+        $this->draftSavedAt = $draft->updated_at->toIso8601String();
+        $this->draftFiles = [];
+        unset($this->savedPhotos, $this->savedVideos);
+        foreach ($draft->files as $key => $file) {
+            $this->draftFiles[$key] = ['name' => $file['name'], 'type' => $file['type'], 'url' => $file['type'] === 'photo' ? route('panel.drafts.photo', ['draft' => $this->draftId, 'file' => $key]) : null];
+        }
     }
 
     private function clearDraft(): void

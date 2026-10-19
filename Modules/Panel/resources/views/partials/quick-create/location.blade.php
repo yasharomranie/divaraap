@@ -18,12 +18,12 @@
         <div class="field__row">
             <div class="field">
                 <label class="field__label" for="create-latitude">{{ __('listing::map.latitude') }}</label>
-                <input id="create-latitude" class="input" type="number" step="any" min="-85.05112878" max="85.05112878" dir="ltr" wire:model="latitude">
+                <input id="create-latitude" class="input" type="number" step="any" min="-85.05112878" max="85.05112878" dir="ltr" wire:model.live.debounce.800ms="latitude">
                 @error('latitude')<p class="field__error" role="alert">{{ $message }}</p>@enderror
             </div>
             <div class="field">
                 <label class="field__label" for="create-longitude">{{ __('listing::map.longitude') }}</label>
-                <input id="create-longitude" class="input" type="number" step="any" min="-180" max="180" dir="ltr" wire:model="longitude">
+                <input id="create-longitude" class="input" type="number" step="any" min="-180" max="180" dir="ltr" wire:model.live.debounce.800ms="longitude">
                 @error('longitude')<p class="field__error" role="alert">{{ $message }}</p>@enderror
             </div>
         </div>
