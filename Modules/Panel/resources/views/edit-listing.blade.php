@@ -14,6 +14,7 @@
     </a>
 </header>
 
+<p><a class="button button--ghost" href="{{ route('panel.listings.performance', $listing) }}">{{ __('listing::performance.title') }}</a></p>
 <p><a class="button button--secondary" href="{{ route('listings.location', $listing) }}">{{ __('listing::map.location') }}</a></p>
 <form method="POST" action="{{ route('panel.listings.update', $listing) }}" class="grid grid--split">
     @csrf

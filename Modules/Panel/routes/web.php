@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Panel\App\Http\Controllers\ListingPerformanceController;
 use Modules\Panel\App\Http\Controllers\PanelController;
 
 Route::middleware(['web', 'auth'])->prefix('panel')->name('panel.')->group(function () {
     Route::get('/', [PanelController::class, 'index'])->name('index');
     Route::get('/my-listings', [PanelController::class, 'listings'])->name('listings.index');
     Route::get('/create-listing', [PanelController::class, 'create'])->name('listings.create');
+    Route::get('/my-listings/{listing}/performance', [ListingPerformanceController::class, 'show'])->name('listings.performance');
     Route::get('/my-listings/{listing}/edit', [PanelController::class, 'editListing'])->name('listings.edit');
     Route::put('/my-listings/{listing}', [PanelController::class, 'updateListing'])->name('listings.update');
     Route::post('/my-listings/{listing}/remove', [PanelController::class, 'destroyListing'])->name('listings.destroy');

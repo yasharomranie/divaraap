@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Conversation\App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -16,6 +17,12 @@ use Modules\User\App\Models\User;
 class Conversation extends Model
 {
     use HasFactory, SoftDeletes;
+
+    public static function performanceCount(int $listingId, int $sellerId, CarbonImmutable $start, CarbonImmutable $end): int
+    {
+        return static::query()->where('listing_id', $listingId)->where('seller_id', $sellerId)
+            ->whereBetween('created_at', [$start, $end])->count();
+    }
 
     protected $fillable = ['listing_id', 'seller_id', 'buyer_id', 'last_message_at'];
 

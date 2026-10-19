@@ -15,6 +15,7 @@ use Modules\Conversation\App\Models\Conversation;
 use Modules\Favorite\App\Models\FavoriteSearch;
 use Modules\Favorite\App\Support\ListingHistory;
 use Modules\Listing\Models\Listing;
+use Modules\Listing\Models\ListingPerformanceEvent;
 use Modules\Listing\Support\ListingCustomFieldSchemaBuilder;
 use Modules\Listing\Support\ListingMapBounds;
 use Modules\Location\Models\Country;
@@ -171,6 +172,7 @@ class ListingController extends Controller
     public function show(Listing $listing)
     {
         $listing->trackViewBy(auth()->id());
+        ListingPerformanceEvent::record($listing, 'view', request());
         app(ListingHistory::class)->record($listing);
 
         $listing->loadMissing([
@@ -245,7 +247,9 @@ class ListingController extends Controller
     {
         abort_unless($listing->canRevealContactTo(auth()->user()), 403);
 
-        return response()->json($listing->contactDetailsFor(auth()->user()));
+        ListingPerformanceEvent::record($listing, 'contact', request());
+
+        return response()->json($listing->contactDetailsFor(auth()->user()))->header('Cache-Control', 'private, no-store');
     }
 
     public function create()

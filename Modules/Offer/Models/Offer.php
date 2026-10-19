@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Offer\Models;
 
 use App\Support\Money;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,6 +22,12 @@ class Offer extends Model
     public const STATUS_DECLINED = 'declined';
 
     public const STATUS_WITHDRAWN = 'withdrawn';
+
+    public static function performanceCount(int $listingId, int $sellerId, CarbonImmutable $start, CarbonImmutable $end): int
+    {
+        return static::query()->where('listing_id', $listingId)->where('seller_id', $sellerId)
+            ->whereBetween('created_at', [$start, $end])->count();
+    }
 
     protected $fillable = [
         'listing_id',
