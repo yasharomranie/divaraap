@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Panel\App\Http\Controllers\ListingAvailabilityController;
 use Modules\Panel\App\Http\Controllers\ListingDraftPhotoController;
 use Modules\Panel\App\Http\Controllers\ListingImprovementController;
 use Modules\Panel\App\Http\Controllers\ListingPerformanceController;
@@ -21,6 +22,8 @@ Route::middleware(['web', 'auth'])->prefix('panel')->name('panel.')->group(funct
     Route::get('/my-listings/{listing}/edit', [PanelController::class, 'editListing'])->name('listings.edit');
     Route::put('/my-listings/{listing}', [PanelController::class, 'updateListing'])->name('listings.update');
     Route::post('/my-listings/{listing}/remove', [PanelController::class, 'destroyListing'])->name('listings.destroy');
+    Route::post('/my-listings/{listing}/pause', [ListingAvailabilityController::class, 'pause'])->where('listing', '[1-9][0-9]{0,17}')->middleware('throttle:30,1')->name('listings.pause');
+    Route::post('/my-listings/{listing}/resume', [ListingAvailabilityController::class, 'resume'])->where('listing', '[1-9][0-9]{0,17}')->middleware('throttle:30,1')->name('listings.resume');
     Route::post('/my-listings/{listing}/mark-sold', [PanelController::class, 'markListingAsSold'])->name('listings.mark-sold');
     Route::post('/my-listings/{listing}/republish', [PanelController::class, 'republishListing'])->name('listings.republish');
     Route::get('/videos', [PanelController::class, 'videos'])->name('videos.index');

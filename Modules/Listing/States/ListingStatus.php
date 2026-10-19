@@ -15,6 +15,7 @@ abstract class ListingStatus extends State
             'active' => __('listing::admin.active'),
             'pending' => __('listing::admin.pending'),
             'rejected' => __('listing::admin.rejected'),
+            'paused' => __('listing::availability.paused'),
             'sold' => __('listing::admin.sold'),
             'expired' => __('listing::admin.expired'),
         ];

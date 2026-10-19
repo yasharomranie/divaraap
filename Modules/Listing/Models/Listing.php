@@ -25,6 +25,7 @@ use Modules\Favorite\App\Models\FavoriteListing;
 use Modules\Listing\States\ActiveListingStatus;
 use Modules\Listing\States\ExpiredListingStatus;
 use Modules\Listing\States\ListingStatus;
+use Modules\Listing\States\PausedListingStatus;
 use Modules\Listing\States\PendingListingStatus;
 use Modules\Listing\States\RejectedListingStatus;
 use Modules\Listing\States\SoldListingStatus;
@@ -229,7 +230,7 @@ class Listing extends Model implements HasMedia
     public function scopeForPanelStatus(Builder $query, string $status): Builder
     {
         return match ($status) {
-            'sold', 'expired', 'pending', 'active' => $query->where('status', $status),
+            'sold', 'expired', 'pending', 'active', 'paused' => $query->where('status', $status),
             default => $query,
         };
     }
@@ -447,6 +448,7 @@ class Listing extends Model implements HasMedia
     public static function panelStatusOptions(): array
     {
         return [
+            'paused' => __('listing::availability.paused'),
             'pending' => __('panel::messages.pending'),
             'rejected' => __('panel::messages.rejected'),
             'active' => __('panel::messages.active'),
@@ -465,6 +467,7 @@ class Listing extends Model implements HasMedia
 
         return [
             'all' => (int) $counts->sum(),
+            'paused' => (int) ($counts['paused'] ?? 0),
             'active' => (int) ($counts['active'] ?? 0),
             'pending' => (int) ($counts['pending'] ?? 0),
             'rejected' => (int) ($counts['rejected'] ?? 0),
@@ -589,6 +592,7 @@ class Listing extends Model implements HasMedia
     public function panelStatusMeta(): array
     {
         return match ($this->statusValue()) {
+            'paused' => ['label' => __('listing::availability.paused'), 'badge_class' => 'is-warning', 'hint' => __('listing::availability.hint')],
             'sold' => [
                 'label' => __('listing::messages.status_sold'),
                 'badge_class' => 'is-success',
@@ -730,6 +734,7 @@ class Listing extends Model implements HasMedia
     public function statusLabel(): string
     {
         return match ($this->statusValue()) {
+            'paused' => __('listing::availability.paused'),
             'sold' => __('listing::messages.status_sold'),
             'expired' => __('listing::messages.status_expired'),
             'pending' => __('listing::messages.status_pending'),
@@ -768,7 +773,7 @@ class Listing extends Model implements HasMedia
 
     public function canRevealContactTo(?User $user): bool
     {
-        if (! $user || ! $this->hasContactDetails() || ! $this->user_id) {
+        if ($this->statusValue() === 'paused' || ! $user || ! $this->hasContactDetails() || ! $this->user_id) {
             return false;
         }
 
@@ -793,6 +798,34 @@ class Listing extends Model implements HasMedia
         ];
     }
 
+    public function canPauseDisplay(): bool
+    {
+        return $this->statusValue() === 'active' && (! $this->expires_at || $this->expires_at->isFuture());
+    }
+
+    public function changeDisplayFor(User $user, bool $pause): void
+    {
+        abort_unless((string) $user->status === 'active', 403);
+        DB::transaction(function () use ($user, $pause): void {
+            $locked = static::query()->lockForUpdate()->findOrFail($this->getKey());
+            $locked->assertOwnedBy($user);
+            $target = $pause ? 'paused' : 'active';
+            if ($locked->statusValue() === $target) {
+                $this->setRawAttributes($locked->getAttributes(), true);
+
+                return;
+            }
+            if ($locked->statusValue() !== ($pause ? 'active' : 'paused')) {
+                throw ValidationException::withMessages(['status' => __('listing::availability.invalid_state')]);
+            }
+            if ($locked->expires_at && ! $locked->expires_at->isFuture()) {
+                throw ValidationException::withMessages(['status' => __('listing::availability.expired')]);
+            }
+            $locked->forceFill(['status' => $target])->save();
+            $this->setRawAttributes($locked->getAttributes(), true);
+        });
+    }
+
     public function markAsSold(): void
     {
         DB::transaction(function (): void {
@@ -813,7 +846,7 @@ class Listing extends Model implements HasMedia
             $locked = static::query()->lockForUpdate()->findOrFail($this->getKey());
             $this->setRawAttributes($locked->getAttributes(), true);
             $this->forceFill([
-                'status' => in_array($locked->statusValue(), ['pending', 'rejected'], true) ? 'pending' : 'active',
+                'status' => $locked->statusValue() === 'paused' ? 'paused' : (in_array($locked->statusValue(), ['pending', 'rejected'], true) ? 'pending' : 'active'),
                 'expires_at' => now()->addDays(self::DEFAULT_PANEL_EXPIRY_WINDOW_DAYS),
             ])->save();
         });
@@ -850,6 +883,8 @@ class Listing extends Model implements HasMedia
 
             if (in_array($locked->statusValue(), ['pending', 'rejected'], true)) {
                 $payload['status'] = 'pending';
+            } elseif ($locked->statusValue() === 'paused' && ($payload['status'] ?? null) === 'active') {
+                $payload['status'] = 'paused';
             }
 
             $this->forceFill($payload)->save();
@@ -940,6 +975,7 @@ class Listing extends Model implements HasMedia
                 'rejected' => RejectedListingStatus::class,
                 'sold' => SoldListingStatus::class,
                 'expired' => ExpiredListingStatus::class,
+                'paused' => PausedListingStatus::class,
                 default => throw new \InvalidArgumentException('Invalid listing status.'),
             },
         };

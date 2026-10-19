@@ -14,6 +14,15 @@
     </a>
 </header>
 
+@if($listing->canPauseDisplay() || $listing->statusValue() === 'paused')
+<section class="card listing-availability stack stack--tight" aria-label="{{ __('panel::messages.status') }}">
+    <strong>{{ $listing->statusLabel() }}</strong>
+    <p class="field__hint">{{ __('listing::availability.notice') }}</p>
+    @if($listing->statusValue() === 'paused')<p>{{ __('listing::availability.hint') }}</p>@endif
+    <div class="row row--wrap">@include('panel::partials.listing-availability')</div>
+    @error('status')<p class="field__error" role="alert">{{ $message }}</p>@enderror
+</section>
+@endif
 <p><a class="button button--ghost" href="{{ route('panel.listings.performance', $listing) }}">{{ __('listing::performance.title') }}</a></p>
 <p><a class="button button--secondary" href="{{ route('listings.location', $listing) }}">{{ __('listing::map.location') }}</a></p>
 <details class="listing-guide-summary">
@@ -60,7 +69,7 @@
                         <label class="field__label" for="status">{{ __('panel::messages.status') }}</label>
                         <select id="status" name="status" class="select">
                             @foreach($statusOptions as $value => $label)
-                                <option value="{{ $value }}" @selected(old('status', $listing->statusValue()) === $value)>{{ $label }}</option>
+                                <option value="{{ $value }}" @disabled($listing->statusValue() === 'paused' && $value === 'active') @selected(old('status', $listing->statusValue()) === $value)>{{ $label }}</option>
                             @endforeach
                         </select>
                         @error('status')<p class="field__error">{{ $message }}</p>@enderror

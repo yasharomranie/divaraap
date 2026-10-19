@@ -5,12 +5,14 @@
 @php
     $statusTabs = [
         'all' => __('panel::messages.all'),
+        'paused' => __('listing::availability.paused'),
         'sold' => __('panel::messages.sold'),
         'expired' => __('panel::messages.expired'),
     ];
 @endphp
 
 @section('panel_content')
+@if($errors->any())<div class="alert alert--critical" role="alert">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
 <header class="panel-head">
     <div class="panel-head__text">
         <h1 class="title-page">{{ __('panel::messages.my_listings') }}</h1>
@@ -47,7 +49,7 @@
         <div class="data-list">
             @foreach($listings as $listing)
                 @php $meta = $listing->panelStatusMeta(); @endphp
-                <article class="data-row">
+                <article class="data-row" data-listing-id="{{ $listing->id }}">
                     <div class="data-row__media">
                         @if($listing->panelPrimaryImageUrl())
                             <img src="{{ $listing->panelPrimaryImageUrl() }}" alt="" loading="lazy">
@@ -69,11 +71,13 @@
                     </div>
 
                     <div class="data-row__actions">
-                        <a href="{{ route('listings.show', $listing) }}" class="button button--ghost button--small">{{ __('panel::messages.view') }}</a>
+                        <a href="{{ route('listings.show', $listing) }}" class="button button--ghost button--small">{{ $listing->statusValue() === 'paused' ? __('listing::availability.preview') : __('panel::messages.view') }}</a>
                         <a href="{{ route('panel.listings.improve', $listing) }}" class="button button--ghost button--small">{{ __('listing::improvement.title') }}</a>
                         <a href="{{ route('panel.listings.performance', $listing) }}" class="button button--ghost button--small">{{ __('listing::performance.title') }}</a>
                         <a href="{{ route('listings.location', $listing) }}" class="button button--ghost button--small">{{ __('listing::map.location') }}</a>
                         <a href="{{ route('panel.listings.edit', $listing) }}" class="button button--secondary button--small">{{ __('panel::messages.edit') }}</a>
+
+                        @include('panel::partials.listing-availability')
 
                         @if($listing->statusValue() !== 'sold')
                             <form method="POST" action="{{ route('panel.listings.mark-sold', $listing) }}">
