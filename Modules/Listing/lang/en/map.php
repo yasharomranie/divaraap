@@ -3,6 +3,13 @@
 declare(strict_types=1);
 
 return [
+    'optional_location' => 'Map location (optional)',
+    'current_location' => 'Use my current location',
+    'locating' => 'Finding your location…',
+    'geolocation_failed' => 'Could not get your location. Check location permission and HTTPS, or choose a point manually.',
+    'location_selected' => 'Approximate location selected.',
+    'location_empty' => 'No location selected.',
+    'preview_location' => 'An approximate map location is selected.',
     'title' => 'Search on map',
     'hint' => 'Only listings with valid coordinates are shown. Locations are approximate and do not disclose an exact address.',
     'invalid_bounds' => 'Invalid map bounds.',

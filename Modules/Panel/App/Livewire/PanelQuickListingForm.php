@@ -15,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
+use Modules\Admin\Models\ProductEvent;
 use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
 use Modules\Listing\Models\ListingCustomField;
@@ -82,6 +83,10 @@ class PanelQuickListingForm extends Component
 
     public ?int $selectedCityId = null;
 
+    public string $latitude = '';
+
+    public string $longitude = '';
+
     public bool $isPublishing = false;
 
     public bool $shouldPersistDraft = true;
@@ -109,6 +114,8 @@ class PanelQuickListingForm extends Component
             'selectedCategoryId' => __('panel::messages.category'),
             'selectedCountryId' => __('site::messages.country'),
             'selectedCityId' => __('site::messages.city'),
+            'latitude' => __('listing::map.latitude'),
+            'longitude' => __('listing::map.longitude'),
         ];
         $labels = __('listing::messages.field_labels');
         foreach ($this->listingCustomFields as $field) {
@@ -120,7 +127,7 @@ class PanelQuickListingForm extends Component
 
     public function render()
     {
-        \Modules\Admin\Models\ProductEvent::record('listing_step', (string) $this->currentStep);
+        ProductEvent::record('listing_step', (string) $this->currentStep);
 
         return view('panel::quick-create');
     }
@@ -297,7 +304,7 @@ class PanelQuickListingForm extends Component
 
         $this->isPublishing = false;
         session()->flash('success', __('panel::messages.listing_created'));
-        \Modules\Admin\Models\ProductEvent::record('listing_step', '5');
+        ProductEvent::record('listing_step', '5');
         $this->clearDraft();
 
         if (Route::has('panel.listings.edit')) {
@@ -577,6 +584,8 @@ class PanelQuickListingForm extends Component
         $this->price = Money::input($this->price);
 
         $this->validate([
+            'latitude' => ['nullable', 'required_with:longitude', 'numeric', 'between:-85.05112878,85.05112878'],
+            'longitude' => ['nullable', 'required_with:latitude', 'numeric', 'between:-180,180'],
             'listingTitle' => ['required', 'string', 'max:70'],
             'price' => ['required', new MonetaryAmount(ListingPanelHelper::defaultCurrency())],
             'description' => ['required', 'string', 'max:1450'],
@@ -679,6 +688,8 @@ class PanelQuickListingForm extends Component
             'contact_phone' => Profile::phoneForUser($user),
             'country' => $this->selectedCountryName,
             'city' => $this->selectedCityName,
+            'latitude' => $this->latitude === '' ? null : round((float) $this->latitude, 3),
+            'longitude' => $this->longitude === '' ? null : round((float) $this->longitude, 3),
         ];
 
         $listing = Listing::createFromFrontend($payload, $user->getKey());
@@ -841,6 +852,8 @@ class PanelQuickListingForm extends Component
             'description',
             'selectedCountryId',
             'selectedCityId',
+            'latitude',
+            'longitude',
         ], true))) {
             return 3;
         }
@@ -874,6 +887,8 @@ class PanelQuickListingForm extends Component
         $this->description = (string) ($draft['description'] ?? '');
         $this->selectedCountryId = isset($draft['selectedCountryId']) ? (int) $draft['selectedCountryId'] : $this->selectedCountryId;
         $this->selectedCityId = isset($draft['selectedCityId']) ? (int) $draft['selectedCityId'] : null;
+        $this->latitude = is_scalar($draft['latitude'] ?? null) ? (string) $draft['latitude'] : '';
+        $this->longitude = is_scalar($draft['longitude'] ?? null) ? (string) $draft['longitude'] : '';
         $this->customFieldValues = is_array($draft['customFieldValues'] ?? null) ? $draft['customFieldValues'] : [];
 
         if ($this->selectedCategoryId) {
@@ -899,6 +914,8 @@ class PanelQuickListingForm extends Component
             'selectedCountryId' => $this->selectedCountryId,
             'selectedCityId' => $this->selectedCityId,
             'customFieldValues' => $this->customFieldValues,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
         ]);
     }
 

@@ -204,6 +204,8 @@
                             </div>
                         </div>
 
+                        @include('panel::partials.quick-create.location')
+
                         @if($listingCustomFields !== [])
                             <div class="field-set">
                                 <p class="field-set__legend">{{ __('site::messages.details') }}</p>
@@ -261,6 +263,10 @@
                                 <dd class="spec-list__value" dir="auto">{{ $this->selectedCityDisplayName }} {{ $this->selectedCountryDisplayName }}</dd>
                             </div>
                         </dl>
+
+                        @if($latitude !== '' && $longitude !== '')
+                            <p>{{ __('listing::map.preview_location') }}</p>
+                        @endif
 
                         @if(filled($description))
                             <div class="prose" dir="auto">{{ $description }}</div>

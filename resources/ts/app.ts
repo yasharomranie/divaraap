@@ -1,3 +1,4 @@
+import { listingCreateLocation } from './modules/listing-create-location';
 import '../css/app.css';
 import { listingLocation } from './modules/listing-location';
 import { listingMap } from './modules/listing-map';
@@ -15,6 +16,7 @@ import { contactReveal, shareAction } from './modules/reveal';
 import { appNavigation, disclosureGroup, navigationDrawer, searchSuggest, stickyHeader } from './modules/navigation';
 
 const behaviors: readonly Behavior<never>[] = [
+    listingCreateLocation,
     listingMap,
     listingLocation,
     advertisingMetrics,
@@ -54,3 +56,10 @@ if (document.readyState === 'loading') {
 }
 
 document.addEventListener('livewire:navigated', boot);
+
+document.addEventListener('toggle', event => {
+    const target = event.target;
+    if (target instanceof HTMLDetailsElement && target.matches('[data-create-location]') && target.parentElement) {
+        startBehaviors([listingCreateLocation], target.parentElement);
+    }
+}, true);

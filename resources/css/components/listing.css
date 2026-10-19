@@ -408,3 +408,12 @@
 }
 
 .listing-map-page .leaflet-bar a, .listing-map-editor .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
+
+.quick-create-location { min-width: 0; border: 1px solid var(--line-hairline); border-radius: var(--radius-md); padding: var(--space-3); }
+.quick-create-location summary { cursor: pointer; min-height: 44px; padding-block: var(--space-2); font-weight: 600; }
+.quick-create-location summary:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
+.quick-create-location .listing-map-canvas { height: 240px; min-height: 240px; font-family: inherit; }
+.quick-create-location .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
+.quick-create-location__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block: var(--space-2); }
+.quick-create-location .input { width: 100%; min-width: 0; }
+.quick-create-location [role="status"] { overflow-wrap: anywhere; }
