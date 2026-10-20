@@ -51,7 +51,7 @@ class OfferController extends Controller
     {
         $summary = ListingDirectory::find($listing);
 
-        if ($summary === null || $summary['seller_id'] === null || $summary['status'] === 'paused') {
+        if ($summary === null || $summary['seller_id'] === null || in_array($summary['status'], ['paused', 'scheduled'], true)) {
             abort(404);
         }
 

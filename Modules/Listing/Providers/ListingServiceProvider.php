@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Modules\Listing\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Modules\Listing\Console\PublishDueListings;
+use Modules\Listing\Http\Middleware\PublishScheduledListings;
 
 class ListingServiceProvider extends ServiceProvider
 {
@@ -14,6 +16,8 @@ class ListingServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->commands([PublishDueListings::class]);
+        $this->app['router']->prependMiddlewareToGroup('web', PublishScheduledListings::class);
         $this->loadViewsFrom(module_path($this->moduleName, 'resources/views'), $this->moduleNameLower);
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/migrations'));
         $this->loadRoutesFrom(module_path($this->moduleName, 'routes/web.php'));

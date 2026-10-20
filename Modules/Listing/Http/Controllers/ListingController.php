@@ -171,7 +171,7 @@ class ListingController extends Controller
 
     public function show(Listing $listing)
     {
-        abort_if($listing->statusValue() === 'paused' && (! auth()->check() || ! $listing->user_id || (int) $listing->user_id !== (int) auth()->id()), 404);
+        abort_if(in_array($listing->statusValue(), ['paused', 'scheduled'], true) && (! auth()->check() || ! $listing->user_id || (int) $listing->user_id !== (int) auth()->id()), 404);
         $listing->trackViewBy(auth()->id());
         ListingPerformanceEvent::record($listing, 'view', request());
         app(ListingHistory::class)->record($listing);
@@ -243,7 +243,7 @@ class ListingController extends Controller
             'breadcrumbCategories',
         ));
 
-        return $listing->statusValue() === 'paused' ? response($view->render())->header('Cache-Control', 'private, no-store')->header('X-Robots-Tag', 'noindex, nofollow') : $view;
+        return in_array($listing->statusValue(), ['paused', 'scheduled'], true) ? response($view->render())->header('Cache-Control', 'private, no-store')->header('X-Robots-Tag', 'noindex, nofollow') : $view;
     }
 
     public function contact(Listing $listing): JsonResponse

@@ -5,6 +5,7 @@
 @php
     $statusTabs = [
         'all' => __('panel::messages.all'),
+        'scheduled' => __('listing::schedule.scheduled'),
         'paused' => __('listing::availability.paused'),
         'sold' => __('panel::messages.sold'),
         'expired' => __('panel::messages.expired'),
@@ -71,13 +72,14 @@
                     </div>
 
                     <div class="data-row__actions">
-                        <a href="{{ route('listings.show', $listing) }}" class="button button--ghost button--small">{{ $listing->statusValue() === 'paused' ? __('listing::availability.preview') : __('panel::messages.view') }}</a>
+                        <a href="{{ route('listings.show', $listing) }}" class="button button--ghost button--small">{{ in_array($listing->statusValue(), ['paused', 'scheduled'], true) ? __('listing::availability.preview') : __('panel::messages.view') }}</a>
                         <a href="{{ route('panel.listings.improve', $listing) }}" class="button button--ghost button--small">{{ __('listing::improvement.title') }}</a>
                         <a href="{{ route('panel.listings.performance', $listing) }}" class="button button--ghost button--small">{{ __('listing::performance.title') }}</a>
                         <a href="{{ route('listings.location', $listing) }}" class="button button--ghost button--small">{{ __('listing::map.location') }}</a>
                         <a href="{{ route('panel.listings.edit', $listing) }}" class="button button--secondary button--small">{{ __('panel::messages.edit') }}</a>
 
                         <a class="button button--ghost button--small" href="{{ route('panel.listings.duplicate', $listing) }}">{{ __('listing::duplicate.title') }}</a>
+                        <a class="button button--ghost button--small" href="{{ route('panel.listings.schedule', $listing) }}">{{ __('listing::schedule.title') }}</a>
                         @include('panel::partials.listing-availability')
 
                         @if($listing->statusValue() !== 'sold')

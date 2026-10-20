@@ -76,7 +76,7 @@ class ConversationController extends Controller
 
     public function start(Request $request, Listing $listing): RedirectResponse|JsonResponse
     {
-        abort_if($listing->statusValue() === 'paused', 404);
+        abort_if(in_array($listing->statusValue(), ['paused', 'scheduled'], true), 404);
         $user = $request->user();
 
         if (! $listing->user_id) {

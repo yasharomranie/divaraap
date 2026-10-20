@@ -29,6 +29,7 @@ use Modules\Listing\States\ListingStatus;
 use Modules\Listing\States\PausedListingStatus;
 use Modules\Listing\States\PendingListingStatus;
 use Modules\Listing\States\RejectedListingStatus;
+use Modules\Listing\States\ScheduledListingStatus;
 use Modules\Listing\States\SoldListingStatus;
 use Modules\Listing\Support\ListingImageViewData;
 use Modules\Listing\Support\ListingImprovementGuide;
@@ -67,6 +68,7 @@ class Listing extends Model implements HasMedia
         'is_featured' => 'boolean',
         'view_count' => 'integer',
         'expires_at' => 'datetime',
+        'publish_at' => 'datetime',
         'price' => 'decimal:2',
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
@@ -93,10 +95,34 @@ class Listing extends Model implements HasMedia
 
     public function moderate(bool $approve, ?string $note = null): void
     {
-        if ($this->statusValue() !== 'pending') {
-            return;
-        }
-        $this->status->transitionTo($approve ? ActiveListingStatus::class : RejectedListingStatus::class);
+        DB::transaction(function () use ($approve): void {
+            $locked = self::whereKey($this->id)->lockForUpdate()->firstOrFail();
+            if ($locked->statusValue() !== 'pending') {
+                return;
+            }
+            $locked->status->transitionTo($approve ? ActiveListingStatus::class : RejectedListingStatus::class);
+            $this->setRawAttributes($locked->getAttributes())->syncOriginal();
+        });
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $listing): void {
+            if (in_array($listing->statusValue(), ['sold', 'expired', 'rejected', 'paused'], true)) {
+                $listing->publish_at = null;
+            }
+            if ($listing->statusValue() === 'active' && $listing->publish_at) {
+                if ($listing->publish_at->isFuture()) {
+                    $listing->status = 'scheduled';
+                } else {
+                    $listing->publish_at = null;
+                    $listing->expires_at = now()->addDays(self::DEFAULT_PANEL_EXPIRY_WINDOW_DAYS);
+                }
+            }
+            if ($listing->statusValue() === 'scheduled' && ! $listing->publish_at) {
+                throw ValidationException::withMessages(['status' => __('listing::schedule.requires_date')]);
+            }
+        });
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -232,7 +258,7 @@ class Listing extends Model implements HasMedia
     public function scopeForPanelStatus(Builder $query, string $status): Builder
     {
         return match ($status) {
-            'sold', 'expired', 'pending', 'active', 'paused' => $query->where('status', $status),
+            'sold', 'expired', 'pending', 'active', 'paused', 'scheduled' => $query->where('status', $status),
             default => $query,
         };
     }
@@ -450,6 +476,7 @@ class Listing extends Model implements HasMedia
     public static function panelStatusOptions(): array
     {
         return [
+            'scheduled' => __('listing::schedule.scheduled'),
             'paused' => __('listing::availability.paused'),
             'pending' => __('panel::messages.pending'),
             'rejected' => __('panel::messages.rejected'),
@@ -470,6 +497,7 @@ class Listing extends Model implements HasMedia
         return [
             'all' => (int) $counts->sum(),
             'paused' => (int) ($counts['paused'] ?? 0),
+            'scheduled' => (int) ($counts['scheduled'] ?? 0),
             'active' => (int) ($counts['active'] ?? 0),
             'pending' => (int) ($counts['pending'] ?? 0),
             'rejected' => (int) ($counts['rejected'] ?? 0),
@@ -594,6 +622,7 @@ class Listing extends Model implements HasMedia
     public function panelStatusMeta(): array
     {
         return match ($this->statusValue()) {
+            'scheduled' => ['label' => __('listing::schedule.scheduled'), 'badge_class' => 'is-warning', 'hint' => __('listing::schedule.hint')],
             'paused' => ['label' => __('listing::availability.paused'), 'badge_class' => 'is-warning', 'hint' => __('listing::availability.hint')],
             'sold' => [
                 'label' => __('listing::messages.status_sold'),
@@ -736,6 +765,7 @@ class Listing extends Model implements HasMedia
     public function statusLabel(): string
     {
         return match ($this->statusValue()) {
+            'scheduled' => __('listing::schedule.scheduled'),
             'paused' => __('listing::availability.paused'),
             'sold' => __('listing::messages.status_sold'),
             'expired' => __('listing::messages.status_expired'),
@@ -775,7 +805,7 @@ class Listing extends Model implements HasMedia
 
     public function canRevealContactTo(?User $user): bool
     {
-        if ($this->statusValue() === 'paused' || ! $user || ! $this->hasContactDetails() || ! $this->user_id) {
+        if (in_array($this->statusValue(), ['paused', 'scheduled'], true) || ! $user || ! $this->hasContactDetails() || ! $this->user_id) {
             return false;
         }
 
@@ -798,6 +828,61 @@ class Listing extends Model implements HasMedia
             'phone' => filled($this->contact_phone) ? (string) $this->contact_phone : '',
             'email' => filled($this->contact_email) ? (string) $this->contact_email : '',
         ];
+    }
+
+    public function scheduleVersion(): string
+    {
+        return hash('sha256', $this->statusValue().'|'.($this->publish_at?->format('Y-m-d H:i:s') ?? '').'|'.$this->user_id);
+    }
+
+    public function setScheduleFor(User $user, ?Carbon $time, string $version): void
+    {
+        $time = $time?->copy()->setTimezone(config('app.timezone'));
+        abort_unless((string) $user->status === 'active', 403);
+        DB::transaction(function () use ($user, $time, $version): void {
+            $locked = self::whereKey($this->id)->lockForUpdate()->firstOrFail();
+            $locked->assertOwnedBy($user);
+            if (! hash_equals($locked->scheduleVersion(), $version)) {
+                throw ValidationException::withMessages(['publish_at' => __('listing::schedule.conflict')]);
+            }
+            if (! in_array($locked->statusValue(), ['pending', 'active', 'paused', 'scheduled'], true)) {
+                throw ValidationException::withMessages(['publish_at' => __('listing::schedule.invalid_state')]);
+            }
+            if ($time && (! $time->isFuture() || $time->gt(now()->addDays(90)))) {
+                throw ValidationException::withMessages(['publish_at' => __('listing::schedule.range')]);
+            }
+            if ($time) {
+                $locked->forceFill(['status' => $locked->statusValue() === 'pending' ? 'pending' : 'scheduled', 'publish_at' => $time])->save();
+            } elseif ($locked->publish_at) {
+                $locked->forceFill(['status' => $locked->statusValue() === 'pending' ? 'pending' : 'paused', 'publish_at' => null])->save();
+            }
+            $this->setRawAttributes($locked->getAttributes())->syncOriginal();
+        });
+    }
+
+    public static function publishDue(int $limit = 50): int
+    {
+        $count = 0;
+        $ids = self::where('status', 'scheduled')->where('publish_at', '<=', now())->orderBy('publish_at')->limit(max(1, min(200, $limit)))->pluck('id');
+        foreach ($ids as $id) {
+            $count += DB::transaction(function () use ($id): int {
+                $listing = self::whereKey($id)->lockForUpdate()->first();
+                if (! $listing || $listing->statusValue() !== 'scheduled' || ! $listing->publish_at || $listing->publish_at->isFuture()) {
+                    return 0;
+                }
+                $owner = $listing->user_id ? User::find($listing->user_id) : null;
+                if (! $owner || (string) $owner->status !== 'active') {
+                    $listing->forceFill(['status' => 'paused', 'publish_at' => null])->save();
+
+                    return 0;
+                }
+                $listing->forceFill(['status' => 'active', 'publish_at' => null, 'expires_at' => now()->addDays(self::DEFAULT_PANEL_EXPIRY_WINDOW_DAYS)])->save();
+
+                return 1;
+            });
+        }
+
+        return $count;
     }
 
     public function duplicationVersion(): string
@@ -866,7 +951,7 @@ class Listing extends Model implements HasMedia
             $locked->assertOwnedBy($user);
             $target = $pause ? 'paused' : 'active';
             if ($locked->statusValue() === $target) {
-                $this->setRawAttributes($locked->getAttributes(), true);
+                $this->setRawAttributes($locked->getAttributes())->syncOriginal();
 
                 return;
             }
@@ -877,7 +962,7 @@ class Listing extends Model implements HasMedia
                 throw ValidationException::withMessages(['status' => __('listing::availability.expired')]);
             }
             $locked->forceFill(['status' => $target])->save();
-            $this->setRawAttributes($locked->getAttributes(), true);
+            $this->setRawAttributes($locked->getAttributes())->syncOriginal();
         });
     }
 
@@ -885,7 +970,7 @@ class Listing extends Model implements HasMedia
     {
         DB::transaction(function (): void {
             $locked = static::query()->lockForUpdate()->findOrFail($this->getKey());
-            $this->setRawAttributes($locked->getAttributes(), true);
+            $this->setRawAttributes($locked->getAttributes())->syncOriginal();
             if (in_array($locked->statusValue(), ['pending', 'rejected'], true)) {
                 throw ValidationException::withMessages(['status' => __('listing::messages.hint_pending')]);
             }
@@ -899,9 +984,9 @@ class Listing extends Model implements HasMedia
     {
         DB::transaction(function (): void {
             $locked = static::query()->lockForUpdate()->findOrFail($this->getKey());
-            $this->setRawAttributes($locked->getAttributes(), true);
+            $this->setRawAttributes($locked->getAttributes())->syncOriginal();
             $this->forceFill([
-                'status' => $locked->statusValue() === 'paused' ? 'paused' : (in_array($locked->statusValue(), ['pending', 'rejected'], true) ? 'pending' : 'active'),
+                'status' => in_array($locked->statusValue(), ['paused', 'scheduled'], true) ? $locked->statusValue() : (in_array($locked->statusValue(), ['pending', 'rejected'], true) ? 'pending' : 'active'),
                 'expires_at' => now()->addDays(self::DEFAULT_PANEL_EXPIRY_WINDOW_DAYS),
             ])->save();
         });
@@ -911,7 +996,7 @@ class Listing extends Model implements HasMedia
     {
         DB::transaction(function () use ($attributes): void {
             $locked = static::query()->lockForUpdate()->findOrFail($this->getKey());
-            $this->setRawAttributes($locked->getAttributes(), true);
+            $this->setRawAttributes($locked->getAttributes())->syncOriginal();
             $payload = Arr::only($attributes, [
                 'title',
                 'description',
@@ -938,8 +1023,8 @@ class Listing extends Model implements HasMedia
 
             if (in_array($locked->statusValue(), ['pending', 'rejected'], true)) {
                 $payload['status'] = 'pending';
-            } elseif ($locked->statusValue() === 'paused' && ($payload['status'] ?? null) === 'active') {
-                $payload['status'] = 'paused';
+            } elseif (in_array($locked->statusValue(), ['paused', 'scheduled'], true) && ($payload['status'] ?? null) === 'active') {
+                $payload['status'] = $locked->statusValue();
             }
 
             $this->forceFill($payload)->save();
@@ -1031,6 +1116,7 @@ class Listing extends Model implements HasMedia
                 'sold' => SoldListingStatus::class,
                 'expired' => ExpiredListingStatus::class,
                 'paused' => PausedListingStatus::class,
+                'scheduled' => ScheduledListingStatus::class,
                 default => throw new \InvalidArgumentException('Invalid listing status.'),
             },
         };

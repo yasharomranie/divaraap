@@ -398,3 +398,8 @@
 .listing-duplicate__text { white-space: pre-wrap; max-height: 240px; overflow-y: auto; }
 .listing-duplicate__option { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; }
 .listing-duplicate__text:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 3px; }
+
+.listing-schedule { min-width: 0; }
+.listing-schedule .card { padding: var(--space-4); overflow-wrap: anywhere; }
+.listing-schedule input { max-width: 100%; min-width: 0; }
+.listing-schedule :is(input, button):focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 3px; }

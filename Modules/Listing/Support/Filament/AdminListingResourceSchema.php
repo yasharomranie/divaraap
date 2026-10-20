@@ -30,6 +30,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Modules\Admin\Support\Filament\ResourceTableActions;
 use Modules\Category\Models\Category;
@@ -71,6 +72,7 @@ class AdminListingResourceSchema
                 ->visible(fn (Get $get): bool => ListingCustomFieldSchemaBuilder::hasFields(
                     ($categoryId = $get('category_id')) ? (int) $categoryId : null
                 )),
+            TextInput::make('publish_at')->label(__('listing::schedule.current'))->formatStateUsing(fn ($state) => $state ? PersianLocale::date(Carbon::parse($state)->timezone('Asia/Tehran'), true) : __('listing::schedule.none'))->disabled()->dehydrated(false),
             ModelStateSelect::make('status')->label(__('listing::admin.status'))->options(ListingStatus::options())->required(),
             PhoneInput::make('contact_phone')->rules([new IranianMobile])->dehydrateStateUsing(fn ($state) => $state === null ? null : IranianPhone::normalize((string) $state))->label(__('listing::admin.contact_phone'))->defaultCountry(CountryCodeManager::defaultCountryIso2())->nullable(),
             TextInput::make('contact_email')->label(__('listing::admin.contact_email'))->extraInputAttributes(['dir' => 'ltr'])->email()->maxLength(255),

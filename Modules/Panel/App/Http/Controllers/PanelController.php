@@ -53,7 +53,7 @@ class PanelController extends Controller
         $search = trim((string) $request->string('search'));
         $status = (string) $request->string('status', 'all');
 
-        if (! in_array($status, ['all', 'sold', 'expired', 'paused'], true)) {
+        if (! in_array($status, ['all', 'sold', 'expired', 'paused', 'scheduled'], true)) {
             $status = 'all';
         }
 
@@ -190,6 +190,10 @@ class PanelController extends Controller
 
         if ($listing->statusValue() === 'paused') {
             return back()->with('success', __('listing::availability.extended'));
+        }
+
+        if ($listing->statusValue() === 'scheduled') {
+            return back()->with('success', __('listing::schedule.hint'));
         }
 
         return back()->with('success', $listing->statusValue() === 'pending' ? __('panel::messages.listing_resubmitted') : __('panel::messages.listing_republished'));

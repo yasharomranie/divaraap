@@ -8,6 +8,7 @@ use Modules\Panel\App\Http\Controllers\ListingDraftPhotoController;
 use Modules\Panel\App\Http\Controllers\ListingDuplicateController;
 use Modules\Panel\App\Http\Controllers\ListingImprovementController;
 use Modules\Panel\App\Http\Controllers\ListingPerformanceController;
+use Modules\Panel\App\Http\Controllers\ListingScheduleController;
 use Modules\Panel\App\Http\Controllers\ListingTextSuggestionController;
 use Modules\Panel\App\Http\Controllers\PanelController;
 
@@ -17,6 +18,9 @@ Route::middleware(['web', 'auth'])->prefix('panel')->name('panel.')->group(funct
     Route::post('/listing-text-suggestions', [ListingTextSuggestionController::class, 'generate'])->middleware('throttle:20,1')->name('listings.text-suggestions');
     Route::get('/drafts/{draft}/photos/{file}', ListingDraftPhotoController::class)->where('draft', '[1-9][0-9]{0,17}')->whereUuid('file')->name('drafts.photo');
     Route::get('/create-listing', [PanelController::class, 'create'])->name('listings.create');
+    Route::get('/my-listings/{listing}/schedule', [ListingScheduleController::class, 'show'])->where('listing', '[1-9][0-9]{0,17}')->name('listings.schedule');
+    Route::post('/my-listings/{listing}/schedule', [ListingScheduleController::class, 'save'])->where('listing', '[1-9][0-9]{0,17}')->middleware('throttle:20,1,listing-schedule:')->name('listings.schedule.save');
+    Route::delete('/my-listings/{listing}/schedule', [ListingScheduleController::class, 'cancel'])->where('listing', '[1-9][0-9]{0,17}')->middleware('throttle:20,1,listing-schedule:')->name('listings.schedule.cancel');
     Route::get('/my-listings/{listing}/duplicate', [ListingDuplicateController::class, 'show'])->where('listing', '[1-9][0-9]{0,17}')->name('listings.duplicate');
     Route::post('/my-listings/{listing}/duplicate', [ListingDuplicateController::class, 'store'])->where('listing', '[1-9][0-9]{0,17}')->middleware('throttle:10,1,listing-duplicate:')->name('listings.duplicate.store');
     Route::get('/my-listings/{listing}/improve', [ListingImprovementController::class, 'show'])->name('listings.improve');

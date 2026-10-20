@@ -23,6 +23,7 @@
     @error('status')<p class="field__error" role="alert">{{ $message }}</p>@enderror
 </section>
 @endif
+<p><a class="button button--secondary" href="{{ route('panel.listings.schedule', $listing) }}">{{ __('listing::schedule.title') }}</a></p>
 <p><a class="button button--secondary" href="{{ route('panel.listings.duplicate', $listing) }}">{{ __('listing::duplicate.title') }}</a></p>
 <p><a class="button button--ghost" href="{{ route('panel.listings.performance', $listing) }}">{{ __('listing::performance.title') }}</a></p>
 <p><a class="button button--secondary" href="{{ route('listings.location', $listing) }}">{{ __('listing::map.location') }}</a></p>
@@ -70,7 +71,7 @@
                         <label class="field__label" for="status">{{ __('panel::messages.status') }}</label>
                         <select id="status" name="status" class="select">
                             @foreach($statusOptions as $value => $label)
-                                <option value="{{ $value }}" @disabled($listing->statusValue() === 'paused' && $value === 'active') @selected(old('status', $listing->statusValue()) === $value)>{{ $label }}</option>
+                                <option value="{{ $value }}" @disabled((in_array($listing->statusValue(), ['paused', 'scheduled'], true) && $value === 'active') || ($value === 'scheduled' && $listing->statusValue() !== 'scheduled')) @selected(old('status', $listing->statusValue()) === $value)>{{ $label }}</option>
                             @endforeach
                         </select>
                         @error('status')<p class="field__error">{{ $message }}</p>@enderror

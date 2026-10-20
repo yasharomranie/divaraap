@@ -126,7 +126,7 @@ class PersianAdminLocalizationTest extends TestCase
     public function test_status_options_keep_machine_values_and_translate_labels(): void
     {
         app()->setLocale('fa');
-        $this->assertSame(['active', 'pending', 'rejected', 'paused', 'sold', 'expired'], array_keys(ListingStatus::options()));
+        $this->assertSame(['active', 'pending', 'rejected', 'scheduled', 'paused', 'sold', 'expired'], array_keys(ListingStatus::options()));
         $this->assertSame('فعال', ListingStatus::options()['active']);
         $this->assertSame('متوقف‌شده', ListingStatus::options()['paused']);
         $this->assertSame('مسدود', UserStatus::options()['banned']);
