@@ -149,7 +149,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 43 | 5 | پیشنهاد قیمت داخل چت | verified |
 | 44 | 5 | هماهنگی بازدید | verified |
 | 45 | 5 | چک‌لیست معاملهٔ هر دسته | verified |
-| 46 | 5 | تشخیص آگهی مشکوک و تکراری | pending |
+| 46 | 5 | تشخیص آگهی مشکوک و تکراری | verified |
 | 47 | 6 | کارت فروشگاه محلی | pending |
 | 48 | 6 | مجموعهٔ آگهی تبلیغ‌شده | pending |
 | 49 | 6 | کارت درخواست خدمات | pending |
@@ -452,3 +452,12 @@ Feature 45 adds bilingual, ordered checklist configuration to the existing categ
 Private progress is stored only for the authenticated actor. The guide page is private/no-store and noindex; public listing rendering contains no personal checklist state. Item keys and revision hashes derive from bilingual content, order, source and category, independently of current locale. Changed guides/category reset the displayed selection and reject old submissions; random per-save versions prevent stale tabs overwriting newer progress. Only current item keys are accepted and an empty submission clears selections. User/listing/category locks and a portable active unique index protect saves; no cross-module joins or new scheduler/provider are introduced. Two additive migrations run through normal cPanel deployment. Details: `docs/TRADE_CHECKLIST_FA.md`.
 
 Validation: 454 tests / 4,643 assertions passed, including 11 checklist tests / 75 assertions. Real browser checks cover listing navigation, private persistence, guest isolation, actual Filament bilingual edit and revision reset, native save/clear without JavaScript, RTL/LTR, four widths, font and keyboard focus. Build/type checking, localization, changed-file Pint and isolated route/config cache checks passed. Browser fixtures were cleaned and Graphify refreshed.
+
+
+## Phase 5 — suspicious and duplicate listing indicators
+
+Feature 46 adds an active `moderation.listings`-protected review page under Operations and a link from the existing queue. On view or explicit refresh, the Listing model selects the newest 200 active/pending, unexpired listings created within the last 30 days, excluding future records. Description selection is capped at 8,000 characters in SQL. A pure analyzer canonicalizes Persian/Arabic letters, Persian/English digits, punctuation and case. It reports same-account/category repeated multiword titles of at least eight characters; cross-account/category identical titles and descriptions of at least 80 characters; bounded phrase patterns requesting sensitive passwords/codes; and deposit/advance wording near pre-viewing or reservation language. Basic negation skips common safety-advice sentences. Evidence links are limited to five matches per rule.
+
+The protected page explains each indicator, exposes escaped source text in a disclosure and links full admins to existing listing editing. Moderators can inspect source text and jump to matching cards but receive no unrestricted resource-edit permissions. Pending decisions remain in the existing Operations moderation flow and audit trail. No record is automatically rejected, published, suspended, reported or notified. Published flags do not create a second moderation queue or publicly accuse sellers. No image matching, semantic AI, whole-history coverage or guaranteed fraud detection is claimed; bounded exact-match/phrase rules have false positives and negatives. Refresh recomputes after edits; there is no separate risk-history database.
+
+No schema change, external service, scheduler or cross-module JOIN is introduced. Checklist state, private chat and viewing locations are not read. Details: `docs/LISTING_RISK_REVIEW_FA.md`. Validation: 464 tests / 4,695 assertions passed, including 10 risk tests / 52 assertions. Real browser checks cover Operations entry, normalized duplicate evidence, protected source text, real refresh after content edit, moderator permissions, guest isolation, RTL/LTR, four widths, Vazirmatn and keyboard focus. Localization, changed-file Pint and isolated config/route caches passed; browser fixtures were cleaned and Graphify refreshed. The preceding checklist delivery also passed shared-release and artifact checksum/source/migration/asset verification before this delivery.

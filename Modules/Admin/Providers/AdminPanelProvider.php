@@ -25,6 +25,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Modules\Admin\Filament\Pages\AdminDashboard;
+use Modules\Admin\Filament\Pages\ListingRiskReview;
 use Modules\Admin\Filament\Pages\LocalizedFileManager;
 use Modules\Admin\Filament\Pages\ManageDeployment;
 use Modules\Admin\Filament\Pages\Operations;
@@ -60,7 +61,7 @@ class AdminPanelProvider extends PanelProvider
             ->homeUrl(fn (): string => auth()->user()?->hasRole('admin') ? url('/admin') : url('/admin/operations'))
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin-accessibility'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.admin-mobile-navigation'))
-            ->pages([LocalizedFileManager::class, ManageDeployment::class, ProductionDeploy::class, Operations::class, OperationsSettings::class])
+            ->pages([LocalizedFileManager::class, ManageDeployment::class, ProductionDeploy::class, Operations::class, OperationsSettings::class, ListingRiskReview::class])
             ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->login()
             ->font('Vazirmatn', url: fn (): string => asset('assets/fonts/vazirmatn/font.css'), provider: LocalFontProvider::class)

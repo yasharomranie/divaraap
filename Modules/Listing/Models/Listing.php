@@ -34,6 +34,7 @@ use Modules\Listing\States\SoldListingStatus;
 use Modules\Listing\Support\ListingImageViewData;
 use Modules\Listing\Support\ListingImprovementGuide;
 use Modules\Listing\Support\ListingPanelHelper;
+use Modules\Listing\Support\ListingRiskSignals;
 use Modules\Location\Models\City;
 use Modules\Location\Models\Country;
 use Modules\Location\Support\IranianCities;
@@ -86,6 +87,17 @@ class Listing extends Model implements HasMedia
         }
 
         return static::query()->where('status', 'active')->whereKey($match[1])->value('id');
+    }
+
+    public static function riskReviewSnapshot(): array
+    {
+        $records = static::query()->whereIn('status', ['pending', 'active'])
+            ->whereBetween('created_at', [now()->subDays(30), now()])
+            ->where(fn ($query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->latest('id')->limit(200)->select(['id', 'title', 'category_id', 'user_id', 'status'])
+            ->selectRaw('SUBSTRING(description, 1, 8000) AS description')->get();
+
+        return ['scanned' => $records->count(), 'items' => ListingRiskSignals::analyze($records)];
     }
 
     public static function moderationQueue(): Collection
