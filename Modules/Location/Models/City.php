@@ -30,6 +30,14 @@ class City extends Model
         return static::query()->active()->where('name', $city)->whereHas('country', fn (Builder $query) => $query->where('name', $country))->value('id');
     }
 
+    public static function advertisingFilterOptions(): array
+    {
+        $countries = Country::query()->active()->pluck('id')->all();
+
+        return static::query()->active()->whereIn('country_id', $countries)->with('country')->orderBy('name')->get(['id', 'name', 'country_id'])
+            ->mapWithKeys(fn (self $city): array => [(int) $city->id => ['name' => $city->displayName(), 'country_id' => (int) $city->country_id]])->all();
+    }
+
     public static function advertisingOptions(): array
     {
         return static::query()->active()->with('country')->orderBy('name')->get()->mapWithKeys(fn (self $city) => [$city->id => $city->displayName()])->all();

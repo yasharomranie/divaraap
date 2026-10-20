@@ -25,7 +25,9 @@ use Modules\Advertising\Filament\Admin\Resources\BannerResource\Pages;
 use Modules\Advertising\Models\Banner;
 use Modules\Advertising\Models\BannerPlacement;
 use Modules\Advertising\Models\Campaign;
+use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
+use Modules\Location\Models\City;
 use Modules\Site\App\Support\LocalMedia;
 use Modules\User\App\Models\Profile;
 
@@ -49,7 +51,7 @@ final class BannerResource extends AdvertisingResource
     {
         return $schema->schema([
             Select::make('campaign_id')->label(__('advertising::campaign.campaign'))->options(fn () => Campaign::options())->searchable()->exists(Campaign::class, 'id')->helperText(__('advertising::campaign.optional_campaign')),
-            Select::make('creative_format')->label(__('advertising::shop.format'))->options(['image' => __('advertising::shop.image'), 'shop' => __('advertising::shop.card'), 'collection' => __('advertising::collection.format'), 'service' => __('advertising::service.format')])->default('image')->required()->live(),
+            Select::make('creative_format')->label(__('advertising::shop.format'))->options(['image' => __('advertising::shop.image'), 'shop' => __('advertising::shop.card'), 'collection' => __('advertising::collection.format'), 'service' => __('advertising::service.format'), 'filter' => __('advertising::filters.format')])->default('image')->required()->live(),
             Select::make('shop_user_id')->label(__('advertising::shop.shop'))->searchable()->getSearchResultsUsing(fn (string $search): array => Profile::advertisingShopOptions($search))
                 ->getOptionLabelUsing(fn ($value): ?string => Profile::advertisingShops([(int) $value])[(int) $value]['name'] ?? null)
                 ->options(fn (): array => Profile::advertisingShopOptions())->required()->visible(fn (Get $get): bool => $get('creative_format') === 'shop')->helperText(__('advertising::shop.hint')),
@@ -61,6 +63,16 @@ final class BannerResource extends AdvertisingResource
                 ->options(fn (): array => Listing::advertisingServiceOptions())->getSearchResultsUsing(fn (string $search): array => Listing::advertisingServiceOptions($search))
                 ->getOptionLabelUsing(fn ($value): ?string => Listing::advertisingServiceItems([(int) $value])[(int) $value]['title'] ?? null)
                 ->visible(fn (Get $get): bool => $get('creative_format') === 'service')->helperText(__('advertising::service.hint')),
+            Repeater::make('filter_choices')->label(__('advertising::filters.choices'))->required()->minItems(2)->maxItems(4)->defaultItems(2)->reorderableWithButtons()->columns(2)
+                ->schema([
+                    TextInput::make('label')->label(__('advertising::filters.label'))->required()->maxLength(60)->columnSpanFull(),
+                    TextInput::make('search')->label(__('advertising::filters.search'))->maxLength(120),
+                    Select::make('category_id')->label(__('advertising::filters.category'))->options(fn (): array => Category::advertisingFilterOptions())->searchable(),
+                    Select::make('city_id')->label(__('advertising::filters.city'))->options(fn (): array => collect(City::advertisingFilterOptions())->mapWithKeys(fn (array $city, $id): array => [$id => $city['name']])->all())->searchable(),
+                    Select::make('sort')->label(__('advertising::filters.sort'))->options(['smart' => __('site::messages.sort_relevance'), 'newest' => __('site::messages.sort_newest'), 'oldest' => __('site::messages.sort_oldest'), 'price_asc' => __('site::messages.sort_price_asc'), 'price_desc' => __('site::messages.sort_price_desc')])->default('newest')->required(),
+                    TextInput::make('min_price')->label(__('advertising::filters.min_price'))->maxLength(32),
+                    TextInput::make('max_price')->label(__('advertising::filters.max_price'))->maxLength(32),
+                ])->visible(fn (Get $get): bool => $get('creative_format') === 'filter')->helperText(__('advertising::filters.hint'))->columnSpanFull(),
             TextInput::make('title')->label(__('advertising::admin.title'))->required()->maxLength(150),
             TextInput::make('alt')->label(__('advertising::admin.alt'))->required()->maxLength(200),
             FileUpload::make('image')->label(__('advertising::admin.image'))->image()->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->disk('public')->directory(LocalMedia::managedDirectory('banners'))->visibility('public')->maxSize(4096)->required()->helperText(__('advertising::admin.image_hint')),

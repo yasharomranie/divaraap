@@ -22,7 +22,7 @@ final class AdvertisingEvent extends Model
 
     protected $guarded = ['id'];
 
-    public static function record(string $token, string $kind, string $device, ?int $listingId = null): void
+    public static function record(string $token, string $kind, string $device, ?int $listingId = null, ?string $choice = null): void
     {
         if (! app(OperationsSettings::class)->telemetry_enabled || ! in_array($kind, ['impression', 'click'], true) || ! in_array($device, ['mobile', 'desktop'], true)) {
             return;
@@ -39,6 +39,10 @@ final class AdvertisingEvent extends Model
             && ($banner->creative_format !== 'service' || ($data['service'] ?? null) !== (int) $banner->service_listing_id)) {
             return;
         }
+        if (($banner->creative_format === 'filter' || ($data['filters'] ?? []) !== [])
+            && ($banner->creative_format !== 'filter' || ($data['filters'] ?? []) !== array_keys($banner->preparedFilters()))) {
+            return;
+        }
         $placement = BannerPlacement::query()->where('key', $data['placement'])->where('is_active', true)->first();
         if (! $placement || ! in_array($placement->device, ['both', $device], true) || ! in_array($banner->device, ['both', $device], true) || ! $placement->assignments()->where('banner_id', $banner->id)->exists()) {
             return;
@@ -48,7 +52,13 @@ final class AdvertisingEvent extends Model
         }
         $targetListingId = null;
         if ($kind === 'click') {
-            if ($banner->creative_format === 'service') {
+            if ($banner->creative_format === 'filter') {
+                if ($listingId !== null || $choice === null || ! isset($banner->preparedFilters()[$choice])) {
+                    return;
+                }
+            } elseif ($choice !== null) {
+                return;
+            } elseif ($banner->creative_format === 'service') {
                 if ($listingId !== null) {
                     return;
                 }

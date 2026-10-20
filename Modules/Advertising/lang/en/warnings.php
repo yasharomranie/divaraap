@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'filters_unavailable' => 'Prepared filters or their category, city or country are unavailable',
     'service_unavailable' => 'Service listing, provider or service category is unavailable',
     'collection_unavailable' => 'Some collection listings are unavailable; collections with fewer than two available listings are hidden',
     'shop_unavailable' => 'Shop is unavailable or its card information needs review',

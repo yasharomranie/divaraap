@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Modules\Advertising\Models;
 
+use App\Support\Money;
+use App\Support\PersianSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
+use Modules\Location\Models\City;
 use Modules\User\App\Models\Profile;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
@@ -32,9 +36,11 @@ final class Banner extends Model
 
     private bool $adServiceLoaded = false;
 
+    private ?array $adFilters = null;
+
     public static function moderationQueue(): Collection
     {
-        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'created_at']);
+        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'created_at']);
     }
 
     public function moderate(bool $approve, ?string $note = null): void
@@ -44,7 +50,7 @@ final class Banner extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id', 'filter_choices'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 
     protected $table = 'advertising_banners';
@@ -53,14 +59,14 @@ final class Banner extends Model
 
     protected function casts(): array
     {
-        return ['collection_listing_ids' => 'array', 'shop_snapshot' => 'array', 'daily_frequency_cap' => 'integer', 'is_active' => 'boolean', 'new_tab' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime'];
+        return ['filter_choices' => 'array', 'collection_listing_ids' => 'array', 'shop_snapshot' => 'array', 'daily_frequency_cap' => 'integer', 'is_active' => 'boolean', 'new_tab' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime'];
     }
 
     protected static function booted(): void
     {
         self::saving(function (self $banner): void {
             $banner->creative_format ??= 'image';
-            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service'], true)) {
+            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service', 'filter'], true)) {
                 throw ValidationException::withMessages(['creative_format' => __('advertising::shop.invalid')]);
             }
             if ($banner->creative_format === 'shop') {
@@ -101,9 +107,21 @@ final class Banner extends Model
             } else {
                 $banner->service_listing_id = null;
             }
+            $banner->adFilters = null;
+            if ($banner->creative_format === 'filter') {
+                $choices = $banner->normalizedFilterChoices(Category::advertisingFilterOptions(), City::advertisingFilterOptions());
+                if ($choices === null && (! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'filter_choices']))) {
+                    throw ValidationException::withMessages(['filter_choices' => __('advertising::filters.invalid')]);
+                }
+                if ($choices !== null) {
+                    $banner->filter_choices = $choices;
+                }
+            } else {
+                $banner->filter_choices = null;
+            }
             $banner->adShopLoaded = false;
             $banner->adShop = null;
-            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id'])) {
+            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices'])) {
                 $banner->review_status = 'pending';
                 $banner->is_active = false;
             }
@@ -120,6 +138,9 @@ final class Banner extends Model
                 continue;
             }
             $codes = [];
+            if ($banner->creative_format === 'filter' && $banner->preparedFilters() === []) {
+                $codes[] = 'filters_unavailable';
+            }
             if ($banner->creative_format === 'service' && ! $banner->advertisedService()) {
                 $codes[] = 'service_unavailable';
             }
@@ -214,10 +235,116 @@ final class Banner extends Model
     public function creativeEligible(): bool
     {
         return match ($this->creative_format) {
+            'filter' => count($this->preparedFilters()) >= 2,
             'service' => $this->advertisedService() !== null,
             'collection' => count($this->advertisedListings()) >= 2,
             default => $this->shopCreativeEligible(),
         };
+    }
+
+    private function normalizedFilterChoices(array $categories, array $cities): ?array
+    {
+        $choices = $this->filter_choices;
+        if (! is_array($choices) || count($choices) < 2 || count($choices) > 4) {
+            return null;
+        }
+        $normalized = [];
+        $seen = [];
+        foreach ($choices as $choice) {
+            if (! is_array($choice) || array_diff(array_keys($choice), ['label', 'search', 'category_id', 'city_id', 'min_price', 'max_price', 'sort']) !== []
+                || ! is_string($choice['label'] ?? null) || trim($choice['label']) === '' || mb_strlen($choice['label']) > 60) {
+                return null;
+            }
+            $row = ['label' => trim($choice['label'])];
+            $search = $choice['search'] ?? '';
+            if (! is_string($search) || PersianSearch::terms($search) === null) {
+                return null;
+            }
+            if (trim($search) !== '') {
+                $row['search'] = trim($search);
+            }
+            foreach (['category_id' => $categories, 'city_id' => $cities] as $field => $options) {
+                $value = $choice[$field] ?? null;
+                if ($value === null || $value === '') {
+                    continue;
+                }
+                if ((! is_int($value) && ! is_string($value)) || ! preg_match('/^[1-9][0-9]{0,17}$/', (string) $value) || ! isset($options[(int) $value])) {
+                    return null;
+                }
+                $row[$field] = (int) $value;
+            }
+            foreach (['min_price', 'max_price'] as $field) {
+                $value = $choice[$field] ?? null;
+                if ($value === null || $value === '') {
+                    continue;
+                }
+                if (! Money::valid($value, 'IRR')) {
+                    return null;
+                }
+                $row[$field] = Money::decimal($value);
+            }
+            if (count($row) === 1 || (isset($row['min_price'], $row['max_price']) && bccomp($row['min_price'], $row['max_price'], 2) > 0)) {
+                return null;
+            }
+            $row['sort'] = $choice['sort'] ?? 'newest';
+            if (! in_array($row['sort'], ['smart', 'newest', 'oldest', 'price_asc', 'price_desc'], true)) {
+                return null;
+            }
+            $filters = $row;
+            unset($filters['label']);
+            $signature = json_encode($filters, JSON_THROW_ON_ERROR);
+            if (isset($seen[$signature])) {
+                return null;
+            }
+            $seen[$signature] = true;
+            $normalized[] = $row;
+        }
+
+        return $normalized;
+    }
+
+    public function preparedFilters(?array $categories = null, ?array $cities = null): array
+    {
+        if ($this->creative_format !== 'filter') {
+            return [];
+        }
+        if ($this->adFilters !== null && $categories === null && $cities === null) {
+            return $this->adFilters;
+        }
+        $categories ??= Category::advertisingFilterOptions();
+        $cities ??= City::advertisingFilterOptions();
+        $rows = $this->normalizedFilterChoices($categories, $cities);
+        $output = [];
+        foreach ($rows ?? [] as $row) {
+            $query = [];
+            $summary = [];
+            if (isset($row['search'])) {
+                $query['search'] = $row['search'];
+                $summary[] = $row['search'];
+            }
+            if (isset($row['category_id'])) {
+                $query['category'] = $row['category_id'];
+                $summary[] = $categories[$row['category_id']];
+            }
+            if (isset($row['city_id'])) {
+                $city = $cities[$row['city_id']];
+                $query['country'] = $city['country_id'];
+                $query['city'] = $row['city_id'];
+                $summary[] = $city['name'];
+            }
+            foreach (['min_price' => 'minimum', 'max_price' => 'maximum'] as $field => $label) {
+                if (isset($row[$field])) {
+                    $query[$field] = $row[$field];
+                    $summary[] = __('advertising::filters.'.$label, ['price' => Money::format($row[$field], 'IRR')]);
+                }
+            }
+            $query['sort'] = $row['sort'];
+            $key = hash('sha256', json_encode([$row, $query], JSON_THROW_ON_ERROR));
+            $output[$key] = ['label' => $row['label'], 'summary' => implode(' · ', $summary), 'url' => route('listings.index', $query)];
+        }
+        $this->adFilters = $output;
+
+        return $output;
     }
 
     public function cacheAdvertisedService(?array $service): void
@@ -283,7 +410,7 @@ final class Banner extends Model
         if ($this->creative_format === 'service') {
             return $this->advertisedService() ? route('listings.show', ['listing' => (int) $this->service_listing_id, 'request-service' => 1]).'#service-request' : null;
         }
-        if ($this->creative_format === 'collection') {
+        if (in_array($this->creative_format, ['collection', 'filter'], true)) {
             return null;
         }
         if ($this->creative_format === 'shop') {

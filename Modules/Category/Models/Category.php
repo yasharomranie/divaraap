@@ -64,6 +64,27 @@ class Category extends Model
         });
     }
 
+    public static function advertisingFilterOptions(): array
+    {
+        $categories = static::query()->active()->ordered()->get(['id', 'name', 'parent_id']);
+        $options = [];
+        for ($depth = 0; $depth <= 12; $depth++) {
+            $added = false;
+            $reachable = $options;
+            foreach ($categories as $category) {
+                if (! isset($options[$category->id]) && ($category->parent_id === null || isset($reachable[$category->parent_id]))) {
+                    $options[(int) $category->id] = $category->displayName();
+                    $added = true;
+                }
+            }
+            if (! $added) {
+                break;
+            }
+        }
+
+        return $options;
+    }
+
     public static function advertisingServiceCategoryIds(): array
     {
         $categories = static::query()->active()->get(['id', 'slug', 'parent_id']);

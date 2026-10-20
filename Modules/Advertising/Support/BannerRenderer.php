@@ -6,6 +6,7 @@ namespace Modules\Advertising\Support;
 
 use Modules\Admin\Support\AdvertisingCapacity;
 use Modules\Advertising\Models\BannerPlacement;
+use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
 use Modules\Location\Models\City;
 use Modules\User\App\Models\Profile;
@@ -38,6 +39,14 @@ final class BannerRenderer
         foreach ($placement->assignments as $assignment) {
             if ($assignment->banner?->creative_format === 'collection') {
                 $assignment->banner->cacheAdvertisedListings($collectionItems);
+            }
+        }
+        $filterBanners = $placement->assignments->filter(fn ($assignment): bool => $assignment->banner?->creative_format === 'filter');
+        if ($filterBanners->isNotEmpty()) {
+            $filterCategories = Category::advertisingFilterOptions();
+            $filterCities = City::advertisingFilterOptions();
+            foreach ($filterBanners as $assignment) {
+                $assignment->banner->preparedFilters($filterCategories, $filterCities);
             }
         }
         $services = Listing::advertisingServiceItems($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'service' ? $assignment->banner->service_listing_id : null)->filter()->unique()->all());

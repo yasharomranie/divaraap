@@ -14,7 +14,7 @@ final class AdvertisingEventController
     {
         try {
             $data = $request->validated();
-            AdvertisingEvent::record($data['token'], $data['kind'], $data['device'], isset($data['listing']) ? (int) $data['listing'] : null);
+            AdvertisingEvent::record($data['token'], $data['kind'], $data['device'], isset($data['listing']) ? (int) $data['listing'] : null, $data['choice'] ?? null);
         } catch (\Throwable $exception) {
             report($exception);
         }

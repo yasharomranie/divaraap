@@ -44,3 +44,16 @@
 @media (max-width: 480px) { .advertising-service { grid-template-columns: 88px minmax(0, 1fr); } .advertising-service__body { padding: 12px; } }
 .advertising-service__action { font-size: 0.875rem; white-space: nowrap; }
 .advertising-service__action svg { width: 20px; height: 20px; flex: 0 0 20px; }
+
+.advertising-filters { padding: 12px; }
+.advertising-filters__head { display: flex; gap: 12px; align-items: center; margin-block-end: 12px; }
+.advertising-filters__head > div { min-width: 0; overflow-wrap: anywhere; }
+.advertising-filters__head h2 { font-size: 1rem; font-weight: 650; }
+.advertising-filters .advertising-filters__cover { width: 56px; height: 56px; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
+.advertising-filters__head picture { flex: 0 0 56px; }
+.advertising-filters__choices { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.advertising-filters__choice { display: grid; align-content: start; gap: 6px; min-width: 0; min-height: 48px; padding: 12px; border: 1px solid var(--appearance-border); border-radius: 10px; background: var(--appearance-surface); overflow-wrap: anywhere; }
+.advertising-filters__choice strong { font-size: 0.875rem; color: var(--accent); }
+.advertising-filters__choice:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.advertising-filters__choice:active { background: var(--accent-soft); }
+@media (min-width: 768px) { .advertising-filters__choices { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
