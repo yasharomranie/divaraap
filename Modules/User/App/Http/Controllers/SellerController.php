@@ -31,6 +31,7 @@ class SellerController extends Controller
             'seller' => $profile,
             'shop' => Profile::shopFor($profile),
             'search' => $search,
+            'verification' => Profile::publicVerification($sellerId),
             'listings' => Listing::publicSellerListings($sellerId, $search),
             'listingCount' => Listing::publicSellerCount($sellerId),
             'summary' => Review::summaryForSeller($sellerId),

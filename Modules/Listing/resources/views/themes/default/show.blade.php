@@ -166,6 +166,7 @@
                                 <span class="avatar">{{ \App\Support\UserDirectory::initials((string) $seller->getAttribute('name')) }}</span>
                                 <div class="stack stack--tight" style="gap:2px">
                                     <a href="{{ route('sellers.show', $sellerId) }}" class="seller-card__name">{{ $seller->getAttribute('name') }}</a>
+                                    @include('user::partials.verification-badges')
                                     <x-ui.rating :average="$sellerReviewSummary['average']" :total="$sellerReviewSummary['total']"/>
                                 </div>
                             </div>

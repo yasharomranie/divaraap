@@ -244,3 +244,9 @@
     width: 16px;
     height: 16px;
 }
+
+.seller-verification .badge {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}

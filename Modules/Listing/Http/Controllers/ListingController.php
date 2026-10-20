@@ -23,6 +23,7 @@ use Modules\Offer\Models\Offer;
 use Modules\Report\Models\Report;
 use Modules\Review\Models\Review;
 use Modules\Theme\Support\ThemeManager;
+use Modules\User\App\Models\Profile;
 
 class ListingController extends Controller
 {
@@ -220,6 +221,7 @@ class ListingController extends Controller
         }
 
         $sellerId = $listing->getAttribute('user_id') === null ? null : (int) $listing->getAttribute('user_id');
+        $verification = $sellerId === null ? ['email' => false, 'reviewed' => false, 'reviewed_at' => null] : Profile::publicVerification($sellerId);
         $sellerReviewSummary = $sellerId === null
             ? ['total' => 0, 'average' => 0.0]
             : Review::summaryForSeller($sellerId);
@@ -230,6 +232,7 @@ class ListingController extends Controller
             'listing',
             'sellerId',
             'sellerReviewSummary',
+            'verification',
             'bestOffer',
             'reportReasons',
             'isListingFavorited',

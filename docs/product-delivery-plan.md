@@ -142,7 +142,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 36 | 4 | زمان‌بندی انتشار آگهی | verified |
 | 37 | 4 | صفحهٔ فروشگاه | verified |
 | 38 | 4 | مدیریت گروهی آگهی‌ها | verified |
-| 39 | 5 | نشان‌های تأیید | pending |
+| 39 | 5 | نشان‌های تأیید | verified |
 | 40 | 5 | زمان پاسخ‌گویی فروشنده | pending |
 | 41 | 5 | نظر معتبرتر | pending |
 | 42 | 5 | گزارش و مسدودسازی در گفتگو | pending |
@@ -378,3 +378,14 @@ My listings now offers per-row selection and a compact action form for pause, re
 The review POST only reads the selection and issues an authenticated encrypted ten-minute ticket binding the owner, action, IDs and relevant listing fingerprints. Execute requires explicit confirmation, rejects tampering/expiry/account switching, locks the account and listing rows in deterministic order, checks every owner/version/eligibility before mutating, and applies existing model operations in one transaction. Stale or mixed-invalid batches never partially apply. Resume cannot approve pending listings, cancel a future schedule or revive elapsed listings; selling cancels scheduled publication through existing model hooks. Removal uses existing SoftDeletes and preserves media/conversations. Invalid confirmations redirect to the listings page with errors, avoiding a GET to the POST-only review route. Requests are bounded to 50 distinct IDs and throttled; review responses are private/no-store/noindex. No schema changes, queues, Cron Jobs or cross-module JOINs were added.
 
 All 388 PHPUnit tests passed (4159 assertions), including seven bulk tests covering native confirmation, all four operations, schedule cancellation, soft deletion, untouched records, authorization, account suspension, forged/expired/replayed tickets, input limits, ineligible statuses, changed/deleted records and all-or-nothing state checks. Chromium verified selection/clear/count, review without mutations, actual pause/resume/sold/delete, native JavaScript-free resume, required deletion confirmation, keyboard focus, Persian RTL/English LTR and layouts at 360/390/768/1440px. Production assets, focused TypeScript ESLint, localization and production config/route caches passed. Fixtures were cleaned. Development browser checks use `php tests/Browser/listing-bulk-fixtures.php`, `python3 tests/Browser/listing-bulk.py`, then the fixture command with `cleanup`. See `docs/BULK_LISTINGS_FA.md`.
+
+
+### Feature 39 — Verification badges (verified)
+
+Seller/shop pages, listing seller identity and account profiles now show independent email-confirmed and staff-reviewed badges. The staff badge states its exact meaning and review time; it does not claim official identity verification or a transaction guarantee. Private contact details and review notes are never added to public output. Responsive text badges use existing tokens, wrap on mobile and retain a text label rather than relying on color.
+
+The existing admin user editor has a grant/revoke action with mandatory decision reason and optimistic review fingerprint; the user table shows the effective reviewed state without per-row profile queries. Existing active admin authorization is reused and enforced again inside the transactional model method; non-admin staff and self-review are denied. Account rows are locked in ID order, the current actor/subject are re-read, and stale identity/verification snapshots are rejected. Private decisions are attributed in the user's existing activity history. The fingerprint binds name, email, normalized phone and shop name; changed information hides the badge unless it matches the reviewed identity. Inactive/deleted accounts show no badges. Legacy is_verified alone cannot create a reviewed badge, and verification fields are excluded from ordinary profile mass assignment and public account forms.
+
+The User provider automatically loads a portable migration adding nullable verified_at, verified_by and verification_fingerprint to profiles during normal cPanel deployment. No extra permission grants, external verification API, queue or Cron Job are required. Staff review remains manual; email confirmation remains the existing email-link flow. No cross-module JOINs were introduced.
+
+All 396 PHPUnit tests passed (4205 assertions), including eight verification tests and actual Livewire grant/revoke actions. Chromium exercised the real Filament modal, public grant/revoke, independent email state, private notes, keyboard focus, Persian RTL/English LTR and seller/listing layouts at 360/390/768/1440px. Production assets, localization and production config/route caches passed. Development fixtures were cleaned. See `docs/SELLER_VERIFICATION_FA.md` and `tests/Browser/seller-verification.py`.

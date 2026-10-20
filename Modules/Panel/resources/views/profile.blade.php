@@ -93,17 +93,22 @@
 
     <aside class="stack stack--loose">
         <section class="card">
+            <div class="card__body stack stack--tight">
+                <h2 class="title-section">{{ __('user::verification.title') }}</h2>
+                @php $verification = \Modules\User\App\Models\Profile::publicVerification((int) $user->id); @endphp
+                @include('user::partials.verification-badges')
+                @unless($verification['email'] || $verification['reviewed'])<p>{{ __('user::verification.none') }}</p>@endunless
+                <p class="field__hint">{{ __('user::verification.hint') }}</p>
+            </div>
+        </section>
+        <section class="card">
             <div class="card__body">
                 <div class="row">
                     <span class="avatar avatar--large">{{ $initials }}</span>
                     <div class="stack" style="gap:2px">
                         <p class="title-card">{{ $displayName }}</p>
                         <p class="text-meta">{{ $user->getAttribute('email') }}</p>
-                        @if($user->hasVerifiedEmail())
-                            <span class="badge badge--positive">{{ __('user::messages.verify_email') }}</span>
-                        @else
-                            <span class="badge badge--caution">{{ __('user::messages.verify_email') }}</span>
-                        @endif
+
                     </div>
                 </div>
 

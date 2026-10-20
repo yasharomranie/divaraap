@@ -11,9 +11,11 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Admin\Support\Filament\AccessControlledResource as Resource;
 use Modules\Admin\Support\Filament\ResourceTableActions;
 use Modules\Admin\Support\Filament\ResourceTableColumns;
+use Modules\User\App\Models\Profile;
 use Modules\User\App\Models\User;
 use Modules\User\App\States\UserStatus;
 use Modules\User\App\Support\Filament\UserFormFields;
@@ -49,6 +51,11 @@ class UserResource extends Resource
         return __('user::admin.user_management');
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with('profile');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
@@ -65,6 +72,7 @@ class UserResource extends Resource
         return $table->columns([
             ResourceTableColumns::id(),
             TextColumn::make('name')->label(__('user::admin.name'))->searchable()->sortable(),
+            TextColumn::make('seller_review')->label(__('user::verification.reviewed'))->state(fn (User $record): string => Profile::verificationFor($record)['reviewed'] ? __('user::verification.granted') : __('user::verification.not_granted'))->badge(),
             TextColumn::make('email')->label(__('user::admin.email'))->searchable()->sortable(),
             TextColumn::make('roles.name')->label(__('user::admin.roles'))->formatStateUsing(fn (string $state): string => User::roleLabel($state))->badge()->label(__('user::admin.roles')),
             ModelStateSelectColumn::make('status')->label(__('user::admin.status'))

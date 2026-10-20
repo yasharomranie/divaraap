@@ -18,6 +18,7 @@
                         <span class="avatar avatar--large">{{ \App\Support\UserDirectory::initials((string) $seller->getAttribute('name')) }}</span>
                         <div class="stack stack--tight" style="gap:2px">
                             <h1 class="title-section" dir="auto" style="overflow-wrap:anywhere">{{ $shop['shop_enabled'] ? $shop['shop_name'] : $seller->getAttribute('name') }}</h1>
+                            @include('user::partials.verification-badges')
                             <x-ui.rating :average="$summary['average']" :total="$summary['total']"/>
                             <p class="text-meta">{{ __('site::messages.member_since', ['date' => \App\Support\PersianLocale::date($seller->getAttribute('created_at'))]) }}</p>
                         </div>
