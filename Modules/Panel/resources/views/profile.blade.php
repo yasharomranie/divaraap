@@ -92,6 +92,9 @@
     </div>
 
     <aside class="stack stack--loose">
+        <section class="card"><div class="card__body">
+            @include('conversation::partials.seller-response', ['responseSummary' => \Modules\Conversation\App\Models\Conversation::sellerResponseSummary((int) $user->id), 'responseOwner' => true])
+        </div></section>
         <section class="card">
             <div class="card__body stack stack--tight">
                 <h2 class="title-section">{{ __('user::verification.title') }}</h2>

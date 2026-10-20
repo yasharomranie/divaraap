@@ -8,6 +8,7 @@ use App\Support\UserDirectory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\Conversation\App\Models\Conversation;
 use Modules\Listing\Models\Listing;
 use Modules\Review\Models\Review;
 use Modules\User\App\Models\Profile;
@@ -32,6 +33,7 @@ class SellerController extends Controller
             'shop' => Profile::shopFor($profile),
             'search' => $search,
             'verification' => Profile::publicVerification($sellerId),
+            'responseSummary' => Conversation::sellerResponseSummary($sellerId),
             'listings' => Listing::publicSellerListings($sellerId, $search),
             'listingCount' => Listing::publicSellerCount($sellerId),
             'summary' => Review::summaryForSeller($sellerId),

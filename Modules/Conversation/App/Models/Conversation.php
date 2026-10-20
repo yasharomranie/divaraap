@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Conversation\App\Models;
 
+use App\Support\PersianLocale;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,6 +18,71 @@ use Modules\User\App\Models\User;
 class Conversation extends Model
 {
     use HasFactory, SoftDeletes;
+
+    public static function sellerResponseSummary(int $sellerId): ?array
+    {
+        if (! User::query()->whereKey($sellerId)->where('status', 'active')->exists()) {
+            return null;
+        }
+        $end = now();
+        $threads = static::query()->where('seller_id', $sellerId)->where('buyer_id', '!=', $sellerId)
+            ->whereBetween('created_at', [$end->copy()->subDays(90), $end])
+            ->select(['id', 'buyer_id'])
+            ->addSelect(['first_buyer_id' => ConversationMessage::query()->select('id')
+                ->whereColumn('conversation_id', 'conversations.id')->whereColumn('sender_id', 'conversations.buyer_id')
+                ->whereColumn('created_at', '>=', 'conversations.created_at')->where('created_at', '<=', $end)
+                ->orderBy('created_at')->orderBy('id')->limit(1)])
+            ->whereHas('messages', fn (Builder $query) => $query->whereColumn('sender_id', 'conversations.buyer_id')
+                ->whereColumn('created_at', '>=', 'conversations.created_at')->where('created_at', '<=', $end))
+            ->latest('created_at')->orderByDesc('id')->limit(100)->get();
+        if ($threads->count() < 5 || $threads->pluck('buyer_id')->unique()->count() < 3) {
+            return null;
+        }
+        $questions = ConversationMessage::query()->whereKey($threads->pluck('first_buyer_id')->all())
+            ->get(['id', 'conversation_id', 'created_at']);
+        if ($questions->count() < 5) {
+            return null;
+        }
+        $replies = ConversationMessage::query()->where('sender_id', $sellerId)->where('created_at', '<=', $end)
+            ->where(function (Builder $query) use ($questions): void {
+                foreach ($questions as $question) {
+                    $query->orWhere(fn (Builder $thread) => $thread->where('conversation_id', $question->conversation_id)
+                        ->where(fn (Builder $after) => $after->where('created_at', '>', $question->created_at)
+                            ->orWhere(fn (Builder $same) => $same->where('created_at', $question->created_at)->where('id', '>', $question->id))));
+                }
+            })->select('conversation_id')->selectRaw('MIN(created_at) as replied_at')->groupBy('conversation_id')->get()->keyBy('conversation_id');
+        $durations = [];
+        $buyers = [];
+        foreach ($questions as $question) {
+            $reply = $replies->get($question->conversation_id);
+            if ($reply) {
+                $durations[] = max(0, CarbonImmutable::parse($reply->replied_at)->timestamp - $question->created_at->timestamp);
+                $buyers[] = $threads->firstWhere('id', $question->conversation_id)->buyer_id;
+            }
+        }
+        if (count($durations) < 5 || count(array_unique($buyers)) < 3) {
+            return null;
+        }
+        sort($durations);
+        $middle = intdiv(count($durations), 2);
+        $median = count($durations) % 2 ? $durations[$middle] : ($durations[$middle - 1] + $durations[$middle]) / 2;
+
+        return ['seconds' => (int) ceil($median), 'answered' => count($durations), 'total' => $threads->count(), 'rate' => (int) round(count($durations) / $threads->count() * 100)];
+    }
+
+    public static function sellerResponseLabel(array $summary): string
+    {
+        $seconds = $summary['seconds'];
+        if ($seconds < 60) {
+            return __('conversation::response.under_minute');
+        }
+        $unit = $seconds < 3600 ? 'minutes' : ($seconds < 86400 ? 'hours' : 'days');
+        $divisor = match ($unit) {
+            'minutes' => 60, 'hours' => 3600, default => 86400
+        };
+
+        return trans_choice('conversation::response.'.$unit, (int) ceil($seconds / $divisor), ['count' => PersianLocale::number((int) ceil($seconds / $divisor))]);
+    }
 
     public static function performanceCount(int $listingId, int $sellerId, CarbonImmutable $start, CarbonImmutable $end): int
     {

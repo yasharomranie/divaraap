@@ -76,6 +76,7 @@
                         @if($shop['shop_hours'] !== '')<p dir="auto" style="overflow-wrap:anywhere">{{ __('user::shop.hours') }}: {{ $shop['shop_hours'] }}</p>@endif
                     </section>
                 @endif
+                @include('conversation::partials.seller-response', ['responseOwner' => $isSelf])
                 <div class="grid grid--stats">
                     <div class="stat-card">
                         <span class="stat-card__value">{{ \App\Support\PersianLocale::number($listingCount) }}</span>

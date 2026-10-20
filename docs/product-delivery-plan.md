@@ -143,7 +143,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 37 | 4 | صفحهٔ فروشگاه | verified |
 | 38 | 4 | مدیریت گروهی آگهی‌ها | verified |
 | 39 | 5 | نشان‌های تأیید | verified |
-| 40 | 5 | زمان پاسخ‌گویی فروشنده | pending |
+| 40 | 5 | زمان پاسخ‌گویی فروشنده | verified |
 | 41 | 5 | نظر معتبرتر | pending |
 | 42 | 5 | گزارش و مسدودسازی در گفتگو | pending |
 | 43 | 5 | پیشنهاد قیمت داخل چت | pending |
@@ -389,3 +389,12 @@ The existing admin user editor has a grant/revoke action with mandatory decision
 The User provider automatically loads a portable migration adding nullable verified_at, verified_by and verification_fingerprint to profiles during normal cPanel deployment. No extra permission grants, external verification API, queue or Cron Job are required. Staff review remains manual; email confirmation remains the existing email-link flow. No cross-module JOINs were introduced.
 
 All 396 PHPUnit tests passed (4205 assertions), including eight verification tests and actual Livewire grant/revoke actions. Chromium exercised the real Filament modal, public grant/revoke, independent email state, private notes, keyboard focus, Persian RTL/English LTR and seller/listing layouts at 360/390/768/1440px. Production assets, localization and production config/route caches passed. Development fixtures were cleaned. See `docs/SELLER_VERIFICATION_FA.md` and `tests/Browser/seller-verification.py`.
+
+
+### Feature 40 — Seller response time (verified)
+
+Public seller/shop pages, listing seller cards and account profiles now show a truthful aggregate of first-response behavior: the median time from the first buyer message to the first subsequent seller reply, alongside answered/total conversations and a rounded response rate. Only the newest 100 nonempty conversations started in the past 90 days are considered; repeated messages and later re-openings do not add samples or reset the first-question clock. At least five answered conversations involving three distinct buyers are required. Otherwise the interface states that data is insufficient; owners also see the threshold. Nights and holidays count, and the label explicitly avoids promising a future reply time.
+
+Conversation owns the calculations through four bounded-result queries without any JOINs. Only message IDs, conversation IDs and timestamps are retrieved, never bodies or participant details for output. Soft-deleted messages/threads, third-party messages, self-conversations, future data, prior seller messages and inactive/deleted sellers are excluded. Equal timestamps use message ID order; even samples use the mean of the central pair. Deleted questions cause an early return if the sample becomes too small. Response rates include unanswered eligible threads, reducing the misleading effect of presenting answered-only timing. No editable statistics, external services, jobs, cache dependencies, schema changes or Cron Jobs were introduced.
+
+All 403 PHPUnit tests passed (4236 assertions), including seven response tests covering odd/even medians, unanswered threads, first-reply weighting, minimum counts/distinct buyers, date/status/delete boundaries, same-second ordering, third-party messages, the actual 100-thread limit, query count and absence of message-body reads/public disclosure. Chromium verified a real 10-minute median and 83% rate from fixture conversations on seller/listing pages, Persian RTL/English LTR and 360/390/768/1440px layouts. Production build, localization and production config/route caches passed. Fixtures were cleaned. See `docs/SELLER_RESPONSE_FA.md` and `tests/Browser/seller-response.py`. A successful GitHub build establishes release readiness; the reported cPanel remote-connection failure must still be resolved before installation there.

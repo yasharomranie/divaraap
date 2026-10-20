@@ -172,6 +172,7 @@
                             </div>
                         @endif
 
+                        @include('conversation::partials.seller-response', ['responseOwner' => $isOwner])
                         @auth
                             @if($canContact)
                                 <div class="stack stack--tight">
