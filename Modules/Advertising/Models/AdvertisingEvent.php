@@ -35,6 +35,10 @@ final class AdvertisingEvent extends Model
         if (! $banner || $banner->campaign_id !== $data['campaign'] || ! $banner->eligibleForCampaign($data['context'], forDelivery: false)) {
             return;
         }
+        if (($banner->creative_format === 'service' || ($data['service'] ?? null) !== null)
+            && ($banner->creative_format !== 'service' || ($data['service'] ?? null) !== (int) $banner->service_listing_id)) {
+            return;
+        }
         $placement = BannerPlacement::query()->where('key', $data['placement'])->where('is_active', true)->first();
         if (! $placement || ! in_array($placement->device, ['both', $device], true) || ! in_array($banner->device, ['both', $device], true) || ! $placement->assignments()->where('banner_id', $banner->id)->exists()) {
             return;
@@ -44,7 +48,12 @@ final class AdvertisingEvent extends Model
         }
         $targetListingId = null;
         if ($kind === 'click') {
-            if ($banner->creative_format === 'collection') {
+            if ($banner->creative_format === 'service') {
+                if ($listingId !== null) {
+                    return;
+                }
+                $targetListingId = (int) $banner->service_listing_id;
+            } elseif ($banner->creative_format === 'collection') {
                 if (! $listingId || ! in_array($listingId, $data['listings'] ?? [], true) || ! isset($banner->advertisedListings()[$listingId])) {
                     return;
                 }

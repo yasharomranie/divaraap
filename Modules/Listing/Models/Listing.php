@@ -89,6 +89,25 @@ class Listing extends Model implements HasMedia
         return static::query()->where('status', 'active')->whereKey($match[1])->value('id');
     }
 
+    public static function advertisingServiceItems(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+        $serviceIds = static::query()->whereKey($ids)->whereIn('category_id', Category::advertisingServiceCategoryIds())->pluck('id')->all();
+
+        return static::advertisingCollectionItems($serviceIds);
+    }
+
+    public static function advertisingServiceOptions(string $search = ''): array
+    {
+        $ids = static::query()->active()->whereIn('category_id', Category::advertisingServiceCategoryIds())
+            ->where(fn ($query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->where('title', 'like', '%'.mb_substr($search, 0, 120).'%')->latest('id')->limit(50)->pluck('id')->all();
+
+        return collect(static::advertisingCollectionItems($ids))->mapWithKeys(fn (array $item): array => [$item['id'] => $item['title'].' #'.$item['id']])->all();
+    }
+
     public static function advertisingCollectionItems(array $ids): array
     {
         $ids = array_values(array_unique(array_map('intval', $ids)));

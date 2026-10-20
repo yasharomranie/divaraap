@@ -6,6 +6,8 @@
     @endif
     @if($banner->creative_format === 'collection')
         @include('advertising::listing-collection')
+    @elseif($banner->creative_format === 'service')
+        @include('advertising::service-card')
     @elseif($banner->creative_format === 'shop')
         @include('advertising::shop-card')
     @else

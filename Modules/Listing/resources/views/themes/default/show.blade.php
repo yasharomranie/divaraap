@@ -144,6 +144,10 @@
                     </div>
                 </section>
 
+                @if($serviceRequestItem ?? null)
+                    @include('listing::partials.service-request')
+                @endif
+
                 @includeIf('advertising::slot', ['placementKey' => 'listing-details', 'position' => 0, 'advertisingContext' => ['category_id' => $listing->category_id, 'city_name' => (string) $listing->city, 'country_name' => (string) $listing->country]])
 
                 @if($listingVideos->isNotEmpty())

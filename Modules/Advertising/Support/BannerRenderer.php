@@ -40,6 +40,12 @@ final class BannerRenderer
                 $assignment->banner->cacheAdvertisedListings($collectionItems);
             }
         }
+        $services = Listing::advertisingServiceItems($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'service' ? $assignment->banner->service_listing_id : null)->filter()->unique()->all());
+        foreach ($placement->assignments as $assignment) {
+            if ($assignment->banner?->creative_format === 'service') {
+                $assignment->banner->cacheAdvertisedService($services[$assignment->banner->service_listing_id] ?? null);
+            }
+        }
         $shops = Profile::advertisingShops($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'shop' ? $assignment->banner->shop_user_id : null)->filter()->unique()->all());
         foreach ($placement->assignments as $assignment) {
             if ($assignment->banner?->creative_format === 'shop') {

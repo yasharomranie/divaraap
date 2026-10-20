@@ -64,6 +64,22 @@ class Category extends Model
         });
     }
 
+    public static function advertisingServiceCategoryIds(): array
+    {
+        $categories = static::query()->active()->get(['id', 'slug', 'parent_id']);
+        $ids = $categories->filter(fn (self $category): bool => $category->slug === 'services' && $category->parent_id === null)->pluck('id')->map(fn ($id): int => (int) $id)->all();
+        for ($depth = 0; $depth < 12 && $ids !== []; $depth++) {
+            $next = $categories->filter(fn (self $category): bool => in_array((int) $category->parent_id, $ids, true))->pluck('id')->map(fn ($id): int => (int) $id)->all();
+            $expanded = array_values(array_unique(array_merge($ids, $next)));
+            if ($expanded === $ids) {
+                break;
+            }
+            $ids = $expanded;
+        }
+
+        return $ids;
+    }
+
     public static function tradeChecklistDefinition(?int $categoryId, bool $lock = false): array
     {
         $sourceCategoryId = $categoryId;

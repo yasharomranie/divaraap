@@ -229,9 +229,11 @@ class ListingController extends Controller
         $bestOffer = Offer::highestPendingForListing((int) $listing->getKey());
         $reportReasons = Report::reasons();
 
+        $serviceRequestItem = request()->query('request-service') === '1' ? (Listing::advertisingServiceItems([(int) $listing->id])[(int) $listing->id] ?? null) : null;
         $tradeChecklist = Category::tradeChecklistDefinition($listing->category_id ? (int) $listing->category_id : null);
         $view = view($this->themes->view('listing', 'show'), compact(
             'tradeChecklist',
+            'serviceRequestItem',
             'listing',
             'sellerId',
             'sellerReviewSummary',

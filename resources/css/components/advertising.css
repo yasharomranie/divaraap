@@ -32,3 +32,15 @@
 .advertising-collection .advertising-collection__photo, .advertising-collection__placeholder { display: flex; align-items: center; justify-content: center; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; background: var(--surface-sunken); }
 .advertising-collection__placeholder svg { width: 32px; height: 32px; }
 @media (min-width: 768px) { .advertising-collection__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.advertising-service { display: grid; grid-template-columns: minmax(96px, 28%) minmax(0, 1fr); align-items: center; }
+.advertising-service__media { align-self: stretch; min-width: 0; }
+.advertising-service .advertising-service__cover { height: 100%; max-height: 280px; aspect-ratio: 1; object-fit: cover; }
+.advertising-service__body { display: grid; gap: 8px; padding: 16px; min-width: 0; overflow-wrap: anywhere; }
+.advertising-service__name { font-size: 1rem; font-weight: 650; }
+.advertising-service__action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 12px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); justify-self: start; }
+.service-request { scroll-margin-block: 100px; }
+.service-request:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 480px) { .advertising-service { grid-template-columns: 88px minmax(0, 1fr); } .advertising-service__body { padding: 12px; } }
+.advertising-service__action { font-size: 0.875rem; white-space: nowrap; }
+.advertising-service__action svg { width: 20px; height: 20px; flex: 0 0 20px; }

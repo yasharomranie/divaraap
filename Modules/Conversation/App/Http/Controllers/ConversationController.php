@@ -99,6 +99,11 @@ class ConversationController extends Controller
             return back()->with('error', __('conversation::messages.own_listing'));
         }
 
+        if ($request->boolean('service_request')) {
+            abort_unless(isset(Listing::advertisingServiceItems([(int) $listing->id])[(int) $listing->id]), 422);
+            $request->validate(['message' => ['required', 'string', 'max:2000', 'regex:/\S/u']]);
+        }
+
         $messageBody = trim((string) $request->string('message'));
 
         if ($request->expectsJson() && $messageBody === '') {

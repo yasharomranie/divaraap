@@ -28,9 +28,13 @@ final class Banner extends Model
 
     private ?array $adListings = null;
 
+    private ?array $adService = null;
+
+    private bool $adServiceLoaded = false;
+
     public static function moderationQueue(): Collection
     {
-        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'created_at']);
+        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'created_at']);
     }
 
     public function moderate(bool $approve, ?string $note = null): void
@@ -40,7 +44,7 @@ final class Banner extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 
     protected $table = 'advertising_banners';
@@ -56,7 +60,7 @@ final class Banner extends Model
     {
         self::saving(function (self $banner): void {
             $banner->creative_format ??= 'image';
-            if (! in_array($banner->creative_format, ['image', 'shop', 'collection'], true)) {
+            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service'], true)) {
                 throw ValidationException::withMessages(['creative_format' => __('advertising::shop.invalid')]);
             }
             if ($banner->creative_format === 'shop') {
@@ -88,9 +92,18 @@ final class Banner extends Model
             } else {
                 $banner->collection_listing_ids = null;
             }
+            $banner->adServiceLoaded = false;
+            $banner->adService = null;
+            if ($banner->creative_format === 'service') {
+                if (! $banner->advertisedService() && (! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'service_listing_id']))) {
+                    throw ValidationException::withMessages(['service_listing_id' => __('advertising::service.invalid')]);
+                }
+            } else {
+                $banner->service_listing_id = null;
+            }
             $banner->adShopLoaded = false;
             $banner->adShop = null;
-            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids'])) {
+            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id'])) {
                 $banner->review_status = 'pending';
                 $banner->is_active = false;
             }
@@ -107,6 +120,9 @@ final class Banner extends Model
                 continue;
             }
             $codes = [];
+            if ($banner->creative_format === 'service' && ! $banner->advertisedService()) {
+                $codes[] = 'service_unavailable';
+            }
             if ($banner->creative_format === 'collection' && count($banner->advertisedListings()) < count($banner->collection_listing_ids ?? [])) {
                 $codes[] = 'collection_unavailable';
             }
@@ -197,7 +213,29 @@ final class Banner extends Model
 
     public function creativeEligible(): bool
     {
-        return $this->creative_format === 'collection' ? count($this->advertisedListings()) >= 2 : $this->shopCreativeEligible();
+        return match ($this->creative_format) {
+            'service' => $this->advertisedService() !== null,
+            'collection' => count($this->advertisedListings()) >= 2,
+            default => $this->shopCreativeEligible(),
+        };
+    }
+
+    public function cacheAdvertisedService(?array $service): void
+    {
+        $this->adService = $service;
+        $this->adServiceLoaded = true;
+    }
+
+    public function advertisedService(): ?array
+    {
+        if ($this->creative_format !== 'service' || ! $this->service_listing_id) {
+            return null;
+        }
+        if (! $this->adServiceLoaded) {
+            $this->cacheAdvertisedService(Listing::advertisingServiceItems([(int) $this->service_listing_id])[(int) $this->service_listing_id] ?? null);
+        }
+
+        return $this->adService;
     }
 
     public function cacheAdvertisedShop(?array $shop): void
@@ -242,6 +280,9 @@ final class Banner extends Model
 
     public function destination(): ?string
     {
+        if ($this->creative_format === 'service') {
+            return $this->advertisedService() ? route('listings.show', ['listing' => (int) $this->service_listing_id, 'request-service' => 1]).'#service-request' : null;
+        }
         if ($this->creative_format === 'collection') {
             return null;
         }
