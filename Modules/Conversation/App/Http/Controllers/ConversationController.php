@@ -13,6 +13,7 @@ use Modules\Conversation\App\Events\ConversationReadUpdated;
 use Modules\Conversation\App\Events\ConversationStarted;
 use Modules\Conversation\App\Events\InboxMessageCreated;
 use Modules\Conversation\App\Models\Conversation;
+use Modules\Conversation\App\Models\ConversationBlock;
 use Modules\Conversation\App\Models\ConversationMessage;
 use Modules\Conversation\App\Models\SavedReply;
 use Modules\Conversation\App\Support\QuickMessageCatalog;
@@ -68,6 +69,7 @@ class ConversationController extends Controller
             'conversations' => $conversations,
             'selectedConversation' => $selectedConversation,
             'messageFilter' => $messageFilter,
+            'communicationBlocked' => $selectedConversation ? ConversationBlock::between((int) $selectedConversation->buyer_id, (int) $selectedConversation->seller_id) : false,
             'quickMessages' => QuickMessageCatalog::all(),
             'requiresLogin' => $requiresLogin,
             'savedReplies' => $user ? SavedReply::forOwner($user) : collect(),
@@ -257,6 +259,7 @@ class ConversationController extends Controller
         return view('conversation::partials.inbox-thread-pane', [
             'selectedConversation' => $selectedConversation,
             'messageFilter' => $messageFilter,
+            'communicationBlocked' => $selectedConversation ? ConversationBlock::between((int) $selectedConversation->buyer_id, (int) $selectedConversation->seller_id) : false,
             'quickMessages' => QuickMessageCatalog::all(),
         ])->render();
     }

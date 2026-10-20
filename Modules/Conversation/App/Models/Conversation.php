@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Validation\ValidationException;
 use Modules\Listing\Models\Listing;
 use Modules\User\App\Models\User;
 
@@ -265,14 +266,22 @@ class Conversation extends Model
 
     public function createMessageFor(int $senderId, string $body): ConversationMessage
     {
-        $message = $this->messages()->create([
-            'sender_id' => $senderId,
-            'body' => $body,
-        ]);
+        abort_unless($this->hasParticipant($senderId), 403);
+        $body = trim($body);
+        if ($body === '' || mb_strlen($body) > 2000) {
+            throw ValidationException::withMessages(['message' => __('conversation::messages.empty_message')]);
+        }
+        $recipient = (int) ((int) $this->buyer_id === $senderId ? $this->seller_id : $this->buyer_id);
 
-        $this->forceFill(['last_message_at' => $message->created_at])->save();
+        return ConversationBlock::communicate($senderId, $recipient, function () use ($senderId, $recipient, $body): ConversationMessage {
+            $thread = static::query()->lockForUpdate()->findOrFail($this->getKey());
+            abort_unless($thread->hasParticipant($senderId) && $thread->hasParticipant($recipient), 409);
+            $message = $thread->messages()->create(['sender_id' => $senderId, 'body' => $body]);
+            $thread->forceFill(['last_message_at' => $message->created_at])->save();
+            $this->setRawAttributes($thread->getAttributes())->syncOriginal();
 
-        return $message->loadMissing('sender:id,name');
+            return $message->loadMissing('sender:id,name');
+        });
     }
 
     public function unreadCountForParticipant(int $userId): int
@@ -370,21 +379,16 @@ class Conversation extends Model
 
     public static function openForListingBuyer(Listing $listing, int $buyerId): self
     {
-        $conversation = static::query()->firstOrCreate(
-            [
-                'listing_id' => $listing->getKey(),
-                'buyer_id' => $buyerId,
-            ],
-            [
-                'seller_id' => $listing->user_id,
-            ],
-        );
+        $sellerId = (int) $listing->user_id;
 
-        if ((int) $conversation->seller_id !== (int) $listing->user_id) {
-            $conversation->forceFill(['seller_id' => $listing->user_id])->save();
-        }
+        return ConversationBlock::communicate($buyerId, $sellerId, function () use ($listing, $buyerId, $sellerId): self {
+            $current = Listing::query()->findOrFail($listing->getKey());
+            abort_unless((int) $current->user_id === $sellerId && ! in_array($current->statusValue(), ['paused', 'scheduled'], true), 404);
+            $conversation = static::query()->firstOrCreate(['listing_id' => $listing->getKey(), 'buyer_id' => $buyerId], ['seller_id' => $sellerId]);
+            abort_unless((int) $conversation->seller_id === $sellerId, 409);
 
-        return $conversation;
+            return $conversation;
+        });
     }
 
     public static function buyerListingConversationId(int $listingId, int $buyerId): ?int

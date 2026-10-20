@@ -145,7 +145,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 39 | 5 | نشان‌های تأیید | verified |
 | 40 | 5 | زمان پاسخ‌گویی فروشنده | verified |
 | 41 | 5 | نظر معتبرتر | verified |
-| 42 | 5 | گزارش و مسدودسازی در گفتگو | pending |
+| 42 | 5 | گزارش و مسدودسازی در گفتگو | verified |
 | 43 | 5 | پیشنهاد قیمت داخل چت | pending |
 | 44 | 5 | هماهنگی بازدید | pending |
 | 45 | 5 | چک‌لیست معاملهٔ هر دسته | pending |
@@ -409,3 +409,14 @@ A server-derived two-way-conversation snapshot labels new reviews only when both
 Submission rechecks active accounts, forbids self reviews and unrelated/unavailable listings, ignores client-supplied approval/evidence values and serializes account writes in deterministic order to prevent duplicate general or listing reviews, including pending and rejected rows. Soft deletion releases that submission context. Existing auth/moderation permissions are reused; posting and deletion are throttled, private responses are no-store/noindex, and source operations introduce no cross-module SQL JOINs. The portable migration adds two nullable evidence columns; no worker, Cron Job or external API is required.
 
 All 410 PHPUnit tests passed (4278 assertions), including seven review-quality tests; the seven plus marketplace submission and seller rendering passed again after native rating and safe redisplay improvements (9 tests, 46 assertions). Chromium verified actual submission with a selected score, pending privacy and owner status, real Filament approval, public label and private-message exclusion, owner deletion, keyboard focus, Persian RTL/English LTR and 360/390/768/1440px layouts. Production assets, localization and production config/route caches passed. Fixtures were cleaned. See `docs/REVIEW_QUALITY_FA.md` and `tests/Browser/review-quality.py`.
+
+
+### Feature 42 — Conversation reporting and blocking (verified)
+
+Inbox threads now link to a private Conversation safety page with separate native, explicitly confirmed block/unblock and report forms; the inbox also links to My blocked accounts. A directional owner block stops communication in both directions across all listing conversations for that account pair. History remains readable/reportable. Only the owner can remove their block, a reverse block survives, repeated operations are idempotent, and no block notification is sent. Existing stale composers and direct requests are guarded by the same model checks as new conversations. Account and conversation locks serialize mutation paths; inactive accounts and nonparticipants cannot send. Existing private threads are no longer retargeted to new listing owners.
+
+Reports reuse existing user-report moderation permissions and states with private conversation/message context. Participants may select one of the peer's latest 50 messages or a general report; only the selected message snapshot is copied (up to 2000 characters), encrypted at rest, and shown readonly in the staff report editor. Own, foreign, deleted and future messages are rejected. Client-supplied targets/evidence are ignored in favor of participant/message lookups. Duplicate reports for the same reporter/thread/message return the original report; general reports are likewise idempotent. Reassigning a report's subject/reporter clears its old private snapshot. Report reasons are limited to relevant conversation reasons. Unselected history never becomes moderation evidence. Private pages disable caching/indexing; routes require auth, CSRF, confirmations, bounded IDs and mutation throttles. No cross-module SQL JOINs were added.
+
+Portable migrations add the SoftDeletes conversation_blocks table with active-pair uniqueness and three nullable report-context/evidence columns plus a context index. Normal cPanel migrations load them automatically; no new queue, Cron Job or external service is needed. Existing application encryption keys are reused.
+
+All 419 PHPUnit tests passed (4345 assertions), including nine safety tests. The nine passed again after narrowing report reasons and improving duplicate feedback. Chromium verified real block confirmation, preserved messages, a stale-tab API rejection, selected-message reporting, readonly staff evidence excluding other messages, native JavaScript-free unblock, restored composer, keyboard focus, Persian RTL/English LTR and 360/390/768/1440px layouts. Production assets, localization and production config/route caches passed. Fixtures were cleaned. See `docs/CONVERSATION_SAFETY_FA.md` and `tests/Browser/conversation-safety.py`.

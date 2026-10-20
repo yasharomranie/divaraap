@@ -56,6 +56,9 @@ class ReportResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
+            TextInput::make('conversation_id')->label(__('conversation::safety.context'))->visible(fn (?Report $record): bool => $record?->conversation_id !== null)->disabled()->dehydrated(false),
+            TextInput::make('reported_message_id')->label(__('conversation::safety.message_id'))->visible(fn (?Report $record): bool => $record?->conversation_id !== null)->disabled()->dehydrated(false),
+            Textarea::make('conversation_evidence')->label(__('conversation::safety.evidence'))->visible(fn (?Report $record): bool => $record?->conversation_id !== null)->disabled()->dehydrated(false)->rows(4),
             Select::make('subject_type')->label(__('report::admin.subject_type'))->options([
                 Report::SUBJECT_LISTING => __('report::admin.listing'),
                 Report::SUBJECT_USER => __('report::admin.user'),

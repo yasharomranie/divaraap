@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Modules\Conversation\App\Models\Conversation;
+use Modules\User\App\Models\User;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -27,6 +31,17 @@ class Report extends Model
     public const STATUS_RESOLVED = 'resolved';
 
     public const STATUS_DISMISSED = 'dismissed';
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $report): void {
+            if ($report->exists && $report->isDirty(['subject_type', 'subject_id', 'reporter_id'])) {
+                $report->conversation_id = null;
+                $report->reported_message_id = null;
+                $report->conversation_evidence = null;
+            }
+        });
+    }
 
     public static function moderationQueue(): Collection
     {
@@ -56,7 +71,41 @@ class Report extends Model
 
     protected $casts = [
         'resolved_at' => 'datetime',
+        'conversation_evidence' => 'encrypted',
     ];
+
+    public static function conversationReasons(): array
+    {
+        return ['spam', 'fraud', 'prohibited', 'offensive', 'other'];
+    }
+
+    public static function fileConversationFor(User $reporter, Conversation $conversation, ?int $messageId, string $reason, ?string $details): self
+    {
+        return DB::transaction(function () use ($reporter, $conversation, $messageId, $reason, $details): self {
+            $owner = User::query()->lockForUpdate()->findOrFail($reporter->getKey());
+            abort_unless((string) $owner->status === 'active', 403);
+            $thread = Conversation::query()->findOrFail($conversation->getKey());
+            abort_unless($thread->hasParticipant((int) $owner->getKey()), 403);
+            $target = (int) ((int) $thread->buyer_id === (int) $owner->getKey() ? $thread->seller_id : $thread->buyer_id);
+            abort_if($target === (int) $owner->getKey(), 422);
+            if (! in_array($reason, self::conversationReasons(), true)) {
+                throw ValidationException::withMessages(['reason' => __('conversation::safety.invalid_report')]);
+            }
+            $message = $messageId ? $thread->messages()->where('sender_id', $target)->where('created_at', '<=', now())->find($messageId) : null;
+            if ($messageId && ! $message) {
+                throw ValidationException::withMessages(['message_id' => __('conversation::safety.invalid_message')]);
+            }
+            $existing = static::query()->where('reporter_id', $owner->getKey())->where('conversation_id', $thread->getKey())
+                ->when($messageId === null, fn (Builder $query) => $query->whereNull('reported_message_id'), fn (Builder $query) => $query->where('reported_message_id', $messageId))->first();
+            if ($existing) {
+                return $existing;
+            }
+            $report = static::query()->make(['subject_type' => self::SUBJECT_USER, 'subject_id' => $target, 'reporter_id' => $owner->getKey(), 'reason' => $reason, 'details' => $details, 'status' => self::STATUS_OPEN]);
+            $report->forceFill(['conversation_id' => $thread->getKey(), 'reported_message_id' => $messageId, 'conversation_evidence' => $message ? mb_substr((string) $message->body, 0, 2000) : null])->save();
+
+            return $report;
+        });
+    }
 
     public static function reasons(): array
     {

@@ -12,7 +12,10 @@
         <h1 class="title-page">{{ __('conversation::messages.inbox') }}</h1>
         <p class="text-muted">{{ trans_choice('site::messages.results_count', $conversations->count(), ['count' => $conversations->count()]) }}</p>
     </div>
-    <a class="button button--secondary" href="{{ route('panel.saved-replies.index') }}">{{ __('conversation::replies.title') }}</a>
+    <div class="row row--wrap">
+        <a class="button button--secondary" href="{{ route('panel.saved-replies.index') }}">{{ __('conversation::replies.title') }}</a>
+        <a class="button button--ghost" href="{{ route('panel.blocked-users') }}">{{ __('conversation::safety.blocked_users') }}</a>
+    </div>
 </header>
 
 @if($conversations->isEmpty())
@@ -73,6 +76,7 @@
                         </div>
                     </div>
 
+                    <div class="thread__quick"><a class="button button--ghost" href="{{ route('conversations.safety', $selectedConversation) }}">{{ __('conversation::safety.open') }}</a></div>
                     <ul class="thread__messages" data-thread-messages role="log" aria-live="polite" aria-label="{{ __('conversation::messages.conversations') }}">
                         @foreach($selectedConversation->getRelation('messages') as $message)
                             @php $outgoing = (int) $message->getAttribute('sender_id') === $viewerId; @endphp
@@ -85,6 +89,9 @@
                         @endforeach
                     </ul>
 
+                    @if($communicationBlocked)
+                        <p class="alert" role="status">{{ __('conversation::safety.unavailable') }}</p>
+                    @else
                     @if(! empty($quickMessages))
                         <div class="thread__quick">
                             @foreach($quickMessages as $quick)
@@ -103,6 +110,7 @@
                             <x-ui.icon name="arrow-right"/>
                         </button>
                     </form>
+                    @endif
                 </div>
             @else
                 <div class="card__body" style="margin:auto;text-align:center">
