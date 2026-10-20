@@ -6,9 +6,12 @@ namespace Modules\Category\Filament\Admin\Resources;
 
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -57,6 +60,16 @@ class CategoryResource extends Resource
             Select::make('parent_id')->label(__('category::admin.parent_category'))->options(fn (): array => Category::rootIdNameOptions())->nullable()->searchable(),
             TextInput::make('sort_order')->label(__('category::admin.sort_order'))->extraInputAttributes(['dir' => 'auto'])->numeric()->default(0),
             Toggle::make('is_active')->label(__('category::admin.is_active'))->default(true),
+            Section::make(__('category::checklists.title'))->description(__('category::checklists.admin_hint'))->columnSpanFull()->schema([
+                Select::make('trade_checklist_mode')->label(__('category::checklists.mode'))->options([
+                    'inherit' => __('category::checklists.inherit'), 'custom' => __('category::checklists.custom'), 'disabled' => __('category::checklists.disabled'),
+                ])->required()->default('inherit')->live(),
+                Repeater::make('trade_checklist')->label(__('category::checklists.items_label'))->schema([
+                    TextInput::make('fa')->label(__('category::checklists.persian'))->extraInputAttributes(['dir' => 'rtl'])->required()->maxLength(200),
+                    TextInput::make('en')->label(__('category::checklists.english'))->extraInputAttributes(['dir' => 'ltr'])->required()->maxLength(200),
+                ])->defaultItems(0)->minItems(1)->maxItems(20)->required()->reorderableWithButtons()->reorderableWithDragAndDrop(false)
+                    ->visible(fn (Get $get): bool => $get('trade_checklist_mode') === 'custom'),
+            ]),
         ]);
     }
 

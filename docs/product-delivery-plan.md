@@ -148,7 +148,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 42 | 5 | گزارش و مسدودسازی در گفتگو | verified |
 | 43 | 5 | پیشنهاد قیمت داخل چت | verified |
 | 44 | 5 | هماهنگی بازدید | verified |
-| 45 | 5 | چک‌لیست معاملهٔ هر دسته | pending |
+| 45 | 5 | چک‌لیست معاملهٔ هر دسته | verified |
 | 46 | 5 | تشخیص آگهی مشکوک و تکراری | pending |
 | 47 | 6 | کارت فروشگاه محلی | pending |
 | 48 | 6 | مجموعهٔ آگهی تبلیغ‌شده | pending |
@@ -443,3 +443,12 @@ Only the exact conversation participants can access the records. Meeting points 
 One additive migration creates `conversation_visits` with soft deletes and portable indexed queries. Future-state uniqueness is serialized with conversation locks because a clock-dependent index cannot represent that invariant portably. No cross-module SQL joins are added. Normal cPanel deployment runs the migration; source/package readiness does not mean the hosting deployment has completed. Details: `docs/VIEWING_COORDINATION_FA.md`.
 
 Validation: 443 PHPUnit tests / 4,568 assertions passed, including 14 viewing tests / 119 assertions. Actual browser checks cover inbox navigation, Persian proposal, required confirmation, seller acceptance and buyer cancellation with JavaScript disabled, status refresh, restored form after cancellation, unchanged human messages, four widths, RTL/LTR, Vazirmatn and visible keyboard focus. Build/type checking, changed-file Pint, localization and isolated config/route caches passed. Graphify was refreshed and browser fixtures cleaned up.
+
+
+## Phase 5 — category trade checklists
+
+Feature 45 adds bilingual, ordered checklist configuration to the existing category resource: inherit/default, custom 1–20 items or disabled. The nearest explicit ancestor setting applies unless a child overrides it; inactive/deleted/cyclic ancestor chains fail closed. Default guides cover the eight seeded roots and phones; unknown categories use the general guide. Existing categories are not overwritten by a seeder. A compact disclosure on the listing links to a separate guide. Guests can read and check locally; authenticated active users can save their own per-listing progress. This does not verify a seller, transaction or purchase and has no effect on ranking, reviews, listing status or payment.
+
+Private progress is stored only for the authenticated actor. The guide page is private/no-store and noindex; public listing rendering contains no personal checklist state. Item keys and revision hashes derive from bilingual content, order, source and category, independently of current locale. Changed guides/category reset the displayed selection and reject old submissions; random per-save versions prevent stale tabs overwriting newer progress. Only current item keys are accepted and an empty submission clears selections. User/listing/category locks and a portable active unique index protect saves; no cross-module joins or new scheduler/provider are introduced. Two additive migrations run through normal cPanel deployment. Details: `docs/TRADE_CHECKLIST_FA.md`.
+
+Validation: 454 tests / 4,643 assertions passed, including 11 checklist tests / 75 assertions. Real browser checks cover listing navigation, private persistence, guest isolation, actual Filament bilingual edit and revision reset, native save/clear without JavaScript, RTL/LTR, four widths, font and keyboard focus. Build/type checking, localization, changed-file Pint and isolated route/config cache checks passed. Browser fixtures were cleaned and Graphify refreshed.

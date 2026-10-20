@@ -99,6 +99,13 @@
                             </div>
                         </div>
 
+                        @if($tradeChecklist['items'] !== [])
+                            <details class="trade-checklist-link">
+                                <summary>{{ __('category::checklists.title') }}</summary>
+                                <p class="text-meta">{{ __('category::checklists.link_hint') }}</p>
+                                <a class="button button--secondary" href="{{ route('listings.checklist', $listing) }}">{{ __('category::checklists.open') }}</a>
+                            </details>
+                        @endif
                         @if(filled($listing->getAttribute('description')))
                             <div class="stack stack--tight">
                                 <h2 class="card__title">{{ __('site::messages.description') }}</h2>

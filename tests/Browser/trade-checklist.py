@@ -1,0 +1,72 @@
+import json
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+root = Path(__file__).resolve().parents[2]
+state = json.loads((root/'storage/framework/trade-checklist-review.json').read_text())
+base = 'http://localhost:8000'
+listing = f'{base}/listings/{state["listing"]}'
+guide = listing+'/trade-checklist'
+with sync_playwright() as p:
+    browser = p.chromium.launch(executable_path='/usr/bin/chromium', args=['--no-sandbox','--disable-dev-shm-usage'])
+    context = browser.new_context(viewport={'width':390,'height':844})
+    page = context.new_page()
+    errors = []
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.goto(base+'/admin/login', wait_until='networkidle')
+    page.get_by_role('button', name='Admin (a@a.com)', exact=True).click()
+    page.wait_for_url(base+'/admin')
+    page.goto(base+'/lang/fa', wait_until='networkidle')
+    page.goto(listing, wait_until='networkidle')
+    page.locator('.trade-checklist-link > summary').click()
+    page.get_by_role('link', name='بررسی موارد پیش از معامله', exact=True).click()
+    page.wait_for_url(guide)
+    for width in [360,390,768,1440]:
+        page.set_viewport_size({'width':width,'height':900})
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    page.set_viewport_size({'width':390,'height':844})
+    check = page.get_by_label('بررسی آزمایشی شماره سریال', exact=True)
+    assert check.evaluate('(e)=>getComputedStyle(e.parentElement).fontFamily.includes("Vazirmatn")')
+    check.focus()
+    page.keyboard.press('Tab')
+    page.keyboard.press('Shift+Tab')
+    assert check.evaluate('(e)=>getComputedStyle(e).outlineStyle != "none"')
+    check.check()
+    page.get_by_role('button', name='ذخیره بررسی من', exact=True).click()
+    page.wait_for_load_state('networkidle')
+    assert page.get_by_label('بررسی آزمایشی شماره سریال', exact=True).is_checked()
+    assert page.get_by_text('۱ از ۱ مورد ذخیره شده', exact=True).is_visible()
+    page.evaluate('window.scrollTo(0,0)')
+    page.screenshot(path='/tmp/trade-checklist-mobile.png', full_page=True)
+    guest = browser.new_context(viewport={'width':390,'height':844}, java_script_enabled=False)
+    plain_guest = guest.new_page()
+    plain_guest.goto(base+'/lang/fa', wait_until='networkidle')
+    plain_guest.goto(guide, wait_until='networkidle')
+    assert not plain_guest.get_by_label('بررسی آزمایشی شماره سریال', exact=True).is_checked()
+    assert plain_guest.get_by_role('button', name='ذخیره بررسی من', exact=True).count() == 0
+    admin = context.new_page()
+    admin.goto(f'{base}/admin/categories/{state["category"]}/edit', wait_until='networkidle')
+    admin.get_by_label('متن فارسی', exact=False).fill('بررسی تازه پس از ویرایش مدیریت')
+    admin.get_by_label('متن انگلیسی', exact=False).fill('Updated inspection from admin')
+    admin.get_by_role('button', name='ذخیره', exact=True).click()
+    admin.get_by_text('ذخیره شد', exact=True).wait_for()
+    page.reload(wait_until='networkidle')
+    assert not page.get_by_label('بررسی تازه پس از ویرایش مدیریت', exact=True).is_checked()
+    assert page.get_by_text('چک‌لیست تغییر کرده است؛ صفحه را تازه‌سازی و موارد را دوباره بررسی کنید.', exact=True).is_visible()
+    native = browser.new_context(java_script_enabled=False, storage_state=context.storage_state(), viewport={'width':390,'height':844})
+    plain = native.new_page()
+    plain.goto(guide, wait_until='networkidle')
+    plain.get_by_label('بررسی تازه پس از ویرایش مدیریت', exact=True).check()
+    plain.get_by_role('button', name='ذخیره بررسی من', exact=True).click()
+    plain.wait_for_load_state('networkidle')
+    assert plain.get_by_label('بررسی تازه پس از ویرایش مدیریت', exact=True).is_checked()
+    plain.get_by_label('بررسی تازه پس از ویرایش مدیریت', exact=True).uncheck()
+    plain.get_by_role('button', name='ذخیره بررسی من', exact=True).click()
+    plain.wait_for_load_state('networkidle')
+    assert not plain.get_by_label('بررسی تازه پس از ویرایش مدیریت', exact=True).is_checked()
+    page.goto(base+'/lang/en', wait_until='networkidle')
+    page.goto(guide, wait_until='networkidle')
+    assert page.locator('html').get_attribute('dir') == 'ltr'
+    assert page.get_by_label('Updated inspection from admin', exact=True).is_visible()
+    assert not errors, errors
+    browser.close()
+print('PASS: listing disclosure and guide, private persistence, guest isolation, actual admin bilingual edit, revision reset, native save/clear, RTL/LTR, Vazirmatn, focus and four widths.')

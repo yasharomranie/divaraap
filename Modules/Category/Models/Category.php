@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Modules\Category\Support\TradeChecklistCatalog;
 use Modules\Listing\Models\Listing;
 use Modules\Listing\Models\ListingCustomField;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
@@ -37,9 +39,76 @@ class Category extends Model
         'sports' => 'img/category/sports.png',
     ];
 
-    protected $fillable = ['name', 'slug', 'description', 'icon', 'parent_id', 'level', 'sort_order', 'is_active'];
+    protected $fillable = ['name', 'slug', 'description', 'icon', 'parent_id', 'level', 'sort_order', 'is_active', 'trade_checklist_mode', 'trade_checklist'];
 
-    protected $casts = ['is_active' => 'boolean'];
+    protected $casts = ['is_active' => 'boolean', 'trade_checklist' => 'array'];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $category): void {
+            if (! $category->isDirty(['trade_checklist_mode', 'trade_checklist'])) {
+                return;
+            }
+            Validator::make([
+                'trade_checklist_mode' => $category->trade_checklist_mode ?? 'inherit',
+                'trade_checklist' => $category->trade_checklist,
+            ], [
+                'trade_checklist_mode' => ['required', 'in:inherit,custom,disabled'],
+                'trade_checklist' => [($category->trade_checklist_mode === 'custom' ? 'required' : 'nullable'), 'array', 'max:20'],
+                'trade_checklist.*.fa' => ['required', 'string', 'max:200', 'distinct'],
+                'trade_checklist.*.en' => ['required', 'string', 'max:200', 'distinct'],
+            ])->validate();
+            if (is_array($category->trade_checklist)) {
+                $category->trade_checklist = array_values(array_map(fn (array $row): array => ['fa' => trim($row['fa']), 'en' => trim($row['en'])], $category->trade_checklist));
+            }
+        });
+    }
+
+    public static function tradeChecklistDefinition(?int $categoryId, bool $lock = false): array
+    {
+        $sourceCategoryId = $categoryId;
+        $seen = [];
+        $group = null;
+        $rows = null;
+        $source = null;
+        while ($categoryId !== null) {
+            if (isset($seen[$categoryId]) || count($seen) >= 12) {
+                return self::checklistDefinition([], null, $sourceCategoryId);
+            }
+            $seen[$categoryId] = true;
+            $query = static::query()->active();
+            $category = ($lock ? $query->lockForUpdate() : $query)->find($categoryId);
+            if (! $category) {
+                return self::checklistDefinition([], null, $sourceCategoryId);
+            }
+            if ($rows === null && $category->trade_checklist_mode === 'disabled') {
+                $rows = [];
+                $source = (int) $category->id;
+            } elseif ($rows === null && $category->trade_checklist_mode === 'custom') {
+                $rows = $category->trade_checklist ?? [];
+                $source = (int) $category->id;
+            }
+            $group ??= TradeChecklistCatalog::group((string) $category->slug);
+            $categoryId = $category->parent_id ? (int) $category->parent_id : null;
+        }
+
+        return self::checklistDefinition($rows ?? TradeChecklistCatalog::rows($group ?? 'general'), $source, $sourceCategoryId);
+    }
+
+    private static function checklistDefinition(array $rows, ?int $source, ?int $categoryId): array
+    {
+        $items = [];
+        foreach (array_slice($rows, 0, 20) as $row) {
+            if (! is_array($row) || ! is_string($row['fa'] ?? null) || ! is_string($row['en'] ?? null)) {
+                continue;
+            }
+            $key = hash('sha256', $row['fa']."\n".$row['en']);
+            $items[$key] = ['key' => $key, 'fa' => $row['fa'], 'en' => $row['en']];
+        }
+        $items = array_values($items);
+
+        return ['items' => $items, 'revision' => hash('sha256', json_encode([$categoryId, $source, $items], JSON_THROW_ON_ERROR))];
+    }
 
     public static function textSuggestionLabel(?int $categoryId): string
     {
