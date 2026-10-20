@@ -46,6 +46,23 @@
 </nav>
 
 @if($listings->isNotEmpty())
+    <form id="bulk-listings-form" class="card card__body stack stack--tight" method="post" action="{{ route('panel.listings.bulk.preview') }}" data-listing-bulk>
+        @csrf
+        <h2 class="title-section">{{ __('listing::bulk.title') }}</h2>
+        <p class="field__hint" id="bulk-hint">{{ __('listing::bulk.hint') }}</p>
+        <div class="row row--wrap">
+            <button class="button button--ghost" type="button" data-bulk-all hidden>{{ __('listing::bulk.all') }}</button>
+            <button class="button button--ghost" type="button" data-bulk-clear hidden>{{ __('listing::bulk.clear') }}</button>
+            <span role="status" aria-live="polite" aria-atomic="true" data-bulk-status hidden>{{ __('listing::bulk.count') }} <strong data-bulk-count>0</strong></span>
+        </div>
+        <label class="field__label" for="bulk-action">{{ __('listing::bulk.action') }}</label>
+        <select class="select" id="bulk-action" name="action" required aria-describedby="bulk-hint">
+            @foreach(['pause', 'resume', 'sold', 'delete'] as $bulkAction)
+                <option value="{{ $bulkAction }}">{{ __('listing::bulk.'.$bulkAction) }}</option>
+            @endforeach
+        </select>
+        <button class="button button--secondary" type="submit" data-bulk-preview>{{ __('listing::bulk.preview') }}</button>
+    </form>
     <section class="card">
         <div class="data-list">
             @foreach($listings as $listing)
@@ -60,6 +77,10 @@
                     </div>
 
                     <div class="data-row__main">
+                        <label class="listing-bulk-choice">
+                            <input type="checkbox" name="ids[]" form="bulk-listings-form" value="{{ $listing->id }}" data-bulk-choice aria-label="{{ __('listing::bulk.select', ['title' => $listing->title]) }}">
+                            <span>{{ __('listing::bulk.select_short') }}</span>
+                        </label>
                         <p class="data-row__title text-clamp-1">{{ $listing->getAttribute('title') }}</p>
                         <div class="data-row__meta">
                             <span class="text-price">{{ $listing->panelPriceLabel() }}</span>

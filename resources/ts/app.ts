@@ -1,3 +1,4 @@
+import { listingBulk } from './modules/listing-bulk';
 import { listingTextSuggestions } from './modules/listing-text-suggestions';
 import { listingCreateLocation } from './modules/listing-create-location';
 import '../css/app.css';
@@ -17,6 +18,7 @@ import { contactReveal, shareAction } from './modules/reveal';
 import { appNavigation, disclosureGroup, navigationDrawer, searchSuggest, stickyHeader } from './modules/navigation';
 
 const behaviors: readonly Behavior<never>[] = [
+    listingBulk,
     listingTextSuggestions,
     listingCreateLocation,
     listingMap,

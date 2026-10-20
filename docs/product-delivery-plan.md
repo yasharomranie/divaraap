@@ -141,7 +141,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 35 | 4 | ساخت آگهی از آگهی قبلی | verified |
 | 36 | 4 | زمان‌بندی انتشار آگهی | verified |
 | 37 | 4 | صفحهٔ فروشگاه | verified |
-| 38 | 4 | مدیریت گروهی آگهی‌ها | pending |
+| 38 | 4 | مدیریت گروهی آگهی‌ها | verified |
 | 39 | 5 | نشان‌های تأیید | pending |
 | 40 | 5 | زمان پاسخ‌گویی فروشنده | pending |
 | 41 | 5 | نظر معتبرتر | pending |
@@ -369,3 +369,12 @@ The existing seller page now supports an opt-in shop identity, introduction and 
 Profile owns transactional writes under an account lock, with an optimistic fingerprint guarding stale windows. Settings routes require authentication, scope writes to the signed-in account, reject inactive owners and throttle updates. Text is escaped, length/type validation is enforced, and private settings responses disable caching and indexing. The User provider loads a portable four-column profiles migration during normal cPanel deployment; shops default to disabled.
 
 All 381 PHPUnit tests passed (4065 assertions), including five focused shop tests. Chromium verified native settings save and public rendering, cleanup restoring original settings, keyboard focus, Persian RTL/English LTR and no horizontal overflow at 360/390/768/1440px. Production assets, localization and production config/route cache checks passed. Run `python3 tests/Browser/shop.py` only in development with the seeded admin quick-login account. See `docs/SHOP_PAGE_FA.md` for operation and cPanel deployment.
+
+
+### Feature 38 — Bulk listing management (verified)
+
+My listings now offers per-row selection and a compact action form for pause, resume, mark sold and soft deletion. Progressive JavaScript adds current-page select-all, clear, a localized announced selection count and disabled empty submission. Native checkboxes and an external form association preserve existing individual row forms; the full review/confirm/execute flow works without JavaScript. Selection is explicitly limited to the current page, not all search results, and resets on navigation.
+
+The review POST only reads the selection and issues an authenticated encrypted ten-minute ticket binding the owner, action, IDs and relevant listing fingerprints. Execute requires explicit confirmation, rejects tampering/expiry/account switching, locks the account and listing rows in deterministic order, checks every owner/version/eligibility before mutating, and applies existing model operations in one transaction. Stale or mixed-invalid batches never partially apply. Resume cannot approve pending listings, cancel a future schedule or revive elapsed listings; selling cancels scheduled publication through existing model hooks. Removal uses existing SoftDeletes and preserves media/conversations. Invalid confirmations redirect to the listings page with errors, avoiding a GET to the POST-only review route. Requests are bounded to 50 distinct IDs and throttled; review responses are private/no-store/noindex. No schema changes, queues, Cron Jobs or cross-module JOINs were added.
+
+All 388 PHPUnit tests passed (4159 assertions), including seven bulk tests covering native confirmation, all four operations, schedule cancellation, soft deletion, untouched records, authorization, account suspension, forged/expired/replayed tickets, input limits, ineligible statuses, changed/deleted records and all-or-nothing state checks. Chromium verified selection/clear/count, review without mutations, actual pause/resume/sold/delete, native JavaScript-free resume, required deletion confirmation, keyboard focus, Persian RTL/English LTR and layouts at 360/390/768/1440px. Production assets, focused TypeScript ESLint, localization and production config/route caches passed. Fixtures were cleaned. Development browser checks use `php tests/Browser/listing-bulk-fixtures.php`, `python3 tests/Browser/listing-bulk.py`, then the fixture command with `cleanup`. See `docs/BULK_LISTINGS_FA.md`.

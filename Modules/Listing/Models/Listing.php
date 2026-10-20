@@ -951,6 +951,68 @@ class Listing extends Model implements HasMedia
         ];
     }
 
+    public function bulkVersion(): string
+    {
+        return hash('sha256', json_encode([
+            $this->getKey(), $this->user_id, $this->title, $this->statusValue(),
+            $this->expires_at?->toIso8601String(), $this->publish_at?->toIso8601String(),
+        ], JSON_THROW_ON_ERROR));
+    }
+
+    public function allowsBulkAction(string $action): bool
+    {
+        return match ($action) {
+            'pause' => $this->canPauseDisplay(),
+            'resume' => $this->statusValue() === 'paused' && (! $this->expires_at || $this->expires_at->isFuture()),
+            'sold' => in_array($this->statusValue(), ['active', 'paused', 'scheduled', 'expired'], true),
+            'delete' => true,
+            default => false,
+        };
+    }
+
+    public static function bulkSelectionFor(User $user, array $ids, string $action): Collection
+    {
+        abort_unless((string) $user->status === 'active', 403);
+        abort_unless(count($ids) >= 1 && count($ids) <= 50 && count(array_unique($ids)) === count($ids), 422);
+        $listings = static::query()->ownedByUser($user->getKey())->whereKey($ids)->orderBy('id')->get();
+        abort_unless($listings->count() === count($ids), 404);
+        foreach ($listings as $listing) {
+            if (! $listing->allowsBulkAction($action)) {
+                throw ValidationException::withMessages(['action' => __('listing::bulk.ineligible', ['title' => $listing->title])]);
+            }
+        }
+
+        return $listings;
+    }
+
+    public static function applyBulkFor(User $user, string $action, array $versions): int
+    {
+        abort_unless(count($versions) >= 1 && count($versions) <= 50, 422);
+        abort_unless(in_array($action, ['pause', 'resume', 'sold', 'delete'], true), 422);
+
+        return DB::transaction(function () use ($user, $action, $versions): int {
+            $owner = User::query()->lockForUpdate()->findOrFail($user->getKey());
+            abort_unless((string) $owner->status === 'active', 403);
+            $listings = static::query()->ownedByUser($owner->getKey())->whereKey(array_keys($versions))->orderBy('id')->lockForUpdate()->get();
+            abort_unless($listings->count() === count($versions), 404);
+            foreach ($listings as $listing) {
+                if (! is_string($versions[$listing->getKey()]) || ! hash_equals($listing->bulkVersion(), $versions[$listing->getKey()]) || ! $listing->allowsBulkAction($action)) {
+                    throw ValidationException::withMessages(['selection' => __('listing::bulk.stale')]);
+                }
+            }
+            foreach ($listings as $listing) {
+                match ($action) {
+                    'pause' => $listing->changeDisplayFor($owner, true),
+                    'resume' => $listing->changeDisplayFor($owner, false),
+                    'sold' => $listing->markAsSold(),
+                    'delete' => $listing->delete(),
+                };
+            }
+
+            return $listings->count();
+        });
+    }
+
     public function canPauseDisplay(): bool
     {
         return $this->statusValue() === 'active' && (! $this->expires_at || $this->expires_at->isFuture());

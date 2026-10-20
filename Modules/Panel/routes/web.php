@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\Panel\App\Http\Controllers\ListingAvailabilityController;
+use Modules\Panel\App\Http\Controllers\ListingBulkController;
 use Modules\Panel\App\Http\Controllers\ListingDraftPhotoController;
 use Modules\Panel\App\Http\Controllers\ListingDuplicateController;
 use Modules\Panel\App\Http\Controllers\ListingImprovementController;
@@ -15,6 +16,8 @@ use Modules\Panel\App\Http\Controllers\PanelController;
 Route::middleware(['web', 'auth'])->prefix('panel')->name('panel.')->group(function () {
     Route::get('/', [PanelController::class, 'index'])->name('index');
     Route::get('/my-listings', [PanelController::class, 'listings'])->name('listings.index');
+    Route::post('/my-listings/bulk/preview', [ListingBulkController::class, 'preview'])->middleware('throttle:20,1,listing-bulk:')->name('listings.bulk.preview');
+    Route::post('/my-listings/bulk/execute', [ListingBulkController::class, 'execute'])->middleware('throttle:20,1,listing-bulk:')->name('listings.bulk.execute');
     Route::post('/listing-text-suggestions', [ListingTextSuggestionController::class, 'generate'])->middleware('throttle:20,1')->name('listings.text-suggestions');
     Route::get('/drafts/{draft}/photos/{file}', ListingDraftPhotoController::class)->where('draft', '[1-9][0-9]{0,17}')->whereUuid('file')->name('drafts.photo');
     Route::get('/create-listing', [PanelController::class, 'create'])->name('listings.create');
