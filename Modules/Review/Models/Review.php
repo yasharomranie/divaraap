@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Modules\Conversation\App\Models\Conversation;
+use Modules\Listing\Models\Listing;
+use Modules\User\App\Models\User;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -20,6 +25,67 @@ class Review extends Model
     public const MIN_RATING = 1;
 
     public const MAX_RATING = 5;
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $review): void {
+            if ($review->exists && $review->isDirty(['seller_id', 'author_id', 'listing_id'])) {
+                $review->interaction_verified_at = null;
+                $review->interaction_conversation_id = null;
+            }
+            if ($review->exists && $review->isDirty('is_approved') && ! $review->isDirty('reviewed_at')) {
+                $review->reviewed_at = now();
+            }
+        });
+    }
+
+    public static function submitFor(User $author, int $sellerId, ?int $listingId, int $rating, ?string $title, ?string $body): self
+    {
+        return DB::transaction(function () use ($author, $sellerId, $listingId, $rating, $title, $body): self {
+            $users = User::query()->whereKey([$author->getKey(), $sellerId])->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            $writer = $users->get($author->getKey());
+            $seller = $users->get($sellerId);
+            abort_unless($writer && (string) $writer->status === 'active', 403);
+            abort_unless($seller && (string) $seller->status === 'active', 404);
+            if ($writer->getKey() === $seller->getKey()) {
+                throw ValidationException::withMessages(['rating' => __('review::messages.cannot_review_self')]);
+            }
+            if ($listingId !== null && ! Listing::query()->whereKey($listingId)->ownedByUser($sellerId)->exists()) {
+                throw ValidationException::withMessages(['listing_id' => __('review::quality.invalid_listing')]);
+            }
+            if ($rating < self::MIN_RATING || $rating > self::MAX_RATING) {
+                throw ValidationException::withMessages(['rating' => __('review::quality.invalid_rating')]);
+            }
+            $duplicate = static::query()->writtenBy((int) $writer->getKey())->forSeller($sellerId)
+                ->when($listingId === null, fn (Builder $query) => $query->whereNull('listing_id'), fn (Builder $query) => $query->forListing($listingId))->exists();
+            if ($duplicate) {
+                throw ValidationException::withMessages(['rating' => __('review::quality.duplicate')]);
+            }
+            $evidence = Conversation::reviewEvidenceFor((int) $writer->getKey(), $sellerId, $listingId);
+            $review = static::query()->make([
+                'seller_id' => $sellerId, 'author_id' => $writer->getKey(), 'listing_id' => $listingId,
+                'rating' => $rating, 'title' => $title, 'body' => $body, 'is_approved' => false,
+            ]);
+            $review->forceFill(['interaction_conversation_id' => $evidence, 'interaction_verified_at' => $evidence ? now() : null])->save();
+
+            return $review;
+        });
+    }
+
+    public static function writtenPageFor(User $user): LengthAwarePaginator
+    {
+        return static::query()->writtenBy((int) $user->getKey())->latest('id')->paginate(10)->withQueryString();
+    }
+
+    public function hasInteractionEvidence(): bool
+    {
+        return $this->interaction_verified_at !== null && $this->interaction_conversation_id !== null;
+    }
+
+    public function moderationLabel(): string
+    {
+        return __('review::quality.'.($this->is_approved ? 'approved' : ($this->reviewed_at ? 'rejected' : 'pending')));
+    }
 
     public static function moderationQueue(): Collection
     {
@@ -49,6 +115,7 @@ class Review extends Model
     protected $casts = [
         'rating' => 'integer',
         'reviewed_at' => 'datetime',
+        'interaction_verified_at' => 'datetime',
         'is_approved' => 'boolean',
     ];
 
@@ -183,17 +250,17 @@ class Review extends Model
 
     public static function pendingCount(): int
     {
-        return (int) static::query()->where('is_approved', false)->count();
+        return (int) static::query()->where('is_approved', false)->whereNull('reviewed_at')->count();
     }
 
     public function approve(): void
     {
-        $this->forceFill(['is_approved' => true])->save();
+        $this->moderate(true);
     }
 
     public function reject(): void
     {
-        $this->forceFill(['is_approved' => false])->save();
+        $this->moderate(false);
     }
 
     public function authorId(): int

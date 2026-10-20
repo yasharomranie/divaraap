@@ -14,7 +14,7 @@ return [
     'already_reviewed' => 'قبلاً برای این آگهی نظر ثبت کرده‌اید.',
     'cannot_review_self' => 'نمی‌توانید به خودتان امتیاز بدهید.',
     'no_reviews' => 'هنوز نظری ثبت نشده',
-    'no_reviews_hint' => 'نظرها پس از انجام معامله اینجا نمایش داده می‌شوند.',
+    'no_reviews_hint' => 'نظرهای تأییدشده در این بخش نمایش داده می‌شوند.',
     'rating_summary' => ':average از ۵',
     'review_count' => '{0} بدون نظر|{1} :count نظر|[2,*] :count نظر',
     'notification_title' => 'نظر جدید',

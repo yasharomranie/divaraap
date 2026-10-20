@@ -144,7 +144,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 38 | 4 | مدیریت گروهی آگهی‌ها | verified |
 | 39 | 5 | نشان‌های تأیید | verified |
 | 40 | 5 | زمان پاسخ‌گویی فروشنده | verified |
-| 41 | 5 | نظر معتبرتر | pending |
+| 41 | 5 | نظر معتبرتر | verified |
 | 42 | 5 | گزارش و مسدودسازی در گفتگو | pending |
 | 43 | 5 | پیشنهاد قیمت داخل چت | pending |
 | 44 | 5 | هماهنگی بازدید | pending |
@@ -398,3 +398,14 @@ Public seller/shop pages, listing seller cards and account profiles now show a t
 Conversation owns the calculations through four bounded-result queries without any JOINs. Only message IDs, conversation IDs and timestamps are retrieved, never bodies or participant details for output. Soft-deleted messages/threads, third-party messages, self-conversations, future data, prior seller messages and inactive/deleted sellers are excluded. Equal timestamps use message ID order; even samples use the mean of the central pair. Deleted questions cause an early return if the sample becomes too small. Response rates include unanswered eligible threads, reducing the misleading effect of presenting answered-only timing. No editable statistics, external services, jobs, cache dependencies, schema changes or Cron Jobs were introduced.
 
 All 403 PHPUnit tests passed (4236 assertions), including seven response tests covering odd/even medians, unanswered threads, first-reply weighting, minimum counts/distinct buyers, date/status/delete boundaries, same-second ordering, third-party messages, the actual 100-thread limit, query count and absence of message-body reads/public disclosure. Chromium verified a real 10-minute median and 83% rate from fixture conversations on seller/listing pages, Persian RTL/English LTR and 360/390/768/1440px layouts. Production build, localization and production config/route caches passed. Fixtures were cleaned. See `docs/SELLER_RESPONSE_FA.md` and `tests/Browser/seller-response.py`. A successful GitHub build establishes release readiness; the reported cPanel remote-connection failure must still be resolved before installation there.
+
+
+### Feature 41 — More credible reviews (verified)
+
+Public review submissions now wait for existing staff moderation and redirect authors to a private My reviews page showing pending/published/not-approved state and owner-only soft deletion. New ratings use a labeled native select, work without JavaScript, and retain safe text values after validation errors. Existing published reviews remain intact; only approved rows contribute to public ratings. Existing trusted internal/admin review creation is preserved.
+
+A server-derived two-way-conversation snapshot labels new reviews only when both exact participants had sent nondeleted messages before submission. Listing-specific reviews require matching conversation/listing context; general seller reviews can use a conversation for that seller. The UI explains that this is not a verified purchase or transaction guarantee. Conversation bodies and IDs are never exposed publicly. Legacy reviews and later messages cannot acquire evidence retroactively, and changes to author/seller/listing clear the snapshot. The staff resource shows evidence state and a readonly Tehran review-evidence time. Reject and approve transitions record reviewed_at consistently; the pending counter excludes already reviewed rejections.
+
+Submission rechecks active accounts, forbids self reviews and unrelated/unavailable listings, ignores client-supplied approval/evidence values and serializes account writes in deterministic order to prevent duplicate general or listing reviews, including pending and rejected rows. Soft deletion releases that submission context. Existing auth/moderation permissions are reused; posting and deletion are throttled, private responses are no-store/noindex, and source operations introduce no cross-module SQL JOINs. The portable migration adds two nullable evidence columns; no worker, Cron Job or external API is required.
+
+All 410 PHPUnit tests passed (4278 assertions), including seven review-quality tests; the seven plus marketplace submission and seller rendering passed again after native rating and safe redisplay improvements (9 tests, 46 assertions). Chromium verified actual submission with a selected score, pending privacy and owner status, real Filament approval, public label and private-message exclusion, owner deletion, keyboard focus, Persian RTL/English LTR and 360/390/768/1440px layouts. Production assets, localization and production config/route caches passed. Fixtures were cleaned. See `docs/REVIEW_QUALITY_FA.md` and `tests/Browser/review-quality.py`.

@@ -142,22 +142,23 @@
                             <div class="divider"></div>
                             <form method="POST" action="{{ route('reviews.store', $sellerId) }}" class="stack stack--tight">
                                 @csrf
-                                <p class="field__label">{{ __('review::messages.your_rating') }}</p>
-                                <div class="rating-input" data-rating-input>
-                                    <input type="hidden" name="rating" value="5" data-rating-value>
-                                    @for($star = 1; $star <= 5; $star++)
-                                        <button type="button" class="rating-input__star is-active" data-rating-star aria-label="{{ $star }}">
-                                            <x-ui.icon name="star" stroke="none"/>
-                                        </button>
-                                    @endfor
+                                <p class="field__hint">{{ __('review::quality.form_hint') }}</p>
+                                <a class="button button--ghost" href="{{ route('reviews.mine') }}">{{ __('review::quality.mine') }}</a>
+                                <div class="field">
+                                    <label class="field__label" for="review-rating">{{ __('review::messages.your_rating') }}</label>
+                                    <select class="select" id="review-rating" name="rating" required>
+                                        @foreach([5, 4, 3, 2, 1] as $score)
+                                            <option value="{{ $score }}" @selected(is_numeric(old('rating', 5)) && (int) old('rating', 5) === $score)>{{ \App\Support\PersianLocale::number($score) }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="field">
                                     <label class="field__label" for="review-title">{{ __('review::messages.review_title') }}</label>
-                                    <input id="review-title" type="text" name="title" class="input" maxlength="120">
+                                    <input id="review-title" type="text" name="title" class="input" maxlength="120" value="{{ is_string(old('title')) ? old('title') : '' }}">
                                 </div>
                                 <div class="field">
                                     <label class="field__label" for="review-body">{{ __('review::messages.review_body') }}</label>
-                                    <textarea id="review-body" name="body" class="textarea" rows="3" maxlength="2000"></textarea>
+                                    <textarea id="review-body" name="body" class="textarea" rows="3" maxlength="2000">{{ is_string(old('body')) ? old('body') : '' }}</textarea>
                                 </div>
                                 <button type="submit" class="button button--primary button--block">{{ __('review::messages.submit') }}</button>
                             </form>
@@ -183,6 +184,7 @@
                                         {{ $review->getAttribute('created_at')?->diffForHumans(short: true) }}
                                     </time>
                                 </div>
+                                @include('review::partials.interaction')
                                 @if(filled($review->getAttribute('title')))
                                     <p class="text-body" style="font-weight:var(--weight-medium)">{{ $review->getAttribute('title') }}</p>
                                 @endif

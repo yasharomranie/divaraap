@@ -19,6 +19,20 @@ class Conversation extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public static function reviewEvidenceFor(int $buyerId, int $sellerId, ?int $listingId): ?int
+    {
+        if ($buyerId === $sellerId) {
+            return null;
+        }
+
+        return static::query()->where('buyer_id', $buyerId)->where('seller_id', $sellerId)
+            ->when($listingId !== null, fn (Builder $query) => $query->where('listing_id', $listingId))
+            ->where('created_at', '<=', now())
+            ->whereHas('messages', fn (Builder $query) => $query->where('sender_id', $buyerId)->where('created_at', '<=', now())->whereColumn('created_at', '>=', 'conversations.created_at'))
+            ->whereHas('messages', fn (Builder $query) => $query->where('sender_id', $sellerId)->where('created_at', '<=', now())->whereColumn('created_at', '>=', 'conversations.created_at'))
+            ->latest('id')->value('id');
+    }
+
     public static function sellerResponseSummary(int $sellerId): ?array
     {
         if (! User::query()->whereKey($sellerId)->where('status', 'active')->exists()) {

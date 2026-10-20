@@ -14,7 +14,7 @@ return [
     'already_reviewed' => 'You already reviewed this listing.',
     'cannot_review_self' => 'You cannot review yourself.',
     'no_reviews' => 'No reviews yet',
-    'no_reviews_hint' => 'Reviews appear here after a completed deal.',
+    'no_reviews_hint' => 'Approved reviews appear here.',
     'rating_summary' => ':average out of 5',
     'review_count' => '{0} No reviews|{1} :count review|[2,*] :count reviews',
     'notification_title' => 'New review',
