@@ -12,12 +12,12 @@ export const advertisingMetrics = defineBehavior<HTMLElement>({
         let counted = false;
         let timer: ReturnType<typeof setTimeout> | undefined;
         const device = (): string => matchMedia('(max-width: 1023px)').matches ? 'mobile' : 'desktop';
-        const send = (kind: string): void => {
+        const send = (kind: string, listing?: number): void => {
             const csrf = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '';
             void fetch(url, {
                 method: 'POST', credentials: 'same-origin', keepalive: true,
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
-                body: JSON.stringify({ token, kind, device: device() }),
+                body: JSON.stringify({ token, kind, device: device(), listing }),
             }).catch(() => undefined);
         };
         const stop = (): void => {
@@ -51,11 +51,14 @@ export const advertisingMetrics = defineBehavior<HTMLElement>({
         image.addEventListener('load', update);
         document.addEventListener('visibilitychange', update);
         document.addEventListener('livewire:navigating', cleanup);
-        element.querySelector('a')?.addEventListener('click', event => {
-            if (event.isTrusted && element.getBoundingClientRect().width > 0) send('click');
-        });
-        element.querySelector('a')?.addEventListener('auxclick', event => {
-            if (event.isTrusted && event.button === 1 && element.getBoundingClientRect().width > 0) send('click');
+        element.querySelectorAll<HTMLAnchorElement>('a').forEach(link => {
+            const listing = link.dataset['adListing'] ? Number(link.dataset['adListing']) : undefined;
+            link.addEventListener('click', event => {
+                if (event.isTrusted && element.getBoundingClientRect().width > 0) send('click', listing);
+            });
+            link.addEventListener('auxclick', event => {
+                if (event.isTrusted && event.button === 1 && element.getBoundingClientRect().width > 0) send('click', listing);
+            });
         });
     },
 });

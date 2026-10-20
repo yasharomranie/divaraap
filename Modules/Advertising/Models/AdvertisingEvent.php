@@ -22,7 +22,7 @@ final class AdvertisingEvent extends Model
 
     protected $guarded = ['id'];
 
-    public static function record(string $token, string $kind, string $device): void
+    public static function record(string $token, string $kind, string $device, ?int $listingId = null): void
     {
         if (! app(OperationsSettings::class)->telemetry_enabled || ! in_array($kind, ['impression', 'click'], true) || ! in_array($device, ['mobile', 'desktop'], true)) {
             return;
@@ -32,7 +32,7 @@ final class AdvertisingEvent extends Model
             return;
         }
         $banner = Banner::query()->available()->with('campaign')->find($data['banner']);
-        if (! $banner || $banner->campaign_id !== $data['campaign'] || ! $banner->eligibleForCampaign($data['context'], forDelivery: false) || ($kind === 'click' && ! $banner->destination())) {
+        if (! $banner || $banner->campaign_id !== $data['campaign'] || ! $banner->eligibleForCampaign($data['context'], forDelivery: false)) {
             return;
         }
         $placement = BannerPlacement::query()->where('key', $data['placement'])->where('is_active', true)->first();
@@ -42,7 +42,20 @@ final class AdvertisingEvent extends Model
         if (($data['visitor'] ?? null) !== null && ! hash_equals($data['visitor'], app(AdvertisingFrequency::class)->visitor())) {
             return;
         }
-        $targetListingId = $kind === 'click' ? Listing::advertisingDestinationId((string) $banner->destination()) : null;
+        $targetListingId = null;
+        if ($kind === 'click') {
+            if ($banner->creative_format === 'collection') {
+                if (! $listingId || ! in_array($listingId, $data['listings'] ?? [], true) || ! isset($banner->advertisedListings()[$listingId])) {
+                    return;
+                }
+                $targetListingId = $listingId;
+            } else {
+                if ($listingId !== null || ! $banner->destination()) {
+                    return;
+                }
+                $targetListingId = Listing::advertisingDestinationId((string) $banner->destination());
+            }
+        }
         $receipt = hash('sha256', $data['nonce'].'|'.$kind);
         DB::transaction(function () use ($banner, $data, $device, $kind, $receipt, $targetListingId): void {
             $inserted = self::query()->insertOrIgnore([
@@ -61,7 +74,7 @@ final class AdvertisingEvent extends Model
         if ($kind === 'click') {
             $click = self::query()->where('receipt', $receipt)->first();
             $previous = json_decode((string) request()->cookie('advertising_attribution', ''), true);
-            if ($click && $targetListingId && (! is_array($previous) || $click->id > ($previous['id'] ?? 0))) {
+            if ($click && $targetListingId && (int) $click->target_listing_id === $targetListingId && (! is_array($previous) || $click->id > ($previous['id'] ?? 0))) {
                 Cookie::queue(cookie('advertising_attribution', json_encode(['id' => $click->id, 'at' => $click->created_at->timestamp], JSON_THROW_ON_ERROR), 1440, '/', null, request()->isSecure(), true, false, 'lax'));
             }
         }

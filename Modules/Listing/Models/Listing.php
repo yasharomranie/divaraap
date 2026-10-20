@@ -89,6 +89,33 @@ class Listing extends Model implements HasMedia
         return static::query()->where('status', 'active')->whereKey($match[1])->value('id');
     }
 
+    public static function advertisingCollectionItems(array $ids): array
+    {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        if ($ids === []) {
+            return [];
+        }
+        $records = static::query()->whereKey($ids)->active()
+            ->where(fn ($query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->with('media')->get(['id', 'title', 'price', 'currency', 'images', 'user_id']);
+        $owners = User::query()->whereKey($records->pluck('user_id')->filter()->unique())->where('status', 'active')->pluck('id')->map(fn ($id): int => (int) $id)->all();
+
+        return $records->filter(fn (self $listing): bool => in_array((int) $listing->user_id, $owners, true))
+            ->mapWithKeys(fn (self $listing): array => [(int) $listing->id => [
+                'id' => (int) $listing->id, 'title' => (string) $listing->title,
+                'price' => $listing->panelPriceLabel(), 'image' => $listing->primaryImageUrl('card'),
+            ]])->all();
+    }
+
+    public static function advertisingCollectionOptions(string $search = ''): array
+    {
+        $ids = static::query()->active()->where(fn ($query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->where('title', 'like', '%'.mb_substr($search, 0, 120).'%')->latest('id')->limit(50)->pluck('id')->all();
+        $items = static::advertisingCollectionItems($ids);
+
+        return collect($items)->mapWithKeys(fn (array $item): array => [$item['id'] => $item['title'].' #'.$item['id']])->all();
+    }
+
     public static function riskReviewSnapshot(): array
     {
         $records = static::query()->whereIn('status', ['pending', 'active'])

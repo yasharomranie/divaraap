@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Modules\Listing\Models\Listing;
 use Modules\User\App\Models\Profile;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
@@ -25,9 +26,11 @@ final class Banner extends Model
 
     private ?array $adShop = null;
 
+    private ?array $adListings = null;
+
     public static function moderationQueue(): Collection
     {
-        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'created_at']);
+        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'created_at']);
     }
 
     public function moderate(bool $approve, ?string $note = null): void
@@ -37,7 +40,7 @@ final class Banner extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 
     protected $table = 'advertising_banners';
@@ -46,14 +49,14 @@ final class Banner extends Model
 
     protected function casts(): array
     {
-        return ['shop_snapshot' => 'array', 'daily_frequency_cap' => 'integer', 'is_active' => 'boolean', 'new_tab' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime'];
+        return ['collection_listing_ids' => 'array', 'shop_snapshot' => 'array', 'daily_frequency_cap' => 'integer', 'is_active' => 'boolean', 'new_tab' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime'];
     }
 
     protected static function booted(): void
     {
         self::saving(function (self $banner): void {
             $banner->creative_format ??= 'image';
-            if (! in_array($banner->creative_format, ['image', 'shop'], true)) {
+            if (! in_array($banner->creative_format, ['image', 'shop', 'collection'], true)) {
                 throw ValidationException::withMessages(['creative_format' => __('advertising::shop.invalid')]);
             }
             if ($banner->creative_format === 'shop') {
@@ -68,9 +71,26 @@ final class Banner extends Model
                 $banner->shop_user_id = null;
                 $banner->shop_snapshot = null;
             }
+            $banner->adListings = null;
+            if ($banner->creative_format === 'collection') {
+                $ids = $banner->collection_listing_ids;
+                if (! is_array($ids) || count($ids) < 2 || count($ids) > 6
+                    || collect($ids)->contains(fn ($id): bool => (! is_int($id) && ! is_string($id)) || ! preg_match('/^[1-9][0-9]{0,17}$/', (string) $id))
+                    || count(array_unique($ids)) !== count($ids)) {
+                    throw ValidationException::withMessages(['collection_listing_ids' => __('advertising::collection.invalid')]);
+                }
+                $ids = array_map('intval', $ids);
+                $items = Listing::advertisingCollectionItems($ids);
+                if (count($items) !== count($ids) && (! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'collection_listing_ids']))) {
+                    throw ValidationException::withMessages(['collection_listing_ids' => __('advertising::collection.invalid')]);
+                }
+                $banner->collection_listing_ids = $ids;
+            } else {
+                $banner->collection_listing_ids = null;
+            }
             $banner->adShopLoaded = false;
             $banner->adShop = null;
-            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot'])) {
+            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids'])) {
                 $banner->review_status = 'pending';
                 $banner->is_active = false;
             }
@@ -87,6 +107,9 @@ final class Banner extends Model
                 continue;
             }
             $codes = [];
+            if ($banner->creative_format === 'collection' && count($banner->advertisedListings()) < count($banner->collection_listing_ids ?? [])) {
+                $codes[] = 'collection_unavailable';
+            }
             if ($banner->creative_format === 'shop' && ! $banner->shopCreativeEligible()) {
                 $codes[] = 'shop_unavailable';
             }
@@ -103,7 +126,7 @@ final class Banner extends Model
                     $codes[] = $code;
                 }
             }
-            if ($banner->creative_format !== 'shop' && filled($banner->url) && $banner->destination() === null) {
+            if (in_array($banner->creative_format, [null, 'image'], true) && filled($banner->url) && $banner->destination() === null) {
                 $codes[] = 'link_invalid';
             }
             foreach ($codes as $code) {
@@ -144,7 +167,37 @@ final class Banner extends Model
 
     public function eligibleForCampaign(array $context, bool $forDelivery = true): bool
     {
-        return $this->shopCreativeEligible() && ($this->campaign_id === null || ($this->campaign && $this->campaign->eligible($context, $forDelivery)));
+        return $this->creativeEligible() && ($this->campaign_id === null || ($this->campaign && $this->campaign->eligible($context, $forDelivery)));
+    }
+
+    public function cacheAdvertisedListings(array $items): void
+    {
+        $this->adListings = $items;
+    }
+
+    public function advertisedListings(): array
+    {
+        if ($this->creative_format !== 'collection') {
+            return [];
+        }
+        $ids = $this->collection_listing_ids ?? [];
+        if (! is_array($ids) || count($ids) < 2 || count($ids) > 6) {
+            return [];
+        }
+        $this->adListings ??= Listing::advertisingCollectionItems($ids);
+        $ordered = [];
+        foreach ($ids as $id) {
+            if (isset($this->adListings[$id])) {
+                $ordered[(int) $id] = $this->adListings[$id];
+            }
+        }
+
+        return $ordered;
+    }
+
+    public function creativeEligible(): bool
+    {
+        return $this->creative_format === 'collection' ? count($this->advertisedListings()) >= 2 : $this->shopCreativeEligible();
     }
 
     public function cacheAdvertisedShop(?array $shop): void
@@ -189,6 +242,9 @@ final class Banner extends Model
 
     public function destination(): ?string
     {
+        if ($this->creative_format === 'collection') {
+            return null;
+        }
         if ($this->creative_format === 'shop') {
             return $this->shopCreativeEligible() ? route('sellers.show', (int) $this->shop_user_id) : null;
         }

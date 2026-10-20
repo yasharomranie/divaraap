@@ -6,6 +6,7 @@ namespace Modules\Advertising\Support;
 
 use Modules\Admin\Support\AdvertisingCapacity;
 use Modules\Advertising\Models\BannerPlacement;
+use Modules\Listing\Models\Listing;
 use Modules\Location\Models\City;
 use Modules\User\App\Models\Profile;
 
@@ -31,6 +32,13 @@ final class BannerRenderer
         $slot = $placement?->slotIndex($position);
         if ($slot === null) {
             return [];
+        }
+        $collectionIds = $placement->assignments->flatMap(fn ($assignment): array => $assignment->banner?->creative_format === 'collection' ? ($assignment->banner->collection_listing_ids ?? []) : [])->unique()->all();
+        $collectionItems = Listing::advertisingCollectionItems($collectionIds);
+        foreach ($placement->assignments as $assignment) {
+            if ($assignment->banner?->creative_format === 'collection') {
+                $assignment->banner->cacheAdvertisedListings($collectionItems);
+            }
         }
         $shops = Profile::advertisingShops($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'shop' ? $assignment->banner->shop_user_id : null)->filter()->unique()->all());
         foreach ($placement->assignments as $assignment) {

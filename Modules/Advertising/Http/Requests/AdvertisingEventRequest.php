@@ -15,6 +15,6 @@ final class AdvertisingEventRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['token' => ['required', 'string', 'max:6000'], 'kind' => ['required', 'in:impression,click'], 'device' => ['required', 'in:mobile,desktop']];
+        return ['listing' => ['nullable', 'integer', 'min:1', 'max:999999999999999999'], 'token' => ['required', 'string', 'max:6000'], 'kind' => ['required', 'in:impression,click'], 'device' => ['required', 'in:mobile,desktop']];
     }
 }
