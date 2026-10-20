@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'category-top' => 'دسته‌بندی ـ حامی بالای نتایج',
     'advertising' => 'تبلیغات بنری',
     'banner' => 'بنر',
     'banners' => 'بنرها',

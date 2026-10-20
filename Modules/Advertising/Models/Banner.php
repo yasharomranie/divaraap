@@ -38,9 +38,13 @@ final class Banner extends Model
 
     private ?array $adFilters = null;
 
+    private ?string $adSponsoredCategory = null;
+
+    private bool $adSponsoredCategoryLoaded = false;
+
     public static function moderationQueue(): Collection
     {
-        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'created_at']);
+        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'created_at']);
     }
 
     public function moderate(bool $approve, ?string $note = null): void
@@ -50,7 +54,7 @@ final class Banner extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id', 'filter_choices'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 
     protected $table = 'advertising_banners';
@@ -66,10 +70,10 @@ final class Banner extends Model
     {
         self::saving(function (self $banner): void {
             $banner->creative_format ??= 'image';
-            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service', 'filter'], true)) {
+            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service', 'filter', 'sponsor'], true)) {
                 throw ValidationException::withMessages(['creative_format' => __('advertising::shop.invalid')]);
             }
-            if ($banner->creative_format === 'shop') {
+            if (in_array($banner->creative_format, ['shop', 'sponsor'], true)) {
                 $shop = Profile::advertisingShops([(int) $banner->shop_user_id])[(int) $banner->shop_user_id] ?? null;
                 if (! $shop && (! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'shop_user_id']))) {
                     throw ValidationException::withMessages(['shop_user_id' => __('advertising::shop.invalid')]);
@@ -119,9 +123,18 @@ final class Banner extends Model
             } else {
                 $banner->filter_choices = null;
             }
+            $banner->adSponsoredCategoryLoaded = false;
+            $banner->adSponsoredCategory = null;
+            if ($banner->creative_format === 'sponsor') {
+                if ($banner->sponsoredCategoryName() === null && (! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'sponsored_category_id']))) {
+                    throw ValidationException::withMessages(['sponsored_category_id' => __('advertising::sponsor.invalid')]);
+                }
+            } else {
+                $banner->sponsored_category_id = null;
+            }
             $banner->adShopLoaded = false;
             $banner->adShop = null;
-            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices'])) {
+            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id'])) {
                 $banner->review_status = 'pending';
                 $banner->is_active = false;
             }
@@ -147,7 +160,10 @@ final class Banner extends Model
             if ($banner->creative_format === 'collection' && count($banner->advertisedListings()) < count($banner->collection_listing_ids ?? [])) {
                 $codes[] = 'collection_unavailable';
             }
-            if ($banner->creative_format === 'shop' && ! $banner->shopCreativeEligible()) {
+            if ($banner->creative_format === 'sponsor' && $banner->sponsoredCategoryName() === null) {
+                $codes[] = 'sponsor_category_unavailable';
+            }
+            if (in_array($banner->creative_format, ['shop', 'sponsor'], true) && ! $banner->shopCreativeEligible()) {
                 $codes[] = 'shop_unavailable';
             }
             foreach (['image' => 'image_missing', 'mobile_image' => 'mobile_image_missing'] as $field => $code) {
@@ -204,7 +220,7 @@ final class Banner extends Model
 
     public function eligibleForCampaign(array $context, bool $forDelivery = true): bool
     {
-        return $this->creativeEligible() && ($this->campaign_id === null || ($this->campaign && $this->campaign->eligible($context, $forDelivery)));
+        return ($this->creative_format !== 'sponsor' || (int) ($context['category_id'] ?? 0) === (int) $this->sponsored_category_id) && $this->creativeEligible() && ($this->campaign_id === null || ($this->campaign && $this->campaign->eligible($context, $forDelivery)));
     }
 
     public function cacheAdvertisedListings(array $items): void
@@ -235,11 +251,46 @@ final class Banner extends Model
     public function creativeEligible(): bool
     {
         return match ($this->creative_format) {
+            'sponsor' => $this->sponsoredCategoryName() !== null && $this->shopCreativeEligible(),
             'filter' => count($this->preparedFilters()) >= 2,
             'service' => $this->advertisedService() !== null,
             'collection' => count($this->advertisedListings()) >= 2,
             default => $this->shopCreativeEligible(),
         };
+    }
+
+    public function eligibleForPlacement(string $key): bool
+    {
+        return $this->creative_format === 'sponsor' ? $key === 'category-top' : $key !== 'category-top';
+    }
+
+    public function cacheSponsoredCategory(?string $name): void
+    {
+        $this->adSponsoredCategory = $name;
+        $this->adSponsoredCategoryLoaded = true;
+    }
+
+    public function sponsoredCategoryName(): ?string
+    {
+        if ($this->creative_format !== 'sponsor' || ! $this->sponsored_category_id) {
+            return null;
+        }
+        if (! $this->adSponsoredCategoryLoaded) {
+            $this->cacheSponsoredCategory(Category::advertisingFilterOptions()[(int) $this->sponsored_category_id] ?? null);
+        }
+
+        return $this->adSponsoredCategory;
+    }
+
+    public function sponsorshipSignature(): ?string
+    {
+        if ($this->creative_format !== 'sponsor') {
+            return null;
+        }
+
+        return hash('sha256', json_encode([(int) $this->sponsored_category_id, (int) $this->shop_user_id,
+            $this->shop_snapshot['name'] ?? null, $this->shop_snapshot['description'] ?? null, $this->shop_snapshot['hours'] ?? null,
+        ], JSON_THROW_ON_ERROR));
     }
 
     private function normalizedFilterChoices(array $categories, array $cities): ?array
@@ -376,7 +427,7 @@ final class Banner extends Model
         if (($this->creative_format ?? 'image') === 'image') {
             return true;
         }
-        if ($this->creative_format !== 'shop' || ! $this->shop_user_id || ! is_array($this->shop_snapshot)) {
+        if (! in_array($this->creative_format, ['shop', 'sponsor'], true) || ! $this->shop_user_id || ! is_array($this->shop_snapshot)) {
             return false;
         }
         if (! $this->adShopLoaded) {
@@ -413,8 +464,8 @@ final class Banner extends Model
         if (in_array($this->creative_format, ['collection', 'filter'], true)) {
             return null;
         }
-        if ($this->creative_format === 'shop') {
-            return $this->shopCreativeEligible() ? route('sellers.show', (int) $this->shop_user_id) : null;
+        if (in_array($this->creative_format, ['shop', 'sponsor'], true)) {
+            return $this->creativeEligible() ? route('sellers.show', (int) $this->shop_user_id) : null;
         }
         $url = trim((string) $this->url);
 

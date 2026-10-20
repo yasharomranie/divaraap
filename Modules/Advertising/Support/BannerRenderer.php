@@ -55,13 +55,20 @@ final class BannerRenderer
                 $assignment->banner->cacheAdvertisedService($services[$assignment->banner->service_listing_id] ?? null);
             }
         }
-        $shops = Profile::advertisingShops($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'shop' ? $assignment->banner->shop_user_id : null)->filter()->unique()->all());
+        $shops = Profile::advertisingShops($placement->assignments->map(fn ($assignment) => in_array($assignment->banner?->creative_format, ['shop', 'sponsor'], true) ? $assignment->banner->shop_user_id : null)->filter()->unique()->all());
         foreach ($placement->assignments as $assignment) {
-            if ($assignment->banner?->creative_format === 'shop') {
+            if (in_array($assignment->banner?->creative_format, ['shop', 'sponsor'], true)) {
                 $assignment->banner->cacheAdvertisedShop($shops[$assignment->banner->shop_user_id] ?? null);
             }
         }
-        $assignments = $placement->assignments->filter(fn ($a) => $a->banner && filled($a->banner->image) && $a->banner->eligibleForCampaign($context) && app(AdvertisingFrequency::class)->allows($a->banner));
+        $sponsors = $placement->assignments->filter(fn ($assignment): bool => $assignment->banner?->creative_format === 'sponsor');
+        if ($sponsors->isNotEmpty()) {
+            $categories = Category::advertisingFilterOptions();
+            foreach ($sponsors as $assignment) {
+                $assignment->banner->cacheSponsoredCategory($categories[$assignment->banner->sponsored_category_id] ?? null);
+            }
+        }
+        $assignments = $placement->assignments->filter(fn ($a) => $a->banner && $a->banner->eligibleForPlacement($key) && filled($a->banner->image) && $a->banner->eligibleForCampaign($context) && app(AdvertisingFrequency::class)->allows($a->banner));
         if ($placement->ordering === 'random') {
             $seed = request()->hasSession() ? request()->session()->getId() : now()->toDateString();
             $assignments = $assignments->sortBy(fn ($a) => hash('sha256', $seed.'|'.$key.'|'.$a->id));

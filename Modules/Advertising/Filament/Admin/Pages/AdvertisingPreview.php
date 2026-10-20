@@ -27,6 +27,7 @@ final class AdvertisingPreview extends Page
 
     public string $device = 'mobile';
 
+    #[Url]
     public string $placement = 'home-top';
 
     protected static function getAccessPermission(): string

@@ -25,6 +25,7 @@ final class AdvertisingToken
         return Crypt::encryptString(json_encode([
             'banner' => $banner->id, 'campaign' => $banner->campaign_id,
             'service' => $banner->creative_format === 'service' ? (int) $banner->service_listing_id : null,
+            'sponsorship' => $banner->sponsorshipSignature(),
             'filters' => array_keys($banner->preparedFilters()),
             'listings' => array_keys($banner->advertisedListings()),
             'placement' => $placement, 'device' => $device,

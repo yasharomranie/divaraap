@@ -57,3 +57,9 @@
 .advertising-filters__choice:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
 .advertising-filters__choice:active { background: var(--accent-soft); }
 @media (min-width: 768px) { .advertising-filters__choices { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
+
+.advertising-sponsor { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px; }
+.advertising-sponsor .advertising-sponsor__cover { width: 64px; height: 64px; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
+.advertising-sponsor__body { display: grid; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
+.advertising-sponsor__body h2 { font-size: 1rem; font-weight: 650; }
+.advertising-sponsor__action { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); justify-self: start; font-size: 0.875rem; }

@@ -15,7 +15,7 @@ final class BannerPlacement extends Model
     use LogsActivity;
     use SoftDeletes;
 
-    public const KEYS = ['home-top', 'home-feed', 'listings-feed', 'search-feed', 'category-feed', 'listing-details', 'listing-related', 'page-top', 'page-bottom'];
+    public const KEYS = ['home-top', 'home-feed', 'listings-feed', 'search-feed', 'category-feed', 'category-top', 'listing-details', 'listing-related', 'page-top', 'page-bottom'];
 
     public function getActivitylogOptions(): LogOptions
     {

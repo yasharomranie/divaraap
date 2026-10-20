@@ -43,6 +43,9 @@ final class AdvertisingEvent extends Model
             && ($banner->creative_format !== 'filter' || ($data['filters'] ?? []) !== array_keys($banner->preparedFilters()))) {
             return;
         }
+        if (($data['sponsorship'] ?? null) !== $banner->sponsorshipSignature() || ! $banner->eligibleForPlacement($data['placement'])) {
+            return;
+        }
         $placement = BannerPlacement::query()->where('key', $data['placement'])->where('is_active', true)->first();
         if (! $placement || ! in_array($placement->device, ['both', $device], true) || ! in_array($banner->device, ['both', $device], true) || ! $placement->assignments()->where('banner_id', $banner->id)->exists()) {
             return;

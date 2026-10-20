@@ -10,6 +10,8 @@
         @include('advertising::prepared-filters')
     @elseif($banner->creative_format === 'service')
         @include('advertising::service-card')
+    @elseif($banner->creative_format === 'sponsor')
+        @include('advertising::category-sponsor')
     @elseif($banner->creative_format === 'shop')
         @include('advertising::shop-card')
     @else

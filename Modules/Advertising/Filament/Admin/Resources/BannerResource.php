@@ -51,10 +51,10 @@ final class BannerResource extends AdvertisingResource
     {
         return $schema->schema([
             Select::make('campaign_id')->label(__('advertising::campaign.campaign'))->options(fn () => Campaign::options())->searchable()->exists(Campaign::class, 'id')->helperText(__('advertising::campaign.optional_campaign')),
-            Select::make('creative_format')->label(__('advertising::shop.format'))->options(['image' => __('advertising::shop.image'), 'shop' => __('advertising::shop.card'), 'collection' => __('advertising::collection.format'), 'service' => __('advertising::service.format'), 'filter' => __('advertising::filters.format')])->default('image')->required()->live(),
+            Select::make('creative_format')->label(__('advertising::shop.format'))->options(['image' => __('advertising::shop.image'), 'shop' => __('advertising::shop.card'), 'collection' => __('advertising::collection.format'), 'service' => __('advertising::service.format'), 'filter' => __('advertising::filters.format'), 'sponsor' => __('advertising::sponsor.format')])->default('image')->required()->live(),
             Select::make('shop_user_id')->label(__('advertising::shop.shop'))->searchable()->getSearchResultsUsing(fn (string $search): array => Profile::advertisingShopOptions($search))
                 ->getOptionLabelUsing(fn ($value): ?string => Profile::advertisingShops([(int) $value])[(int) $value]['name'] ?? null)
-                ->options(fn (): array => Profile::advertisingShopOptions())->required()->visible(fn (Get $get): bool => $get('creative_format') === 'shop')->helperText(__('advertising::shop.hint')),
+                ->options(fn (): array => Profile::advertisingShopOptions())->required()->visible(fn (Get $get): bool => in_array($get('creative_format'), ['shop', 'sponsor'], true))->helperText(__('advertising::shop.hint')),
             Select::make('collection_listing_ids')->label(__('advertising::collection.items'))->multiple()->minItems(2)->maxItems(6)->required()->searchable()
                 ->options(fn (): array => Listing::advertisingCollectionOptions())->getSearchResultsUsing(fn (string $search): array => Listing::advertisingCollectionOptions($search))
                 ->getOptionLabelsUsing(fn (array $values): array => collect(Listing::advertisingCollectionItems($values))->mapWithKeys(fn (array $item): array => [$item['id'] => $item['title'].' #'.$item['id']])->all())
@@ -73,6 +73,8 @@ final class BannerResource extends AdvertisingResource
                     TextInput::make('min_price')->label(__('advertising::filters.min_price'))->maxLength(32),
                     TextInput::make('max_price')->label(__('advertising::filters.max_price'))->maxLength(32),
                 ])->visible(fn (Get $get): bool => $get('creative_format') === 'filter')->helperText(__('advertising::filters.hint'))->columnSpanFull(),
+            Select::make('sponsored_category_id')->label(__('advertising::sponsor.category'))->options(fn (): array => Category::advertisingFilterOptions())->searchable()->required()
+                ->visible(fn (Get $get): bool => $get('creative_format') === 'sponsor')->helperText(__('advertising::sponsor.hint')),
             TextInput::make('title')->label(__('advertising::admin.title'))->required()->maxLength(150),
             TextInput::make('alt')->label(__('advertising::admin.alt'))->required()->maxLength(200),
             FileUpload::make('image')->label(__('advertising::admin.image'))->image()->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->disk('public')->directory(LocalMedia::managedDirectory('banners'))->visibility('public')->maxSize(4096)->required()->helperText(__('advertising::admin.image_hint')),
@@ -85,7 +87,7 @@ final class BannerResource extends AdvertisingResource
             DateTimePicker::make('starts_at')->label(__('advertising::admin.starts_at'))->timezone(config('app.timezone'))->seconds(false),
             DateTimePicker::make('ends_at')->label(__('advertising::admin.ends_at'))->timezone(config('app.timezone'))->seconds(false)->after('starts_at'),
             Repeater::make('assignments')->label(__('advertising::admin.placements'))->relationship()->schema([
-                Select::make('placement_id')->label(__('advertising::admin.placement'))->options(fn () => BannerPlacement::query()->get()->mapWithKeys(fn ($p) => [$p->id => __('advertising::admin.'.$p->key)]))->required()->disableOptionsWhenSelectedInSiblingRepeaterItems(),
+                Select::make('placement_id')->label(__('advertising::admin.placement'))->options(fn (Get $get) => BannerPlacement::query()->where('key', $get('../../creative_format') === 'sponsor' ? '=' : '!=', 'category-top')->get()->mapWithKeys(fn ($p) => [$p->id => __('advertising::admin.'.$p->key)]))->required()->disableOptionsWhenSelectedInSiblingRepeaterItems(),
                 TextInput::make('priority')->label(__('advertising::admin.priority'))->integer()->minValue(1)->maxValue(1000000)->default(1)->required(),
             ])->columns(2)->defaultItems(0)->columnSpanFull()->helperText(__('advertising::admin.priority_hint')),
         ]);
@@ -102,7 +104,7 @@ final class BannerResource extends AdvertisingResource
             TextColumn::make('device')->label(__('advertising::admin.device'))->formatStateUsing(fn ($state) => __('advertising::admin.'.$state)),
             TextColumn::make('starts_at')->label(__('advertising::admin.starts_at'))->dateTime()->timezone(config('app.timezone')),
             TextColumn::make('ends_at')->label(__('advertising::admin.ends_at'))->dateTime()->timezone(config('app.timezone')),
-        ])->filters([TernaryFilter::make('is_active')->label(__('advertising::admin.is_active'))])->actions([Action::make('preview')->label(__('advertising::preview.action'))->icon('heroicon-o-eye')->url(fn (Banner $record) => AdvertisingPreview::getUrl(['banner' => $record->id])), ...ResourceTableActions::editDelete()])->defaultSort('id', 'desc');
+        ])->filters([TernaryFilter::make('is_active')->label(__('advertising::admin.is_active'))])->actions([Action::make('preview')->label(__('advertising::preview.action'))->icon('heroicon-o-eye')->url(fn (Banner $record) => AdvertisingPreview::getUrl(['banner' => $record->id, 'placement' => $record->creative_format === 'sponsor' ? 'category-top' : 'home-top'])), ...ResourceTableActions::editDelete()])->defaultSort('id', 'desc');
     }
 
     public static function getPages(): array

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'category-top' => 'Category — sponsor header',
     'advertising' => 'Banner advertising',
     'banner' => 'Banner',
     'banners' => 'Banners',

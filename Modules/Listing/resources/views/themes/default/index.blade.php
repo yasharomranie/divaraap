@@ -61,6 +61,9 @@
             @endauth
         </div>
 
+        @if($selectedCategory)
+            @includeIf('advertising::slot', ['placementKey' => 'category-top', 'position' => 0, 'advertisingContext' => ['category_id' => $categoryId, 'city_id' => $cityId]])
+        @endif
         <div class="browse-layout">
             <aside class="drawer" data-filter-drawer aria-hidden="true">
                 <button type="button" class="drawer__scrim" data-filter-drawer-close aria-label="{{ __('site::messages.close') }}"></button>

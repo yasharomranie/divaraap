@@ -21,7 +21,7 @@ final class BannerPreviewController
 
         return response()->view('advertising::preview-frame', [
             'banner' => $record, 'placementKey' => $placementKey, 'placement' => $placement,
-            'device' => $device, 'visible' => in_array($record->device, ['both', $device], true) && in_array($placement->device, ['both', $device], true),
+            'device' => $device, 'visible' => $record->eligibleForPlacement($placementKey) && in_array($record->device, ['both', $device], true) && in_array($placement->device, ['both', $device], true),
             'isPreview' => true, 'trackingToken' => null,
         ])->header('Cache-Control', 'private, no-store')->header('X-Robots-Tag', 'noindex, nofollow')->header('X-Frame-Options', 'SAMEORIGIN');
     }

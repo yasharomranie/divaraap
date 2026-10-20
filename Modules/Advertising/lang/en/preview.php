@@ -12,6 +12,6 @@ return [
     'sample_hint' => 'Sample layout; the banner uses the actual site creative template and styles.',
     'sample' => 'Sample listing',
     'after' => 'Insertion after :count listings; up to six sample cards are shown.',
-    'device_mismatch' => 'The selected banner or placement is not enabled for this device.',
+    'device_mismatch' => 'The selected creative format, placement or device is incompatible.',
     'publication_hint' => 'This is not publication approval. Status, schedules, targeting, allocation and delivery limits still apply on the public site.',
 ];
