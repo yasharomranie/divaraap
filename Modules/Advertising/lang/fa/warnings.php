@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'deadline_unavailable' => 'آگهی پیشنهاد یا مهلت مؤثر آن دیگر معتبر نیست',
     'sponsor_category_unavailable' => 'دسته مورد حمایت یا یکی از والدهای آن دیگر فعال نیست',
     'filters_unavailable' => 'انتخاب‌های فیلتر یا دسته، شهر و کشور مقصد آن‌ها نامعتبر شده‌اند',
     'service_unavailable' => 'آگهی خدمات یا صاحب حساب آن دیگر فعال نیست یا دسته خدمات غیرفعال شده است',

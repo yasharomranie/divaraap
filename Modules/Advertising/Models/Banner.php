@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -42,9 +43,13 @@ final class Banner extends Model
 
     private bool $adSponsoredCategoryLoaded = false;
 
+    private ?array $adDeadlineListing = null;
+
+    private bool $adDeadlineLoaded = false;
+
     public static function moderationQueue(): Collection
     {
-        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'created_at']);
+        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'ends_at', 'starts_at', 'created_at']);
     }
 
     public function moderate(bool $approve, ?string $note = null): void
@@ -54,7 +59,7 @@ final class Banner extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 
     protected $table = 'advertising_banners';
@@ -70,7 +75,7 @@ final class Banner extends Model
     {
         self::saving(function (self $banner): void {
             $banner->creative_format ??= 'image';
-            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service', 'filter', 'sponsor'], true)) {
+            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service', 'filter', 'sponsor', 'deadline'], true)) {
                 throw ValidationException::withMessages(['creative_format' => __('advertising::shop.invalid')]);
             }
             if (in_array($banner->creative_format, ['shop', 'sponsor'], true)) {
@@ -132,9 +137,30 @@ final class Banner extends Model
             } else {
                 $banner->sponsored_category_id = null;
             }
+            $banner->adDeadlineLoaded = false;
+            $banner->adDeadlineListing = null;
+            if ($banner->creative_format === 'deadline') {
+                $requiresValidOffer = ! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'offer_listing_id', 'ends_at', 'starts_at']);
+                if ($requiresValidOffer && (! $banner->ends_at || ! $banner->ends_at->isFuture() || ($banner->starts_at && $banner->ends_at->lessThanOrEqualTo($banner->starts_at)))) {
+                    throw ValidationException::withMessages(['ends_at' => __('advertising::deadline.invalid_end')]);
+                }
+                if ($requiresValidOffer && ! $banner->advertisedDeadlineListing()) {
+                    throw ValidationException::withMessages(['offer_listing_id' => __('advertising::deadline.invalid_listing')]);
+                }
+                $effectiveEnd = $banner->effectiveDeadline();
+                if ($requiresValidOffer && (! $effectiveEnd || ! $effectiveEnd->isFuture() || ($banner->starts_at && $effectiveEnd->lessThanOrEqualTo($banner->starts_at)))) {
+                    throw ValidationException::withMessages(['ends_at' => __('advertising::deadline.invalid_end')]);
+                }
+                if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['ends_at', 'starts_at'])) {
+                    $banner->review_status = 'pending';
+                    $banner->is_active = false;
+                }
+            } else {
+                $banner->offer_listing_id = null;
+            }
             $banner->adShopLoaded = false;
             $banner->adShop = null;
-            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id'])) {
+            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id'])) {
                 $banner->review_status = 'pending';
                 $banner->is_active = false;
             }
@@ -151,6 +177,9 @@ final class Banner extends Model
                 continue;
             }
             $codes = [];
+            if ($banner->creative_format === 'deadline' && ! $banner->deadlineEligible()) {
+                $codes[] = 'deadline_unavailable';
+            }
             if ($banner->creative_format === 'filter' && $banner->preparedFilters() === []) {
                 $codes[] = 'filters_unavailable';
             }
@@ -251,12 +280,61 @@ final class Banner extends Model
     public function creativeEligible(): bool
     {
         return match ($this->creative_format) {
+            'deadline' => $this->deadlineEligible(),
             'sponsor' => $this->sponsoredCategoryName() !== null && $this->shopCreativeEligible(),
             'filter' => count($this->preparedFilters()) >= 2,
             'service' => $this->advertisedService() !== null,
             'collection' => count($this->advertisedListings()) >= 2,
             default => $this->shopCreativeEligible(),
         };
+    }
+
+    public function cacheDeadlineListing(?array $listing): void
+    {
+        $this->adDeadlineListing = $listing;
+        $this->adDeadlineLoaded = true;
+    }
+
+    public function advertisedDeadlineListing(): ?array
+    {
+        if ($this->creative_format !== 'deadline' || ! $this->offer_listing_id) {
+            return null;
+        }
+        if (! $this->adDeadlineLoaded) {
+            $this->cacheDeadlineListing(Listing::advertisingDeadlineItems([(int) $this->offer_listing_id])[(int) $this->offer_listing_id] ?? null);
+        }
+
+        return $this->adDeadlineListing;
+    }
+
+    public function effectiveDeadline(): ?Carbon
+    {
+        $listing = $this->advertisedDeadlineListing();
+        if (! $listing || ! $this->ends_at) {
+            return null;
+        }
+        $deadline = $this->ends_at->copy();
+        foreach ([$this->campaign?->ends_at, $listing['expires_at']] as $end) {
+            if ($end !== null && Carbon::parse($end)->lessThan($deadline)) {
+                $deadline = Carbon::parse($end);
+            }
+        }
+
+        return $deadline;
+    }
+
+    public function deadlineEligible(): bool
+    {
+        return $this->effectiveDeadline()?->isFuture() ?? false;
+    }
+
+    public function deadlineSignature(): ?string
+    {
+        if ($this->creative_format !== 'deadline') {
+            return null;
+        }
+
+        return hash('sha256', json_encode([(int) $this->offer_listing_id, $this->effectiveDeadline()?->timestamp], JSON_THROW_ON_ERROR));
     }
 
     public function eligibleForPlacement(string $key): bool
@@ -458,6 +536,9 @@ final class Banner extends Model
 
     public function destination(): ?string
     {
+        if ($this->creative_format === 'deadline') {
+            return $this->deadlineEligible() ? route('listings.show', (int) $this->offer_listing_id) : null;
+        }
         if ($this->creative_format === 'service') {
             return $this->advertisedService() ? route('listings.show', ['listing' => (int) $this->service_listing_id, 'request-service' => 1]).'#service-request' : null;
         }

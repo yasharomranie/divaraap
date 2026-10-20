@@ -26,6 +26,7 @@ final class AdvertisingToken
             'banner' => $banner->id, 'campaign' => $banner->campaign_id,
             'service' => $banner->creative_format === 'service' ? (int) $banner->service_listing_id : null,
             'sponsorship' => $banner->sponsorshipSignature(),
+            'deadline' => $banner->deadlineSignature(),
             'filters' => array_keys($banner->preparedFilters()),
             'listings' => array_keys($banner->advertisedListings()),
             'placement' => $placement, 'device' => $device,

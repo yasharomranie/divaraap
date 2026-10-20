@@ -63,3 +63,12 @@
 .advertising-sponsor__body { display: grid; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
 .advertising-sponsor__body h2 { font-size: 1rem; font-weight: 650; }
 .advertising-sponsor__action { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); justify-self: start; font-size: 0.875rem; }
+
+.advertising-banner[hidden] { display: none; }
+.advertising-deadline { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px; }
+.advertising-deadline .advertising-deadline__cover { width: 88px; height: 88px; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
+.advertising-deadline__body { display: grid; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
+.advertising-deadline__body h2 { font-size: 1rem; font-weight: 650; }
+.advertising-deadline__remaining { font-size: 0.875rem; font-variant-numeric: tabular-nums; color: var(--appearance-text); }
+.advertising-deadline__remaining:empty { display: none; }
+.advertising-deadline__action { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); justify-self: start; font-size: 0.875rem; }

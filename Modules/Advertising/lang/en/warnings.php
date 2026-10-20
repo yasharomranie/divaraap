@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'deadline_unavailable' => 'The offer listing or its effective deadline is unavailable',
     'sponsor_category_unavailable' => 'Sponsored category or one of its ancestors is unavailable',
     'filters_unavailable' => 'Prepared filters or their category, city or country are unavailable',
     'service_unavailable' => 'Service listing, provider or service category is unavailable',

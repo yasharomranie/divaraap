@@ -89,6 +89,21 @@ class Listing extends Model implements HasMedia
         return static::query()->where('status', 'active')->whereKey($match[1])->value('id');
     }
 
+    public static function advertisingDeadlineItems(array $ids): array
+    {
+        $items = static::advertisingCollectionItems($ids);
+        if ($items === []) {
+            return [];
+        }
+        $expirations = static::query()->whereKey(array_keys($items))->pluck('expires_at', 'id');
+        foreach ($items as $id => &$item) {
+            $item['expires_at'] = $expirations[$id] ?? null;
+        }
+        unset($item);
+
+        return $items;
+    }
+
     public static function advertisingServiceItems(array $ids): array
     {
         if ($ids === []) {

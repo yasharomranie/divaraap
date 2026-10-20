@@ -49,6 +49,12 @@ final class BannerRenderer
                 $assignment->banner->preparedFilters($filterCategories, $filterCities);
             }
         }
+        $deadlineListings = Listing::advertisingDeadlineItems($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'deadline' ? $assignment->banner->offer_listing_id : null)->filter()->unique()->all());
+        foreach ($placement->assignments as $assignment) {
+            if ($assignment->banner?->creative_format === 'deadline') {
+                $assignment->banner->cacheDeadlineListing($deadlineListings[$assignment->banner->offer_listing_id] ?? null);
+            }
+        }
         $services = Listing::advertisingServiceItems($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'service' ? $assignment->banner->service_listing_id : null)->filter()->unique()->all());
         foreach ($placement->assignments as $assignment) {
             if ($assignment->banner?->creative_format === 'service') {
