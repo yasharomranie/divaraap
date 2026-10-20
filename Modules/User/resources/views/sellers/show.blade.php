@@ -1,6 +1,6 @@
 @extends('site::layouts.app')
 
-@section('title', $seller->getAttribute('name'))
+@section('title', $shop['shop_enabled'] ? $shop['shop_name'] : $seller->getAttribute('name'))
 @section('description', __('site::messages.member_since', ['date' => \App\Support\PersianLocale::date($seller->getAttribute('created_at'))]))
 
 @php
@@ -17,13 +17,14 @@
                     <div class="row">
                         <span class="avatar avatar--large">{{ \App\Support\UserDirectory::initials((string) $seller->getAttribute('name')) }}</span>
                         <div class="stack stack--tight" style="gap:2px">
-                            <h1 class="title-section">{{ $seller->getAttribute('name') }}</h1>
+                            <h1 class="title-section" dir="auto" style="overflow-wrap:anywhere">{{ $shop['shop_enabled'] ? $shop['shop_name'] : $seller->getAttribute('name') }}</h1>
                             <x-ui.rating :average="$summary['average']" :total="$summary['total']"/>
                             <p class="text-meta">{{ __('site::messages.member_since', ['date' => \App\Support\PersianLocale::date($seller->getAttribute('created_at'))]) }}</p>
                         </div>
                     </div>
 
                     <div class="row row--wrap">
+                        @if($isSelf)<a class="button button--secondary" href="{{ route('shop.edit') }}">{{ __('user::shop.title') }}</a>@endif
                         @auth
                             @unless($isSelf)
                                 <button
@@ -68,6 +69,12 @@
                     @endunless
                 @endauth
 
+                @if($shop['shop_enabled'])
+                    <section class="stack stack--tight" aria-label="{{ __('user::shop.intro') }}">
+                        @if($shop['shop_description'] !== '')<p dir="auto" style="white-space:pre-line;overflow-wrap:anywhere">{{ $shop['shop_description'] }}</p>@endif
+                        @if($shop['shop_hours'] !== '')<p dir="auto" style="overflow-wrap:anywhere">{{ __('user::shop.hours') }}: {{ $shop['shop_hours'] }}</p>@endif
+                    </section>
+                @endif
                 <div class="grid grid--stats">
                     <div class="stat-card">
                         <span class="stat-card__value">{{ \App\Support\PersianLocale::number($listingCount) }}</span>
@@ -91,6 +98,14 @@
                     <h2 class="title-section">{{ __('site::messages.all_listings') }}</h2>
                 </div>
 
+                <form action="{{ route('sellers.show', $sellerId) }}" method="get" class="stack stack--tight">
+                    <label class="field__label" for="seller-search">{{ __('user::shop.search') }}</label>
+                    <input class="input" id="seller-search" name="search" type="search" maxlength="120" dir="auto" value="{{ $search }}">
+                    <div class="row row--wrap">
+                        <button type="submit" class="button button--secondary">{{ __('user::shop.submit') }}</button>
+                        @if($search !== '')<a class="button button--ghost" href="{{ route('sellers.show', $sellerId) }}">{{ __('user::shop.clear') }}</a>@endif
+                    </div>
+                </form>
                 @if($listings->isNotEmpty())
                     <div class="grid grid--listings">
                         @foreach($listings as $listing)

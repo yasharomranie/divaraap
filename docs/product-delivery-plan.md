@@ -140,7 +140,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 34 | 4 | وضعیت موقت آگهی | verified |
 | 35 | 4 | ساخت آگهی از آگهی قبلی | verified |
 | 36 | 4 | زمان‌بندی انتشار آگهی | verified |
-| 37 | 4 | صفحهٔ فروشگاه | pending |
+| 37 | 4 | صفحهٔ فروشگاه | verified |
 | 38 | 4 | مدیریت گروهی آگهی‌ها | pending |
 | 39 | 5 | نشان‌های تأیید | pending |
 | 40 | 5 | زمان پاسخ‌گویی فروشنده | pending |
@@ -360,3 +360,12 @@ Pending listings retain their approval requirement. Approval before the deadline
 A bounded indexed due query with transactional row locks performs publication once. The first safe web request after the deadline processes up to 50 due records directly in PHP, so ordinary shared-hosting use requires no new Cron Job and no shell execution. With no visits, processing waits for a request. Optional `listings:publish-due` CLI and an every-minute scheduler callback process up to 200 due records without visits. The web fallback reports failures without taking down unrelated pages. `docs/SCHEDULED_PUBLICATION_FA.md` documents both semantics and an optional one-line cPanel command using the real install/public paths, known full PHP binary candidates and `ReleaseLayout` to follow the active version. Its PHP CLI entrypoint was exercised locally with the existing checkout layout.
 
 The portable migration adds nullable `publish_at` and a `(status, publish_at)` index to the existing listings table. No new worker or external API is required. All 376 PHPUnit tests passed (4016 assertions), including nine scheduling tests; the scheduling tests passed again after normalizing timezone inputs inside the model as well as the controller. Coverage includes time boundaries, pending approval, partial moderation records, first-request publication, idempotence, expiry, owner authorization, public privacy, stale edits, cancellation, renewal/edit safety, rejection/sale, inactive owners and the CLI command. Chromium exercised save confirmation/cancel, exact Tehran input roundtrip, native non-JavaScript cancellation/rescheduling, actual guest-triggered due publication, pending-approval messaging, keyboard focus, RTL/LTR and 360/390/768/1440px layouts. Production build, localization and production config/route cache checks passed. Development fixtures use `php tests/Browser/listing-schedule-fixtures.php`, `python3 tests/Browser/listing-schedule.py`, then the fixture command with `cleanup`.
+
+
+### Feature 37 — Shop page (verified)
+
+The existing seller page now supports an opt-in shop identity, introduction and response hours, managed from `/panel/shop` and the account navigation. Existing seller URLs, reviews and following remain intact. Disabling restores the ordinary seller page without losing shop settings. Public search is scoped to the same seller and excludes non-active and elapsed listings; suspended/deleted sellers return 404. Private phone, email and personal biography are not exposed. No cross-module SQL JOINs or new runtime services were introduced.
+
+Profile owns transactional writes under an account lock, with an optimistic fingerprint guarding stale windows. Settings routes require authentication, scope writes to the signed-in account, reject inactive owners and throttle updates. Text is escaped, length/type validation is enforced, and private settings responses disable caching and indexing. The User provider loads a portable four-column profiles migration during normal cPanel deployment; shops default to disabled.
+
+All 381 PHPUnit tests passed (4065 assertions), including five focused shop tests. Chromium verified native settings save and public rendering, cleanup restoring original settings, keyboard focus, Persian RTL/English LTR and no horizontal overflow at 360/390/768/1440px. Production assets, localization and production config/route cache checks passed. Run `python3 tests/Browser/shop.py` only in development with the seeded admin quick-login account. See `docs/SHOP_PAGE_FA.md` for operation and cPanel deployment.

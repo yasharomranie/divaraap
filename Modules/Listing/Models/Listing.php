@@ -237,6 +237,19 @@ class Listing extends Model implements HasMedia
             ])->get();
     }
 
+    public static function publicSellerListings(int $sellerId, string $search)
+    {
+        return static::query()->publicFeed()->ownedByUser($sellerId)
+            ->where(fn ($query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->searchTerm($search)->orderByDesc('id')->paginate(12)->withQueryString();
+    }
+
+    public static function publicSellerCount(int $sellerId): int
+    {
+        return static::query()->active()->ownedByUser($sellerId)
+            ->where(fn ($query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))->count();
+    }
+
     public function scopePublicFeed(Builder $query): Builder
     {
         return $query

@@ -10,13 +10,16 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Listing\Models\Listing;
 use Modules\Review\Models\Review;
+use Modules\User\App\Models\Profile;
 use Modules\User\App\Models\User;
 
 class SellerController extends Controller
 {
     public function show(Request $request, int $seller): View
     {
-        $profile = User::query()->whereKey($seller)->first(['id', 'name', 'created_at']);
+        $data = $request->validate(['search' => ['nullable', 'string', 'max:120']]);
+        $search = trim($data['search'] ?? '');
+        $profile = User::query()->where('status', 'active')->whereKey($seller)->first(['id', 'name', 'created_at']);
 
         abort_if($profile === null, 404);
 
@@ -26,12 +29,10 @@ class SellerController extends Controller
 
         return view('user::sellers.show', [
             'seller' => $profile,
-            'listings' => Listing::query()
-                ->publicFeed()
-                ->ownedByUser($sellerId)
-                ->paginate(12)
-                ->withQueryString(),
-            'listingCount' => Listing::query()->active()->ownedByUser($sellerId)->count(),
+            'shop' => Profile::shopFor($profile),
+            'search' => $search,
+            'listings' => Listing::publicSellerListings($sellerId, $search),
+            'listingCount' => Listing::publicSellerCount($sellerId),
             'summary' => Review::summaryForSeller($sellerId),
             'distribution' => Review::distributionForSeller($sellerId),
             'reviews' => $reviews,

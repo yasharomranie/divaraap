@@ -13,6 +13,7 @@ use Modules\User\App\Http\Controllers\Auth\ResetPasswordController;
 use Modules\User\App\Http\Controllers\Auth\SocialAuthController;
 use Modules\User\App\Http\Controllers\ProfileController;
 use Modules\User\App\Http\Controllers\SellerController;
+use Modules\User\App\Http\Controllers\ShopController;
 
 Route::middleware('web')->group(function () {
     Route::get('/sellers/{seller}', [SellerController::class, 'show'])
@@ -39,6 +40,8 @@ Route::middleware('web')->group(function () {
     });
 
     Route::middleware('auth')->group(function () {
+        Route::get('/panel/shop', [ShopController::class, 'edit'])->name('shop.edit');
+        Route::put('/panel/shop', [ShopController::class, 'update'])->middleware('throttle:20,1,shop:')->name('shop.update');
         Route::get('/verify-email', [EmailVerificationController::class, 'notice'])->name('verification.notice');
         Route::get('/verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
             ->middleware(['signed', 'throttle:6,1'])

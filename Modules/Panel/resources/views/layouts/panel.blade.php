@@ -12,6 +12,7 @@
         ['key' => 'promotions', 'label' => __('promotion::messages.promotions'), 'icon' => 'sparkle', 'url' => route('panel.promotions.index'), 'count' => \Modules\Promotion\Models\PromotionOrder::activeCountForUser($panelUserId)],
         ['key' => 'videos', 'label' => __('panel::messages.videos'), 'icon' => 'video', 'url' => route('panel.videos.index'), 'count' => null],
         ['key' => 'favorites', 'label' => __('panel::messages.favorites'), 'icon' => 'heart', 'url' => route('favorites.index'), 'count' => null],
+        ['key' => 'shop', 'label' => __('user::shop.title'), 'icon' => 'tag', 'url' => route('shop.edit'), 'count' => null],
         ['key' => 'profile', 'label' => __('panel::messages.profile'), 'icon' => 'user', 'url' => route('panel.profile.edit'), 'count' => null],
     ];
 @endphp
