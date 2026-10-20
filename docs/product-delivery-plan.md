@@ -147,7 +147,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 41 | 5 | نظر معتبرتر | verified |
 | 42 | 5 | گزارش و مسدودسازی در گفتگو | verified |
 | 43 | 5 | پیشنهاد قیمت داخل چت | verified |
-| 44 | 5 | هماهنگی بازدید | pending |
+| 44 | 5 | هماهنگی بازدید | verified |
 | 45 | 5 | چک‌لیست معاملهٔ هر دسته | pending |
 | 46 | 5 | تشخیص آگهی مشکوک و تکراری | pending |
 | 47 | 6 | کارت فروشگاه محلی | pending |
@@ -430,3 +430,16 @@ Creation and decisions lock participants and records in transactions, recheck ro
 No schema change, scheduler, second offer system or external provider is introduced. cPanel deployment remains unchanged. Details: `docs/CHAT_PRICE_OFFERS_FA.md`. Browser verification covers real buyer submission, seller acceptance without JavaScript, required confirmation, live status while preserving a draft, native buyer withdrawal, four widths, Persian RTL/English LTR, Vazirmatn, keyboard focus and unchanged human message count. Monetary tests explicitly activate their listing fixtures before offering; unpublished frontend submissions remain unavailable for offers.
 
 Validation for feature 43: 429 PHPUnit tests / 4,449 assertions passed; the 10 new conversation-offer tests cover 104 assertions including the rendered buyer form. TypeScript/build, focused ESLint, changed-file Pint, localization catalogs, temporary route/config cache checks and the real-browser flow passed. Graphify was refreshed. Existing unrelated OfferResource import ordering was reported by a module-wide style scan; changed files pass without modifying that resource.
+
+
+## Phase 5 — viewing coordination
+
+Feature 44 adds a private viewing page linked from each conversation. Either participant proposes a fixed 30-minute viewing in Tehran time, from 15 minutes to 90 days ahead, with a required meeting point and optional note. The other participant accepts or declines; either participant can cancel before the start. All actions require explicit native confirmation and work without JavaScript. New times require cancelling the prior upcoming proposal or viewing; past unconfirmed proposals cease to block new ones without cron. History is paginated by ten and retains earlier decisions and acceptance timestamps. A passed time does not prove a viewing occurred.
+
+The model locks both users in ID order, the conversation and affected record inside transactions. Only one upcoming proposal or unfinished confirmed viewing is allowed per conversation. Confirmed 30-minute intervals for either participant across conversations are checked at both proposal and acceptance; adjacent intervals are allowed. Pending proposals across different conversations do not reserve time. Repeated decisions and decisions after the start are rejected without duplicate notifications. New proposals and acceptance require the original seller and an active, unexpired listing. Changes do not mark a listing sold, reserve inventory or handle payment.
+
+Only the exact conversation participants can access the records. Meeting points and notes use the application encrypted cast; authenticated pages are private/no-store and noindex. Blocks and account suspension stop proposals, acceptance and decline. An active participant may cancel a future visit even if the peer is blocked or inactive, with notification suppressed in those cases. In-app notifications contain time and a link to the private viewing page, never the meeting point or note. No synthetic chat messages, response-time boosts or review evidence are generated. No external calendar, SMS/email delivery or reminder scheduler is introduced.
+
+One additive migration creates `conversation_visits` with soft deletes and portable indexed queries. Future-state uniqueness is serialized with conversation locks because a clock-dependent index cannot represent that invariant portably. No cross-module SQL joins are added. Normal cPanel deployment runs the migration; source/package readiness does not mean the hosting deployment has completed. Details: `docs/VIEWING_COORDINATION_FA.md`.
+
+Validation: 443 PHPUnit tests / 4,568 assertions passed, including 14 viewing tests / 119 assertions. Actual browser checks cover inbox navigation, Persian proposal, required confirmation, seller acceptance and buyer cancellation with JavaScript disabled, status refresh, restored form after cancellation, unchanged human messages, four widths, RTL/LTR, Vazirmatn and visible keyboard focus. Build/type checking, changed-file Pint, localization and isolated config/route caches passed. Graphify was refreshed and browser fixtures cleaned up.

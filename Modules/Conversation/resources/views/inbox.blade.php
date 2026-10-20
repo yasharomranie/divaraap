@@ -76,7 +76,7 @@
                         </div>
                     </div>
 
-                    <div class="thread__quick"><a class="button button--ghost" href="{{ route('conversations.safety', $selectedConversation) }}">{{ __('conversation::safety.open') }}</a></div>
+                    <div class="thread__quick"><a class="button button--ghost" href="{{ route('conversations.visits.index', $selectedConversation) }}">{{ __('conversation::visits.title') }}</a><a class="button button--ghost" href="{{ route('conversations.safety', $selectedConversation) }}">{{ __('conversation::safety.open') }}</a></div>
                     <ul class="thread__messages" data-thread-messages role="log" aria-live="polite" aria-label="{{ __('conversation::messages.conversations') }}">
                         @foreach($selectedConversation->getRelation('messages') as $message)
                             @php $outgoing = (int) $message->getAttribute('sender_id') === $viewerId; @endphp

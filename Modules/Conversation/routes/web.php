@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Conversation\App\Http\Controllers\ConversationController;
 use Modules\Conversation\App\Http\Controllers\ConversationSafetyController;
+use Modules\Conversation\App\Http\Controllers\ConversationVisitController;
 use Modules\Conversation\App\Http\Controllers\SavedReplyController;
 
 Route::middleware('web')->group(function () {
@@ -19,6 +20,11 @@ Route::middleware('web')->group(function () {
     });
 
     Route::middleware('auth')->name('conversations.')->group(function () {
+        Route::prefix('conversations/{conversation}/visits')->where(['conversation' => '[1-9][0-9]{0,17}', 'visit' => '[1-9][0-9]{0,17}'])->name('visits.')->group(function (): void {
+            Route::get('/', [ConversationVisitController::class, 'index'])->name('index');
+            Route::post('/', [ConversationVisitController::class, 'store'])->middleware('throttle:10,1,visits:')->name('store');
+            Route::post('/{visit}', [ConversationVisitController::class, 'decide'])->middleware('throttle:20,1,visit-decisions:')->name('decide');
+        });
         Route::get('/conversations/{conversation}/safety', [ConversationSafetyController::class, 'show'])->where('conversation', '[1-9][0-9]{0,17}')->name('safety');
         Route::post('/conversations/{conversation}/block', [ConversationSafetyController::class, 'block'])->where('conversation', '[1-9][0-9]{0,17}')->middleware('throttle:20,1,chat-safety:')->name('block');
         Route::post('/conversations/{conversation}/report', [ConversationSafetyController::class, 'report'])->where('conversation', '[1-9][0-9]{0,17}')->middleware('throttle:5,1,chat-report:')->name('report');
