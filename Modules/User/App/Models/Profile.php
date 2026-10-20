@@ -88,6 +88,31 @@ class Profile extends Model
         });
     }
 
+    public static function advertisingShops(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+        $active = User::query()->whereKey($ids)->where('status', 'active')->pluck('id')->all();
+
+        return static::query()->whereIn('user_id', $active)->where('shop_enabled', true)
+            ->get(['user_id', 'shop_name', 'shop_description', 'shop_hours'])
+            ->filter(fn (self $profile): bool => trim((string) $profile->shop_name) !== '')
+            ->mapWithKeys(fn (self $profile): array => [(int) $profile->user_id => [
+                'name' => trim((string) $profile->shop_name), 'description' => trim((string) $profile->shop_description), 'hours' => trim((string) $profile->shop_hours),
+            ]])->all();
+    }
+
+    public static function advertisingShopOptions(string $search = ''): array
+    {
+        $profiles = static::query()->where('shop_enabled', true)->where('shop_name', 'like', '%'.mb_substr($search, 0, 120).'%')
+            ->orderBy('shop_name')->limit(50)->get(['user_id', 'shop_name']);
+        $active = User::query()->whereKey($profiles->pluck('user_id'))->where('status', 'active')->pluck('id')->all();
+
+        return $profiles->filter(fn (self $profile): bool => in_array((int) $profile->user_id, array_map('intval', $active), true) && trim((string) $profile->shop_name) !== '')
+            ->mapWithKeys(fn (self $profile): array => [(int) $profile->user_id => $profile->shop_name.' #'.$profile->user_id])->all();
+    }
+
     public static function shopFor(User $user): array
     {
         $profile = static::detailsForUser($user);

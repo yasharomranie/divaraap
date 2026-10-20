@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'shop_unavailable' => 'Shop is unavailable or its card information needs review',
     'no_check' => 'No successful check is available.',
     'title' => 'Advertising warnings',
     'notification_title' => 'Advertising issue',

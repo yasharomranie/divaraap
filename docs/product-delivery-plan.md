@@ -150,7 +150,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 44 | 5 | هماهنگی بازدید | verified |
 | 45 | 5 | چک‌لیست معاملهٔ هر دسته | verified |
 | 46 | 5 | تشخیص آگهی مشکوک و تکراری | verified |
-| 47 | 6 | کارت فروشگاه محلی | pending |
+| 47 | 6 | کارت فروشگاه محلی | verified |
 | 48 | 6 | مجموعهٔ آگهی تبلیغ‌شده | pending |
 | 49 | 6 | کارت درخواست خدمات | pending |
 | 50 | 6 | بنر تعاملی با فیلتر آماده | pending |
@@ -461,3 +461,14 @@ Feature 46 adds an active `moderation.listings`-protected review page under Oper
 The protected page explains each indicator, exposes escaped source text in a disclosure and links full admins to existing listing editing. Moderators can inspect source text and jump to matching cards but receive no unrestricted resource-edit permissions. Pending decisions remain in the existing Operations moderation flow and audit trail. No record is automatically rejected, published, suspended, reported or notified. Published flags do not create a second moderation queue or publicly accuse sellers. No image matching, semantic AI, whole-history coverage or guaranteed fraud detection is claimed; bounded exact-match/phrase rules have false positives and negatives. Refresh recomputes after edits; there is no separate risk-history database.
 
 No schema change, external service, scheduler or cross-module JOIN is introduced. Checklist state, private chat and viewing locations are not read. Details: `docs/LISTING_RISK_REVIEW_FA.md`. Validation: 464 tests / 4,695 assertions passed, including 10 risk tests / 52 assertions. Real browser checks cover Operations entry, normalized duplicate evidence, protected source text, real refresh after content edit, moderator permissions, guest isolation, RTL/LTR, four widths, Vazirmatn and keyboard focus. Localization, changed-file Pint and isolated config/route caches passed; browser fixtures were cleaned and Graphify refreshed. The preceding checklist delivery also passed shared-release and artifact checksum/source/migration/asset verification before this delivery.
+
+
+## Phase 6 — local shop advertising cards
+
+Feature 47 adds a `shop` creative format to the existing Banner resource, preserving `image` as the default. Authorized advertising staff select an existing enabled shop with an active owner, upload the normal required image and optionally a mobile image, and reuse campaign, placement, priority, device, scheduling, frequency and capacity controls. The card keeps the sponsored label and shows an approved snapshot of public shop name, description and response hours. Its destination is always the existing seller/shop route; arbitrary banner URLs cannot redirect a shop card. Local delivery uses existing campaign city targeting and explicit page context, never inferred shop or visitor location.
+
+Public shop data is batch-loaded with separate User/Profile queries and no cross-module joins. Changes to the three displayed shop fields, disabled/deleted shops or inactive/deleted owners suppress both rendering and new event eligibility. Saving the banner captures current public data; staff creative/snapshot/binding changes reenter moderation and pause delivery. Existing moderation retains the format and binding when approving unchanged snapshots. Snapshot comparison is insensitive to JSON key ordering across database engines. Invalid existing shops can still have their banners paused. The existing advertising warnings scan reports unavailable or changed shops. Account email, phone, private city, chat and viewing details are not selected for the creative.
+
+Cards reuse the existing image-load/viewability, token, CSRF, session, device, deduplication, campaign limits and frequency accounting. Preview stays noninteractive/untracked. Metrics remain impressions and clicks, not verified shop purchases or visits; feature 10 is still partial. No second shop, moderation, analytics, payment or location system is introduced. One additive migration adds format, nullable shop-owner binding and public snapshot to advertising banners. Normal cPanel deployment runs it. Details: `docs/LOCAL_SHOP_ADVERTISING_FA.md`.
+
+Validation: 471 PHPUnit tests / 4,741 assertions passed, including seven card tests / 46 assertions, with existing advertising and analytics behavior preserved. Actual browser checks cover sponsored rendering, existing-shop destination, public-only copy, suppression after public shop changes, real admin save refreshing the snapshot, four widths, RTL/LTR, Vazirmatn and visible keyboard focus. Build/type checking, localization, changed-file Pint and isolated route/config cache checks passed. Fixtures and their assignments/events/images were cleaned up; Graphify was refreshed.

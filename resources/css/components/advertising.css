@@ -11,3 +11,11 @@
     .advertising-banner--desktop { display: none; }
     .home-canvas > .advertising-banner { order: 0; }
 }
+
+.advertising-shop { display: grid; grid-template-columns: minmax(120px, 32%) minmax(0, 1fr); align-items: center; }
+.advertising-shop .advertising-shop__cover { aspect-ratio: 1; height: 100%; max-height: 240px; object-fit: cover; }
+.advertising-shop__body { display: grid; gap: 8px; padding: 16px; min-width: 0; overflow-wrap: anywhere; }
+.advertising-shop__name { font-size: 1.125rem; font-weight: 650; }
+.advertising-shop__action { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 12px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); justify-self: start; }
+@media (max-width: 480px) { .advertising-shop { grid-template-columns: 96px minmax(0, 1fr); } .advertising-shop__body { padding: 12px; } .advertising-shop .advertising-shop__cover { max-height: none; } }
+.advertising-shop__media { align-self: stretch; min-width: 0; }

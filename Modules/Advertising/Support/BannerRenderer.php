@@ -7,6 +7,7 @@ namespace Modules\Advertising\Support;
 use Modules\Admin\Support\AdvertisingCapacity;
 use Modules\Advertising\Models\BannerPlacement;
 use Modules\Location\Models\City;
+use Modules\User\App\Models\Profile;
 
 final class BannerRenderer
 {
@@ -30,6 +31,12 @@ final class BannerRenderer
         $slot = $placement?->slotIndex($position);
         if ($slot === null) {
             return [];
+        }
+        $shops = Profile::advertisingShops($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'shop' ? $assignment->banner->shop_user_id : null)->filter()->unique()->all());
+        foreach ($placement->assignments as $assignment) {
+            if ($assignment->banner?->creative_format === 'shop') {
+                $assignment->banner->cacheAdvertisedShop($shops[$assignment->banner->shop_user_id] ?? null);
+            }
         }
         $assignments = $placement->assignments->filter(fn ($a) => $a->banner && filled($a->banner->image) && $a->banner->eligibleForCampaign($context) && app(AdvertisingFrequency::class)->allows($a->banner));
         if ($placement->ordering === 'random') {

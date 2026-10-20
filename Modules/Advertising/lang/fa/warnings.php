@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'shop_unavailable' => 'فروشگاه غیرفعال است یا اطلاعات کارت نیاز به بازبینی دارد',
     'no_check' => 'نتیجهٔ بررسی موفق در دسترس نیست.',
     'title' => 'هشدارهای تبلیغات',
     'notification_title' => 'مشکل در تبلیغات',
