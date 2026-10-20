@@ -188,3 +188,30 @@ export const inboxPane = defineBehavior<HTMLElement>({
         });
     },
 });
+
+export const chatOffers = defineBehavior<HTMLElement>({
+    name: 'chat-offers',
+    selector: '[data-chat-offers]',
+    mount(root) {
+        const endpoint = root.dataset['chatOffers'];
+        if (!endpoint) return;
+        const tick = async (): Promise<void> => {
+            if (!root.isConnected) return;
+            try {
+                if (document.hidden || !root.closest('details')?.open) return;
+                const response = await fetch(endpoint, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+                if (!response.ok) return;
+                const value = await response.json() as { html?: unknown };
+                if (typeof value.html !== 'string' || root.contains(document.activeElement)) return;
+                const template = document.createElement('template');
+                template.innerHTML = value.html;
+                if (root.innerHTML !== template.innerHTML) root.replaceChildren(template.content);
+            } catch {
+                return;
+            } finally {
+                window.setTimeout(() => { void tick(); }, 15000);
+            }
+        };
+        void tick();
+    },
+});

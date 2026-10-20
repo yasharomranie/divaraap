@@ -18,6 +18,7 @@ use Modules\Conversation\App\Models\ConversationMessage;
 use Modules\Conversation\App\Models\SavedReply;
 use Modules\Conversation\App\Support\QuickMessageCatalog;
 use Modules\Listing\Models\Listing;
+use Modules\Offer\Models\Offer;
 
 class ConversationController extends Controller
 {
@@ -72,6 +73,7 @@ class ConversationController extends Controller
             'communicationBlocked' => $selectedConversation ? ConversationBlock::between((int) $selectedConversation->buyer_id, (int) $selectedConversation->seller_id) : false,
             'quickMessages' => QuickMessageCatalog::all(),
             'requiresLogin' => $requiresLogin,
+            'chatOffers' => $selectedConversation ? Offer::inConversation($selectedConversation, (int) $userId) : collect(),
             'savedReplies' => $user ? SavedReply::forOwner($user) : collect(),
         ])->header('Cache-Control', 'private, no-store');
     }

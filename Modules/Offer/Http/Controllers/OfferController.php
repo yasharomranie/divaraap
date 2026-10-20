@@ -12,7 +12,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Modules\Notification\Models\UserNotification;
 use Modules\Offer\Models\Offer;
 
 class OfferController extends Controller
@@ -70,7 +69,7 @@ class OfferController extends Controller
             return back()->with('error', __('offer::messages.cannot_offer_own'));
         }
 
-        $offer = Offer::place(
+        Offer::place(
             $listing,
             $buyerId,
             $summary['seller_id'],
@@ -79,67 +78,27 @@ class OfferController extends Controller
             $validated['message'] ?? null,
         );
 
-        UserNotification::publish(
-            $summary['seller_id'],
-            UserNotification::TYPE_OFFER,
-            __('offer::messages.notification_received_title'),
-            __('offer::messages.notification_received_body', [
-                'amount' => $offer->amountLabel(),
-                'listing' => $summary['title'],
-            ]),
-            route('panel.offers.index'),
-        );
-
         return back()->with('success', __('offer::messages.sent'));
     }
 
     public function accept(Request $request, Offer $offer): RedirectResponse
     {
-        $this->authorizeSeller($request, $offer);
-
-        $offer->accept();
-        $this->notifyBuyer($offer, __('offer::messages.notification_accepted_title'), __('offer::messages.notification_accepted_body', [
-            'listing' => ListingDirectory::titleFor($offer->listingId()),
-        ]));
+        $offer->respondFor((int) $request->user()->getKey(), Offer::STATUS_ACCEPTED);
 
         return back()->with('success', __('offer::messages.accepted'));
     }
 
     public function decline(Request $request, Offer $offer): RedirectResponse
     {
-        $this->authorizeSeller($request, $offer);
-
-        $offer->decline();
-        $this->notifyBuyer($offer, __('offer::messages.notification_declined_title'), __('offer::messages.notification_declined_body', [
-            'listing' => ListingDirectory::titleFor($offer->listingId()),
-        ]));
+        $offer->respondFor((int) $request->user()->getKey(), Offer::STATUS_DECLINED);
 
         return back()->with('success', __('offer::messages.declined'));
     }
 
     public function withdraw(Request $request, Offer $offer): RedirectResponse
     {
-        abort_unless($offer->belongsToBuyer((int) $request->user()->getKey()), 403);
-
-        $offer->withdraw();
+        $offer->respondFor((int) $request->user()->getKey(), Offer::STATUS_WITHDRAWN);
 
         return back()->with('success', __('offer::messages.withdrawn'));
-    }
-
-    private function authorizeSeller(Request $request, Offer $offer): void
-    {
-        abort_unless($offer->belongsToSeller((int) $request->user()->getKey()), 403);
-        abort_unless($offer->isPending(), 422);
-    }
-
-    private function notifyBuyer(Offer $offer, string $title, string $body): void
-    {
-        UserNotification::publish(
-            $offer->buyerId(),
-            UserNotification::TYPE_OFFER,
-            $title,
-            $body,
-            route('panel.offers.index', ['direction' => 'sent']),
-        );
     }
 }

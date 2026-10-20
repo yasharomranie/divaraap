@@ -424,3 +424,50 @@
     outline: 2px solid var(--accent-strong);
     outline-offset: 3px;
 }
+
+.chat-offers {
+    flex: 0 0 auto;
+    min-inline-size: 0;
+    border-block: 1px solid var(--line-hairline);
+    background: var(--surface-raised);
+}
+
+.chat-offers > summary {
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    min-block-size: 44px;
+    font-weight: var(--weight-semibold);
+}
+
+.chat-offers__body {
+    padding: var(--space-3) var(--space-4);
+    max-block-size: 40dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.chat-offers__card {
+    padding: var(--space-3);
+    border: 1px solid var(--line-hairline);
+    border-radius: var(--radius-md);
+    overflow-wrap: anywhere;
+}
+
+.chat-offers__confirm {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 44px;
+    cursor: pointer;
+}
+
+.chat-offers input:not([type='checkbox']), .chat-offers textarea {
+    font-size: 1rem;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+}
+
+.chat-offers :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}

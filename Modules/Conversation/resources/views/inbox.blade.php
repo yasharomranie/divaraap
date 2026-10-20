@@ -89,6 +89,8 @@
                         @endforeach
                     </ul>
 
+                    @include('offer::partials.chat-panel')
+
                     @if($communicationBlocked)
                         <p class="alert" role="status">{{ __('conversation::safety.unavailable') }}</p>
                     @else

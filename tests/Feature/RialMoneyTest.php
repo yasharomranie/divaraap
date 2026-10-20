@@ -95,6 +95,7 @@ class RialMoneyTest extends TestCase
     public function test_offer_uses_listing_currency_and_exact_amount(): void
     {
         $listing = $this->listing();
+        $listing->forceFill(['status' => 'active'])->save();
         $buyer = User::query()->where('email', 'a@a.com')->firstOrFail();
         $this->actingAs($buyer)->post(route('offers.store', $listing), ['amount' => '۱۲۳٬۴۵۶٬۷۸۹٬۰۱۲٬۳۴۵٬۶۷۸', 'currency' => 'USD'])->assertSessionHasNoErrors()->assertRedirect();
         $offer = Offer::query()->where('listing_id', $listing->id)->firstOrFail();
@@ -107,7 +108,7 @@ class RialMoneyTest extends TestCase
     public function test_legacy_offer_ignores_forged_currency_and_keeps_decimal_precision(): void
     {
         $listing = $this->listing('1000');
-        $listing->forceFill(['currency' => 'USD'])->save();
+        $listing->forceFill(['currency' => 'USD', 'status' => 'active'])->save();
         $buyer = User::query()->where('email', 'a@a.com')->firstOrFail();
         $this->actingAs($buyer)->post(route('offers.store', $listing), ['amount' => '۱۲۳٫۴۵', 'currency' => 'IRR'])->assertSessionHasNoErrors();
         $offer = Offer::query()->where('listing_id', $listing->id)->firstOrFail();

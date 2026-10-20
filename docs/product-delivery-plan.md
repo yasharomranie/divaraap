@@ -146,7 +146,7 @@ Validation covers duplicate checks, read notifications, resolution and recurrenc
 | 40 | 5 | زمان پاسخ‌گویی فروشنده | verified |
 | 41 | 5 | نظر معتبرتر | verified |
 | 42 | 5 | گزارش و مسدودسازی در گفتگو | verified |
-| 43 | 5 | پیشنهاد قیمت داخل چت | pending |
+| 43 | 5 | پیشنهاد قیمت داخل چت | verified |
 | 44 | 5 | هماهنگی بازدید | pending |
 | 45 | 5 | چک‌لیست معاملهٔ هر دسته | pending |
 | 46 | 5 | تشخیص آگهی مشکوک و تکراری | pending |
@@ -420,3 +420,13 @@ Reports reuse existing user-report moderation permissions and states with privat
 Portable migrations add the SoftDeletes conversation_blocks table with active-pair uniqueness and three nullable report-context/evidence columns plus a context index. Normal cPanel migrations load them automatically; no new queue, Cron Job or external service is needed. Existing application encryption keys are reused.
 
 All 419 PHPUnit tests passed (4345 assertions), including nine safety tests. The nine passed again after narrowing report reasons and improving duplicate feedback. Chromium verified real block confirmation, preserved messages, a stale-tab API rejection, selected-message reporting, readonly staff evidence excluding other messages, native JavaScript-free unblock, restored composer, keyboard focus, Persian RTL/English LTR and 360/390/768/1440px layouts. Production assets, localization and production config/route caches passed. Fixtures were cleaned. See `docs/CONVERSATION_SAFETY_FA.md` and `tests/Browser/conversation-safety.py`.
+
+## Phase 5 — price offers in conversations
+
+Feature 43 reuses the existing Offer model/table and panel offers list. Each conversation has a compact native disclosure showing the latest three offers for its exact listing/buyer/seller tuple, including previously submitted listing offers. Buyers submit a positive amount in the server-owned listing currency and an optional 500-character note; sellers accept or decline; buyers withdraw pending offers. Chat decisions require a native confirmation checkbox and work without JavaScript. A new offer withdraws only the same pair's previous pending offer for that listing. Accepted offers do not charge money, reserve inventory, mark a listing sold or certify a transaction.
+
+Creation and decisions lock participants and records in transactions, recheck roles and pending state and publish notifications atomically. Both legacy and chat offer endpoints respect bidirectional blocks and account activity; active buyers may still withdraw their own pending offer without notifying the blocked party. Creation/acceptance requires an active, unexpired listing with the same seller; acceptance additionally rechecks currency. Stale decisions return conflict without rewriting history or generating a second notification. Authenticated snapshots are private/no-store and bounded to three cards. Visible, expanded chat offers refresh every 15 seconds, preserve amount/note drafts and defer replacement while a card control has focus; native refresh remains available. Offer events do not fabricate conversation messages, seller response measurements or review interaction evidence.
+
+No schema change, scheduler, second offer system or external provider is introduced. cPanel deployment remains unchanged. Details: `docs/CHAT_PRICE_OFFERS_FA.md`. Browser verification covers real buyer submission, seller acceptance without JavaScript, required confirmation, live status while preserving a draft, native buyer withdrawal, four widths, Persian RTL/English LTR, Vazirmatn, keyboard focus and unchanged human message count. Monetary tests explicitly activate their listing fixtures before offering; unpublished frontend submissions remain unavailable for offers.
+
+Validation for feature 43: 429 PHPUnit tests / 4,449 assertions passed; the 10 new conversation-offer tests cover 104 assertions including the rendered buyer form. TypeScript/build, focused ESLint, changed-file Pint, localization catalogs, temporary route/config cache checks and the real-browser flow passed. Graphify was refreshed. Existing unrelated OfferResource import ordering was reported by a module-wide style scan; changed files pass without modifying that resource.
