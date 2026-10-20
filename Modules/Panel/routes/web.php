@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Panel\App\Http\Controllers\ListingAvailabilityController;
 use Modules\Panel\App\Http\Controllers\ListingDraftPhotoController;
+use Modules\Panel\App\Http\Controllers\ListingDuplicateController;
 use Modules\Panel\App\Http\Controllers\ListingImprovementController;
 use Modules\Panel\App\Http\Controllers\ListingPerformanceController;
 use Modules\Panel\App\Http\Controllers\ListingTextSuggestionController;
@@ -16,6 +17,8 @@ Route::middleware(['web', 'auth'])->prefix('panel')->name('panel.')->group(funct
     Route::post('/listing-text-suggestions', [ListingTextSuggestionController::class, 'generate'])->middleware('throttle:20,1')->name('listings.text-suggestions');
     Route::get('/drafts/{draft}/photos/{file}', ListingDraftPhotoController::class)->where('draft', '[1-9][0-9]{0,17}')->whereUuid('file')->name('drafts.photo');
     Route::get('/create-listing', [PanelController::class, 'create'])->name('listings.create');
+    Route::get('/my-listings/{listing}/duplicate', [ListingDuplicateController::class, 'show'])->where('listing', '[1-9][0-9]{0,17}')->name('listings.duplicate');
+    Route::post('/my-listings/{listing}/duplicate', [ListingDuplicateController::class, 'store'])->where('listing', '[1-9][0-9]{0,17}')->middleware('throttle:10,1,listing-duplicate:')->name('listings.duplicate.store');
     Route::get('/my-listings/{listing}/improve', [ListingImprovementController::class, 'show'])->name('listings.improve');
     Route::post('/my-listings/{listing}/photos', [ListingImprovementController::class, 'photo'])->middleware('throttle:20,1')->name('listings.photos.store');
     Route::get('/my-listings/{listing}/performance', [ListingPerformanceController::class, 'show'])->name('listings.performance');

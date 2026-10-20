@@ -77,6 +77,7 @@
                         <a href="{{ route('listings.location', $listing) }}" class="button button--ghost button--small">{{ __('listing::map.location') }}</a>
                         <a href="{{ route('panel.listings.edit', $listing) }}" class="button button--secondary button--small">{{ __('panel::messages.edit') }}</a>
 
+                        <a class="button button--ghost button--small" href="{{ route('panel.listings.duplicate', $listing) }}">{{ __('listing::duplicate.title') }}</a>
                         @include('panel::partials.listing-availability')
 
                         @if($listing->statusValue() !== 'sold')

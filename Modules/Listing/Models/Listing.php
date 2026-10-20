@@ -17,6 +17,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Modules\Category\Models\Category;
@@ -32,6 +33,7 @@ use Modules\Listing\States\SoldListingStatus;
 use Modules\Listing\Support\ListingImageViewData;
 use Modules\Listing\Support\ListingImprovementGuide;
 use Modules\Listing\Support\ListingPanelHelper;
+use Modules\Location\Models\City;
 use Modules\Location\Models\Country;
 use Modules\Location\Support\IranianCities;
 use Modules\Site\App\Support\LocalMedia;
@@ -795,6 +797,59 @@ class Listing extends Model implements HasMedia
         return [
             'phone' => filled($this->contact_phone) ? (string) $this->contact_phone : '',
             'email' => filled($this->contact_email) ? (string) $this->contact_email : '',
+        ];
+    }
+
+    public function duplicationVersion(): string
+    {
+        return hash('sha256', serialize(Arr::only($this->getAttributes(), ['id', 'user_id', 'title', 'description', 'price', 'currency', 'category_id', 'country', 'city', 'custom_fields', 'latitude', 'longitude'])).serialize($this->getMedia('listing-images')->map(fn ($media) => Arr::only($media->getAttributes(), ['id', 'file_name', 'disk', 'mime_type', 'size', 'updated_at']))->all()));
+    }
+
+    public function duplicationPhotos(): array
+    {
+        $uploads = [];
+        foreach ($this->getMedia('listing-images') as $media) {
+            if (count($uploads) >= (int) config('quick-listing.max_photo_count', 20)) {
+                break;
+            }
+            if (config('filesystems.disks.'.$media->disk.'.driver') !== 'local') {
+                continue;
+            }
+            $path = realpath($media->getPath());
+            $root = realpath(Storage::disk($media->disk)->path(''));
+            if (! $path || ! $root || ! str_starts_with($path, $root.DIRECTORY_SEPARATOR) || ! is_file($path) || ! is_readable($path)) {
+                continue;
+            }
+            $file = new UploadedFile($path, $media->file_name, $media->mime_type, null, true);
+            if (! in_array($file->getMimeType(), ['image/jpeg', 'image/png'], true) || $file->getSize() > (int) config('quick-listing.max_photo_size_kb', 5120) * 1024) {
+                continue;
+            }
+            $uploads[(string) Str::uuid()] = ['type' => 'photo', 'file' => $file];
+        }
+
+        return $uploads;
+    }
+
+    public function duplicationPayload(bool $location): array
+    {
+        $category = collect(Category::panelQuickCatalog())->firstWhere('id', $this->category_id);
+        $categoryId = $category ? (int) $category['id'] : null;
+        $fields = $categoryId ? ListingCustomField::panelFieldDefinitions($categoryId) : [];
+        $values = collect((array) $this->custom_fields)->only(array_column($fields, 'name'))->filter(fn ($value) => is_scalar($value) || $value === null)->all();
+        $country = collect(Country::quickCreateOptions())->first(fn ($country) => in_array(mb_strtolower((string) $this->country), array_map(mb_strtolower(...), [$country['name'], $country['code'], Country::localizedName($country['name'], $country['code'])]), true));
+        $city = $country ? collect(City::quickCreateOptions())->first(fn ($city) => $city['country_id'] === $country['id'] && in_array(mb_strtolower((string) $this->city), [mb_strtolower($city['name']), mb_strtolower($city['display_name'])], true)) : null;
+
+        return [
+            'currentStep' => 1,
+            'listingTitle' => mb_substr(trim((string) $this->title), 0, 70),
+            'description' => mb_substr(trim((string) $this->description), 0, 1450),
+            'price' => $this->currency === ListingPanelHelper::defaultCurrency() && $this->price !== null ? (string) $this->price : '',
+            'selectedCategoryId' => $categoryId,
+            'selectedCountryId' => $country['id'] ?? null,
+            'selectedCityId' => $city['id'] ?? null,
+            'customFieldValues' => $values,
+            'latitude' => $location && $this->latitude !== null && $this->longitude !== null ? (string) round((float) $this->latitude, 3) : '',
+            'longitude' => $location && $this->latitude !== null && $this->longitude !== null ? (string) round((float) $this->longitude, 3) : '',
         ];
     }
 

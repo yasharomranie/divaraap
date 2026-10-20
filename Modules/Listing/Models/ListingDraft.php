@@ -109,6 +109,35 @@ final class ListingDraft extends Model
         return $draft;
     }
 
+    public static function fromListing(User $user, Listing $listing, string $version, bool $photos, bool $location): self
+    {
+        abort_unless((string) $user->status === 'active', 403);
+        $paths = [];
+        try {
+            return DB::transaction(function () use ($user, $listing, $version, $photos, $location, &$paths): self {
+                $source = Listing::whereKey($listing->id)->lockForUpdate()->firstOrFail();
+                $source->assertOwnedBy($user);
+                if (! hash_equals($source->duplicationVersion(), $version)) {
+                    throw ValidationException::withMessages(['source' => __('listing::duplicate.changed')]);
+                }
+                if (self::currentFor($user)) {
+                    throw new DraftConflict;
+                }
+                $uploads = $photos ? $source->duplicationPhotos() : [];
+                if ($photos && $uploads === []) {
+                    throw ValidationException::withMessages(['photos' => __('listing::duplicate.no_photos')]);
+                }
+                $draft = self::saveFor($user, null, 0, $source->duplicationPayload($location), $uploads);
+                $paths = array_column($draft->files, 'path');
+
+                return $draft;
+            });
+        } catch (Throwable $exception) {
+            Storage::disk('local')->delete($paths);
+            throw $exception;
+        }
+    }
+
     public static function consume(User $user, int $id, int $version, ?callable $publish = null): mixed
     {
         abort_unless((string) $user->status === 'active', 403);

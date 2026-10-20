@@ -299,7 +299,7 @@ class PanelQuickListingForm extends Component
         $this->validateVideos();
         $this->currentStep = 2;
 
-        if (! $this->isDetecting && ! $this->detectedCategoryId) {
+        if (! $this->isDetecting && ! $this->detectedCategoryId && ! $this->selectedCategoryId) {
             $this->detectCategoryFromImage();
         }
     }

@@ -23,6 +23,7 @@
     @error('status')<p class="field__error" role="alert">{{ $message }}</p>@enderror
 </section>
 @endif
+<p><a class="button button--secondary" href="{{ route('panel.listings.duplicate', $listing) }}">{{ __('listing::duplicate.title') }}</a></p>
 <p><a class="button button--ghost" href="{{ route('panel.listings.performance', $listing) }}">{{ __('listing::performance.title') }}</a></p>
 <p><a class="button button--secondary" href="{{ route('listings.location', $listing) }}">{{ __('listing::map.location') }}</a></p>
 <details class="listing-guide-summary">
