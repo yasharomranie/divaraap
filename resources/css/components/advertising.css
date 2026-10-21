@@ -95,3 +95,6 @@
     .advertising-invoice__screen { display: none !important; }
     .advertising-invoice__payment { break-inside: avoid; }
 }
+.advertising-orders .card { padding: 20px; overflow-wrap: anywhere; }
+.advertising-orders__text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.advertising-orders .input { max-width: 100%; }
