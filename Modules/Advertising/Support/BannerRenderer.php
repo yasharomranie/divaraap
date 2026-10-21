@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Advertising\Support;
 
 use Modules\Admin\Support\AdvertisingCapacity;
+use Modules\Advertising\Models\AdvertisingExperiment;
 use Modules\Advertising\Models\BannerPlacement;
 use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
@@ -16,6 +17,8 @@ use Modules\Video\Models\Video;
 final class BannerRenderer
 {
     private array $placements = [];
+
+    private array $experiments = [];
 
     private array $cities = [];
 
@@ -35,6 +38,14 @@ final class BannerRenderer
         $slot = $placement?->slotIndex($position);
         if ($slot === null) {
             return [];
+        }
+        $experimentKey = $key.'|'.json_encode($context, JSON_THROW_ON_ERROR);
+        if (! array_key_exists($experimentKey, $this->experiments)) {
+            $this->experiments[$experimentKey] = AdvertisingExperiment::delivery($placement, $context);
+        }
+        $experiment = $this->experiments[$experimentKey];
+        if ($experiment !== null) {
+            return $experiment !== [] && app(AdvertisingCapacity::class)->reserve($key, $position) ? $experiment : [];
         }
         $collectionIds = $placement->assignments->flatMap(fn ($assignment): array => $assignment->banner?->creative_format === 'collection' ? ($assignment->banner->collection_listing_ids ?? []) : [])->unique()->all();
         $collectionItems = Listing::advertisingCollectionItems($collectionIds);

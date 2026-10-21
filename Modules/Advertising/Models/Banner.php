@@ -29,6 +29,8 @@ final class Banner extends Model
     use LogsActivity;
     use SoftDeletes;
 
+    public ?array $experimentExposure = null;
+
     private bool $adShopLoaded = false;
 
     private ?array $adShop = null;

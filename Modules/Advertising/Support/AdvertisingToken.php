@@ -23,6 +23,7 @@ final class AdvertisingToken
         }
 
         return Crypt::encryptString(json_encode([
+            'experiment' => $banner->experimentExposure,
             'banner' => $banner->id, 'campaign' => $banner->campaign_id,
             'service' => $banner->creative_format === 'service' ? (int) $banner->service_listing_id : null,
             'sponsorship' => $banner->sponsorshipSignature(),

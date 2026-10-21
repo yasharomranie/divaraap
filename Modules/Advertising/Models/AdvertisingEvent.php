@@ -35,6 +35,9 @@ final class AdvertisingEvent extends Model
         if (! $banner || $banner->campaign_id !== $data['campaign'] || ! $banner->eligibleForCampaign($data['context'], forDelivery: false)) {
             return;
         }
+        if (($data['experiment'] ?? null) !== null && ! AdvertisingExperiment::accepts($data['experiment'], $banner, $data['placement'])) {
+            return;
+        }
         if (($banner->creative_format === 'service' || ($data['service'] ?? null) !== null)
             && ($banner->creative_format !== 'service' || ($data['service'] ?? null) !== (int) $banner->service_listing_id)) {
             return;
@@ -91,6 +94,7 @@ final class AdvertisingEvent extends Model
         DB::transaction(function () use ($banner, $data, $device, $kind, $receipt, $targetListingId): void {
             $inserted = self::query()->insertOrIgnore([
                 'banner_id' => $banner->id, 'campaign_id' => $data['campaign'],
+                'experiment_id' => $data['experiment']['id'] ?? null, 'experiment_arm' => $data['experiment']['arm'] ?? null,
                 'placement' => $data['placement'], 'device' => $device, 'kind' => $kind,
                 'receipt' => $receipt, 'target_listing_id' => $targetListingId,
                 'event_date' => now()->toDateString(), 'created_at' => now(), 'updated_at' => now(),
@@ -129,6 +133,7 @@ final class AdvertisingEvent extends Model
         }
         self::query()->insertOrIgnore([
             'banner_id' => $click->banner_id, 'campaign_id' => $click->campaign_id,
+            'experiment_id' => $click->experiment_id, 'experiment_arm' => $click->experiment_arm,
             'placement' => $click->placement, 'device' => $click->device, 'kind' => 'conversion',
             'receipt' => hash('sha256', 'conversation|'.$click->id),
             'target_listing_id' => $listingId, 'source_click_id' => $click->id,
