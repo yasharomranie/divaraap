@@ -315,6 +315,23 @@ class Listing extends Model implements HasMedia
             ])->get();
     }
 
+    public static function wantedCandidates(int $categoryId, ?int $cityId, ?int $sellerId = null): Builder
+    {
+        $query = static::query()->active()->where('category_id', $categoryId)
+            ->whereIn('user_id', User::activeAccountIdsQuery())
+            ->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->when($sellerId !== null, fn (Builder $query) => $query->where('user_id', $sellerId));
+        if ($cityId !== null) {
+            $location = City::wantedLocation($cityId);
+            if (! $location) {
+                return $query->whereRaw('1 = 0');
+            }
+            $query->whereIn('city', $location['cities'])->whereIn('country', $location['countries']);
+        }
+
+        return $query;
+    }
+
     public static function publicSellerListings(int $sellerId, string $search)
     {
         return static::query()->publicFeed()->ownedByUser($sellerId)

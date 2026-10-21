@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'wanted' => 'Buying requests awaiting review',
     'review_status' => 'Review status',
     'review_pending' => 'Pending review',
     'review_approved' => 'Approved',

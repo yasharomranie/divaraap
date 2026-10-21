@@ -21,6 +21,37 @@ class City extends Model
 
     protected $casts = ['is_active' => 'boolean'];
 
+    public static function wantedOptions(): array
+    {
+        return static::query()->active()->whereIn('country_id', Country::query()->active()->select('id'))->with('country')->orderBy('name')->get()
+            ->mapWithKeys(fn (self $city): array => [(int) $city->id => $city->displayName().' · '.Country::localizedName($city->country->name, $city->country->code)])->all();
+    }
+
+    public static function wantedLocation(int $id): ?array
+    {
+        $city = static::query()->active()->with('country')->find($id);
+
+        if (! $city || ! $city->country?->is_active || $city->country->trashed()) {
+            return null;
+        }
+        $cities = [$city->name];
+        if ($city->country->code === 'IR') {
+            foreach (IranianCities::CAPITALS as $english => $persian) {
+                if (in_array($city->name, [$english, $persian], true)) {
+                    $cities = [$english, $persian];
+                    break;
+                }
+            }
+        }
+        $countries = [$city->country->name, $city->country->code, strtolower($city->country->code)];
+        if (preg_match('/^[A-Z]{2}$/', $city->country->code)) {
+            $countries[] = \Locale::getDisplayRegion('und_'.$city->country->code, 'en');
+            $countries[] = \Locale::getDisplayRegion('und_'.$city->country->code, 'fa');
+        }
+
+        return ['cities' => array_values(array_unique($cities)), 'countries' => array_values(array_unique($countries))];
+    }
+
     public static function advertisingIdForLocation(string $city, string $country): ?int
     {
         if (trim($city) === '' || trim($country) === '') {

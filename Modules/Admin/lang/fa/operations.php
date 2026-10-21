@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'wanted' => 'درخواست‌های خرید در انتظار بررسی',
     'review_status' => 'وضعیت بررسی',
     'review_pending' => 'در انتظار بررسی',
     'review_approved' => 'تأییدشده',

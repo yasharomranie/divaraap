@@ -15,6 +15,7 @@ use Modules\Admin\Models\ProductEvent;
 use Modules\Advertising\Models\Banner;
 use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
+use Modules\Listing\Models\WantedRequest;
 use Modules\Location\Models\City;
 use Modules\Location\Models\Country;
 use Modules\Report\Models\Report;
@@ -53,7 +54,12 @@ final class Operations extends Page
 
     public static function subjects(): array
     {
-        return ['listings' => Listing::class, 'reviews' => Review::class, 'reports' => Report::class, 'advertising' => Banner::class];
+        return ['listings' => Listing::class, 'reviews' => Review::class, 'reports' => Report::class, 'advertising' => Banner::class, 'wanted' => WantedRequest::class];
+    }
+
+    private static function reviewPermission(string $kind): string
+    {
+        return $kind === 'wanted' ? 'moderation.listings' : 'moderation.'.$kind;
     }
 
     #[Computed]
@@ -62,7 +68,7 @@ final class Operations extends Page
         abort_unless(self::canAccess(), 403);
         $result = [];
         foreach (self::subjects() as $kind => $model) {
-            if (auth()->user()->can('moderation.'.$kind)) {
+            if (auth()->user()->can(self::reviewPermission($kind))) {
                 $result[$kind] = $model::moderationQueue();
             }
         }
@@ -101,15 +107,18 @@ final class Operations extends Page
         return auth()->user()?->can('operations.audit') ? OperationActivity::recentSummary() : [];
     }
 
-    public function review(string $kind, int $id, string $decision): void
+    public function review(string $kind, int $id, string $decision, ?int $revision = null): void
     {
-        abort_unless(self::canAccess() && array_key_exists($kind, self::subjects()) && auth()->user()->can('moderation.'.$kind), 403);
+        abort_unless(self::canAccess() && array_key_exists($kind, self::subjects()) && auth()->user()->can(self::reviewPermission($kind)), 403);
         abort_unless(in_array($decision, ['approve', 'reject'], true), 422);
         $this->validate(['resolutionNote' => ['nullable', 'string', 'max:1000']]);
         $model = self::subjects()[$kind];
-        DB::transaction(function () use ($model, $kind, $id, $decision): void {
+        DB::transaction(function () use ($model, $kind, $id, $decision, $revision): void {
             $record = $model::query()->lockForUpdate()->findOrFail($id);
             abort_unless($model::moderationQueue()->contains('id', $id), 409);
+            if ($kind === 'wanted') {
+                abort_unless($revision !== null && $record->revision === $revision, 409);
+            }
             $record->moderate($decision === 'approve', $this->resolutionNote ?: null);
             activity('moderation')->performedOn($record)->causedBy(auth()->user())->withProperties(['decision' => $decision, 'kind' => $kind])->log('moderation.'.$decision);
         });

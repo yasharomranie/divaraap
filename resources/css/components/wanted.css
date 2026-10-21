@@ -1,0 +1,21 @@
+.wanted { min-width: 0; overflow-wrap: anywhere; }
+.wanted .card { padding: var(--space-5); min-width: 0; }
+.wanted .card > * { min-width: 0; max-width: 100%; }
+.wanted .card :is(h1, h2, h3, p) { overflow-wrap: anywhere; }
+.wanted-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.wanted-card { min-width: 0; align-content: start; }
+.wanted-card h2 { font-size: 18px; line-height: 1.6; }
+.wanted-meta, .wanted-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.wanted-meta { font-size: 13px; }
+.wanted-description { white-space: pre-wrap; line-height: 1.9; }
+.wanted-budget { font-weight: 600; }
+.wanted-form, .wanted-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.wanted-wide { grid-column: 1 / -1; }
+.wanted :is(input, select, textarea) { min-width: 0; width: 100%; font-size: 16px; }
+.wanted .wanted-actions .button { max-width: 100%; white-space: normal; min-height: 44px; }
+.wanted-detail { max-width: 860px; }
+.wanted :is(a, button, input, select, textarea):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 600px) {
+    .wanted-form, .wanted-filters { grid-template-columns: minmax(0, 1fr); }
+    .wanted .title-page { font-size: 23px; }
+}

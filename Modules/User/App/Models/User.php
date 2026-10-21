@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -63,6 +64,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     protected static function newFactory(): Factory
     {
         return UserFactory::new();
+    }
+
+    public static function activeAccountIdsQuery(): Builder
+    {
+        return static::query()->where('status', 'active')->select('id');
     }
 
     public static function registerFrom(array $data): self
