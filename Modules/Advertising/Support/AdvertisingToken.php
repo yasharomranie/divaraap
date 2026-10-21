@@ -28,6 +28,7 @@ final class AdvertisingToken
             'sponsorship' => $banner->sponsorshipSignature(),
             'deadline' => $banner->deadlineSignature(),
             'video' => $banner->videoSignature(),
+            'guide' => $banner->guideSignature(),
             'filters' => array_keys($banner->preparedFilters()),
             'listings' => array_keys($banner->advertisedListings()),
             'placement' => $placement, 'device' => $device,

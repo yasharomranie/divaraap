@@ -18,6 +18,7 @@ use Illuminate\Validation\ValidationException;
 use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
 use Modules\Location\Models\City;
+use Modules\Page\Models\Page;
 use Modules\User\App\Models\Profile;
 use Modules\Video\Models\Video;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
@@ -52,9 +53,13 @@ final class Banner extends Model
 
     private bool $adVideoLoaded = false;
 
+    private ?array $adGuide = null;
+
+    private bool $adGuideLoaded = false;
+
     public static function moderationQueue(): Collection
     {
-        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'video_caption_language', 'ends_at', 'starts_at', 'created_at']);
+        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'guide_page_id', 'guide_signature', 'video_caption_language', 'ends_at', 'starts_at', 'created_at']);
     }
 
     public function moderate(bool $approve, ?string $note = null): void
@@ -64,7 +69,7 @@ final class Banner extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'video_caption_language'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'guide_page_id', 'guide_signature', 'video_caption_language'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 
     protected $table = 'advertising_banners';
@@ -80,7 +85,7 @@ final class Banner extends Model
     {
         self::saving(function (self $banner): void {
             $banner->creative_format ??= 'image';
-            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service', 'filter', 'sponsor', 'deadline', 'video'], true)) {
+            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service', 'filter', 'sponsor', 'deadline', 'video', 'guide'], true)) {
                 throw ValidationException::withMessages(['creative_format' => __('advertising::shop.invalid')]);
             }
             if (in_array($banner->creative_format, ['shop', 'sponsor'], true)) {
@@ -145,7 +150,7 @@ final class Banner extends Model
             $banner->adDeadlineLoaded = false;
             $banner->adDeadlineListing = null;
             if ($banner->creative_format === 'deadline') {
-                $requiresValidOffer = ! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'video_caption_language', 'ends_at', 'starts_at']);
+                $requiresValidOffer = ! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'guide_page_id', 'guide_signature', 'video_caption_language', 'ends_at', 'starts_at']);
                 if ($requiresValidOffer && (! $banner->ends_at || ! $banner->ends_at->isFuture() || ($banner->starts_at && $banner->ends_at->lessThanOrEqualTo($banner->starts_at)))) {
                     throw ValidationException::withMessages(['ends_at' => __('advertising::deadline.invalid_end')]);
                 }
@@ -167,7 +172,7 @@ final class Banner extends Model
             $banner->adVideo = null;
             if ($banner->creative_format === 'video') {
                 $clip = $banner->advertisedVideo();
-                $requiresValidVideo = ! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'video_id', 'video_transcript', 'video_captions', 'video_caption_language']);
+                $requiresValidVideo = ! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'video_id', 'video_transcript', 'video_captions', 'guide_page_id', 'guide_signature', 'video_caption_language']);
                 if ($requiresValidVideo && ! $clip) {
                     throw ValidationException::withMessages(['video_id' => __('advertising::video.invalid')]);
                 }
@@ -187,9 +192,22 @@ final class Banner extends Model
                 $banner->video_captions = null;
                 $banner->video_caption_language = null;
             }
+            $banner->adGuideLoaded = false;
+            if ($banner->creative_format === 'guide') {
+                $guide = $banner->advertisedGuide();
+                if (! $guide && (! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'guide_page_id']))) {
+                    throw ValidationException::withMessages(['guide_page_id' => __('advertising::guide.invalid')]);
+                }
+                if ($guide) {
+                    $banner->guide_signature = $guide['signature'];
+                }
+            } else {
+                $banner->guide_page_id = null;
+                $banner->guide_signature = null;
+            }
             $banner->adShopLoaded = false;
             $banner->adShop = null;
-            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'video_caption_language'])) {
+            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'guide_page_id', 'guide_signature', 'video_caption_language'])) {
                 $banner->review_status = 'pending';
                 $banner->is_active = false;
             }
@@ -206,6 +224,9 @@ final class Banner extends Model
                 continue;
             }
             $codes = [];
+            if ($banner->creative_format === 'guide' && ! $banner->guideEligible()) {
+                $codes[] = 'guide_unavailable';
+            }
             if ($banner->creative_format === 'video' && ! $banner->videoCreativeEligible()) {
                 $codes[] = 'video_unavailable';
             }
@@ -312,6 +333,7 @@ final class Banner extends Model
     public function creativeEligible(): bool
     {
         return match ($this->creative_format) {
+            'guide' => $this->guideEligible(),
             'video' => $this->videoCreativeEligible(),
             'deadline' => $this->deadlineEligible(),
             'sponsor' => $this->sponsoredCategoryName() !== null && $this->shopCreativeEligible(),
@@ -320,6 +342,36 @@ final class Banner extends Model
             'collection' => count($this->advertisedListings()) >= 2,
             default => $this->shopCreativeEligible(),
         };
+    }
+
+    public function cacheAdvertisedGuide(?array $guide): void
+    {
+        $this->adGuide = $guide;
+        $this->adGuideLoaded = true;
+    }
+
+    public function advertisedGuide(): ?array
+    {
+        if ($this->creative_format !== 'guide' || ! $this->guide_page_id) {
+            return null;
+        }
+        if (! $this->adGuideLoaded) {
+            $this->cacheAdvertisedGuide(Page::advertisingGuides([(int) $this->guide_page_id])[(int) $this->guide_page_id] ?? null);
+        }
+
+        return $this->adGuide;
+    }
+
+    public function guideEligible(): bool
+    {
+        $guide = $this->advertisedGuide();
+
+        return $guide !== null && $this->guide_signature === $guide['signature'];
+    }
+
+    public function guideSignature(): ?string
+    {
+        return $this->creative_format === 'guide' ? hash('sha256', $this->guide_page_id.'|'.$this->guide_signature) : null;
     }
 
     public function cacheAdvertisedVideo(?array $clip): void
@@ -642,6 +694,9 @@ final class Banner extends Model
 
     public function destination(): ?string
     {
+        if ($this->creative_format === 'guide') {
+            return $this->guideEligible() ? $this->advertisedGuide()['url'] : null;
+        }
         if ($this->creative_format === 'video') {
             return $this->videoCreativeEligible() ? route('listings.show', $this->advertisedVideo()['listing_id']) : null;
         }

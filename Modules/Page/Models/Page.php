@@ -38,6 +38,36 @@ class Page extends Model
         'sort_order' => 'integer',
     ];
 
+    public static function advertisingGuides(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        return self::query()->published()->withPlacement(self::PLACEMENT_HELP)->whereIn('id', $ids)->get()
+            ->mapWithKeys(function (self $page): array {
+                if (trim($page->title) === '' || trim($page->body) === '' || trim($page->slug) === '') {
+                    return [];
+                }
+
+                return [$page->id => [
+                    'title' => $page->localizedValue('title'),
+                    'excerpt' => Str::limit(strip_tags($page->localizedValue('excerpt')), 180),
+                    'url' => route('pages.show', ['slug' => $page->slug]),
+                    'signature' => hash('sha256', json_encode([$page->slug, $page->title, $page->excerpt, $page->body], JSON_THROW_ON_ERROR)),
+                ]];
+            })->all();
+    }
+
+    public static function advertisingGuideOptions(string $search = ''): array
+    {
+        $ids = self::query()->published()->withPlacement(self::PLACEMENT_HELP)
+            ->when(trim($search) !== '', fn (Builder $query) => $query->where('title', 'like', '%'.mb_substr($search, 0, 120).'%'))
+            ->orderBy('title')->limit(50)->pluck('id')->all();
+
+        return collect(self::advertisingGuides($ids))->mapWithKeys(fn (array $page, int $id): array => [$id => $page['title'].' #'.$id])->all();
+    }
+
     public static function placements(): array
     {
         return [

@@ -9,6 +9,7 @@ use Modules\Advertising\Models\BannerPlacement;
 use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
 use Modules\Location\Models\City;
+use Modules\Page\Models\Page;
 use Modules\User\App\Models\Profile;
 use Modules\Video\Models\Video;
 
@@ -48,6 +49,12 @@ final class BannerRenderer
             $filterCities = City::advertisingFilterOptions();
             foreach ($filterBanners as $assignment) {
                 $assignment->banner->preparedFilters($filterCategories, $filterCities);
+            }
+        }
+        $guides = Page::advertisingGuides($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'guide' ? $assignment->banner->guide_page_id : null)->filter()->unique()->all());
+        foreach ($placement->assignments as $assignment) {
+            if ($assignment->banner?->creative_format === 'guide') {
+                $assignment->banner->cacheAdvertisedGuide($guides[$assignment->banner->guide_page_id] ?? null);
             }
         }
         $clips = Video::advertisingClips($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'video' ? $assignment->banner->video_id : null)->filter()->unique()->all());

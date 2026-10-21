@@ -31,6 +31,7 @@ use Modules\Advertising\Models\Campaign;
 use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
 use Modules\Location\Models\City;
+use Modules\Page\Models\Page;
 use Modules\Site\App\Support\LocalMedia;
 use Modules\User\App\Models\Profile;
 use Modules\Video\Models\Video;
@@ -55,7 +56,7 @@ final class BannerResource extends AdvertisingResource
     {
         return $schema->schema([
             Select::make('campaign_id')->label(__('advertising::campaign.campaign'))->options(fn () => Campaign::options())->searchable()->exists(Campaign::class, 'id')->helperText(__('advertising::campaign.optional_campaign')),
-            Select::make('creative_format')->label(__('advertising::shop.format'))->options(['image' => __('advertising::shop.image'), 'shop' => __('advertising::shop.card'), 'collection' => __('advertising::collection.format'), 'service' => __('advertising::service.format'), 'filter' => __('advertising::filters.format'), 'sponsor' => __('advertising::sponsor.format'), 'deadline' => __('advertising::deadline.format'), 'video' => __('advertising::video.format')])->default('image')->required()->live(),
+            Select::make('creative_format')->label(__('advertising::shop.format'))->options(['image' => __('advertising::shop.image'), 'shop' => __('advertising::shop.card'), 'collection' => __('advertising::collection.format'), 'service' => __('advertising::service.format'), 'filter' => __('advertising::filters.format'), 'sponsor' => __('advertising::sponsor.format'), 'deadline' => __('advertising::deadline.format'), 'video' => __('advertising::video.format'), 'guide' => __('advertising::guide.format')])->default('image')->required()->live(),
             Select::make('shop_user_id')->label(__('advertising::shop.shop'))->searchable()->getSearchResultsUsing(fn (string $search): array => Profile::advertisingShopOptions($search))
                 ->getOptionLabelUsing(fn ($value): ?string => Profile::advertisingShops([(int) $value])[(int) $value]['name'] ?? null)
                 ->options(fn (): array => Profile::advertisingShopOptions())->required()->visible(fn (Get $get): bool => in_array($get('creative_format'), ['shop', 'sponsor'], true))->helperText(__('advertising::shop.hint')),
@@ -83,6 +84,10 @@ final class BannerResource extends AdvertisingResource
                 ->options(fn (): array => Listing::advertisingCollectionOptions())->getSearchResultsUsing(fn (string $search): array => Listing::advertisingCollectionOptions($search))
                 ->getOptionLabelUsing(fn ($value): ?string => Listing::advertisingCollectionItems([(int) $value])[(int) $value]['title'] ?? null)
                 ->visible(fn (Get $get): bool => $get('creative_format') === 'deadline')->helperText(__('advertising::deadline.hint')),
+            Select::make('guide_page_id')->label(__('advertising::guide.page'))->searchable()->required()
+                ->options(fn (): array => Page::advertisingGuideOptions())->getSearchResultsUsing(fn (string $search): array => Page::advertisingGuideOptions($search))
+                ->getOptionLabelUsing(fn ($value): ?string => Page::advertisingGuides([(int) $value])[(int) $value]['title'] ?? null)
+                ->visible(fn (Get $get): bool => $get('creative_format') === 'guide')->helperText(__('advertising::guide.hint')),
             Select::make('video_id')->label(__('advertising::video.clip'))->searchable()->required()
                 ->options(fn (): array => Video::advertisingOptions())->getSearchResultsUsing(fn (string $search): array => Video::advertisingOptions($search))
                 ->getOptionLabelUsing(fn ($value): ?string => Video::advertisingClips([(int) $value])[(int) $value]['title'] ?? null)
