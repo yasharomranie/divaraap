@@ -23,6 +23,7 @@
     @if($order->rejection_reason)
         <p class="alert" dir="auto">{{ $order->rejection_reason }}</p>
     @endif
+    @include('advertising::orders.reservations')
     @if($order->invoice)
         <section class="card stack">
             <h2 class="title-section">{{ __('advertising::billing.invoice') }}</h2>

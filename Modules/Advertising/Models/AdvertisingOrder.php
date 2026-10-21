@@ -7,6 +7,7 @@ namespace Modules\Advertising\Models;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -124,7 +125,12 @@ final class AdvertisingOrder extends Model
     {
         self::assertActive();
 
-        return self::query()->when(! AdvertisingInvoice::billingAdmin(), fn ($query) => $query->where('user_id', auth()->id()))->with('invoice.payments')->findOrFail($id);
+        return self::query()->when(! AdvertisingInvoice::billingAdmin(), fn ($query) => $query->where('user_id', auth()->id()))->with(['invoice.payments', 'reservations.placement'])->findOrFail($id);
+    }
+
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(PlacementReservation::class, 'order_id')->select(['id', 'order_id', 'placement_id', 'title', 'device', 'starts_at', 'ends_at', 'state', 'cancel_reason'])->orderBy('starts_at');
     }
 
     public function invoice(): BelongsTo
