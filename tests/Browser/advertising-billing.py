@@ -1,0 +1,62 @@
+import json
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+root = Path(__file__).resolve().parents[2]
+state = json.loads((root/'storage/framework/billing-review.json').read_text())
+base = 'http://localhost:8000'
+with sync_playwright() as p:
+    browser = p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--disable-dev-shm-usage'])
+    context = browser.new_context(viewport={'width':1440,'height':1000})
+    page = context.new_page()
+    errors = []
+    page.on('pageerror', lambda e: errors.append(str(e)))
+    page.goto(base+'/admin/login',wait_until='networkidle')
+    page.get_by_role('button',name='Admin (a@a.com)',exact=True).click()
+    page.wait_for_url(base+'/admin')
+    page.goto(base+'/lang/fa',wait_until='networkidle')
+    page.goto(base+'/admin/advertising-invoices',wait_until='networkidle')
+    row = page.locator('tr').filter(has=page.locator(f'a[href="{base}/panel/advertising-invoices/{state["invoices"][0]}"]'))
+    row.get_by_role('button',name='ثبت دریافت تأییدشده',exact=True).click()
+    page.get_by_label('مبلغ (ریال)',exact=False).fill('400000')
+    page.get_by_label('شناسه یکتای رسید بانکی',exact=False).fill('BROWSER-'+str(state['invoices'][0]))
+    page.get_by_label('یادداشت داخلی',exact=False).fill('PRIVATE INTERNAL REVIEW')
+    page.get_by_role('button',name='تایید',exact=True).click()
+    page.get_by_text('دریافت ثبت شد',exact=True).wait_for()
+    row.get_by_role('link',name='مشاهده رسید',exact=True).click()
+    page.wait_for_url(base+'/panel/advertising-invoices/'+str(state['invoices'][0]))
+    receipt = page.locator('.advertising-invoice')
+    assert 'دریافت جزئی' in receipt.inner_text()
+    assert '400,000' in receipt.inner_text() and '600,000' in receipt.inner_text()
+    assert 'PRIVATE INTERNAL REVIEW' not in receipt.inner_text()
+    assert receipt.evaluate('(e)=>getComputedStyle(e).fontFamily.includes("Vazirmatn")')
+    for width in [360,390,768,1440]:
+        page.set_viewport_size({'width':width,'height':1000})
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    page.set_viewport_size({'width':390,'height':844})
+    receipt.screenshot(path='/tmp/advertising-billing-mobile.png')
+    page.get_by_role('link',name='بازگشت به صورتحساب‌ها',exact=True).focus()
+    assert page.get_by_role('link',name='بازگشت به صورتحساب‌ها',exact=True).evaluate('(e)=>getComputedStyle(e).outlineStyle != "none" || getComputedStyle(e).boxShadow != "none"')
+    page.emulate_media(media='print')
+    assert not page.locator('.advertising-invoice__screen').first.is_visible()
+    page.pdf(path='/tmp/advertising-invoice.pdf',format='A4')
+    page.emulate_media(media='screen')
+    page.goto(base+'/lang/en',wait_until='networkidle')
+    page.goto(base+'/panel/advertising-invoices/'+str(state['invoices'][0]),wait_until='networkidle')
+    assert page.locator('html').get_attribute('dir') == 'ltr'
+    assert 'Partially received' in page.locator('.advertising-invoice').inner_text()
+    customer = browser.new_context(viewport={'width':390,'height':844})
+    cp = customer.new_page()
+    cp.goto(base+'/login',wait_until='networkidle')
+    cp.locator('#email').fill(state['email'])
+    cp.locator('#password').fill('Browser-test-123!')
+    cp.locator('button[type="submit"]').click()
+    cp.wait_for_url(lambda u:'/login' not in u)
+    cp.goto(base+'/panel/advertising-invoices',wait_until='networkidle')
+    assert cp.locator(f'a[href="{base}/panel/advertising-invoices/{state["invoices"][0]}"]').is_visible()
+    response=cp.goto(base+'/panel/advertising-invoices/'+str(state['invoices'][0]),wait_until='networkidle')
+    assert response.status==200 and 'no-store' in response.headers['cache-control']
+    assert cp.locator('.advertising-invoice').is_visible()
+    assert 'PRIVATE INTERNAL REVIEW' not in cp.locator('.advertising-invoice').inner_text()
+    assert not errors,errors
+    browser.close()
+print('PASS: admin receipt, partial balance, private customer access, internal note privacy, 4 widths, RTL/LTR, focus, font, PDF print')

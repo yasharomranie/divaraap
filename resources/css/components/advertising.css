@@ -82,3 +82,16 @@
 .advertising-video__action { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); justify-self: start; font-size: 0.875rem; }
 .advertising-video :is(video, summary, a):focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
 .advertising-video__fallback p { padding: 12px; }
+.advertising-invoice, .advertising-invoice-list { padding: 20px; overflow-wrap: anywhere; }
+.advertising-invoice-list__item { padding: 16px; }
+.advertising-invoice .text-title, .advertising-invoice-list > .text-title { font-size: 1.25rem; line-height: 1.7; }
+.advertising-invoice__totals, .advertising-invoice__payment { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 12px; margin: 0; }
+.advertising-invoice dd { margin: 0; }
+.advertising-invoice__payment { padding-block: 16px; border-block-start: 1px solid var(--border); }
+@media print {
+    body:has(.advertising-invoice) * { visibility: hidden; }
+    body:has(.advertising-invoice) .advertising-invoice, body:has(.advertising-invoice) .advertising-invoice * { visibility: visible; }
+    .advertising-invoice { position: absolute; inset: 0; background: white; color: black; border: 0; box-shadow: none; font-size: 12pt; }
+    .advertising-invoice__screen { display: none !important; }
+    .advertising-invoice__payment { break-inside: avoid; }
+}

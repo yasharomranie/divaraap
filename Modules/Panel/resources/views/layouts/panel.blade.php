@@ -10,6 +10,7 @@
         ['key' => 'inbox', 'label' => __('panel::messages.inbox'), 'icon' => 'mail', 'url' => route('panel.inbox.index'), 'count' => auth()->user()->unreadInboxCount()],
         ['key' => 'notifications', 'label' => __('notification::messages.notifications'), 'icon' => 'bell', 'url' => route('panel.notifications.index'), 'count' => \Modules\Notification\Models\UserNotification::unreadCountForUser($panelUserId)],
         ['key' => 'promotions', 'label' => __('promotion::messages.promotions'), 'icon' => 'sparkle', 'url' => route('panel.promotions.index'), 'count' => \Modules\Promotion\Models\PromotionOrder::activeCountForUser($panelUserId)],
+        ['key' => 'advertising-invoices', 'label' => __('advertising::billing.invoices'), 'icon' => 'tag', 'url' => route('advertising.invoices.index'), 'count' => null],
         ['key' => 'videos', 'label' => __('panel::messages.videos'), 'icon' => 'video', 'url' => route('panel.videos.index'), 'count' => null],
         ['key' => 'favorites', 'label' => __('panel::messages.favorites'), 'icon' => 'heart', 'url' => route('favorites.index'), 'count' => null],
         ['key' => 'shop', 'label' => __('user::shop.title'), 'icon' => 'tag', 'url' => route('shop.edit'), 'count' => null],
