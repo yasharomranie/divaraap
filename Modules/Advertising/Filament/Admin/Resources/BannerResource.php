@@ -10,6 +10,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
@@ -19,6 +20,8 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Modules\Admin\Support\Filament\ResourceTableActions;
 use Modules\Advertising\Filament\Admin\Pages\AdvertisingPreview;
 use Modules\Advertising\Filament\Admin\Resources\BannerResource\Pages;
@@ -30,6 +33,7 @@ use Modules\Listing\Models\Listing;
 use Modules\Location\Models\City;
 use Modules\Site\App\Support\LocalMedia;
 use Modules\User\App\Models\Profile;
+use Modules\Video\Models\Video;
 
 final class BannerResource extends AdvertisingResource
 {
@@ -51,7 +55,7 @@ final class BannerResource extends AdvertisingResource
     {
         return $schema->schema([
             Select::make('campaign_id')->label(__('advertising::campaign.campaign'))->options(fn () => Campaign::options())->searchable()->exists(Campaign::class, 'id')->helperText(__('advertising::campaign.optional_campaign')),
-            Select::make('creative_format')->label(__('advertising::shop.format'))->options(['image' => __('advertising::shop.image'), 'shop' => __('advertising::shop.card'), 'collection' => __('advertising::collection.format'), 'service' => __('advertising::service.format'), 'filter' => __('advertising::filters.format'), 'sponsor' => __('advertising::sponsor.format'), 'deadline' => __('advertising::deadline.format')])->default('image')->required()->live(),
+            Select::make('creative_format')->label(__('advertising::shop.format'))->options(['image' => __('advertising::shop.image'), 'shop' => __('advertising::shop.card'), 'collection' => __('advertising::collection.format'), 'service' => __('advertising::service.format'), 'filter' => __('advertising::filters.format'), 'sponsor' => __('advertising::sponsor.format'), 'deadline' => __('advertising::deadline.format'), 'video' => __('advertising::video.format')])->default('image')->required()->live(),
             Select::make('shop_user_id')->label(__('advertising::shop.shop'))->searchable()->getSearchResultsUsing(fn (string $search): array => Profile::advertisingShopOptions($search))
                 ->getOptionLabelUsing(fn ($value): ?string => Profile::advertisingShops([(int) $value])[(int) $value]['name'] ?? null)
                 ->options(fn (): array => Profile::advertisingShopOptions())->required()->visible(fn (Get $get): bool => in_array($get('creative_format'), ['shop', 'sponsor'], true))->helperText(__('advertising::shop.hint')),
@@ -79,6 +83,17 @@ final class BannerResource extends AdvertisingResource
                 ->options(fn (): array => Listing::advertisingCollectionOptions())->getSearchResultsUsing(fn (string $search): array => Listing::advertisingCollectionOptions($search))
                 ->getOptionLabelUsing(fn ($value): ?string => Listing::advertisingCollectionItems([(int) $value])[(int) $value]['title'] ?? null)
                 ->visible(fn (Get $get): bool => $get('creative_format') === 'deadline')->helperText(__('advertising::deadline.hint')),
+            Select::make('video_id')->label(__('advertising::video.clip'))->searchable()->required()
+                ->options(fn (): array => Video::advertisingOptions())->getSearchResultsUsing(fn (string $search): array => Video::advertisingOptions($search))
+                ->getOptionLabelUsing(fn ($value): ?string => Video::advertisingClips([(int) $value])[(int) $value]['title'] ?? null)
+                ->visible(fn (Get $get): bool => $get('creative_format') === 'video')->helperText(__('advertising::video.hint')),
+            Textarea::make('video_transcript')->label(__('advertising::video.transcript'))->required()->maxLength(2000)->rows(3)
+                ->visible(fn (Get $get): bool => $get('creative_format') === 'video')->helperText(__('advertising::video.transcript_hint')),
+            FileUpload::make('video_captions')->live()->label(__('advertising::video.captions'))->disk('public')->directory(LocalMedia::managedDirectory('banners/captions'))->visibility('public')
+                ->acceptedFileTypes(['text/vtt', 'text/plain'])->maxSize(128)->getUploadedFileNameForStorageUsing(fn (TemporaryUploadedFile $file): string => Str::ulid().'.vtt')
+                ->visible(fn (Get $get): bool => $get('creative_format') === 'video')->helperText(__('advertising::video.captions_hint')),
+            Select::make('video_caption_language')->label(__('advertising::video.caption_language'))->options(['fa' => 'فارسی', 'en' => 'English'])->default('fa')->required()
+                ->visible(fn (Get $get): bool => $get('creative_format') === 'video' && filled($get('video_captions'))),
             TextInput::make('title')->label(__('advertising::admin.title'))->required()->maxLength(150),
             TextInput::make('alt')->label(__('advertising::admin.alt'))->required()->maxLength(200),
             FileUpload::make('image')->label(__('advertising::admin.image'))->image()->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->disk('public')->directory(LocalMedia::managedDirectory('banners'))->visibility('public')->maxSize(4096)->required()->helperText(__('advertising::admin.image_hint')),

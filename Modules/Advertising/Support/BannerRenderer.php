@@ -10,6 +10,7 @@ use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
 use Modules\Location\Models\City;
 use Modules\User\App\Models\Profile;
+use Modules\Video\Models\Video;
 
 final class BannerRenderer
 {
@@ -47,6 +48,12 @@ final class BannerRenderer
             $filterCities = City::advertisingFilterOptions();
             foreach ($filterBanners as $assignment) {
                 $assignment->banner->preparedFilters($filterCategories, $filterCities);
+            }
+        }
+        $clips = Video::advertisingClips($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'video' ? $assignment->banner->video_id : null)->filter()->unique()->all());
+        foreach ($placement->assignments as $assignment) {
+            if ($assignment->banner?->creative_format === 'video') {
+                $assignment->banner->cacheAdvertisedVideo($clips[$assignment->banner->video_id] ?? null);
             }
         }
         $deadlineListings = Listing::advertisingDeadlineItems($placement->assignments->map(fn ($assignment) => $assignment->banner?->creative_format === 'deadline' ? $assignment->banner->offer_listing_id : null)->filter()->unique()->all());

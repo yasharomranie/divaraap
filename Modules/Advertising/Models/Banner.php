@@ -19,6 +19,7 @@ use Modules\Category\Models\Category;
 use Modules\Listing\Models\Listing;
 use Modules\Location\Models\City;
 use Modules\User\App\Models\Profile;
+use Modules\Video\Models\Video;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -47,9 +48,13 @@ final class Banner extends Model
 
     private bool $adDeadlineLoaded = false;
 
+    private ?array $adVideo = null;
+
+    private bool $adVideoLoaded = false;
+
     public static function moderationQueue(): Collection
     {
-        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'ends_at', 'starts_at', 'created_at']);
+        return self::query()->where('review_status', 'pending')->oldest()->limit(20)->get(['id', 'title', 'alt', 'image', 'mobile_image', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'video_caption_language', 'ends_at', 'starts_at', 'created_at']);
     }
 
     public function moderate(bool $approve, ?string $note = null): void
@@ -59,7 +64,7 @@ final class Banner extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['title', 'device', 'is_active', 'review_status', 'starts_at', 'ends_at', 'campaign_id', 'daily_frequency_cap', 'creative_format', 'shop_user_id', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'video_caption_language'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 
     protected $table = 'advertising_banners';
@@ -68,14 +73,14 @@ final class Banner extends Model
 
     protected function casts(): array
     {
-        return ['filter_choices' => 'array', 'collection_listing_ids' => 'array', 'shop_snapshot' => 'array', 'daily_frequency_cap' => 'integer', 'is_active' => 'boolean', 'new_tab' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime'];
+        return ['video_snapshot' => 'array', 'filter_choices' => 'array', 'collection_listing_ids' => 'array', 'shop_snapshot' => 'array', 'daily_frequency_cap' => 'integer', 'is_active' => 'boolean', 'new_tab' => 'boolean', 'starts_at' => 'datetime', 'ends_at' => 'datetime'];
     }
 
     protected static function booted(): void
     {
         self::saving(function (self $banner): void {
             $banner->creative_format ??= 'image';
-            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service', 'filter', 'sponsor', 'deadline'], true)) {
+            if (! in_array($banner->creative_format, ['image', 'shop', 'collection', 'service', 'filter', 'sponsor', 'deadline', 'video'], true)) {
                 throw ValidationException::withMessages(['creative_format' => __('advertising::shop.invalid')]);
             }
             if (in_array($banner->creative_format, ['shop', 'sponsor'], true)) {
@@ -140,7 +145,7 @@ final class Banner extends Model
             $banner->adDeadlineLoaded = false;
             $banner->adDeadlineListing = null;
             if ($banner->creative_format === 'deadline') {
-                $requiresValidOffer = ! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'offer_listing_id', 'ends_at', 'starts_at']);
+                $requiresValidOffer = ! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'video_caption_language', 'ends_at', 'starts_at']);
                 if ($requiresValidOffer && (! $banner->ends_at || ! $banner->ends_at->isFuture() || ($banner->starts_at && $banner->ends_at->lessThanOrEqualTo($banner->starts_at)))) {
                     throw ValidationException::withMessages(['ends_at' => __('advertising::deadline.invalid_end')]);
                 }
@@ -158,9 +163,33 @@ final class Banner extends Model
             } else {
                 $banner->offer_listing_id = null;
             }
+            $banner->adVideoLoaded = false;
+            $banner->adVideo = null;
+            if ($banner->creative_format === 'video') {
+                $clip = $banner->advertisedVideo();
+                $requiresValidVideo = ! $banner->exists || $banner->is_active || $banner->isDirty(['creative_format', 'video_id', 'video_transcript', 'video_captions', 'video_caption_language']);
+                if ($requiresValidVideo && ! $clip) {
+                    throw ValidationException::withMessages(['video_id' => __('advertising::video.invalid')]);
+                }
+                if ($requiresValidVideo && (! is_string($banner->video_transcript) || trim($banner->video_transcript) === '' || mb_strlen($banner->video_transcript) > 2000)) {
+                    throw ValidationException::withMessages(['video_transcript' => __('advertising::video.transcript_invalid')]);
+                }
+                if ($requiresValidVideo && ! $banner->validVideoCaptions()) {
+                    throw ValidationException::withMessages(['video_captions' => __('advertising::video.captions_invalid')]);
+                }
+                if ($clip && $banner->video_snapshot != $clip['snapshot']) {
+                    $banner->video_snapshot = $clip['snapshot'];
+                }
+            } else {
+                $banner->video_id = null;
+                $banner->video_snapshot = null;
+                $banner->video_transcript = null;
+                $banner->video_captions = null;
+                $banner->video_caption_language = null;
+            }
             $banner->adShopLoaded = false;
             $banner->adShop = null;
-            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id'])) {
+            if (auth()->check() && ! auth()->user()->hasRole('admin') && $banner->isDirty(['title', 'image', 'mobile_image', 'alt', 'url', 'creative_format', 'shop_user_id', 'shop_snapshot', 'collection_listing_ids', 'service_listing_id', 'filter_choices', 'sponsored_category_id', 'offer_listing_id', 'video_id', 'video_snapshot', 'video_transcript', 'video_captions', 'video_caption_language'])) {
                 $banner->review_status = 'pending';
                 $banner->is_active = false;
             }
@@ -177,6 +206,9 @@ final class Banner extends Model
                 continue;
             }
             $codes = [];
+            if ($banner->creative_format === 'video' && ! $banner->videoCreativeEligible()) {
+                $codes[] = 'video_unavailable';
+            }
             if ($banner->creative_format === 'deadline' && ! $banner->deadlineEligible()) {
                 $codes[] = 'deadline_unavailable';
             }
@@ -280,6 +312,7 @@ final class Banner extends Model
     public function creativeEligible(): bool
     {
         return match ($this->creative_format) {
+            'video' => $this->videoCreativeEligible(),
             'deadline' => $this->deadlineEligible(),
             'sponsor' => $this->sponsoredCategoryName() !== null && $this->shopCreativeEligible(),
             'filter' => count($this->preparedFilters()) >= 2,
@@ -287,6 +320,79 @@ final class Banner extends Model
             'collection' => count($this->advertisedListings()) >= 2,
             default => $this->shopCreativeEligible(),
         };
+    }
+
+    public function cacheAdvertisedVideo(?array $clip): void
+    {
+        $this->adVideo = $clip;
+        $this->adVideoLoaded = true;
+    }
+
+    public function advertisedVideo(): ?array
+    {
+        if ($this->creative_format !== 'video' || ! $this->video_id) {
+            return null;
+        }
+        if (! $this->adVideoLoaded) {
+            $this->cacheAdvertisedVideo(Video::advertisingClips([(int) $this->video_id])[(int) $this->video_id] ?? null);
+        }
+
+        return $this->adVideo;
+    }
+
+    public function validVideoCaptions(): bool
+    {
+        $path = $this->video_captions;
+        if ($path === null || $path === '') {
+            return true;
+        }
+        if (! in_array($this->video_caption_language, ['fa', 'en'], true) || ! is_string($path) || str_contains($path, '\\') || str_starts_with($path, '/') || str_contains($path, ':')
+            || preg_match('~(?:^|/)\.\.(?:/|$)~', $path) || strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'vtt') {
+            return false;
+        }
+        try {
+            $disk = Storage::disk('public');
+
+            return $disk->exists($path) && $disk->size($path) <= 128 * 1024 && preg_match('/^(?:\xEF\xBB\xBF)?WEBVTT(?:[ \t]|\r?\n|$)/', $disk->get($path)) === 1;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    public static function videoCaptionContent(int $id, mixed $version): string
+    {
+        $banner = self::query()->available()->where('creative_format', 'video')->findOrFail($id);
+        abort_unless(is_string($version) && filled($banner->video_captions) && $banner->videoCreativeEligible() && hash_equals($banner->videoSignature(), $version), 404);
+        try {
+            $content = Storage::disk('public')->get($banner->video_captions);
+        } catch (\Throwable) {
+            abort(404);
+        }
+        abort_unless(is_string($content), 404);
+
+        return $content;
+    }
+
+    public function videoCreativeEligible(): bool
+    {
+        $clip = $this->advertisedVideo();
+
+        return $clip !== null && $clip['snapshot'] == $this->video_snapshot
+            && is_string($this->video_transcript) && trim($this->video_transcript) !== '' && mb_strlen($this->video_transcript) <= 2000
+            && $this->validVideoCaptions();
+    }
+
+    public function videoSignature(): ?string
+    {
+        if ($this->creative_format !== 'video') {
+            return null;
+        }
+        $snapshot = $this->video_snapshot ?? [];
+
+        return hash('sha256', json_encode([(int) $this->video_id, $snapshot['listing_id'] ?? null, $snapshot['owner_id'] ?? null,
+            $snapshot['path'] ?? null, $snapshot['title'] ?? null, $snapshot['size'] ?? null, $snapshot['updated_at'] ?? null,
+            $this->video_transcript, $this->video_captions, $this->video_caption_language,
+        ], JSON_THROW_ON_ERROR));
     }
 
     public function cacheDeadlineListing(?array $listing): void
@@ -536,6 +642,9 @@ final class Banner extends Model
 
     public function destination(): ?string
     {
+        if ($this->creative_format === 'video') {
+            return $this->videoCreativeEligible() ? route('listings.show', $this->advertisedVideo()['listing_id']) : null;
+        }
         if ($this->creative_format === 'deadline') {
             return $this->deadlineEligible() ? route('listings.show', (int) $this->offer_listing_id) : null;
         }

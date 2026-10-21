@@ -89,6 +89,11 @@ class Listing extends Model implements HasMedia
         return static::query()->where('status', 'active')->whereKey($match[1])->value('id');
     }
 
+    public static function advertisingVideoOwners(array $ids): array
+    {
+        return $ids === [] ? [] : static::query()->whereKey($ids)->pluck('user_id', 'id')->map(fn ($id): int => (int) $id)->all();
+    }
+
     public static function advertisingDeadlineItems(array $ids): array
     {
         $items = static::advertisingCollectionItems($ids);

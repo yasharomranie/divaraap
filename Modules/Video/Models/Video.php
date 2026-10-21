@@ -66,6 +66,52 @@ class Video extends Model
         });
     }
 
+    public static function advertisingClips(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+        $clips = static::query()->whereKey($ids)->published()->ready()->where('disk', 'public')->where('mime_type', 'video/mp4')->get();
+        $listings = Listing::advertisingCollectionItems($clips->pluck('listing_id')->filter()->unique()->all());
+        $owners = Listing::advertisingVideoOwners(array_keys($listings));
+        $output = [];
+        foreach ($clips as $clip) {
+            $path = (string) $clip->path;
+            if (! isset($listings[$clip->listing_id]) || (int) $clip->user_id !== ($owners[$clip->listing_id] ?? null)
+                || $path === '' || str_contains($path, '\\') || str_starts_with($path, '/') || str_contains($path, ':')
+                || preg_match('~(?:^|/)\.\.(?:/|$)~', $path) || strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'mp4') {
+                continue;
+            }
+            try {
+                $disk = Storage::disk('public');
+                $size = $disk->exists($path) ? $disk->size($path) : 0;
+                if ($size < 1 || $size > 20 * 1024 * 1024 || $disk->mimeType($path) !== 'video/mp4') {
+                    continue;
+                }
+                $source = $disk->url($path);
+            } catch (\Throwable) {
+                continue;
+            }
+            $title = trim((string) $clip->title) ?: $listings[$clip->listing_id]['title'];
+            $output[(int) $clip->id] = [
+                'id' => (int) $clip->id, 'listing_id' => (int) $clip->listing_id, 'title' => $title,
+                'listing_title' => $listings[$clip->listing_id]['title'], 'url' => $source,
+                'snapshot' => ['listing_id' => (int) $clip->listing_id, 'owner_id' => (int) $clip->user_id,
+                    'path' => $path, 'title' => (string) $clip->title, 'size' => $size, 'updated_at' => $clip->updated_at?->toIso8601String()],
+            ];
+        }
+
+        return $output;
+    }
+
+    public static function advertisingOptions(string $search = ''): array
+    {
+        $ids = static::query()->published()->ready()->where('disk', 'public')->where('mime_type', 'video/mp4')
+            ->where('title', 'like', '%'.mb_substr($search, 0, 120).'%')->latest('id')->limit(50)->pluck('id')->all();
+
+        return collect(static::advertisingClips($ids))->mapWithKeys(fn (array $clip): array => [$clip['id'] => $clip['title'].' #'.$clip['id']])->all();
+    }
+
     public function listing()
     {
         return $this->belongsTo(Listing::class);

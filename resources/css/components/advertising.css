@@ -72,3 +72,13 @@
 .advertising-deadline__remaining { font-size: 0.875rem; font-variant-numeric: tabular-nums; color: var(--appearance-text); }
 .advertising-deadline__remaining:empty { display: none; }
 .advertising-deadline__action { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); justify-self: start; font-size: 0.875rem; }
+
+.advertising-video [hidden] { display: none; }
+.advertising-video__player, .advertising-video .advertising-video__poster, .advertising-video__fallback img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; max-height: 360px; object-fit: contain; background: var(--appearance-surface); }
+.advertising-video__body { display: grid; gap: 8px; padding: 12px; min-width: 0; overflow-wrap: anywhere; }
+.advertising-video__body h2 { font-size: 1rem; font-weight: 650; }
+.advertising-video__transcript summary { cursor: pointer; min-height: 44px; display: list-item; padding: 10px 0; font-size: 0.875rem; }
+.advertising-video__transcript p { white-space: pre-wrap; font-size: 0.875rem; line-height: 1.8; }
+.advertising-video__action { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); justify-self: start; font-size: 0.875rem; }
+.advertising-video :is(video, summary, a):focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.advertising-video__fallback p { padding: 12px; }

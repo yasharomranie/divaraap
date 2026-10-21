@@ -5,6 +5,7 @@ import '../css/app.css';
 import { listingLocation } from './modules/listing-location';
 import { listingMap } from './modules/listing-map';
 import { advertisingMetrics } from './modules/advertising-metrics';
+import { advertisingVideo } from './modules/advertising-video';
 import { advertisingDeadline } from './modules/advertising-deadline';
 
 import { startBehaviors, type Behavior } from './core/behavior';
@@ -24,6 +25,7 @@ const behaviors: readonly Behavior<never>[] = [
     listingCreateLocation,
     listingMap,
     listingLocation,
+    advertisingVideo,
     advertisingMetrics,
     advertisingDeadline,
     homeShowcase,

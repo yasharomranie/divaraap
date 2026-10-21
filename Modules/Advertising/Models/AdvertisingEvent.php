@@ -43,6 +43,9 @@ final class AdvertisingEvent extends Model
             && ($banner->creative_format !== 'filter' || ($data['filters'] ?? []) !== array_keys($banner->preparedFilters()))) {
             return;
         }
+        if (($data['video'] ?? null) !== $banner->videoSignature()) {
+            return;
+        }
         if (($data['deadline'] ?? null) !== $banner->deadlineSignature()) {
             return;
         }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'video_unavailable' => 'Video, listing or captions are unavailable, or video content needs review again',
     'deadline_unavailable' => 'The offer listing or its effective deadline is unavailable',
     'sponsor_category_unavailable' => 'Sponsored category or one of its ancestors is unavailable',
     'filters_unavailable' => 'Prepared filters or their category, city or country are unavailable',

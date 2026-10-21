@@ -6,7 +6,9 @@ export const advertisingMetrics = defineBehavior<HTMLElement>({
     mount(element) {
         const token = element.dataset['eventToken'];
         const url = element.dataset['eventUrl'];
-        const image = element.querySelector('img');
+        const video = element.querySelector<HTMLVideoElement>('[data-ad-video]');
+        const image = video?.poster ? new Image() : element.querySelector('img');
+        if (video?.poster && image) image.src = video.poster;
         if (!token || !url || !image || !('IntersectionObserver' in window)) return;
         let visible = false;
         let counted = false;
