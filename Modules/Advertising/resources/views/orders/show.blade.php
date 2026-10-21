@@ -12,8 +12,10 @@
         <h2 class="title-section">{{ __('advertising::orders.brief') }}</h2>
         <p class="advertising-orders__text" dir="auto">{{ $order->brief }}</p>
         <p>{{ __('advertising::campaign.goal') }}: {{ __('advertising::campaign.'.$order->goal) }}</p>
+        @if(! $order->bundle_id)
         <p>{{ __('advertising::orders.placement') }}: {{ __('advertising::admin.'.$order->placement) }}</p>
         <p>{{ __('advertising::orders.duration') }}: {{ $order->duration_days }}</p>
+        @endif
         @if($order->requested_budget)<p>{{ __('advertising::orders.budget') }}: {{ number_format($order->requested_budget) }} {{ __('advertising::billing.rial') }}</p>@endif
         <p class="text-meta">{{ __('advertising::orders.created') }}: {{ $order->created_at->timezone('Asia/Tehran')->format('Y/m/d H:i') }} {{ __('advertising::billing.tehran') }}</p>
     </section>
@@ -23,6 +25,7 @@
     @if($order->rejection_reason)
         <p class="alert" dir="auto">{{ $order->rejection_reason }}</p>
     @endif
+    @include('advertising::bundles.order-items')
     @include('advertising::orders.reservations')
     @if($order->invoice)
         <section class="card stack">

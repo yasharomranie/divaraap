@@ -1,0 +1,81 @@
+import json
+import subprocess
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+state=json.loads((Path(__file__).resolve().parents[2]/'storage/framework/bundle-review.json').read_text())
+base='http://localhost:8000'
+with sync_playwright() as p:
+    browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--disable-dev-shm-usage'])
+    customer=browser.new_context(viewport={'width':390,'height':844})
+    page=customer.new_page()
+    errors=[]
+    page.on('pageerror',lambda e:errors.append(str(e)))
+    page.goto(base+'/login',wait_until='networkidle')
+    page.locator('#email').fill(state['email'])
+    page.locator('#password').fill('Browser-test-123!')
+    page.locator('button[type="submit"]').click()
+    page.wait_for_url(lambda u:'/login' not in u)
+    page.goto(base+'/lang/fa',wait_until='networkidle')
+    page.goto(base+'/panel/advertising-bundles',wait_until='networkidle')
+    card=page.locator(f'[data-bundle="{state["bundle"]}"]')
+    assert '1,000,000' in card.inner_text()
+    for width in [360,390,768,1440]:
+        page.set_viewport_size({'width':width,'height':1000})
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    page.set_viewport_size({'width':390,'height':844})
+    card.get_by_label('توضیح درخواست',exact=True).fill('درخواست هماهنگی تبلیغ برای هر دو جایگاه')
+    card.get_by_role('button',name='درخواست این بسته',exact=True).focus()
+    assert card.get_by_role('button',name='درخواست این بسته',exact=True).evaluate('(e)=>getComputedStyle(e).outlineStyle != "none" || getComputedStyle(e).boxShadow != "none"')
+    assert card.evaluate('(e)=>getComputedStyle(e).fontFamily.includes("Vazirmatn")')
+    card.screenshot(path='/tmp/advertising-bundle-mobile.png')
+    card.get_by_role('button',name='درخواست این بسته',exact=True).click()
+    page.wait_for_url(lambda u:'/advertising-orders/' in u)
+    order_id=int(page.url.rstrip('/').split('/')[-1])
+    assert page.locator('[data-bundle-item]').count()==2
+    admin=browser.new_context(viewport={'width':1440,'height':1000})
+    ap=admin.new_page()
+    ap.on('pageerror',lambda e:errors.append(str(e)))
+    ap.goto(base+'/admin/login',wait_until='networkidle')
+    ap.get_by_role('button',name='Admin (a@a.com)',exact=True).click()
+    ap.wait_for_url(base+'/admin')
+    ap.goto(base+'/lang/fa',wait_until='networkidle')
+    ap.goto(base+'/admin/advertising-orders',wait_until='networkidle')
+    row=ap.locator('tr').filter(has=ap.locator(f'a[href="{base}/panel/advertising-orders/{order_id}"]'))
+    row.get_by_role('button',name='اعلام مبلغ و صدور صورتحساب',exact=True).click()
+    amount=ap.get_by_label('مبلغ (ریال)',exact=False)
+    amount.wait_for()
+    assert amount.input_value()=='1000000' and amount.get_attribute('readonly') is not None
+    ap.get_by_label('پاسخ و شرایط اعلام‌شده مدیر',exact=False).fill('اجرای دو بخش پس از هماهنگی ظرفیت و دریافت وجه')
+    ap.get_by_role('button',name='تایید',exact=True).click()
+    amount.wait_for(state='hidden')
+    page.reload(wait_until='networkidle')
+    page.get_by_role('button',name='پذیرش شرایط و مبلغ پیشنهاد',exact=True).click()
+    page.wait_for_load_state('networkidle')
+    out=subprocess.check_output(['docker','exec','-w','/app','divaraap-php','php','tests/Browser/bundle-fixtures.php','settle'],text=True)
+    assert 'Settled.' in out,out
+    for item in ['1','2']:
+        ap.reload(wait_until='networkidle')
+        row=ap.locator('tr').filter(has=ap.locator(f'a[href="{base}/panel/advertising-orders/{order_id}"]'))
+        row.get_by_role('button',name='تأیید انجام بخش بسته',exact=True).click()
+        ap.get_by_label('بخش بسته*',exact=True).select_option(item)
+        ap.get_by_role('button',name='کمپین*',exact=True).click()
+        ap.locator('input[role="combobox"]').fill('Bundle browser campaign')
+        ap.get_by_role('option',name='Bundle browser campaign',exact=True).click()
+        ap.get_by_role('button',name='تایید',exact=True).click()
+        ap.get_by_label('بخش بسته*',exact=True).wait_for(state='hidden')
+    row.get_by_role('button',name='تأیید انجام سفارش',exact=True).click()
+    ap.get_by_text('فقط پس از انجام خدمات توافق‌شده تأیید کنید.',exact=False).wait_for()
+    ap.get_by_role('button',name='کمپین*',exact=True).click()
+    ap.locator('input[role="combobox"]').fill('Bundle browser campaign')
+    ap.get_by_role('option',name='Bundle browser campaign',exact=True).click()
+    ap.get_by_role('button',name='تایید',exact=True).click()
+    row.get_by_text('انجام سفارش تأیید شد',exact=True).wait_for()
+    page.reload(wait_until='networkidle')
+    assert page.locator('[data-bundle-item]').filter(has_text='انجام توسط مدیر تأیید شد').count()==2
+    page.goto(base+'/lang/en',wait_until='networkidle')
+    page.goto(base+'/panel/advertising-orders/'+str(order_id),wait_until='networkidle')
+    assert page.locator('html').get_attribute('dir')=='ltr'
+    assert 'Fulfillment confirmed' in page.locator('.advertising-orders').inner_text()
+    assert not errors,errors
+    browser.close()
+print('PASS: bundle catalog, owner request, fixed invoice amount, acceptance/payment, real admin component fulfillment/completion, four widths, RTL/LTR, font and focus')

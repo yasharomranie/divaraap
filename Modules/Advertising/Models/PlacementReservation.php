@@ -112,7 +112,11 @@ final class PlacementReservation extends Model
             if ($data['order_id']) {
                 $order = AdvertisingOrder::query()->lockForUpdate()->findOrFail($data['order_id']);
                 $invoice = AdvertisingInvoice::query()->lockForUpdate()->find($order->invoice_id);
-                if ($order->state !== 'accepted' || $order->placement !== $placement->key || ! $invoice || $invoice->voided_at || $invoice->billingState() !== 'paid') {
+                $part = collect($order->bundle_snapshot['items'] ?? [])->firstWhere('placement', $placement->key);
+                if ($order->bundle_id && (! $part || ($part['device'] !== 'both' && $part['device'] !== $data['device']) || $end->greaterThan($start->copy()->addDays($part['duration_days'])))) {
+                    throw ValidationException::withMessages(['order_id' => __('advertising::reservations.invalid_order')]);
+                }
+                if ($order->state !== 'accepted' || ! in_array($placement->key, $order->reservationPlacements(), true) || ! $invoice || $invoice->voided_at || $invoice->billingState() !== 'paid') {
                     throw ValidationException::withMessages(['order_id' => __('advertising::reservations.invalid_order')]);
                 }
             }

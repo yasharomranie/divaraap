@@ -11,6 +11,7 @@
         ['key' => 'notifications', 'label' => __('notification::messages.notifications'), 'icon' => 'bell', 'url' => route('panel.notifications.index'), 'count' => \Modules\Notification\Models\UserNotification::unreadCountForUser($panelUserId)],
         ['key' => 'promotions', 'label' => __('promotion::messages.promotions'), 'icon' => 'sparkle', 'url' => route('panel.promotions.index'), 'count' => \Modules\Promotion\Models\PromotionOrder::activeCountForUser($panelUserId)],
         ['key' => 'seller-packages', 'label' => __('promotion::packages.title'), 'icon' => 'sparkle', 'url' => route('seller-packages.index'), 'count' => null],
+        ['key' => 'advertising-bundles', 'label' => __('advertising::bundles.title'), 'icon' => 'tag', 'url' => route('advertising.bundles.index'), 'count' => null],
         ['key' => 'advertising-orders', 'label' => __('advertising::orders.orders'), 'icon' => 'tag', 'url' => route('advertising.orders.index'), 'count' => null],
         ['key' => 'advertising-invoices', 'label' => __('advertising::billing.invoices'), 'icon' => 'tag', 'url' => route('advertising.invoices.index'), 'count' => null],
         ['key' => 'videos', 'label' => __('panel::messages.videos'), 'icon' => 'video', 'url' => route('panel.videos.index'), 'count' => null],

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Advertising\Http\Controllers\AdvertisingBundleController;
 use Modules\Advertising\Http\Controllers\AdvertisingEventController;
 use Modules\Advertising\Http\Controllers\AdvertisingInvoiceController;
 use Modules\Advertising\Http\Controllers\AdvertisingOrderController;
@@ -30,4 +31,9 @@ Route::middleware(['web', 'auth', 'throttle:60,1'])->prefix('panel/advertising-o
     Route::get('/{order}', [AdvertisingOrderController::class, 'show'])->where('order', '[1-9][0-9]{0,17}')->name('show');
     Route::post('/{order}/accept', [AdvertisingOrderController::class, 'accept'])->where('order', '[1-9][0-9]{0,17}')->name('accept');
     Route::post('/{order}/cancel', [AdvertisingOrderController::class, 'cancel'])->where('order', '[1-9][0-9]{0,17}')->name('cancel');
+});
+
+Route::middleware(['web', 'auth', 'throttle:30,1'])->prefix('panel/advertising-bundles')->name('advertising.bundles.')->group(function (): void {
+    Route::get('/', [AdvertisingBundleController::class, 'index'])->name('index');
+    Route::post('/{bundle}', [AdvertisingBundleController::class, 'store'])->where('bundle', '[1-9][0-9]{0,17}')->middleware('throttle:10,60')->name('store');
 });

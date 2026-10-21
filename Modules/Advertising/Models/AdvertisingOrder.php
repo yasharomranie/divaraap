@@ -31,7 +31,7 @@ final class AdvertisingOrder extends Model
 
     protected function casts(): array
     {
-        return ['duration_days' => 'integer', 'requested_budget' => 'integer', 'quoted_at' => 'datetime', 'accepted_at' => 'datetime', 'completed_at' => 'datetime'];
+        return ['bundle_snapshot' => 'array', 'bundle_fulfillment' => 'array', 'duration_days' => 'integer', 'requested_budget' => 'integer', 'quoted_at' => 'datetime', 'accepted_at' => 'datetime', 'completed_at' => 'datetime'];
     }
 
     protected static function booted(): void
@@ -116,6 +116,73 @@ final class AdvertisingOrder extends Model
         }
     }
 
+    public static function submitBundle(int $bundleId, string $version, array $input): self
+    {
+        self::assertActive();
+
+        return DB::transaction(function () use ($bundleId, $version, $input): self {
+            $bundle = AdvertisingBundle::query()->where('is_active', true)->lockForUpdate()->findOrFail($bundleId);
+            $offer = $bundle->offer();
+            if (! $offer || ! hash_equals(AdvertisingBundle::version($offer), $version)) {
+                throw ValidationException::withMessages(['bundle' => __('advertising::bundles.changed')]);
+            }
+            $order = self::submit([
+                'request_key' => $input['request_key'] ?? null, 'brief' => $input['brief'] ?? null,
+                'title' => $offer['name'], 'goal' => 'awareness', 'placement' => $offer['items'][0]['placement'],
+                'duration_days' => max(array_column($offer['items'], 'duration_days')), 'requested_budget' => $offer['price'],
+            ]);
+            if (! $order->wasRecentlyCreated) {
+                if ((int) $order->bundle_id !== $bundleId || $order->bundle_snapshot != $offer) {
+                    throw ValidationException::withMessages(['request_key' => __('advertising::orders.replay_conflict')]);
+                }
+
+                return $order;
+            }
+            $order->forceFill(['bundle_id' => $bundleId, 'bundle_snapshot' => $offer, 'bundle_fulfillment' => []])->persist();
+
+            return $order;
+        });
+    }
+
+    public function bundleOptions(): array
+    {
+        $options = [];
+        foreach ($this->bundle_snapshot['items'] ?? [] as $index => $item) {
+            $options[$index + 1] = __('advertising::admin.'.$item['placement']).' · '.__('advertising::admin.'.$item['device']).' · '.$item['duration_days'].' '.__('advertising::orders.days');
+        }
+
+        return $options;
+    }
+
+    public function reservationPlacements(): array
+    {
+        return $this->bundle_id ? array_column($this->bundle_snapshot['items'], 'placement') : [$this->placement];
+    }
+
+    public function fulfillBundleItem(int $itemId, int $campaignId): void
+    {
+        abort_unless(AdvertisingInvoice::billingAdmin(), 403);
+        DB::transaction(function () use ($itemId, $campaignId): void {
+            $order = self::query()->lockForUpdate()->findOrFail($this->id);
+            $order->requireState(['accepted']);
+            $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id);
+            if (! isset($order->bundle_snapshot['items'][$itemId - 1]) || $invoice->voided_at || $invoice->billingState() !== 'paid' || ! Campaign::query()->whereKey($campaignId)->exists() || ($itemId === 1 && $order->campaign_id && (int) $order->campaign_id !== $campaignId)) {
+                throw ValidationException::withMessages(['item_id' => __('advertising::bundles.fulfill_invalid')]);
+            }
+            $completed = $order->bundle_fulfillment ?? [];
+            if (isset($completed[$itemId])) {
+                if ((int) $completed[$itemId]['campaign_id'] !== $campaignId) {
+                    throw ValidationException::withMessages(['item_id' => __('advertising::bundles.fulfill_invalid')]);
+                }
+
+                return;
+            }
+            $completed[$itemId] = ['campaign_id' => $campaignId, 'at' => now()->toIso8601String(), 'by' => auth()->id()];
+            $order->forceFill(['bundle_fulfillment' => $completed])->persist();
+        });
+        $this->refresh();
+    }
+
     public static function forCustomer(int $userId): LengthAwarePaginator
     {
         return self::query()->where('user_id', $userId)->with('invoice')->latest('id')->paginate(15);
@@ -158,6 +225,9 @@ final class AdvertisingOrder extends Model
                 return;
             }
             $order->requireState(['submitted']);
+            if ($order->bundle_id && (string) $order->bundle_snapshot['price'] !== $amount) {
+                throw ValidationException::withMessages(['amount' => __('advertising::bundles.fixed_price')]);
+            }
             $invoice = AdvertisingInvoice::create(['user_id' => $order->user_id, 'campaign_id' => $campaignId, 'description' => Str::limit($order->title, 120).' #'.$order->id, 'amount' => $amount]);
             $order->forceFill(['state' => 'quoted', 'invoice_id' => $invoice->id, 'campaign_id' => $campaignId, 'manager_note' => $terms, 'reviewed_by' => auth()->id(), 'quoted_at' => now()])->persist();
         });
@@ -218,6 +288,9 @@ final class AdvertisingOrder extends Model
         DB::transaction(function () use ($campaignId): void {
             $order = self::query()->lockForUpdate()->findOrFail($this->id);
             $order->requireState(['accepted']);
+            if ($order->bundle_id && (count($order->bundle_fulfillment ?? []) !== count($order->bundle_snapshot['items']) || (int) ($order->bundle_fulfillment[1]['campaign_id'] ?? 0) !== $campaignId)) {
+                throw ValidationException::withMessages(['campaign_id' => __('advertising::bundles.incomplete')]);
+            }
             $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id);
             if ($invoice->voided_at || $invoice->billingState() !== 'paid' || ! Campaign::query()->whereKey($campaignId)->exists() || ($order->campaign_id && (int) $order->campaign_id !== $campaignId)) {
                 throw ValidationException::withMessages(['campaign_id' => __('advertising::orders.complete_invalid')]);
@@ -229,6 +302,6 @@ final class AdvertisingOrder extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['user_id', 'title', 'brief', 'goal', 'placement', 'duration_days', 'requested_budget', 'state', 'invoice_id', 'campaign_id', 'manager_note', 'rejection_reason', 'reviewed_by', 'quoted_at', 'accepted_at', 'completed_at'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['user_id', 'title', 'brief', 'goal', 'placement', 'duration_days', 'requested_budget', 'state', 'invoice_id', 'campaign_id', 'manager_note', 'rejection_reason', 'reviewed_by', 'quoted_at', 'accepted_at', 'completed_at', 'bundle_id', 'bundle_snapshot', 'bundle_fulfillment'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 }

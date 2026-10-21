@@ -101,3 +101,6 @@
 .seller-packages .card { padding: 20px; overflow-wrap: anywhere; }
 .seller-packages__catalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; }
 .seller-packages .input { max-width: 100%; }
+.advertising-bundles .card { padding: 20px; overflow-wrap: anywhere; }
+.advertising-bundles__catalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.advertising-bundles .input { max-width: 100%; }

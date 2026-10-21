@@ -68,7 +68,7 @@ final class AdvertisingOrderResource extends AdvertisingResource
             Action::make('quote')->label(__('advertising::orders.quote'))->visible(fn (AdvertisingOrder $record): bool => $record->state === 'submitted')
                 ->requiresConfirmation()->modalDescription(__('advertising::orders.quote_warning'))
                 ->schema([
-                    TextInput::make('amount')->label(__('advertising::billing.amount'))->integer()->minValue(1)->maxValue(1000000000000)->required(),
+                    TextInput::make('amount')->label(__('advertising::billing.amount'))->default(fn (AdvertisingOrder $record) => $record->bundle_snapshot['price'] ?? null)->readOnly(fn (AdvertisingOrder $record): bool => $record->bundle_id !== null)->integer()->minValue(1)->maxValue(1000000000000)->required(),
                     Textarea::make('terms')->label(__('advertising::orders.terms'))->required()->maxLength(1000),
                     Select::make('campaign_id')->label(__('advertising::campaign.campaign'))->options(fn (): array => Campaign::options())->searchable(),
                 ])->action(fn (AdvertisingOrder $record, array $data) => $record->quote((string) $data['amount'], $data['terms'], filled($data['campaign_id'] ?? null) ? (int) $data['campaign_id'] : null)),
@@ -76,6 +76,12 @@ final class AdvertisingOrderResource extends AdvertisingResource
                 ->visible(fn (AdvertisingOrder $record): bool => in_array($record->state, ['submitted', 'quoted', 'accepted'], true))
                 ->schema([Textarea::make('reason')->label(__('advertising::billing.reason'))->required()->maxLength(500)])
                 ->action(fn (AdvertisingOrder $record, array $data) => $record->reject($data['reason'])),
+            Action::make('fulfill_item')->label(__('advertising::bundles.fulfill'))->requiresConfirmation()->modalDescription(__('advertising::bundles.fulfill_hint'))
+                ->visible(fn (AdvertisingOrder $record): bool => $record->bundle_id !== null && $record->state === 'accepted')
+                ->schema([
+                    Select::make('item_id')->label(__('advertising::bundles.item'))->options(fn (AdvertisingOrder $record): array => $record->bundleOptions())->required(),
+                    Select::make('campaign_id')->label(__('advertising::campaign.campaign'))->options(fn (): array => Campaign::options())->searchable()->required(),
+                ])->action(fn (AdvertisingOrder $record, array $data) => $record->fulfillBundleItem((int) $data['item_id'], (int) $data['campaign_id'])),
             Action::make('complete')->label(__('advertising::orders.complete'))->requiresConfirmation()->modalDescription(__('advertising::orders.complete_hint'))
                 ->visible(fn (AdvertisingOrder $record): bool => $record->state === 'accepted')
                 ->schema([Select::make('campaign_id')->label(__('advertising::campaign.campaign'))->options(fn (): array => Campaign::options())->searchable()->required()])
