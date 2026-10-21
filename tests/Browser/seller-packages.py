@@ -1,0 +1,67 @@
+import json
+import subprocess
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+state=json.loads((Path(__file__).resolve().parents[2]/'storage/framework/seller-package-review.json').read_text())
+base='http://localhost:8000'
+with sync_playwright() as p:
+    browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--disable-dev-shm-usage'])
+    customer=browser.new_context(viewport={'width':390,'height':844})
+    page=customer.new_page()
+    errors=[]
+    page.on('pageerror',lambda e:errors.append(str(e)))
+    page.goto(base+'/login',wait_until='networkidle')
+    page.locator('#email').fill(state['email'])
+    page.locator('#password').fill('Browser-test-123!')
+    page.locator('button[type="submit"]').click()
+    page.wait_for_url(lambda u:'/login' not in u)
+    page.goto(base+'/lang/fa',wait_until='networkidle')
+    page.goto(base+'/panel/seller-packages',wait_until='networkidle')
+    card=page.locator('article').filter(has_text='بسته حرفه‌ای آزمایش')
+    assert '1,000,000' in card.inner_text()
+    for width in [360,390,768,1440]:
+        page.set_viewport_size({'width':width,'height':1000})
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    page.set_viewport_size({'width':390,'height':844})
+    card.get_by_role('button',name='درخواست این بسته',exact=True).click()
+    page.wait_for_url(lambda u:'/seller-packages/' in u)
+    purchase_id=int(page.url.rstrip('/').split('/')[-1])
+    assert 'در انتظار صدور صورتحساب' in page.locator('.seller-packages').inner_text()
+    admin=browser.new_context(viewport={'width':1440,'height':1000})
+    ap=admin.new_page()
+    ap.on('pageerror',lambda e:errors.append(str(e)))
+    ap.goto(base+'/admin/login',wait_until='networkidle')
+    ap.get_by_role('button',name='Admin (a@a.com)',exact=True).click()
+    ap.wait_for_url(base+'/admin')
+    ap.goto(base+'/lang/fa',wait_until='networkidle')
+    ap.goto(base+'/admin/seller-package-purchases',wait_until='networkidle')
+    row=ap.locator('tr').filter(has_text='بسته حرفه‌ای آزمایش')
+    row.get_by_role('button',name='صدور صورتحساب بسته',exact=True).click()
+    ap.get_by_role('button',name='تایید',exact=True).click()
+    row.get_by_role('button',name='فعال‌سازی بسته تسویه‌شده',exact=True).wait_for()
+    out=subprocess.check_output(['docker','exec','-w','/app','divaraap-php','php','tests/Browser/seller-package-fixtures.php','settle'],text=True)
+    assert 'Settled.' in out,out
+    row.get_by_role('button',name='فعال‌سازی بسته تسویه‌شده',exact=True).click()
+    ap.get_by_role('button',name='تایید',exact=True).click()
+    row.get_by_role('button',name='فعال‌سازی بسته تسویه‌شده',exact=True).wait_for(state='hidden')
+    page.reload(wait_until='networkidle')
+    assert page.locator('#package-listing').is_visible()
+    page.locator('#package-listing').select_option(str(state['listings'][0]))
+    page.get_by_role('button',name='مصرف یک اعتبار و ارتقا',exact=True).focus()
+    assert page.get_by_role('button',name='مصرف یک اعتبار و ارتقا',exact=True).evaluate('(e)=>getComputedStyle(e).outlineStyle != "none" || getComputedStyle(e).boxShadow != "none"')
+    assert page.locator('.seller-packages').evaluate('(e)=>getComputedStyle(e).fontFamily.includes("Vazirmatn")')
+    page.screenshot(path='/tmp/seller-package-mobile.png',full_page=True)
+    page.get_by_role('button',name='مصرف یک اعتبار و ارتقا',exact=True).click()
+    page.wait_for_load_state('networkidle')
+    assert 'اعتبارها مصرف شدند' in page.locator('.seller-packages').inner_text()
+    assert page.locator('#package-listing').count()==0
+    page.get_by_role('link',name='مشاهده رسید',exact=True).click()
+    page.wait_for_url(lambda u:'/advertising-invoices/' in u)
+    assert 'تسویه‌شده' in page.locator('.advertising-invoice').inner_text()
+    page.goto(base+'/lang/en',wait_until='networkidle')
+    page.goto(base+'/panel/seller-packages/'+str(purchase_id),wait_until='networkidle')
+    assert page.locator('html').get_attribute('dir')=='ltr'
+    assert 'All credits used' in page.locator('.seller-packages').inner_text()
+    assert not errors,errors
+    browser.close()
+print('PASS: catalog, owner request, real admin invoice/activation, receipt, credit redemption, exhausted state, four widths, RTL/LTR, font and focus')

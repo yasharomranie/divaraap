@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Modules\Listing\Models\Listing;
 
 class PromotionOrder extends Model
 {
@@ -58,26 +60,29 @@ class PromotionOrder extends Model
 
     public static function open(PromotionPlan $plan, int $userId, int $listingId): self
     {
-        static::query()
-            ->forListing($listingId)
-            ->active()
-            ->update(['status' => self::STATUS_CANCELLED]);
+        return DB::transaction(function () use ($plan, $userId, $listingId): self {
+            Listing::query()->lockForUpdate()->findOrFail($listingId);
+            static::query()
+                ->forListing($listingId)
+                ->active()
+                ->update(['status' => self::STATUS_CANCELLED]);
 
-        $order = static::query()->make([
-            'user_id' => $userId,
-            'listing_id' => $listingId,
-            'plan_id' => $plan->getKey(),
-            'plan_name' => (string) $plan->getAttribute('name'),
-            'amount' => (string) $plan->getAttribute('price'),
-            'currency' => (string) $plan->getAttribute('currency'),
-            'status' => self::STATUS_ACTIVE,
-            'starts_at' => now(),
-            'ends_at' => now()->addDays((int) $plan->getAttribute('duration_days')),
-        ]);
+            $order = static::query()->make([
+                'user_id' => $userId,
+                'listing_id' => $listingId,
+                'plan_id' => $plan->getKey(),
+                'plan_name' => (string) $plan->getAttribute('name'),
+                'amount' => (string) $plan->getAttribute('price'),
+                'currency' => (string) $plan->getAttribute('currency'),
+                'status' => self::STATUS_ACTIVE,
+                'starts_at' => now(),
+                'ends_at' => now()->addDays((int) $plan->getAttribute('duration_days')),
+            ]);
 
-        $order->save();
+            $order->save();
 
-        return $order;
+            return $order;
+        });
     }
 
     public static function activeListingIds(): array

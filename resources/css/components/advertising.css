@@ -98,3 +98,6 @@
 .advertising-orders .card { padding: 20px; overflow-wrap: anywhere; }
 .advertising-orders__text { white-space: pre-wrap; overflow-wrap: anywhere; }
 .advertising-orders .input { max-width: 100%; }
+.seller-packages .card { padding: 20px; overflow-wrap: anywhere; }
+.seller-packages__catalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; }
+.seller-packages .input { max-width: 100%; }
