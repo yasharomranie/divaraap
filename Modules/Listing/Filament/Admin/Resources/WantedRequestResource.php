@@ -50,7 +50,7 @@ final class WantedRequestResource extends AccessControlledResource
 
     public static function getPluralModelLabel(): string
     {
-        return __('listing::wanted.moderation');
+        return __('listing::services.moderation');
     }
 
     public static function getNavigationGroup(): string|UnitEnum|null
@@ -60,7 +60,7 @@ final class WantedRequestResource extends AccessControlledResource
 
     public static function table(Table $table): Table
     {
-        $details = fn (WantedRequest $record) => view('listing::wanted.review', ['record' => $record, 'categories' => WantedRequest::categoryOptions(), 'cities' => WantedRequest::cityOptions()]);
+        $details = fn (WantedRequest $record) => view('listing::wanted.review', ['record' => $record, 'categories' => WantedRequest::categoryOptions('all'), 'cities' => WantedRequest::cityOptions()]);
         $actions = [Action::make('details')->label(__('listing::wanted.body'))->modalSubmitAction(false)->modalContent($details)];
         foreach (['approve', 'reject', 'retract'] as $decision) {
             $actions[] = Action::make($decision)->label(__('listing::wanted.'.$decision))->requiresConfirmation()->modalContent($details)
@@ -80,10 +80,11 @@ final class WantedRequestResource extends AccessControlledResource
         return $table->columns([
             TextColumn::make('id')->label('#')->sortable(),
             TextColumn::make('title')->label(__('listing::wanted.title_label'))->searchable()->wrap(),
+            TextColumn::make('kind')->label(__('listing::services.kind'))->formatStateUsing(fn (string $state): string => __('listing::services.'.$state))->badge(),
             TextColumn::make('state')->label(__('listing::wanted.state'))->formatStateUsing(fn (WantedRequest $record): string => $record->stateLabel())->badge(),
             TextColumn::make('revision')->label(__('listing::wanted.revision'))->numeric(),
             TextColumn::make('expires_at')->label(__('listing::wanted.expires'))->dateTime()->timezone('Asia/Tehran'),
-        ])->filters([SelectFilter::make('state')->label(__('listing::wanted.state'))->options(collect(['pending', 'open', 'rejected', 'fulfilled', 'closed'])->mapWithKeys(fn ($state): array => [$state => __('listing::wanted.'.$state)]))])->actions($actions)->defaultSort('id', 'desc');
+        ])->filters([SelectFilter::make('kind')->label(__('listing::services.kind'))->options(['product' => __('listing::services.product'), 'service' => __('listing::services.service')]), SelectFilter::make('state')->label(__('listing::wanted.state'))->options(collect(['pending', 'open', 'rejected', 'fulfilled', 'closed'])->mapWithKeys(fn ($state): array => [$state => __('listing::wanted.'.$state)]))])->actions($actions)->defaultSort('id', 'desc');
     }
 
     public static function getPages(): array

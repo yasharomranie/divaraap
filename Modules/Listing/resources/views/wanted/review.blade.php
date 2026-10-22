@@ -1,4 +1,5 @@
 <div class="space-y-3" data-wanted-review="{{ $record->id }}">
+    <p>{{ __('listing::services.'.$record->kind) }}</p>
     <h2 class="font-semibold" dir="auto">{{ $record->title }}</h2>
     <p>{{ __('listing::wanted.revision') }}: {{ $record->revision }} · {{ $record->stateLabel() }}</p>
     @include('listing::wanted.summary')

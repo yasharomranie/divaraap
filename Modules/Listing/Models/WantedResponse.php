@@ -27,13 +27,13 @@ final class WantedResponse extends Model
         self::deleting(fn () => abort(403));
     }
 
-    public static function submit(User $seller, int $requestId, int $listingId, int $revision): self
+    public static function submit(User $seller, int $requestId, int $listingId, int $revision, string $kind = 'product'): self
     {
         WantedRequest::actor($seller);
-        $request = WantedRequest::query()->visible()->findOrFail($requestId);
+        $request = WantedRequest::query()->visible()->where('kind', $kind)->findOrFail($requestId);
 
-        return ConversationBlock::communicate((int) $seller->id, (int) $request->user_id, function () use ($seller, $requestId, $listingId, $revision): self {
-            $request = WantedRequest::query()->visible()->lockForUpdate()->findOrFail($requestId);
+        return ConversationBlock::communicate((int) $seller->id, (int) $request->user_id, function () use ($seller, $requestId, $listingId, $revision, $kind): self {
+            $request = WantedRequest::query()->visible()->where('kind', $kind)->lockForUpdate()->findOrFail($requestId);
             abort_unless((int) $request->revision === $revision, 409);
             $listing = Listing::wantedCandidates($request->category_id, $request->city_id, (int) $seller->id)->whereKey($listingId)->lockForUpdate()->firstOrFail();
             $existing = self::withTrashed()->where('wanted_request_id', $requestId)->where('revision', $revision)->where('seller_id', $seller->id)->lockForUpdate()->first();

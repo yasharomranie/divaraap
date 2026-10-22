@@ -8,6 +8,7 @@
         ['key' => 'listings', 'label' => __('panel::messages.my_listings'), 'icon' => 'tag', 'url' => route('panel.listings.index'), 'count' => \Modules\Listing\Models\Listing::query()->ownedByUser($panelUserId)->count()],
         ['key' => 'rare-watches', 'label' => __('favorite::rare.title'), 'icon' => 'bell', 'url' => route('rare-watches.index'), 'count' => null],
         ['key' => 'wanted', 'label' => __('listing::wanted.mine'), 'icon' => 'search', 'url' => route('wanted.mine'), 'count' => null],
+        ['key' => 'service-requests', 'label' => __('listing::services.mine'), 'icon' => 'tag', 'url' => route('service-requests.mine'), 'count' => null],
         ['key' => 'offers', 'label' => __('offer::messages.offers'), 'icon' => 'sort', 'url' => route('panel.offers.index'), 'count' => \Modules\Offer\Models\Offer::pendingCountForSeller($panelUserId)],
         ['key' => 'inbox', 'label' => __('panel::messages.inbox'), 'icon' => 'mail', 'url' => route('panel.inbox.index'), 'count' => auth()->user()->unreadInboxCount()],
         ['key' => 'notifications', 'label' => __('notification::messages.notifications'), 'icon' => 'bell', 'url' => route('panel.notifications.index'), 'count' => \Modules\Notification\Models\UserNotification::unreadCountForUser($panelUserId)],

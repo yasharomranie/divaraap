@@ -54,7 +54,7 @@ return [
     'review_note' => 'Moderation note',
     'edit_hint' => 'Editing unpublishes the request and requires another review. Earlier suggestions remain linked to their original revision and are excluded from the new revision. Expiry is not extended.',
     'closed_hint' => 'Closing is the requester’s statement, not proof of a transaction or payment.',
-    'limit' => 'You can have up to 20 published or pending requests.',
+    'limit' => 'You can have at most 20 pending or open product and service requests combined.',
     'replay_changed' => 'This request identity was used with different content. Open a new form.',
     'error_summary' => 'Please correct these fields:',
     'revision_hint' => 'Suggestions belong to the current revision. Suggestions and contact details are not public.',

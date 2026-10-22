@@ -39,9 +39,17 @@ final class WantedRequest extends Model
         self::deleting(fn () => abort(403));
     }
 
-    public static function categoryOptions(): array
+    public static function categoryOptions(string $kind = 'product'): array
     {
-        return array_diff_key(Category::advertisingFilterOptions(), array_flip(Category::advertisingServiceCategoryIds()));
+        $options = Category::advertisingFilterOptions();
+        $services = array_flip(Category::advertisingServiceCategoryIds());
+
+        return match ($kind) {
+            'product' => array_diff_key($options, $services),
+            'service' => array_intersect_key($options, $services),
+            'all' => $options,
+            default => [],
+        };
     }
 
     public static function cityOptions(): array
@@ -49,14 +57,15 @@ final class WantedRequest extends Model
         return City::wantedOptions();
     }
 
-    public static function rules(): array
+    public static function rules(string $kind = 'product'): array
     {
         return [
             'title' => ['required', 'string', 'min:5', 'max:120', 'regex:/\S/u'],
             'description' => ['required', 'string', 'min:10', 'max:2000', 'regex:/\S/u'],
-            'category_id' => ['required', 'integer', Rule::in(array_keys(self::categoryOptions()))],
-            'city_id' => ['nullable', 'integer', Rule::in(array_keys(self::cityOptions()))],
+            'category_id' => ['required', 'integer', Rule::in(array_keys(self::categoryOptions($kind)))],
+            'city_id' => [$kind === 'service' ? 'required' : 'nullable', 'integer', Rule::in(array_keys(self::cityOptions()))],
             'budget' => ['nullable', 'integer', 'min:1', 'max:1000000000000'],
+            ...($kind === 'service' ? ['preferred_time' => ['nullable', 'string', 'max:120', 'regex:/\S/u']] : []),
         ];
     }
 
@@ -70,27 +79,30 @@ final class WantedRequest extends Model
         return (string) auth()->user()?->status === 'active' && (bool) auth()->user()?->can('moderation.listings');
     }
 
-    private static function content(array $input): array
+    private static function content(array $input, string $kind): array
     {
-        foreach (['title', 'description'] as $field) {
+        abort_unless(in_array($kind, ['product', 'service'], true), 422);
+        foreach (['title', 'description', 'preferred_time'] as $field) {
             if (is_string($input[$field] ?? null)) {
                 $input[$field] = trim($input[$field]);
             }
         }
-        $data = Validator::make($input, self::rules())->validate();
+        $data = Validator::make($input, self::rules($kind))->validate();
         $data['title'] = trim($data['title']);
         $data['description'] = trim($data['description']);
         $data['city_id'] = filled($data['city_id'] ?? null) ? (int) $data['city_id'] : null;
         $data['budget'] = filled($data['budget'] ?? null) ? (int) $data['budget'] : null;
+        $data['preferred_time'] = $kind === 'service' ? ($data['preferred_time'] ?? null) : null;
+        $data['kind'] = $kind;
 
         return $data;
     }
 
-    public static function submit(User $user, array $input): self
+    public static function submit(User $user, array $input, string $kind = 'product'): self
     {
         self::actor($user);
         Validator::make($input, ['request_key' => ['required', 'uuid']])->validate();
-        $data = self::content($input);
+        $data = self::content($input, $kind);
 
         return DB::transaction(function () use ($user, $input, $data): self {
             User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
@@ -118,17 +130,17 @@ final class WantedRequest extends Model
         });
     }
 
-    public static function owned(User $user, int $id): self
+    public static function owned(User $user, int $id, string $kind = 'product'): self
     {
         self::actor($user);
 
-        return self::query()->where('user_id', $user->id)->findOrFail($id);
+        return self::query()->where('kind', $kind)->where('user_id', $user->id)->findOrFail($id);
     }
 
     public function updateFor(User $user, array $input, int $revision): void
     {
         self::actor($user);
-        $data = self::content($input);
+        $data = self::content($input, $this->kind);
         DB::transaction(function () use ($user, $data, $revision): void {
             User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
             self::actor($user);
@@ -165,13 +177,15 @@ final class WantedRequest extends Model
     {
         return $query->where('state', 'open')->where('expires_at', '>', now())
             ->whereIn('user_id', User::activeAccountIdsQuery())
-            ->whereIn('category_id', array_keys(self::categoryOptions()))
+            ->where(fn (Builder $kinds) => $kinds
+                ->where(fn (Builder $products) => $products->where('kind', 'product')->whereIn('category_id', array_keys(self::categoryOptions('product'))))
+                ->orWhere(fn (Builder $services) => $services->where('kind', 'service')->whereNotNull('city_id')->whereIn('category_id', array_keys(self::categoryOptions('service')))))
             ->where(fn (Builder $cities) => $cities->whereNull('city_id')->orWhereIn('city_id', array_keys(self::cityOptions())));
     }
 
-    public static function browse(array $filters)
+    public static function browse(array $filters, string $kind = 'product')
     {
-        $query = self::query()->visible();
+        $query = self::query()->visible()->where('kind', $kind);
         foreach (['category_id', 'city_id'] as $field) {
             if (filled($filters[$field] ?? null)) {
                 $query->where($field, $filters[$field]);
@@ -188,16 +202,16 @@ final class WantedRequest extends Model
         return $query->latest('id')->paginate(12)->withQueryString();
     }
 
-    public static function forOwner(User $owner)
+    public static function forOwner(User $owner, string $kind = 'product')
     {
         self::actor($owner);
 
-        return self::query()->where('user_id', $owner->id)->latest('id')->paginate(12);
+        return self::query()->where('kind', $kind)->where('user_id', $owner->id)->latest('id')->paginate(12);
     }
 
-    public static function published(int $id): self
+    public static function published(int $id, string $kind = 'product'): self
     {
-        return self::query()->visible()->findOrFail($id);
+        return self::query()->visible()->where('kind', $kind)->findOrFail($id);
     }
 
     public function suggestionOptions(User $seller): array
@@ -224,7 +238,7 @@ final class WantedRequest extends Model
             $record = self::query()->lockForUpdate()->findOrFail($this->id);
             abort_unless($record->state === 'pending' && $record->revision === $expected && $record->expires_at->isFuture(), 409);
             if ($approve) {
-                self::content($record->only(['title', 'description', 'category_id', 'city_id', 'budget']));
+                self::content($record->only(['title', 'description', 'category_id', 'city_id', 'budget', 'preferred_time']), $record->kind);
                 abort_unless(User::query()->whereKey($record->user_id)->where('status', 'active')->exists(), 409);
             }
             $record->writing = true;
@@ -246,13 +260,18 @@ final class WantedRequest extends Model
         $this->refresh();
     }
 
+    public function copy(): string
+    {
+        return $this->kind === 'service' ? 'listing::services' : 'listing::wanted';
+    }
+
     public function stateLabel(): string
     {
-        return __('listing::wanted.'.(in_array($this->state, ['pending', 'open', 'rejected'], true) && $this->expires_at->lessThanOrEqualTo(now()) ? 'expired' : $this->state));
+        return __($this->copy().'.'.(in_array($this->state, ['pending', 'open', 'rejected'], true) && $this->expires_at->lessThanOrEqualTo(now()) ? 'expired' : $this->state));
     }
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['user_id', 'category_id', 'city_id', 'state', 'revision', 'reviewed_by', 'reviewed_at', 'expires_at'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['kind', 'user_id', 'category_id', 'city_id', 'state', 'revision', 'reviewed_by', 'reviewed_at', 'expires_at'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 }
