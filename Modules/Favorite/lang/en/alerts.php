@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'rare_toggle' => 'Rare item watch',
     'title' => 'My alerts',
     'hint' => 'Alerts are optional and checked when opening notifications or this page. No SMS, email or push is sent. Up to 50 new publications per alert are checked per visit; reopen to continue.',
     'limit' => 'You can enable up to 20 alerts.',

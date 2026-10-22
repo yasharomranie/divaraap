@@ -24,10 +24,12 @@ final class BuyerAlert extends Model
     {
         DB::transaction(function () use ($user, $kind, $sourceId, $enabled): void {
             User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            abort_unless(User::query()->whereKey($user->id)->where('status', 'active')->exists(), 403);
+            self::query()->where('user_id', $user->id)->where('kind', 'rare')->whereNotIn('source_id', RareItemWatch::unexpiredIds($user->id))->update(['enabled' => false]);
             $source = self::source($user->id, $kind, $sourceId);
             abort_unless($source, 404);
             $alert = self::withTrashed()->firstOrNew(['user_id' => $user->id, 'kind' => $kind, 'source_id' => $sourceId]);
-            if ($enabled && ! $alert->enabled && self::where('user_id', $user->id)->where('enabled', true)->count() >= 20) {
+            if ($enabled && (! $alert->exists || $alert->trashed() || ! $alert->enabled) && self::where('user_id', $user->id)->where('enabled', true)->count() >= 20) {
                 throw ValidationException::withMessages(['enabled' => __('favorite::alerts.limit')]);
             }
             if ($enabled && (! $alert->exists || ! $alert->enabled || $alert->trashed())) {
@@ -43,6 +45,7 @@ final class BuyerAlert extends Model
     public static function source(int $userId, string $kind, int $id): mixed
     {
         return match ($kind) {
+            'rare' => RareItemWatch::availableFor($userId, $id),
             'search' => FavoriteSearch::where('user_id', $userId)->whereKey($id)->first(),
             'seller' => FavoriteSeller::where('user_id', $userId)->where('seller_id', $id)->first(),
             'price' => FavoriteListing::where('user_id', $userId)->where('listing_id', $id)->first(),
@@ -76,6 +79,14 @@ final class BuyerAlert extends Model
                 if ($publications->isEmpty()) {
                     return;
                 }
+                if ($locked->kind === 'rare') {
+                    foreach ($source->matches($publications->pluck('listing_id')->all()) as $listing) {
+                        BuyerAlertReceipt::deliver($locked->user_id, 'rare|'.$listing->id, __('favorite::rare.matched'), $source->filters['search'].' · '.$listing->title, $listing->id);
+                    }
+                    $locked->update(['cursor' => $publications->last()->id]);
+
+                    return;
+                }
                 $filters = $locked->kind === 'search' ? ($source->filters ?? []) : ['seller' => $locked->source_id];
                 foreach (Listing::buyerAlertListings($publications->pluck('listing_id')->all(), $filters, $locked->user_id) as $listing) {
                     BuyerAlertReceipt::deliver($locked->user_id, $locked->kind.'|'.$listing->id, __('favorite::alerts.'.$locked->kind.'_title'), $listing->title, $listing->id);
@@ -105,6 +116,7 @@ final class BuyerAlert extends Model
     public function subjectLabel(): string
     {
         return match ($this->kind) {
+            'rare' => RareItemWatch::query()->where('user_id', $this->user_id)->whereKey($this->source_id)->first()?->filters['search'] ?? __('favorite::alerts.unavailable'),
             'search' => FavoriteSearch::where('user_id', $this->user_id)->whereKey($this->source_id)->value('label') ?? __('favorite::alerts.unavailable'),
             'seller' => User::whereKey($this->source_id)->value('name') ?? __('favorite::alerts.unavailable'),
             default => Listing::buyerAlertListings([$this->source_id])->first()?->title ?? __('favorite::alerts.unavailable'),

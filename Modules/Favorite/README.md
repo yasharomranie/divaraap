@@ -23,3 +23,7 @@ ListingHistory stores ID/timestamp pairs in the existing session, bounded to 50 
 ## Private collections
 
 FavoriteCollection owns per-account folders and transactional ownership/duplicate checks. FavoriteListing keeps the nullable collection reference on the existing pivot and owns moves/restoration. Removing a folder clears references, including soft-deleted favorites, while retaining bookmarks and price alerts. Every move requires an existing live favorite for the same account. CollectionController uses authenticated native forms; collection filters combine with the existing Favorites page. Collection names are private, limited to 60 characters and 50 active folders per user. There are no public share links or additional bookmark tables.
+
+## Rare-item watches
+
+RareItemWatch owns private immutable criteria, 30-day expiry and owner lifecycle; BuyerAlert consumes it as a rare source. The existing publication and notification receipts drive bounded visit-time processing, with one rare update per listing across overlapping watches. Shared enabled-alert quotas, durable cursor/receipt behavior and independent search/seller/price preferences remain. Routes: `/panel/rare-watches`; user guide: `docs/RARE_ITEM_WATCHES_FA.md`. There is no external or independent background delivery.

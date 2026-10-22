@@ -162,13 +162,13 @@ class FavoriteController extends Controller
     {
         BuyerAlert::refreshFor($request->user());
 
-        return view('favorite::alerts', ['alerts' => BuyerAlert::pageFor($request->user()->id)]);
+        return response()->view('favorite::alerts', ['alerts' => BuyerAlert::pageFor($request->user()->id)])->header('Cache-Control', 'private, no-store')->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
     public function configureAlert(Request $request)
     {
         abort_unless((string) $request->user()->status === 'active', 403);
-        $data = $request->validate(['kind' => ['required', 'in:search,seller,price'], 'source_id' => ['required', 'integer', 'min:1'], 'enabled' => ['required', 'boolean']]);
+        $data = $request->validate(['kind' => ['required', 'in:search,seller,price,rare'], 'source_id' => ['required', 'integer', 'min:1'], 'enabled' => ['required', 'boolean']]);
         BuyerAlert::configure($request->user(), $data['kind'], (int) $data['source_id'], (bool) $data['enabled']);
 
         return back()->with('success', __('favorite::alerts.saved'));

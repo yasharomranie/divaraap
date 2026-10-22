@@ -3,6 +3,7 @@
 @section('content')
 <div class="shell page buyer-alerts"><div class="stack stack--loose">
     <h1 class="title-page">{{ __('favorite::alerts.title') }}</h1>
+    <a class="button button--secondary" href="{{ route('rare-watches.index') }}">{{ __('favorite::rare.title') }}</a>
     <p class="muted">{{ __('favorite::alerts.hint') }}</p>
     <p class="muted">{{ __('favorite::alerts.price_hint') }}</p>
     <a class="button button--secondary" href="{{ route('favorites.index') }}">{{ __('favorite::messages.favorites') }}</a>

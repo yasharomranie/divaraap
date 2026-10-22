@@ -1,0 +1,15 @@
+@extends('panel::layouts.panel', ['panelSection' => 'rare-watches'])
+@section('title', __('favorite::rare.create'))
+@section('panel_content')
+<div class="wanted rare-watches stack stack--loose"><h1 class="title-page">{{ __('favorite::rare.create') }}</h1><p>{{ __('favorite::rare.intro') }}</p><p>{{ __('favorite::rare.hint') }}</p>
+@if($errors->any())<div class="alert alert--critical" role="alert">@foreach($errors->messages() as $field => $messages)<p><a href="#rare-{{ $field }}">{{ $messages[0] }}</a></p>@endforeach</div>@endif
+<form class="card wanted-form" method="post" action="{{ route('rare-watches.store') }}">@csrf
+    <div class="field wanted-wide"><label class="field__label" for="rare-search">{{ __('favorite::rare.search') }}</label><input class="input" id="rare-search" name="search" value="{{ old('search') }}" minlength="2" maxlength="120" required dir="auto" aria-describedby="rare-search-hint{{ $errors->has('search') ? ' rare-search-error' : '' }}" @if($errors->has('search')) aria-invalid="true" autofocus @endif><p class="field__hint" id="rare-search-hint">{{ __('favorite::rare.search_hint') }}</p>@error('search')<p class="field__error" id="rare-search-error">{{ $message }}</p>@enderror</div>
+    @foreach(['category' => $categories, 'city' => $cities] as $field => $options)
+        <div class="field"><label class="field__label" for="rare-{{ $field }}">{{ __('favorite::rare.'.$field) }}</label><select class="input" name="{{ $field }}" id="rare-{{ $field }}" @required($field === 'category') @if($errors->has($field)) aria-invalid="true" aria-describedby="rare-{{ $field }}-error" @endif><option value="">{{ __('favorite::rare.'.($field === 'category' ? 'choose_category' : 'any_city')) }}</option>@foreach($options as $id => $label)<option value="{{ $id }}" @selected(old($field) == $id)>{{ $label }}</option>@endforeach</select>@error($field)<p class="field__error" id="rare-{{ $field }}-error">{{ $message }}</p>@enderror</div>
+    @endforeach
+    <div class="field wanted-wide"><label class="field__label" for="rare-max_price">{{ __('favorite::rare.max_price') }}</label><input class="input" id="rare-max_price" name="max_price" value="{{ old('max_price') }}" type="number" inputmode="numeric" min="1" max="1000000000000" aria-describedby="rare-price-hint{{ $errors->has('max_price') ? ' rare-price-error' : '' }}" @if($errors->has('max_price')) aria-invalid="true" @endif><p class="field__hint" id="rare-price-hint">{{ __('favorite::rare.budget_hint') }}</p>@error('max_price')<p class="field__error" id="rare-price-error">{{ $message }}</p>@enderror</div>
+    <div class="wanted-wide"><p class="field__hint">{{ __('favorite::rare.delivery_short') }}</p><details><summary class="button button--ghost">{{ __('favorite::rare.delivery_details') }}</summary><p class="field__hint">{{ __('favorite::rare.delivery') }}</p></details></div>
+    <div class="wanted-actions wanted-wide"><button class="button button--primary" type="submit">{{ __('favorite::rare.submit') }}</button><a class="button button--ghost" href="{{ route('rare-watches.index') }}">{{ __('favorite::rare.back') }}</a></div>
+</form></div>
+@endsection

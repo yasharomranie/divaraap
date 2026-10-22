@@ -7,6 +7,7 @@ use Modules\Favorite\App\Http\Controllers\CollectionController;
 use Modules\Favorite\App\Http\Controllers\ComparisonController;
 use Modules\Favorite\App\Http\Controllers\FavoriteController;
 use Modules\Favorite\App\Http\Controllers\HistoryController;
+use Modules\Favorite\App\Http\Controllers\RareWatchController;
 
 Route::middleware('web')->group(function () {
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
@@ -39,4 +40,11 @@ Route::middleware('web')->group(function () {
         Route::post('/searches', [FavoriteController::class, 'storeSearch'])->name('searches.store');
         Route::delete('/searches/{favoriteSearch}', [FavoriteController::class, 'destroySearch'])->name('searches.destroy');
     });
+});
+
+Route::middleware(['web', 'auth', 'throttle:60,1'])->prefix('panel/rare-watches')->name('rare-watches.')->group(function (): void {
+    Route::get('/', [RareWatchController::class, 'index'])->name('index');
+    Route::get('/create', [RareWatchController::class, 'create'])->name('create');
+    Route::post('/', [RareWatchController::class, 'store'])->middleware('throttle:10,60,rare-create:')->name('store');
+    Route::post('/{watch}', [RareWatchController::class, 'change'])->where('watch', '[1-9][0-9]{0,17}')->middleware('throttle:30,1,rare-change:')->name('change');
 });

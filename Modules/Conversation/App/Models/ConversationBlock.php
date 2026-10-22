@@ -16,6 +16,12 @@ final class ConversationBlock extends Model
 
     protected $guarded = ['id'];
 
+    public static function counterpartIds(int $user): array
+    {
+        return self::query()->where(fn ($query) => $query->where('blocker_id', $user)->orWhere('blocked_id', $user))->get(['blocker_id', 'blocked_id'])
+            ->map(fn (self $block): int => (int) $block->blocker_id === $user ? (int) $block->blocked_id : (int) $block->blocker_id)->unique()->values()->all();
+    }
+
     public static function between(int $left, int $right): bool
     {
         return self::query()->where(fn ($query) => $query->where('blocker_id', $left)->where('blocked_id', $right))

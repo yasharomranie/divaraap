@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Modules\Category\Models\Category;
 use Modules\Conversation\App\Models\Conversation;
+use Modules\Conversation\App\Models\ConversationBlock;
 use Modules\Favorite\App\Models\FavoriteListing;
 use Modules\Listing\States\ActiveListingStatus;
 use Modules\Listing\States\ExpiredListingStatus;
@@ -313,6 +314,19 @@ class Listing extends Model implements HasMedia
                 'country' => $location['selected_country_name'], 'city' => $location['selected_city_name'],
                 'min_price' => $filters['min_price'] ?? null, 'max_price' => $filters['max_price'] ?? null,
             ])->get();
+    }
+
+    public static function rareAlertListings(array $ids, array $filters, int $buyer): Collection
+    {
+        $query = self::wantedCandidates((int) ($filters['category'] ?? 0), isset($filters['city']) ? (int) $filters['city'] : null)
+            ->whereKey($ids)->where('user_id', '!=', $buyer)
+            ->whereNotIn('user_id', ConversationBlock::counterpartIds($buyer))
+            ->searchTerm((string) ($filters['search'] ?? ''));
+        if (isset($filters['max_price'])) {
+            $query->where('currency', 'IRR')->whereNotNull('price')->where('price', '<=', $filters['max_price']);
+        }
+
+        return $query->get();
     }
 
     public static function wantedCandidates(int $categoryId, ?int $cityId, ?int $sellerId = null): Builder
