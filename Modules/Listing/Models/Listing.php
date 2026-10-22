@@ -291,6 +291,18 @@ class Listing extends Model implements HasMedia
             ->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))->get();
     }
 
+    public static function dossierListings(array $ids, int $category): Collection
+    {
+        if (! array_key_exists($category, Category::advertisingFilterOptions())) {
+            return collect();
+        }
+
+        return self::query()->active()->whereIn('id', $ids)->where('category_id', $category)
+            ->whereIn('user_id', User::activeAccountIdsQuery())
+            ->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->with('category:id,name')->get();
+    }
+
     public static function buyerAlertListings(array $ids, array $filters = [], ?int $excludeUser = null): Collection
     {
         $directory = ! empty($filters['category']) ? Category::listingDirectory((int) $filters['category']) : null;
