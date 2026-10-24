@@ -214,13 +214,15 @@ final class AdvertisingExperiment extends Model
             ->selectRaw("SUM(CASE WHEN kind = 'impression' THEN 1 ELSE 0 END) AS impressions")
             ->selectRaw("SUM(CASE WHEN kind = 'click' THEN 1 ELSE 0 END) AS clicks")
             ->selectRaw("SUM(CASE WHEN kind = 'conversion' THEN 1 ELSE 0 END) AS conversations")
+            ->selectRaw("SUM(CASE WHEN kind = 'shop_view' THEN 1 ELSE 0 END) AS shop_views")
+            ->selectRaw("SUM(CASE WHEN kind = 'service' THEN 1 ELSE 0 END) AS service_requests")
             ->groupBy('experiment_arm')->get()->keyBy('experiment_arm');
         $result = [];
         foreach (['A', 'B'] as $arm) {
             $row = $rows->get($arm);
             $impressions = (int) ($row?->impressions ?? 0);
             $clicks = (int) ($row?->clicks ?? 0);
-            $result[$arm] = ['title' => $this->snapshot[$arm]['title'] ?? $arm, 'impressions' => $impressions, 'clicks' => $clicks, 'conversations' => (int) ($row?->conversations ?? 0), 'ctr' => $impressions > 0 ? round(100 * $clicks / $impressions, 2) : null];
+            $result[$arm] = ['title' => $this->snapshot[$arm]['title'] ?? $arm, 'impressions' => $impressions, 'clicks' => $clicks, 'conversations' => (int) ($row?->conversations ?? 0), 'shop_views' => (int) ($row?->shop_views ?? 0), 'service_requests' => (int) ($row?->service_requests ?? 0), 'ctr' => $impressions > 0 ? round(100 * $clicks / $impressions, 2) : null];
         }
 
         return $result;

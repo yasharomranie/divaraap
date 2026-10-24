@@ -224,6 +224,30 @@ final class AdvertisingExperimentTest extends TestCase
         $this->assertSame(1, AdvertisingEvent::where('source_click_id', $click->id)->count());
     }
 
+    public function test_post_click_actions_preserve_experiment_arm_and_separate_counts_after_stop(): void
+    {
+        $experiment = $this->experiment();
+        $experiment->start();
+        $this->get('/')->assertOk();
+        $click = AdvertisingEvent::create(['banner_id' => $this->a->id, 'experiment_id' => $experiment->id, 'experiment_arm' => 'A', 'placement' => 'home-top', 'device' => 'mobile', 'kind' => 'click', 'receipt' => hash('sha256', 'experiment-actions'), 'target_listing_id' => 12345, 'event_date' => now()->toDateString()]);
+        request()->cookies->set('advertising_attribution', json_encode(['id' => $click->id, 'at' => now()->timestamp]));
+        $experiment->stop();
+        AdvertisingEvent::recordPostClick('service', 12345);
+        AdvertisingEvent::recordPostClick('service', 12345);
+        $shopClick = AdvertisingEvent::create(['banner_id' => $this->b->id, 'experiment_id' => $experiment->id, 'experiment_arm' => 'B', 'placement' => 'home-top', 'device' => 'desktop', 'kind' => 'click', 'receipt' => hash('sha256', 'experiment-shop-actions'), 'target_shop_id' => 23456, 'event_date' => now()->toDateString()]);
+        request()->cookies->set('advertising_attribution', json_encode(['id' => $shopClick->id, 'at' => now()->timestamp]));
+        AdvertisingEvent::recordPostClick('shop_view', 23456);
+        AdvertisingEvent::recordPostClick('shop_view', 23456);
+        $rows = $experiment->report();
+        $this->assertSame(1, $rows['A']['service_requests']);
+        $this->assertSame(0, $rows['A']['shop_views']);
+        $this->assertSame(1, $rows['B']['shop_views']);
+        $this->assertSame(0, $rows['B']['service_requests']);
+        $this->assertSame(2, AdvertisingEvent::whereNotNull('source_click_id')->count());
+        $html = view('advertising::experiments.report', ['experiment' => $experiment, 'rows' => $rows])->render();
+        $this->assertStringContainsString(__('advertising::metrics.conversion_definition'), $html);
+    }
+
     public function test_real_filament_creation_start_report_stop_and_admin_only_access(): void
     {
         Livewire::test(CreateExperiment::class)->fillForm(['name' => 'Filament comparison', 'placement_id' => $this->placement->id, 'banner_a_id' => $this->a->id, 'banner_b_id' => $this->b->id, 'duration_days' => 7])->call('create')->assertHasNoFormErrors();

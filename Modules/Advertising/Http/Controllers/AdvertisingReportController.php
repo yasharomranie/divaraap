@@ -21,10 +21,10 @@ final class AdvertisingReportController
         return response()->streamDownload(function () use ($filters, $campaignId, $title): void {
             $output = fopen('php://output', 'wb');
             fwrite($output, "\xEF\xBB\xBF");
-            fputcsv($output, array_map(fn (string $key) => __('advertising::metrics.'.$key), ['csv_campaign', 'from', 'to', 'dimension', 'group_label', 'impressions', 'clicks', 'ctr', 'conversations']), ',', '"', '');
+            fputcsv($output, array_map(fn (string $key) => __('advertising::metrics.'.$key), ['csv_campaign', 'from', 'to', 'dimension', 'group_label', 'impressions', 'clicks', 'ctr', 'conversations', 'shop_views', 'service_requests']), ',', '"', '');
             foreach (AdvertisingEvent::reportRows($campaignId, $filters['dimension'], $filters['fromDate'], $filters['toDate']) as $row) {
                 $label = in_array($filters['dimension'], ['placement', 'device'], true) ? __('advertising::admin.'.$row['label']) : $row['label'];
-                $values = [$title, $filters['fromDate'], $filters['toDate'], __('advertising::metrics.'.$filters['dimension']), $label, $row['impressions'], $row['clicks'], $row['ctr'] ?? '', $row['conversations']];
+                $values = [$title, $filters['fromDate'], $filters['toDate'], __('advertising::metrics.'.$filters['dimension']), $label, $row['impressions'], $row['clicks'], $row['ctr'] ?? '', $row['conversations'], $row['shop_views'], $row['service_requests']];
                 fputcsv($output, array_map(self::safeCell(...), $values), ',', '"', '');
             }
             fclose($output);

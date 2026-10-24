@@ -14,13 +14,13 @@ export const advertisingMetrics = defineBehavior<HTMLElement>({
         let counted = false;
         let timer: ReturnType<typeof setTimeout> | undefined;
         const device = (): string => matchMedia('(max-width: 1023px)').matches ? 'mobile' : 'desktop';
-        const send = (kind: string, listing?: number, choice?: string): void => {
+        const send = (kind: string, listing?: number, choice?: string): Promise<void> => {
             const csrf = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '';
-            void fetch(url, {
+            return fetch(url, {
                 method: 'POST', credentials: 'same-origin', keepalive: true,
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
                 body: JSON.stringify({ token, kind, device: device(), listing, choice }),
-            }).catch(() => undefined);
+            }).then(() => undefined).catch(() => undefined);
         };
         const stop = (): void => {
             if (timer !== undefined) clearTimeout(timer);
@@ -57,7 +57,18 @@ export const advertisingMetrics = defineBehavior<HTMLElement>({
             const listing = link.dataset['adListing'] ? Number(link.dataset['adListing']) : undefined;
             const choice = link.dataset['adChoice'];
             link.addEventListener('click', event => {
-                if (event.isTrusted && element.getBoundingClientRect().width > 0) send('click', listing, choice);
+                if (!event.isTrusted || event.defaultPrevented || element.getBoundingClientRect().width === 0) return;
+                const destination = new URL(link.href, location.href);
+                const shopNavigation = event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey
+                    && (!link.target || link.target === '_self') && !link.hasAttribute('download')
+                    && destination.origin === location.origin && /^\/sellers\/[1-9][0-9]*\/?$/.test(destination.pathname);
+                if (shopNavigation) {
+                    event.preventDefault();
+                    void Promise.race([send('click', listing, choice), new Promise<void>(resolve => setTimeout(resolve, 500))])
+                        .then(() => location.assign(link.href));
+                } else {
+                    void send('click', listing, choice);
+                }
             });
             link.addEventListener('auxclick', event => {
                 if (event.isTrusted && event.button === 1 && element.getBoundingClientRect().width > 0) send('click', listing, choice);

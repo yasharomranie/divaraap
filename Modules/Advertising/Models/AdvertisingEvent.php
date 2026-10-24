@@ -13,6 +13,7 @@ use Modules\Admin\App\Settings\OperationsSettings;
 use Modules\Advertising\Support\AdvertisingFrequency;
 use Modules\Advertising\Support\AdvertisingToken;
 use Modules\Listing\Models\Listing;
+use Modules\User\App\Models\Profile;
 
 final class AdvertisingEvent extends Model
 {
@@ -58,6 +59,9 @@ final class AdvertisingEvent extends Model
         if (($data['sponsorship'] ?? null) !== $banner->sponsorshipSignature() || ! $banner->eligibleForPlacement($data['placement'])) {
             return;
         }
+        if (($data['shop_signature'] ?? null) !== $banner->shopSignature()) {
+            return;
+        }
         $placement = BannerPlacement::query()->where('key', $data['placement'])->where('is_active', true)->first();
         if (! $placement || ! in_array($placement->device, ['both', $device], true) || ! in_array($banner->device, ['both', $device], true) || ! $placement->assignments()->where('banner_id', $banner->id)->exists()) {
             return;
@@ -66,6 +70,7 @@ final class AdvertisingEvent extends Model
             return;
         }
         $targetListingId = null;
+        $targetShopId = null;
         if ($kind === 'click') {
             if ($banner->creative_format === 'filter') {
                 if ($listingId !== null || $choice === null || ! isset($banner->preparedFilters()[$choice])) {
@@ -88,15 +93,16 @@ final class AdvertisingEvent extends Model
                     return;
                 }
                 $targetListingId = Listing::advertisingDestinationId((string) $banner->destination());
+                $targetShopId = Profile::advertisingDestinationShopId((string) $banner->destination());
             }
         }
         $receipt = hash('sha256', $data['nonce'].'|'.$kind);
-        DB::transaction(function () use ($banner, $data, $device, $kind, $receipt, $targetListingId): void {
+        DB::transaction(function () use ($banner, $data, $device, $kind, $receipt, $targetListingId, $targetShopId): void {
             $inserted = self::query()->insertOrIgnore([
                 'banner_id' => $banner->id, 'campaign_id' => $data['campaign'],
                 'experiment_id' => $data['experiment']['id'] ?? null, 'experiment_arm' => $data['experiment']['arm'] ?? null,
                 'placement' => $data['placement'], 'device' => $device, 'kind' => $kind,
-                'receipt' => $receipt, 'target_listing_id' => $targetListingId,
+                'receipt' => $receipt, 'target_listing_id' => $targetListingId, 'target_shop_id' => $targetShopId,
                 'event_date' => now()->toDateString(), 'created_at' => now(), 'updated_at' => now(),
             ]);
             if ($inserted && $data['campaign'] !== null) {
@@ -109,7 +115,7 @@ final class AdvertisingEvent extends Model
         if ($kind === 'click') {
             $click = self::query()->where('receipt', $receipt)->first();
             $previous = json_decode((string) request()->cookie('advertising_attribution', ''), true);
-            if ($click && $targetListingId && (int) $click->target_listing_id === $targetListingId && (! is_array($previous) || $click->id > ($previous['id'] ?? 0))) {
+            if ($click && (($targetListingId && (int) $click->target_listing_id === $targetListingId) || ($targetShopId && (int) $click->target_shop_id === $targetShopId)) && (! is_array($previous) || $click->id > ($previous['id'] ?? 0))) {
                 Cookie::queue(cookie('advertising_attribution', json_encode(['id' => $click->id, 'at' => $click->created_at->timestamp], JSON_THROW_ON_ERROR), 1440, '/', null, request()->isSecure(), true, false, 'lax'));
             }
         }
@@ -120,6 +126,14 @@ final class AdvertisingEvent extends Model
 
     public static function recordConversation(int $listingId): void
     {
+        self::recordPostClick('conversion', $listingId);
+    }
+
+    public static function recordPostClick(string $kind, int $targetId): void
+    {
+        if (! in_array($kind, ['conversion', 'service', 'shop_view'], true)) {
+            return;
+        }
         if (! request()->hasSession() || ! app(OperationsSettings::class)->telemetry_enabled) {
             return;
         }
@@ -127,16 +141,17 @@ final class AdvertisingEvent extends Model
         if (! is_array($source) || ! isset($source['id'], $source['at']) || $source['at'] < now()->subHours(24)->timestamp || $source['at'] > now()->timestamp) {
             return;
         }
-        $click = self::query()->whereKey($source['id'])->where('kind', 'click')->where('target_listing_id', $listingId)->where('created_at', '>=', now()->subHours(24))->first();
+        $field = $kind === 'shop_view' ? 'target_shop_id' : 'target_listing_id';
+        $click = self::query()->whereKey($source['id'])->where('kind', 'click')->where($field, $targetId)->where('created_at', '>=', now()->subHours(24))->where('created_at', '<=', now())->first();
         if (! $click) {
             return;
         }
         self::query()->insertOrIgnore([
             'banner_id' => $click->banner_id, 'campaign_id' => $click->campaign_id,
             'experiment_id' => $click->experiment_id, 'experiment_arm' => $click->experiment_arm,
-            'placement' => $click->placement, 'device' => $click->device, 'kind' => 'conversion',
-            'receipt' => hash('sha256', 'conversation|'.$click->id),
-            'target_listing_id' => $listingId, 'source_click_id' => $click->id,
+            'placement' => $click->placement, 'device' => $click->device, 'kind' => $kind,
+            'receipt' => hash('sha256', ($kind === 'conversion' ? 'conversation' : $kind).'|'.$click->id),
+            'target_listing_id' => $click->target_listing_id, 'target_shop_id' => $click->target_shop_id, 'source_click_id' => $click->id,
             'event_date' => now()->toDateString(), 'created_at' => now(), 'updated_at' => now(),
         ]);
     }
@@ -162,6 +177,8 @@ final class AdvertisingEvent extends Model
             ->select($field)->selectRaw("SUM(CASE WHEN kind = 'impression' THEN 1 ELSE 0 END) AS impressions")
             ->selectRaw("SUM(CASE WHEN kind = 'click' THEN 1 ELSE 0 END) AS clicks")
             ->selectRaw("SUM(CASE WHEN kind = 'conversion' THEN 1 ELSE 0 END) AS conversations")
+            ->selectRaw("SUM(CASE WHEN kind = 'shop_view' THEN 1 ELSE 0 END) AS shop_views")
+            ->selectRaw("SUM(CASE WHEN kind = 'service' THEN 1 ELSE 0 END) AS service_requests")
             ->groupBy($field)->orderBy($field, 'desc');
         foreach ($query->lazy(200)->chunk(200) as $chunk) {
             $names = $field === 'banner_id' ? Banner::withTrashed()->whereIn('id', $chunk->pluck('banner_id'))->pluck('title', 'id')->all() : [];
@@ -169,7 +186,7 @@ final class AdvertisingEvent extends Model
                 yield [
                     'label' => $names[$row->$field] ?? $row->$field,
                     'impressions' => (int) $row->impressions, 'clicks' => (int) $row->clicks,
-                    'conversations' => (int) $row->conversations,
+                    'conversations' => (int) $row->conversations, 'shop_views' => (int) $row->shop_views, 'service_requests' => (int) $row->service_requests,
                     'ctr' => $row->impressions ? round(100 * $row->clicks / $row->impressions, 2) : null,
                 ];
             }

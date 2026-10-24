@@ -88,6 +88,18 @@ class Profile extends Model
         });
     }
 
+    public static function advertisingDestinationShopId(string $url): ?int
+    {
+        $destination = parse_url($url);
+        $origin = parse_url((string) config('app.url'));
+        if (! is_array($destination) || ! is_array($origin) || strtolower($destination['host'] ?? '') !== strtolower($origin['host'] ?? '') || ($destination['scheme'] ?? '') !== ($origin['scheme'] ?? '') || ($destination['port'] ?? null) !== ($origin['port'] ?? null) || ! preg_match('~^/sellers/([1-9][0-9]*)/?$~', $destination['path'] ?? '', $match)) {
+            return null;
+        }
+        $id = (int) $match[1];
+
+        return isset(static::advertisingShops([$id])[$id]) ? $id : null;
+    }
+
     public static function advertisingShops(array $ids): array
     {
         if ($ids === []) {

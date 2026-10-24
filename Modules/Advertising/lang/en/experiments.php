@@ -26,6 +26,8 @@ return [
     'expired_report' => 'Some events may have expired from the 90-day retention window. This report may be incomplete.',
     'impressions' => 'Measured impressions',
     'clicks' => 'Measured clicks',
+    'shop_views' => 'Post-click shop visits',
+    'service_requests' => 'Submitted service requests',
     'conversations' => 'New conversations after click',
     'ctr' => 'Click-through rate',
     'no_winner' => 'Descriptive comparison only: no statistical significance or automatic winner is claimed. Compare after adequate exposure and the full planned period. Conversations use the existing 24-hour attribution, not purchases.',

@@ -165,7 +165,7 @@ final class CategorySponsorshipTest extends TestCase
         $this->travel(2)->seconds();
         $this->withCredentials()->postJson(route('advertising.events'), ['token' => $token, 'kind' => 'impression', 'device' => 'mobile'])->assertNoContent();
         foreach (range(1, 2) as $attempt) {
-            $this->withCredentials()->postJson(route('advertising.events'), ['token' => $token, 'kind' => 'click', 'device' => 'mobile'])->assertNoContent()->assertCookieMissing('advertising_attribution');
+            $this->withCredentials()->postJson(route('advertising.events'), ['token' => $token, 'kind' => 'click', 'device' => 'mobile'])->assertNoContent()->assertCookie('advertising_attribution');
         }
         $this->assertSame(2, AdvertisingEvent::where('banner_id', $card->id)->count());
         $card->update(['sponsored_category_id' => $this->child->id]);

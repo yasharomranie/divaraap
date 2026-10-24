@@ -10,7 +10,7 @@
             <section class="space-y-2 rounded-lg border border-gray-200 p-4 dark:border-gray-700" aria-labelledby="experiment-arm-{{ $arm }}">
                 <h3 id="experiment-arm-{{ $arm }}" class="font-semibold"><bdi>{{ $arm }}</bdi> · {{ $row['title'] }}</h3>
                 <dl class="space-y-2">
-                    @foreach(['impressions', 'clicks', 'conversations', 'ctr'] as $metric)
+                    @foreach(['impressions', 'clicks', 'conversations', 'shop_views', 'service_requests', 'ctr'] as $metric)
                         <div class="flex flex-wrap justify-between gap-2">
                             <dt>{{ __('advertising::experiments.'.$metric) }}</dt>
                             <dd><bdi>{{ $row[$metric] === null ? '—' : number_format($row[$metric], $metric === 'ctr' ? 2 : 0).($metric === 'ctr' ? '%' : '') }}</bdi></dd>
@@ -21,4 +21,5 @@
         @endforeach
     </div>
     <p>{{ __('advertising::experiments.no_winner') }}</p>
+    <p>{{ __('advertising::metrics.conversion_definition') }}</p>
 </div>

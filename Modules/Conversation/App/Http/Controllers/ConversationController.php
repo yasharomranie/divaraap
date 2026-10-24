@@ -12,6 +12,7 @@ use Illuminate\Http\Response;
 use Modules\Conversation\App\Events\ConversationReadUpdated;
 use Modules\Conversation\App\Events\ConversationStarted;
 use Modules\Conversation\App\Events\InboxMessageCreated;
+use Modules\Conversation\App\Events\ServiceRequestSubmitted;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Conversation\App\Models\ConversationBlock;
 use Modules\Conversation\App\Models\ConversationMessage;
@@ -121,6 +122,10 @@ class ConversationController extends Controller
 
         if ($conversation->wasRecentlyCreated) {
             event(new ConversationStarted((int) $listing->getKey()));
+        }
+
+        if ($request->boolean('service_request') && $message !== null) {
+            event(new ServiceRequestSubmitted((int) $listing->getKey()));
         }
 
         if ($request->expectsJson()) {

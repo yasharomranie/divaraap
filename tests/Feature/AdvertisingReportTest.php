@@ -50,6 +50,8 @@ final class AdvertisingReportTest extends TestCase
         $this->event($banner, 'impression');
         $this->event($banner, 'click');
         $this->event($banner, 'conversion');
+        $this->event($banner, 'shop_view');
+        $this->event($banner, 'service');
         $this->event($other, 'impression');
         $this->admin();
         $response = $this->download(['campaignId' => $campaign->id])->assertSuccessful();
@@ -60,7 +62,7 @@ final class AdvertisingReportTest extends TestCase
         $this->assertStringContainsString('Report campaign', $csv);
         $this->assertStringContainsString('Report banner', $csv);
         $this->assertStringNotContainsString('Other campaign banner', $csv);
-        foreach (['receipt', 'visitor', 'user_id', 'target_listing_id', 'source_click_id'] as $private) {
+        foreach (['receipt', 'visitor', 'user_id', 'target_listing_id', 'target_shop_id', 'source_click_id'] as $private) {
             $this->assertStringNotContainsString($private, $csv);
         }
         $stream = fopen('php://memory', 'r+');
@@ -69,7 +71,7 @@ final class AdvertisingReportTest extends TestCase
         fgetcsv($stream, escape: '');
         $row = fgetcsv($stream, escape: '');
         fclose($stream);
-        $this->assertSame(['1', '1', '100', '1'], array_slice($row, 5));
+        $this->assertSame(['1', '1', '100', '1', '1', '1'], array_slice($row, 5));
         $this->assertSame(1, AdvertisingEvent::report($campaign->id, 'banner_id')[0]['conversations']);
     }
 

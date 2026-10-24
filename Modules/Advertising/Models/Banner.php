@@ -520,6 +520,15 @@ final class Banner extends Model
         return $this->adSponsoredCategory;
     }
 
+    public function shopSignature(): ?string
+    {
+        if (! in_array($this->creative_format, ['shop', 'sponsor'], true)) {
+            return null;
+        }
+
+        return hash('sha256', json_encode([(int) $this->shop_user_id, $this->shop_snapshot['name'] ?? null, $this->shop_snapshot['description'] ?? null, $this->shop_snapshot['hours'] ?? null], JSON_THROW_ON_ERROR));
+    }
+
     public function sponsorshipSignature(): ?string
     {
         if ($this->creative_format !== 'sponsor') {
