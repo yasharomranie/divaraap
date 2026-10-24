@@ -2,7 +2,9 @@
 
 @php
     $listingId = (int) $listing->getKey();
-    $image = $listing->primaryImageUrl('card');
+    $imageData = $listing->primaryImageData('card');
+    $image = \Modules\Listing\Support\ListingImageViewData::pickUrl($imageData);
+    $mobileImage = \Modules\Listing\Support\ListingImageViewData::pickUrl($imageData, 'mobile');
     $isFeatured = (bool) $listing->getAttribute('is_featured') || in_array($listingId, $featuredIds, true);
     $city = trim((string) $listing->getAttribute('city'));
     $country = trim((string) $listing->getAttribute('country'));
@@ -18,7 +20,10 @@
     <div class="listing-card__media">
         <a href="{{ route('listings.show', $listing) }}" aria-label="{{ $listing->getAttribute('title') }}">
             @if($image)
-                <img src="{{ $image }}" alt="{{ $listing->getAttribute('title') }}" loading="lazy" decoding="async">
+                <picture>
+                    @if($mobileImage && $mobileImage !== $image)<source media="(max-width: 1023px)" srcset="{{ $mobileImage }}">@endif
+                    <img src="{{ $image }}" alt="{{ $listing->getAttribute('title') }}" width="1080" height="810" loading="lazy" decoding="async">
+                </picture>
             @else
                 <span class="listing-card__placeholder"><x-ui.icon name="image"/></span>
             @endif

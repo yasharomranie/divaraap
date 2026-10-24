@@ -11,6 +11,7 @@ from playwright.sync_api import sync_playwright
 parser = argparse.ArgumentParser()
 parser.add_argument('--archive')
 parser.add_argument('--expect-legacy-failure', action='store_true')
+parser.add_argument('--fail-tiles', action='store_true')
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[2]
 archive = zipfile.ZipFile(args.archive) if args.archive else None
@@ -56,7 +57,7 @@ with sync_playwright() as playwright:
                 route.fulfill(status=404)
 
         context.route('http://localhost/**', serve)
-        context.route('https://tile.openstreetmap.org/**', lambda route: route.fulfill(body=tile, content_type='image/png'))
+        context.route('https://tile.openstreetmap.org/**', lambda route: route.abort() if args.fail_tiles else route.fulfill(body=tile, content_type='image/png'))
         page = context.new_page()
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.goto('http://localhost/fixture', wait_until='networkidle')
@@ -71,6 +72,8 @@ with sync_playwright() as playwright:
             assert any(path.startswith(prefix) and 'leaflet-' in path and path.endswith('.css') for path in requests), requests
             assert not any(path.startswith('/build/') for path in requests), requests
             assert not errors, errors
+            if args.fail_tiles:
+                page.get_by_text('Failed', exact=True).wait_for()
             if name == 'create':
                 page.locator('[data-create-location-canvas]').click(position={'x':100, 'y':100})
                 assert page.locator('#create-latitude').input_value() != ''

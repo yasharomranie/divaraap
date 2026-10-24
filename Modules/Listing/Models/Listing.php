@@ -741,7 +741,7 @@ class Listing extends Model implements HasMedia
 
     public static function homeFeatured(int $limit = 4): Collection
     {
-        return static::query()
+        return static::query()->with('media')
             ->active()
             ->where('is_featured', true)
             ->latest()
@@ -751,7 +751,7 @@ class Listing extends Model implements HasMedia
 
     public static function homeRecent(int $limit = 8): Collection
     {
-        return static::query()
+        return static::query()->with('media')
             ->active()
             ->latest()
             ->take($limit)

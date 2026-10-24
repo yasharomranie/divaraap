@@ -69,6 +69,9 @@ $result = $app->make(ReleaseRunner::class)->run($layout, $job);
 if (! $result['ok']) {
     throw new RuntimeException($result['message']);
 }
+foreach ($layout->read('deployment-job.json')['timings'] ?? [] as $timing) {
+    echo 'Deployment timing: '.$timing['step'].'='.$timing['duration_ms']."ms\n";
+}
 $dispatcher = file_get_contents(dirname(__DIR__).'/distribution/index.php');
 $dispatcher = str_replace("dirname(__DIR__).'/divaraap'", var_export($root, true), $dispatcher);
 $temporary = $public.'/.cpanel-index-'.$id;

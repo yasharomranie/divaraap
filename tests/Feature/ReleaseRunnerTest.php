@@ -48,6 +48,11 @@ final class ReleaseRunnerTest extends TestCase
             $this->assertSame('persistent-secret', file_get_contents($root.'/.env'));
             $job = $layout->read('deployment-job.json');
             $this->assertArrayNotHasKey('token_hash', $job);
+            $this->assertGreaterThanOrEqual(0, $job['total_duration_ms']);
+            $this->assertSame(['database_backup', 'migrate'], array_slice(array_column($job['timings'], 'step'), 0, 2));
+            foreach ($job['timings'] as $timing) {
+                $this->assertGreaterThanOrEqual(0, $timing['duration_ms']);
+            }
             if ($failure) {
                 $this->assertFileDoesNotExist($root.'/active-release.json');
                 $this->assertFileExists($root.'/deployment-maintenance.json');
@@ -57,6 +62,8 @@ final class ReleaseRunnerTest extends TestCase
                 $this->assertSame($id, $layout->read('active-release.json')['current']);
                 $this->assertFileDoesNotExist($root.'/deployment-maintenance.json');
                 $this->assertSame('completed', $job['state']);
+                $this->assertContains('migrate:settings', array_column($job['timings'], 'step'));
+                $this->assertSame('activate', end($job['timings'])['step']);
             }
         } finally {
             (new Filesystem)->deleteDirectory($root);

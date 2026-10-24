@@ -15,11 +15,27 @@ fi
 [ -f "$INSTALL_ROOT/installed.lock" ] && [ -f "$INSTALL_ROOT/.env" ] || { echo 'Existing installation not found; nothing changed.' >&2; exit 1; }
 REVISION="$("$GIT" -C "$CHECKOUT" rev-parse HEAD)"
 STAGING="$(mktemp -d "$INSTALL_ROOT/cpanel-stage.XXXXXXXX")"
-trap 'rm -rf -- "$STAGING"' EXIT
+DEPLOY_STARTED=$SECONDS
+STAGE_STARTED=$SECONDS
+DEPLOY_STAGE=download
+finish_deploy() {
+    local status=$?
+    printf 'Deployment timing: stage=%s stage_seconds=%s total_seconds=%s exit=%s\n' "$DEPLOY_STAGE" "$((SECONDS - STAGE_STARTED))" "$((SECONDS - DEPLOY_STARTED))" "$status"
+    rm -rf -- "$STAGING"
+    exit "$status"
+}
+trap finish_deploy EXIT
 ASSET="cpanel-$REVISION.zip"
 URL="https://github.com/yasharomranie/divaraap/releases/download/deploy-main"
 for name in "$ASSET" "$ASSET.sha256"; do
-    curl --fail --location --http1.1 --retry 3 --connect-timeout 20 --max-time 600 "$URL/$name" --output "$STAGING/$name"
+    printf 'Downloading %s\n' "$name"
+    curl --fail --location --http1.1 --retry 3 --connect-timeout 20 --max-time 600 "$URL/$name" --output "$STAGING/$name" --write-out 'Download timing: bytes=%{size_download} seconds=%{time_total} bytes_per_second=%{speed_download}\n'
 done
+printf 'Deployment timing: stage=download seconds=%s\n' "$((SECONDS - STAGE_STARTED))"
+DEPLOY_STAGE=prepare
+STAGE_STARTED=$SECONDS
 "$PHP_CLI" "$CHECKOUT/scripts/cpanel-release.php" prepare "$INSTALL_ROOT" "$PUBLIC_ROOT" "$STAGING/$ASSET" "$REVISION"
+printf 'Deployment timing: stage=prepare seconds=%s\n' "$((SECONDS - STAGE_STARTED))"
+DEPLOY_STAGE=activate
+STAGE_STARTED=$SECONDS
 "$PHP_CLI" "$CHECKOUT/scripts/cpanel-release.php" activate "$INSTALL_ROOT" "$PUBLIC_ROOT" "$STAGING/$ASSET" "$REVISION"
