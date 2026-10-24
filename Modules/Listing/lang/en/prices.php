@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Price guide',
+    'intro' => 'Explore asking prices from active listings created in the last 30 days.',
+    'category_id' => 'Exact product category',
+    'choose_category' => 'Choose a leaf category',
+    'city_id' => 'City (optional)',
+    'all_cities' => 'All cities',
+    'currency' => 'Currency',
+    'search' => 'Product name or model (optional)',
+    'search_hint' => 'Narrow by model and specifications. Only listing titles are searched.',
+    'condition' => 'Condition (optional)',
+    'all_conditions' => 'All conditions',
+    'condition_hint' => 'After choosing a category and showing results, its configured conditions become available.',
+    'calculate' => 'Show price guide',
+    'reset' => 'Clear filters',
+    'start' => 'Choose an exact product category to start.',
+    'errors' => 'Correct these filters:',
+    'search_error' => 'Use 2–120 characters and at most 8 searchable words.',
+    'result' => 'Asking price summary',
+    'period' => 'Listing creation dates:',
+    'sample' => ':count listings from :sellers seller accounts in the final sample',
+    'median' => 'Median asking price',
+    'range' => 'Middle price range',
+    'range_hint' => '25th to 75th percentile, without removing outliers.',
+    'min' => 'Lowest sampled price',
+    'max' => 'Highest sampled price',
+    'insufficient' => 'Not enough data. At least 10 listings from 5 seller accounts are needed. Try broadening city, model or condition.',
+    'limited' => 'The calculation uses at most the 1,000 newest eligible listings and does not represent the entire catalog.',
+    'disclaimer' => 'Seller asking prices only, not completed transactions, expert valuations or guaranteed prices or availability. Models, conditions and specifications may differ widely.',
+    'method_title' => 'Method and limitations',
+    'method' => 'Only active positive-priced listings with active sellers, the selected currency and exact leaf category are eligible. Sold, deleted, expired and service listings are excluded. No currency conversion. From the 1,000 newest listings, at most 3 per seller account remain. Different accounts do not verify independent sellers. Duplicates or inaccurate prices may exist.',
+    'method_stats' => 'Median is the middle sorted value; even samples average the two middle values, rounded to the nearest rial or currency minor unit. Percentiles use nearest rank. This is a live report, with no price history or final sale prices.',
+];

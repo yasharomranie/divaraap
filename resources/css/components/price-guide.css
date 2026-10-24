@@ -1,0 +1,8 @@
+.price-guide { max-width: 1000px; padding-block: var(--space-5); }
+.price-guide-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin: 0; }
+.price-guide-stats dd { margin: 0; font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+.price-guide-primary { border-color: var(--accent-strong); }
+.price-guide-primary dd { font-size: 24px; }
+.price-guide details summary { min-height: 44px; cursor: pointer; }
+.price-guide summary:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 3px; }
+@media (max-width: 600px) { .price-guide-stats { grid-template-columns: minmax(0, 1fr); } }

@@ -332,6 +332,7 @@
             <div class="site-footer__column">
                 <p class="site-footer__heading">{{ __('site::messages.browse') }}</p>
                 <a href="{{ route('listings.index') }}" class="site-footer__link">{{ __('site::messages.all_listings') }}</a>
+                <a href="{{ route('price-guide.index') }}" class="site-footer__link">{{ __('listing::prices.title') }}</a>
                 <a href="{{ route('wanted.index') }}" class="site-footer__link">{{ __('listing::wanted.title') }}</a>
                 <a href="{{ route('service-requests.index') }}" class="site-footer__link">{{ __('listing::services.title') }}</a>
                 <a href="{{ route('categories.index') }}" class="site-footer__link">{{ __('site::messages.categories') }}</a>

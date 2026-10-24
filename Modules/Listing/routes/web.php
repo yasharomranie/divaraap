@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Listing\Http\Controllers\ListingChecklistController;
 use Modules\Listing\Http\Controllers\ListingController;
 use Modules\Listing\Http\Controllers\ListingLocationController;
+use Modules\Listing\Http\Controllers\PriceGuideController;
 use Modules\Listing\Http\Controllers\WantedRequestController;
 
 Route::middleware('web')->prefix('listings')->name('listings.')->group(function () {
@@ -52,3 +53,5 @@ Route::middleware(['web', 'throttle:60,1'])->name('service-requests.')->group(fu
     });
     Route::post('/local-services/{wanted}/suggest', [WantedRequestController::class, 'suggest'])->where('wanted', '[1-9][0-9]{0,17}')->middleware(['auth', 'throttle:20,60,wanted-suggest:'])->name('suggest');
 });
+
+Route::middleware(['web', 'throttle:30,1,price-guide:'])->get('/price-guide', [PriceGuideController::class, 'index'])->name('price-guide.index');

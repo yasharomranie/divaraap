@@ -4,6 +4,7 @@
 <div class="shell shell--wide page comparison-page"><div class="stack stack--loose">
     <h1 class="title-page">{{ __('favorite::comparison.title') }}</h1>
     <p class="text-muted">{{ __('favorite::comparison.hint') }}</p>
+    <a class="button button--ghost" href="{{ route('price-guide.index') }}">{{ __('listing::prices.title') }}</a>
     <div class="row row--wrap">
         <a class="button button--secondary" href="{{ route('listings.index', ['category' => $listings->first()?->category_id]) }}">{{ __('favorite::comparison.more') }}</a>
         @if($listings->isNotEmpty())

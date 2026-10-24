@@ -71,6 +71,17 @@ class ListingCustomField extends Model
         });
     }
 
+    public static function priceGuideConditions(?int $category): array
+    {
+        if (! $category) {
+            return [];
+        }
+        $field = static::query()->active()->forCategory($category)->where('name', 'condition')->where('type', self::TYPE_SELECT)->ordered()->first();
+        $labels = __('listing::messages.field_options');
+
+        return collect($field?->selectOptions() ?? [])->map(fn (string $value): string => is_array($labels) ? ($labels[$value] ?? $value) : $value)->all();
+    }
+
     public static function typeOptions(): array
     {
         return [

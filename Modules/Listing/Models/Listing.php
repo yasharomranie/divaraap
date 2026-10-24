@@ -303,6 +303,41 @@ class Listing extends Model implements HasMedia
             ->with('category:id,name')->get();
     }
 
+    public static function priceGuideSamples(array $filters): Collection
+    {
+        $category = (int) ($filters['category_id'] ?? 0);
+        $currency = $filters['currency'] ?? '';
+        $terms = PersianSearch::terms($filters['search'] ?? '');
+        if (! array_key_exists($category, Category::priceGuideOptions()) || ! array_key_exists($currency, ListingPanelHelper::currencyOptions()) || $terms === null) {
+            return collect();
+        }
+        $query = self::query()->active()->where('category_id', $category)->where('currency', $currency)->where('price', '>', 0)
+            ->whereIn('user_id', User::activeAccountIdsQuery())
+            ->where('created_at', '>=', now()->subDays(30))->where('created_at', '<=', now())
+            ->where(fn (Builder $dates) => $dates->whereNull('expires_at')->orWhere('expires_at', '>', now()));
+        if (filled($filters['city_id'] ?? null)) {
+            $location = City::wantedLocation((int) $filters['city_id']);
+            if (! $location) {
+                return collect();
+            }
+            $query->whereIn('city', $location['cities'])->whereIn('country', $location['countries']);
+        }
+        if (filled($filters['condition'] ?? null)) {
+            if (! array_key_exists($filters['condition'], ListingCustomField::priceGuideConditions($category))) {
+                return collect();
+            }
+            $query->where('custom_fields->condition', $filters['condition']);
+        }
+        foreach ($terms as $term) {
+            $query->whereRaw(PersianSearch::sql('title')." LIKE ? ESCAPE '!'", [PersianSearch::pattern($term)]);
+        }
+        if ($currency === 'IRR') {
+            $query->whereRaw('price = FLOOR(price)');
+        }
+
+        return $query->orderByDesc('created_at')->orderByDesc('id')->limit(1001)->get(['id', 'user_id', 'price']);
+    }
+
     public static function buyerAlertListings(array $ids, array $filters = [], ?int $excludeUser = null): Collection
     {
         $directory = ! empty($filters['category']) ? Category::listingDirectory((int) $filters['category']) : null;

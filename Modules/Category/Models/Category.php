@@ -85,6 +85,13 @@ class Category extends Model
         return $options;
     }
 
+    public static function priceGuideOptions(): array
+    {
+        $parents = static::query()->active()->whereNotNull('parent_id')->pluck('parent_id')->all();
+
+        return array_diff_key(static::advertisingFilterOptions(), array_flip([...static::advertisingServiceCategoryIds(), ...$parents]));
+    }
+
     public static function advertisingServiceCategoryIds(): array
     {
         $categories = static::query()->active()->get(['id', 'slug', 'parent_id']);
