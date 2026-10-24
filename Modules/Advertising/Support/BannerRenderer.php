@@ -22,6 +22,8 @@ final class BannerRenderer
 
     private array $cities = [];
 
+    private array $prepared = [];
+
     public function at(string $key, int $position = 0, array $context = []): array
     {
         if (! isset($context['city_id']) && isset($context['city_name'], $context['country_name'])) {
@@ -47,6 +49,46 @@ final class BannerRenderer
         if ($experiment !== null) {
             return $experiment !== [] && app(AdvertisingCapacity::class)->reserve($key, $position) ? $experiment : [];
         }
+        if (! isset($this->prepared[$key])) {
+            $this->prepare($placement);
+            $this->prepared[$key] = true;
+        }
+        $assignments = $placement->assignments->filter(fn ($a) => $a->banner && $a->banner->eligibleForPlacement($key) && filled($a->banner->image) && $a->banner->eligibleForCampaign($context) && app(AdvertisingFrequency::class)->allows($a->banner));
+        if ($placement->ordering === 'random') {
+            $seed = request()->hasSession() ? request()->session()->getId() : now()->toDateString();
+            $assignments = $assignments->sortBy(fn ($a) => hash('sha256', $seed.'|'.$key.'|'.$a->id));
+        }
+        $output = [];
+        foreach (['mobile', 'desktop'] as $device) {
+            if (! in_array($placement->device, ['both', $device], true)) {
+                continue;
+            }
+            $items = $assignments->filter(fn ($a) => in_array($a->banner->device, ['both', $device], true))->values();
+            if ($items->isEmpty() || (! $placement->repeat && $slot >= $items->count())) {
+                continue;
+            }
+            if ($placement->ordering === 'campaign') {
+                $session = request()->hasSession() ? request()->session()->getId() : 'guest';
+                $assignment = app(CampaignAllocation::class)->select($items, $slot, $placement->repeat, $session.'|'.now()->toDateString().'|'.$key);
+                if ($assignment) {
+                    $output[$device] = $assignment->banner;
+                }
+            } else {
+                $output[$device] = $items[$slot % $items->count()]->banner;
+            }
+        }
+        if ($output !== [] && ! app(AdvertisingCapacity::class)->reserve($key, $position)) {
+            return [];
+        }
+        if (isset($output['mobile'], $output['desktop']) && $output['mobile']->id === $output['desktop']->id) {
+            return ['both' => $output['mobile']];
+        }
+
+        return $output;
+    }
+
+    private function prepare(BannerPlacement $placement): void
+    {
         $collectionIds = $placement->assignments->flatMap(fn ($assignment): array => $assignment->banner?->creative_format === 'collection' ? ($assignment->banner->collection_listing_ids ?? []) : [])->unique()->all();
         $collectionItems = Listing::advertisingCollectionItems($collectionIds);
         foreach ($placement->assignments as $assignment) {
@@ -99,37 +141,5 @@ final class BannerRenderer
                 $assignment->banner->cacheSponsoredCategory($categories[$assignment->banner->sponsored_category_id] ?? null);
             }
         }
-        $assignments = $placement->assignments->filter(fn ($a) => $a->banner && $a->banner->eligibleForPlacement($key) && filled($a->banner->image) && $a->banner->eligibleForCampaign($context) && app(AdvertisingFrequency::class)->allows($a->banner));
-        if ($placement->ordering === 'random') {
-            $seed = request()->hasSession() ? request()->session()->getId() : now()->toDateString();
-            $assignments = $assignments->sortBy(fn ($a) => hash('sha256', $seed.'|'.$key.'|'.$a->id));
-        }
-        $output = [];
-        foreach (['mobile', 'desktop'] as $device) {
-            if (! in_array($placement->device, ['both', $device], true)) {
-                continue;
-            }
-            $items = $assignments->filter(fn ($a) => in_array($a->banner->device, ['both', $device], true))->values();
-            if ($items->isEmpty() || (! $placement->repeat && $slot >= $items->count())) {
-                continue;
-            }
-            if ($placement->ordering === 'campaign') {
-                $session = request()->hasSession() ? request()->session()->getId() : 'guest';
-                $assignment = app(CampaignAllocation::class)->select($items, $slot, $placement->repeat, $session.'|'.now()->toDateString().'|'.$key);
-                if ($assignment) {
-                    $output[$device] = $assignment->banner;
-                }
-            } else {
-                $output[$device] = $items[$slot % $items->count()]->banner;
-            }
-        }
-        if ($output !== [] && ! app(AdvertisingCapacity::class)->reserve($key, $position)) {
-            return [];
-        }
-        if (isset($output['mobile'], $output['desktop']) && $output['mobile']->id === $output['desktop']->id) {
-            return ['both' => $output['mobile']];
-        }
-
-        return $output;
     }
 }
