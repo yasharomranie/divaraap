@@ -291,6 +291,15 @@ class Listing extends Model implements HasMedia
             ->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now()))->get();
     }
 
+    public static function sharedShortlistListings(array $ids): Collection
+    {
+        return self::query()->active()->whereIn('id', array_slice($ids, 0, 50))
+            ->whereIn('category_id', array_keys(Category::advertisingFilterOptions()))
+            ->whereIn('user_id', User::activeAccountIdsQuery())
+            ->where(fn (Builder $dates) => $dates->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->with('media')->get();
+    }
+
     public static function dossierListings(array $ids, int $category): Collection
     {
         if (! array_key_exists($category, Category::advertisingFilterOptions())) {

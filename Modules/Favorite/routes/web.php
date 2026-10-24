@@ -9,6 +9,7 @@ use Modules\Favorite\App\Http\Controllers\ComparisonDossierController;
 use Modules\Favorite\App\Http\Controllers\FavoriteController;
 use Modules\Favorite\App\Http\Controllers\HistoryController;
 use Modules\Favorite\App\Http\Controllers\RareWatchController;
+use Modules\Favorite\App\Http\Controllers\ShortlistSharingController;
 
 Route::middleware('web')->group(function () {
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
@@ -57,5 +58,13 @@ Route::middleware(['web', 'throttle:60,1'])->group(function (): void {
         Route::get('/create', [ComparisonDossierController::class, 'create'])->name('create');
         Route::post('/', [ComparisonDossierController::class, 'store'])->middleware('throttle:10,60,dossier-create:')->name('store');
         Route::post('/{dossier}', [ComparisonDossierController::class, 'change'])->where('dossier', '[1-9][0-9]{0,17}')->middleware('throttle:30,1,dossier-change:')->name('change');
+    });
+});
+
+Route::middleware(['web', 'throttle:60,1'])->group(function (): void {
+    Route::get('/shared-shortlists/{token}', [ShortlistSharingController::class, 'shared'])->where('token', '[a-f0-9]{64}')->name('shortlists.shared');
+    Route::middleware('auth')->group(function (): void {
+        Route::get('/collections/{collection}/sharing', [ShortlistSharingController::class, 'manage'])->where('collection', '[1-9][0-9]{0,17}')->name('shortlists.manage');
+        Route::post('/collections/{collection}/sharing', [ShortlistSharingController::class, 'change'])->where('collection', '[1-9][0-9]{0,17}')->middleware('throttle:20,1,shortlist-sharing:')->name('shortlists.change');
     });
 });

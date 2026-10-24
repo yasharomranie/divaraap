@@ -9,13 +9,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Modules\Favorite\App\Models\Concerns\SharesShortlist;
 use Modules\User\App\Models\User;
 
 final class FavoriteCollection extends Model
 {
+    use SharesShortlist;
     use SoftDeletes;
 
     protected $guarded = [];
+
+    protected $hidden = ['share_token', 'share_hash', 'share_ids'];
+
+    protected function casts(): array
+    {
+        return ['user_id' => 'integer', 'share_token' => 'encrypted', 'share_ids' => 'array', 'share_enabled' => 'boolean', 'share_revision' => 'integer', 'share_expires_at' => 'datetime'];
+    }
 
     public static function optionsFor(int $userId): array
     {

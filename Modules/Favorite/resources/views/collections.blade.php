@@ -22,6 +22,7 @@
                 <button class="button button--secondary" type="submit">{{ __('favorite::collections.rename') }}</button>
             </form>
             <a class="button button--ghost" href="{{ route('favorites.index', ['collection' => $id]) }}">{{ __('favorite::collections.open') }}</a>
+            <a class="button button--secondary" href="{{ route('shortlists.manage', $id) }}">{{ __('favorite::sharing.manage') }}</a>
             <details><summary>{{ __('favorite::collections.delete') }}</summary>
                 <p>{{ __('favorite::collections.delete_confirm') }}</p>
                 <form method="POST" action="{{ route('collections.destroy', $id) }}">@csrf @method('DELETE')<button class="button button--ghost" type="submit">{{ __('favorite::collections.delete') }}</button></form>

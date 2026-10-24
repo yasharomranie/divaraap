@@ -468,3 +468,6 @@
 .dossier-consent input { flex: 0 0 auto; margin-block-start: 4px; }
 .dossier-link { width: 100%; min-width: 0; font-size: 16px; }
 .dossier input:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
+
+.shortlist-image { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-md); }
+.dossier-consent input[type="checkbox"] { width: 20px; height: 20px; }

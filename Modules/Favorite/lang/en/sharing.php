@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Share a shortlist',
+    'manage' => 'Share this collection',
+    'private_name' => 'The collection name is private and never shown in the shared link.',
+    'hint' => 'Create a 30-day link. Anyone with it can see the approved selections.',
+    'none' => 'No link yet',
+    'active' => 'Link active',
+    'revoked' => 'Link revoked',
+    'expired' => 'Link expired',
+    'expires' => 'Link expires',
+    'link' => 'Share link',
+    'copy_hint' => 'Select and copy the link; send only to people you choose.',
+    'open' => 'Open shared shortlist',
+    'snapshot_count' => ':count selections were approved last time.',
+    'revoke' => 'Revoke link',
+    'rotate' => 'New link, same selections',
+    'clear' => 'Delete link; keep collection',
+    'preview' => 'Current selections for approval',
+    'consent' => 'I allow anyone with the link to view the public information of these selections.',
+    'create' => 'Approve selections and create link',
+    'refresh' => 'Replace selections and create new link',
+    'empty_selection' => 'Use a collection with 1–50 selections and at least one eligible public listing. Edit selections and refresh this page.',
+    'changed_selection' => 'Selections changed. Refresh this page and approve again.',
+    'membership' => 'New items are not added automatically; approve current selections again to include them. Removing or moving an item out hides it from the link. Approved items appear only while still in this collection and publicly eligible. A new link revokes the old one.',
+    'saved' => 'Sharing updated.',
+    'edit_items' => 'Manage collection selections',
+    'back' => 'Back to collections',
+    'shared_title' => 'Shared shortlist',
+    'public_hint' => 'Current eligible listing information only; price and availability are not guaranteed. This page is read-only.',
+    'missing' => 'Some approved selections are no longer available in this shortlist.',
+    'open_listing' => 'View listing',
+];
