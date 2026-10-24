@@ -1,17 +1,17 @@
 # Graph Report - divaraap  (2026-10-24)
 
 ## Corpus Check
-- 1236 files · ~3,162,150 words
+- 1251 files · ~3,166,153 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 134 file(s) not represented in the graph (top: .stub 70, (none) 26, .css 24)
 
 ## Summary
-- 6972 nodes · 15530 edges · 796 communities (203 shown, 593 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 516 edges (avg confidence: 0.86)
+- 7069 nodes · 15782 edges · 797 communities (206 shown, 591 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 517 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `15f12df4`
+- Built from commit: `7de009d0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -34,7 +34,7 @@
 - package.json
 - BackedEnum
 - Illuminate\Http\Request
-- PlacementReservation
+- PlacementReservation.php
 - PanelQuickListingForm
 - Illuminate\Database\Eloquent\Builder
 - Illuminate\Database\Schema\Blueprint
@@ -46,7 +46,7 @@
 - AdminPanelProvider.php
 - AdvertisingInvoice
 - PanelQuickListingForm.php
-- LocalMedia
+- .disk
 - GeneralSettings
 - CityResource
 - WebInstaller
@@ -56,13 +56,13 @@
 - AdvertisingBillingTest.php
 - Illuminate\Database\Seeder
 - RequestAppData
-- ConversationController.php
+- ConversationReadUpdated
 - Category
 - ConversationVisitTest
 - PlacementReservationTest.php
 - .createFromUploadedFile
 - VideoStatus
-- Advertising/routes/web.php
+- AdvertisingOrderController
 - ListingCustomFieldSeedCatalog
 - composer.json
 - AdvertisingWarningTest
@@ -70,17 +70,17 @@
 - ListingComparisonTest
 - DemoUserCatalog
 - Listing.php
-- AuthRedirector
+- LoginRequest
 - ReleaseLayout
 - ManageDeployment
 - ListingMapTest
 - ConversationSafetyTest
 - file-manager.blade.php
-- ListingCustomField
+- City
 - Conversation
 - Listing
 - AdvertisingOrder
-- UserResource.php
+- Illuminate\Support\Facades\Route
 - SellerPackage
 - SoftDeleteUniqueIndex
 - PlacementReservationResource.php
@@ -96,7 +96,7 @@
 - ProcessVideo
 - AdvertisingFrequencyTest
 - PersianLocaleTest
-- RELEASE_GUIDE_FA.md
+- فاز ۷: کیفیت و آمادگی انتشار
 - require-dev
 - scripts
 - CountryCodeManager.php
@@ -104,8 +104,8 @@
 - گزارش فاز ۱ — خط مبنای اجرایی
 - config
 - OptionalVideoAdvertisingTest
-- .createFromTemporaryUpload
-- AdvertisingOrderTest
+- {closure#1}
+- .request
 - CategoryResource
 - pathlib
 - SellerPackageTest.php
@@ -123,7 +123,7 @@
 - ComparisonDossier
 - Illuminate\Http\RedirectResponse
 - psr-4
-- AppearanceTheme
+- ManageAppearanceSettings
 - ListingOverview
 - ConversationServiceProvider
 - SitePlugin
@@ -141,11 +141,11 @@
 - PersianPanelFlowTest
 - MobileNavigationTest
 - AdvertisingListingCollectionTest
-- .redirect
-- BannerPlacementResource.php
+- ListingHistory
+- WantedRequest
 - location-picker.ts
 - Page
-- Filament\Schemas\Schema
+- OfferResource.php
 - برنامهٔ فارسی‌سازی و راست‌چین OpenClassify
 - فاز ۲ — فارسی، RTL و وزیرمتن محلی
 - ListingHistoryTest.php
@@ -154,12 +154,12 @@
 - ListingImprovementTest
 - ListingDraft
 - 2026_03_04_000000_create_favorites_tables.php
-- Filament\Contracts\Plugin
+- Filament\Panel
 - ListingRiskReviewTest
-- CampaignDeliveryLimitTest
-- GitHubReleaseTest.php
+- .issue
+- Filament\Schemas\Schema
 - .defaults
-- GitHubRelease
+- GitHubReleaseTest.php
 - requestDeploy
 - file-manager-sidebar.blade.php
 - laravel-boost
@@ -207,7 +207,7 @@
 - query
 - فهرست اولیهٔ فارسی‌سازی
 - اسکیل طراحی UI/UX Pro Max
-- ReportResource.php
+- Report
 - PromotionOrder
 - بستهٔ نصب هاست اشتراکی
 - ListingAvailabilityTest
@@ -225,7 +225,7 @@
 - file-card.blade.php
 - file-list-item.blade.php
 - devDependencies
-- .request
+- SellerPackageController.php
 - sidebar-folder-tree.blade.php
 - filemanager-sidebar
 - folder-tree.blade.php
@@ -235,6 +235,7 @@
 - release-map-assets.py
 - FavoriteSearch
 - RuntimeException
+- Illuminate\View\View
 - .panelPriceLabel
 - Illuminate\Foundation\Http\FormRequest
 - .currentFor
@@ -243,7 +244,7 @@
 - گزارش و مسدودسازی در گفتگو
 - MarketplaceFlowTest
 - APPEARANCE_FA.md
-- .show
+- SellerResponseTest
 - SellerVerificationTest
 - راهنمای استقرار و بازگشت نسخهٔ فارسی
 - Product delivery plan
@@ -257,12 +258,12 @@
 - ReviewSeeder.php
 - Closure
 - InnoDbSchemaTest.php
-- DeploymentTriggerService
+- .wantedOptions
 - Filament\Actions\CreateAction
 - PersianFileManagerTest
 - ComparisonDossierTest
 - Illuminate\Contracts\View\View
-- VideoFormSchema.php
+- CategoryResource.php
 - PersianAdminLocalizationTest
 - Banner
 - PublicPersianMarketplaceTest
@@ -273,7 +274,7 @@
 - پرداخت و صورتحساب تبلیغات
 - StateManagementTest
 - TradeChecklistTest
-- FileManagerText
+- فارسی‌سازی مدیریت فایل
 - ManageGeneralSettings
 - cpanel-deploy.sh
 - operations.blade.php
@@ -283,9 +284,9 @@
 - AdvertisingExperimentTest.php
 - comparison.blade.php
 - 0001_01_01_000001_create_cache_table.php
-- IranianLocalizationTest
+- WantedRequestTest
 - location.blade.php
-- SellerPackagePurchaseResource
+- Illuminate\Database\Eloquent\Relations\HasMany
 - 2026_08_12_210741_add_meter_event_name_to_subscription_items_table.php
 - map.blade.php
 - warnings.blade.php
@@ -310,29 +311,30 @@
 - .refreshFor
 - OfferSeeder.php
 - .saveFor
-- Filament\Panel
+- CategoryPlugin
 - ListingDraftTest
 - listing-performance.blade.php
-- .shopFor
-- Favorite/routes/web.php
+- .shopVersion
+- .redirect
 - OpenClassify
 - PanelSmokeTest
+- PERSIAN_LOCALIZATION_PLAN.md
 - 2026_10_15_000000_expand_monetary_amounts_for_rials.php
 - پیگیری کالای کمیاب
 - درخواست خدمات محلی
 - .terms
 - .detailsForUser
 - نظر معتبرتر
-- PagePlugin
+- ConversationVisit
 - listing-schedule.blade.php
 - saved-replies.blade.php
 - .prepare
-- ReportPlugin
+- NeighborhoodShopResource.php
 - Illuminate\Database\Migrations\Migration
 - edit.blade.php
 - Illuminate\Support\ServiceProvider
 - ListingPanelDemoSeeder
-- 2026_11_04_000001_add_video_caption_language.php
+- LocalServiceRequestTest
 - سازگاری تأییدشده با MySQL
 - فاز ۳ — سایت، جست‌وجو و جزئیات آگهی
 - duplicate-listing.blade.php
@@ -349,33 +351,33 @@
 - بررسی آگهی‌های مشکوک و تکراری
 - SPONSORED_LISTING_COLLECTIONS_FA.md
 - 2026_08_12_210740_add_meter_id_to_subscription_items_table.php
-- ResolveDemoRequest
+- NeighborhoodShopTest
 - کارت تبلیغاتی فروشگاه محلی
 - VideoPlugin
-- .__invoke
+- Operations
 - mine.blade.php
 - blocked.blade.php
 - safety.blade.php
 - ListingCreationLocationTest
 - SERVICE_ADVERTISING_CARDS_FA.md
-- ReviewPlugin
+- NeighborhoodShopResource
 - visits.blade.php
 - chat-panel.blade.php
 - listing-risk-review.blade.php
 - .localizedName
 - OperationsFoundationTest
-- 2026_09_19_000000_add_soft_deletes_to_favorite_pivots.php
+- GuidanceContentAdvertisingTest
 - Favorite
 - 0001_01_01_000000_create_user_domain_tables.php
-- UserPlugin
-- 2026_10_26_000001_add_report_conversation_evidence.php
-- .sql
+- AdvertisingInvoiceResource
+- WantedRequestResource
+- .priceGuideSamples
 - 2026_10_18_000000_create_buyer_alerts_tables.php
 - ListingPerformanceTest
 - City.php
 - Phase 3 — map search and owner location workflow
 - CATEGORY_SPONSORSHIP_FA.md
-- UserNotification
+- .assertOwned
 - invoices/index.blade.php
 - 2026_10_15_000001_set_iranian_defaults.php
 - invoices/show.blade.php
@@ -398,11 +400,9 @@
 - سازگاری با هاست اشتراکی
 - rare/create.blade.php
 - rare/index.blade.php
-- LocationPlugin
+- AdvertisingCampaignTest
 - 2026_11_03_000000_add_deadline_offer_cards.php
-- Carbon\CarbonImmutable
-- 2026_10_24_000000_add_seller_verification_audit.php
-- AdminDashboard
+- ListingPerformanceTest.php
 - ListingRecommendationsTest
 - 2026_10_30_000000_add_advertising_listing_collections.php
 - IranianPhone
@@ -412,14 +412,14 @@
 - 2026_11_10_000000_create_advertising_bundles.php
 - 2026_11_07_000000_create_advertising_orders.php
 - پنل سفارش تبلیغات
-- 2026_10_25_000000_add_review_interaction_evidence.php
+- فروشگاه‌های منتخب محله
 - orders/create.blade.php
 - orders/index.blade.php
 - orders/show.blade.php
 - ConversationDemoSeeder
 - 2026_03_07_000000_create_demo_instances_table.php
 - Illuminate\Http\Response
-- AdvertisingExperimentTest
+- PriceGuideRequest
 - ListingImprovementGuide
 - 2026_08_12_210739_create_subscription_items_table.php
 - ReportSeeder.php
@@ -430,8 +430,8 @@
 - ListBanners.php
 - seller-packages/index.blade.php
 - seller-packages/show.blade.php
-- ConversationBlock
-- دیپلوی با دکمهٔ Git Version Control
+- WantedRequest.php
+- PausedListingStatus
 - دنبال این می‌گردم
 - ListCampaigns.php
 - ListReservations.php
@@ -448,16 +448,16 @@
 - catalog.blade.php
 - ListReportResourceRecords.php
 - 2026_11_12_000000_create_wanted_requests.php
-- Report
+- StaffLoginResponse.php
 - ListReviewResourceRecords.php
 - ListUsers.php
 - ListVideos.php
-- .attachListingImage
+- .show
 - wanted/index.blade.php
 - own.blade.php
 - wanted/show.blade.php
 - 2026_10_18_000005_create_advertising_events.php
-- 2022_12_14_083707_create_settings_table.php
+- 2026_10_18_000009_add_campaign_delivery_limits.php
 - ListingStatus
 - wanted/form.blade.php
 - shared.blade.php
@@ -465,47 +465,45 @@
 - review.blade.php
 - dossiers/create.blade.php
 - dossiers/index.blade.php
-- .disk
-- ManageAppearanceSettings
-- ListingCustomFieldResource
+- 2026_11_06_000000_create_advertising_billing.php
+- Page.php
 - ListingCustomField.php
-- ProductionDeployTest
-- دیپلوی با فایل سیگنال و Cron در cPanel
-- به‌روزرسانی از پنل و دارایی‌های محلی
-- Filament\Support\Contracts\HasDescription
-- Filament\Support\Contracts\HasIcon
-- Filament\Support\Contracts\HasLabel
+- CategoryServiceProvider
+- FavoriteDemoSeeder
+- self
+- BannedUserStatus
+- ActiveListingStatus
+- 2026_08_01_000000_create_user_notifications_table.php
 - .buyerAlertListings
 - NotificationPlugin
-- RejectedListingStatus
+- OfferServiceProvider
 - ScheduledListingStatus
-- SoldListingStatus
+- PageServiceProvider
 - .requestPackage
-- ActiveUserStatus
-- SuspendedUserStatus
+- ReportServiceProvider
+- ReviewServiceProvider
 - ReviewQualityTest.php
-- فاز ۷: کیفیت و آمادگی انتشار
+- 2026_03_07_000000_create_video_tables.php
 - راهنمای قیمت
-- SiteServiceProvider.php
+- VideoServiceProvider
 - LocationSeeder
-- AppearanceSettingsTest
-- نصب روی سی‌پنل، بدون ترمینال
+- FavoriteServiceProvider
+- rare-item-watches.py
 - فاز ۴ — پنل کاربر و تعاملات فارسی
-- .pair
-- NotificationSeeder
+- neighborhoods/index.blade.php
 - prices/index.blade.php
 
 ## God Nodes (most connected - your core abstractions)
-1. `User` - 363 edges
+1. `User` - 370 edges
 2. `Listing` - 343 edges
 3. `Category` - 175 edges
-4. `TestCase` - 161 edges
+4. `TestCase` - 163 edges
 5. `Banner` - 119 edges
 6. `Conversation` - 113 edges
 7. `Video` - 85 edges
 8. `PanelQuickListingForm` - 78 edges
 9. `Controller` - 73 edges
-10. `Offer` - 58 edges
+10. `City` - 61 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `کنترل‌ها` --references--> `Money`  [INFERRED]
@@ -522,19 +520,23 @@
 ## Import Cycles
 - None detected.
 
-## Communities (796 total, 593 thin omitted)
+## Communities (797 total, 591 thin omitted)
+
+### Community 0 - "DemoSchemaManager"
+Cohesion: 0.14
+Nodes (4): ResolveDemoRequest, DemoInstance, DemoSchemaManager, Demo
 
 ### Community 1 - "Filament\Tables\Table"
-Cohesion: 0.07
-Nodes (12): ResourceTableActions, ResourceTableColumns, {closure#2}(), {closure#5}(), {closure#9}(), {closure#3}(), {closure#2}(), {closure#1}() (+4 more)
+Cohesion: 0.09
+Nodes (4): ResourceTableColumns, ListingResource, AdminListingResourceSchema, PromotionPlanResource
+
+### Community 2 - "Filament\Support\Contracts\HasColor"
+Cohesion: 0.10
+Nodes (6): ExpiredListingStatus, PendingListingStatus, RejectedListingStatus, SoldListingStatus, ActiveUserStatus, SuspendedUserStatus
 
 ### Community 3 - "AdvertisingBundleTest.php"
 Cohesion: 0.08
 Nodes (11): {closure#3}(), AdvertisingBundle, {closure#1}(), {closure#5}(), AdvertisingBundleTest, {closure#1}(), {closure#15}(), {closure#16}() (+3 more)
-
-### Community 4 - "BannerRenderer"
-Cohesion: 0.17
-Nodes (3): BannerRenderer, AdvertisingCampaignTest, AdvertisingTest
 
 ### Community 5 - "Filament\Resources\Pages\EditRecord"
 Cohesion: 0.07
@@ -553,20 +555,20 @@ Cohesion: 0.18
 Nodes (3): {closure#2}(), {closure#6}(), QuickListingCategorySuggester
 
 ### Community 9 - "AdminListingResourceSchema.php"
-Cohesion: 0.06
-Nodes (16): PersianLocale, {closure#1}(), {closure#10}(), {closure#15}(), {closure#16}(), {closure#17}(), {closure#18}(), {closure#19}() (+8 more)
+Cohesion: 0.04
+Nodes (27): {closure#1}(), {closure#2}(), ModelStateSelectColumn, PersianLocale, {closure#1}(), {closure#10}(), {closure#15}(), {closure#16}() (+19 more)
 
 ### Community 12 - "PromotionPlan"
-Cohesion: 0.14
+Cohesion: 0.16
 Nodes (5): {closure#2}(), {closure#2}(), PromotionPlan, {closure#1}(), {closure#3}()
 
 ### Community 13 - "BannerResource.php"
-Cohesion: 0.05
-Nodes (37): {closure#2}(), {closure#3}(), {closure#4}(), {closure#10}(), {closure#11}(), {closure#12}(), {closure#13}(), {closure#14}() (+29 more)
+Cohesion: 0.06
+Nodes (34): {closure#10}(), {closure#14}(), {closure#15}(), {closure#18}(), {closure#19}(), {closure#2}(), {closure#20}(), {closure#21}() (+26 more)
 
 ### Community 14 - "User"
-Cohesion: 0.04
-Nodes (8): NotificationDirectory, {closure#1}(), UserFactory, SavedReply, {closure#1}(), {closure#1}(), User, {closure#1}()
+Cohesion: 0.03
+Nodes (12): NotificationDirectory, {closure#1}(), UserFactory, SavedReply, FavoriteListing, FavoriteSeller, {closure#4}(), {closure#1}() (+4 more)
 
 ### Community 15 - "compilerOptions"
 Cohesion: 0.05
@@ -577,32 +579,32 @@ Cohesion: 0.09
 Nodes (20): dependencies, leaflet, private, $schema, scripts, build, dev, lint (+12 more)
 
 ### Community 17 - "BackedEnum"
-Cohesion: 0.04
-Nodes (11): HasAccessControlledPage, ListingRiskReview, Operations, ProductionDeploy, OperationActivity, AdvertisingPreview, AdvertisingStatistics, AdvertisingWarnings (+3 more)
+Cohesion: 0.05
+Nodes (9): HasAccessControlledPage, ListingRiskReview, ProductionDeploy, AdvertisingPreview, AdvertisingStatistics, AdvertisingWarnings, AdvertisingReportRequest, ReviewResource (+1 more)
 
 ### Community 18 - "Illuminate\Http\Request"
-Cohesion: 0.04
-Nodes (19): Controller, SavedReplyController, DemoController, CollectionController, FavoriteController, ListingLocationController, ListingAvailabilityController, ListingBulkController (+11 more)
+Cohesion: 0.06
+Nodes (12): SavedReplyController, CollectionController, ListingLocationController, ListingAvailabilityController, ListingBulkController, ListingDraftPhotoController, ListingDuplicateController, ListingImprovementController (+4 more)
 
-### Community 19 - "PlacementReservation"
-Cohesion: 0.12
-Nodes (8): {closure#4}(), {closure#8}(), {closure#9}(), {closure#1}(), {closure#5}(), {closure#7}(), {closure#9}(), PlacementReservation
+### Community 19 - "PlacementReservation.php"
+Cohesion: 0.19
+Nodes (6): {closure#1}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#7}(), {closure#9}()
 
 ### Community 21 - "Illuminate\Database\Eloquent\Builder"
-Cohesion: 0.04
-Nodes (32): {closure#3}(), {closure#4}(), {closure#5}(), {closure#1}(), {closure#10}(), {closure#11}(), {closure#12}(), {closure#16}() (+24 more)
+Cohesion: 0.05
+Nodes (26): {closure#3}(), {closure#4}(), {closure#5}(), {closure#1}(), {closure#10}(), {closure#11}(), {closure#12}(), {closure#16}() (+18 more)
 
 ### Community 22 - "Illuminate\Database\Schema\Blueprint"
 Cohesion: 0.05
-Nodes (31): {closure#1}(), {closure#2}(), {closure#3}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#2}(), {closure#3}() (+23 more)
+Nodes (33): {closure#1}(), {closure#2}(), {closure#3}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#2}(), {closure#3}() (+25 more)
 
 ### Community 23 - "Video"
 Cohesion: 0.13
 Nodes (10): Video, {closure#11}(), {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}() (+2 more)
 
 ### Community 24 - "Offer"
-Cohesion: 0.08
-Nodes (7): ListingDirectory, ConversationOfferController, {closure#1}(), {closure#2}(), OfferController, {closure#2}(), Offer
+Cohesion: 0.11
+Nodes (5): {closure#1}(), {closure#2}(), OfferController, {closure#2}(), Offer
 
 ### Community 25 - "require"
 Cohesion: 0.07
@@ -617,46 +619,46 @@ Cohesion: 0.22
 Nodes (13): attribute(), booleanAttribute(), ElementConstructor, numericAttribute(), setHidden(), setText(), appendBubble(), chatOffers (+5 more)
 
 ### Community 28 - "AdminPanelProvider.php"
-Cohesion: 0.08
-Nodes (4): AdminPanelProvider, {closure#2}(), {closure#3}(), Admin
+Cohesion: 0.07
+Nodes (5): AdminDashboard, AdminPanelProvider, {closure#2}(), {closure#3}(), Admin
 
 ### Community 29 - "AdvertisingInvoice"
-Cohesion: 0.09
-Nodes (15): AdvertisingInvoiceResource, {closure#1}(), {closure#10}(), {closure#11}(), {closure#12}(), {closure#13}(), {closure#2}(), {closure#3}() (+7 more)
+Cohesion: 0.12
+Nodes (15): {closure#1}(), {closure#10}(), {closure#11}(), {closure#12}(), {closure#13}(), {closure#2}(), {closure#3}(), {closure#5}() (+7 more)
 
-### Community 31 - "LocalMedia"
-Cohesion: 0.17
-Nodes (5): {closure#1}(), {closure#6}(), {closure#1}(), DemoStoragePath, LocalMedia
+### Community 31 - ".disk"
+Cohesion: 0.15
+Nodes (7): {closure#1}(), {closure#6}(), {closure#1}(), DemoStoragePath, {closure#12}(), LocalMedia, {closure#7}()
 
 ### Community 32 - "GeneralSettings"
-Cohesion: 0.08
-Nodes (5): {closure#1}(), {closure#1}(), AppearanceSettings, DeploymentSettings, GeneralSettings
+Cohesion: 0.10
+Nodes (3): AppearanceSettings, DeploymentSettings, GeneralSettings
 
 ### Community 33 - "CityResource"
 Cohesion: 0.07
 Nodes (9): ListCategoryActivities, ListListingActivities, CityResource, ListCityActivities, CountryResource, ListCountryActivities, DistrictResource, ListDistrictActivities (+1 more)
 
 ### Community 35 - "RareItemWatch"
-Cohesion: 0.11
-Nodes (6): RareWatchController, {closure#1}(), {closure#1}(), {closure#2}(), {closure#3}(), RareItemWatch
+Cohesion: 0.12
+Nodes (7): استفاده, حفاظت از سایت موجود, دیپلوی با دکمهٔ Git Version Control, {closure#1}(), {closure#2}(), {closure#3}(), RareItemWatch
 
 ### Community 36 - "Filament\Forms\Components\TextInput"
-Cohesion: 0.06
-Nodes (7): ModelStateSelect, {closure#1}(), {closure#1}(), {closure#2}(), HomeSlideFormSchema, UserFormFields, VideoFormSchema
+Cohesion: 0.04
+Nodes (22): ModelStateSelect, ResourceTableActions, {closure#3}(), {closure#1}(), {closure#1}(), {closure#2}(), {closure#3}(), {closure#2}() (+14 more)
 
 ### Community 37 - "Do Things the Laravel Way"
 Cohesion: 0.04
 Nodes (48): APIs & Eloquent Resources, Application Structure & Architecture, Artisan, Artisan, Authentication & Authorization, Available Search Syntax, Comments, Common Mistakes (+40 more)
 
 ### Community 38 - "AdvertisingBillingTest.php"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (14): {closure#1}(), {closure#3}(), AdvertisingBillingTest, {closure#1}(), {closure#10}(), {closure#19}(), {closure#2}(), {closure#21}() (+6 more)
 
 ### Community 39 - "Illuminate\Database\Seeder"
 Cohesion: 0.15
-Nodes (7): DatabaseSeeder, DemoContentSeeder, ListingCustomFieldSeeder, IranianLocationSeeder, PageSeeder, PromotionOrderSeeder, PromotionPlanSeeder
+Nodes (7): DatabaseSeeder, DemoContentSeeder, ListingCustomFieldSeeder, NotificationSeeder, PageSeeder, PromotionOrderSeeder, PromotionPlanSeeder
 
-### Community 41 - "ConversationController.php"
+### Community 41 - "ConversationReadUpdated"
 Cohesion: 0.18
 Nodes (4): ConversationReadUpdated, InboxMessageCreated, Conversation, Realtime Chat (Reverb)
 
@@ -665,12 +667,12 @@ Cohesion: 0.12
 Nodes (14): {closure#1}(), {closure#14}(), {closure#15}(), {closure#16}(), {closure#17}(), {closure#2}(), {closure#3}(), {closure#4}() (+6 more)
 
 ### Community 46 - "VideoStatus"
-Cohesion: 0.15
-Nodes (6): {closure#1}(), VideoStatus, Failed, Pending, Processing, Ready
+Cohesion: 0.12
+Nodes (7): {closure#1}(), VideoStatus, Failed, Pending, Processing, Ready, VideoTableSchema
 
-### Community 47 - "Advertising/routes/web.php"
-Cohesion: 0.08
-Nodes (6): AdvertisingBundleController, AdvertisingOrderController, BannerPreviewController, VideoCaptionController, AdvertisingBundleRequest, AdvertisingOrderRequest
+### Community 47 - "AdvertisingOrderController"
+Cohesion: 0.12
+Nodes (4): AdvertisingBundleController, AdvertisingOrderController, AdvertisingBundleRequest, AdvertisingOrderRequest
 
 ### Community 49 - "composer.json"
 Cohesion: 0.13
@@ -686,18 +688,14 @@ Nodes (5): DemoUserCatalog, AuthUserSeeder, {closure#1}(), {closure#2}(), VideoD
 
 ### Community 54 - "Listing.php"
 Cohesion: 0.04
-Nodes (28): {closure#11}(), {closure#12}(), {closure#13}(), {closure#14}(), {closure#15}(), {closure#17}(), {closure#18}(), {closure#19}() (+20 more)
-
-### Community 55 - "AuthRedirector"
-Cohesion: 0.10
-Nodes (7): LoginController, RegisterController, SocialAuthController, LoginRequest, AuthProviderCatalog, {closure#1}(), AuthRedirector
+Nodes (24): {closure#11}(), {closure#12}(), {closure#13}(), {closure#14}(), {closure#15}(), {closure#17}(), {closure#18}(), {closure#19}() (+16 more)
 
 ### Community 56 - "ReleaseLayout"
-Cohesion: 0.17
+Cohesion: 0.18
 Nodes (3): DeploymentManager, ReleaseLayout, DeploymentHandoffTest
 
 ### Community 57 - "ManageDeployment"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (5): {closure#2}(), {closure#3}(), {closure#4}(), ManageDeployment, DeploymentSettingsTest
 
 ### Community 59 - "ConversationSafetyTest"
@@ -708,25 +706,25 @@ Nodes (3): ConversationSafetyController, {closure#7}(), ConversationSafetyTest
 Cohesion: 0.10
 Nodes (19): clearSelection, clearUploadedFiles, createFolder, createSubfolder, deleteSelected, filemanager::components.viewers.fallback, filemanager::filament.pages.partials.file-card, filemanager::filament.pages.partials.file-list-item (+11 more)
 
-### Community 61 - "ListingCustomField"
-Cohesion: 0.14
-Nodes (7): {closure#1}(), {closure#7}(), ListingCustomField, Listing, ListingCustomFieldSchemaBuilder, PriceGuide, {closure#1}()
+### Community 61 - "City"
+Cohesion: 0.05
+Nodes (11): {closure#1}(), {closure#1}(), {closure#7}(), ListingCustomField, Listing, ListingCustomFieldSchemaBuilder, PriceGuide, City (+3 more)
 
 ### Community 62 - "Conversation"
-Cohesion: 0.08
-Nodes (6): {closure#1}(), ConversationVisitController, Conversation, {closure#4}(), {closure#6}(), ConversationVisit
+Cohesion: 0.10
+Nodes (3): {closure#1}(), ConversationController, Conversation
 
 ### Community 63 - "Listing"
 Cohesion: 0.04
-Nodes (9): BuyerPublication, {closure#2}(), {closure#1}(), {closure#1}(), CreateListing, Listing, ListingChecklistProgress, Modules (+1 more)
+Nodes (9): {closure#2}(), {closure#1}(), CreateListing, EditListing, {closure#50}(), Listing, {closure#1}(), Modules (+1 more)
 
 ### Community 64 - "AdvertisingOrder"
-Cohesion: 0.07
-Nodes (20): {closure#1}(), {closure#4}(), {closure#10}(), {closure#11}(), {closure#12}(), {closure#13}(), {closure#14}(), {closure#15}() (+12 more)
+Cohesion: 0.10
+Nodes (19): {closure#1}(), {closure#4}(), {closure#10}(), {closure#11}(), {closure#12}(), {closure#13}(), {closure#14}(), {closure#15}() (+11 more)
 
-### Community 65 - "UserResource.php"
-Cohesion: 0.11
-Nodes (7): {closure#1}(), {closure#2}(), ModelStateSelectColumn, {closure#3}(), {closure#3}(), {closure#4}(), UserResource
+### Community 65 - "Illuminate\Support\Facades\Route"
+Cohesion: 0.06
+Nodes (5): AdvertisingReportController, LocationLookupController, HomeController, PublicMediaController, GET /dashboard()
 
 ### Community 66 - "SellerPackage"
 Cohesion: 0.18
@@ -734,14 +732,14 @@ Nodes (4): {closure#1}(), {closure#1}(), {closure#3}(), SellerPackage
 
 ### Community 67 - "SoftDeleteUniqueIndex"
 Cohesion: 0.04
-Nodes (31): SoftDeleteUniqueIndex, up(), {closure#1}(), up(), {closure#1}(), {closure#2}(), up(), {closure#1}() (+23 more)
+Nodes (33): SoftDeleteUniqueIndex, up(), {closure#1}(), up(), {closure#1}(), {closure#2}(), up(), {closure#1}() (+25 more)
 
 ### Community 68 - "PlacementReservationResource.php"
-Cohesion: 0.06
-Nodes (11): PlacementCalendar, BannerResource, {closure#2}(), {closure#7}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#6}() (+3 more)
+Cohesion: 0.10
+Nodes (7): PlacementCalendar, {closure#2}(), {closure#4}(), {closure#7}(), {closure#8}(), {closure#9}(), PlacementReservation
 
 ### Community 69 - "Throwable"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (3): DatabaseBackup, ReleaseRunner, ReleaseRunnerTest
 
 ### Community 70 - "CampaignResource.php"
@@ -757,32 +755,28 @@ Cohesion: 0.11
 Nodes (17): backToRootCategories, discardDraft, enterCategory({{ $category[, goToCategoryStep, goToDetailsStep, goToPreviewStep, goToStep({{ $currentStep - 1 }}), goToStep({{ $number }}) (+9 more)
 
 ### Community 73 - "Review"
-Cohesion: 0.08
+Cohesion: 0.10
 Nodes (3): {closure#2}(), Review, {closure#1}()
 
 ### Community 74 - "AdvertisingExperiment"
-Cohesion: 0.14
-Nodes (7): {closure#10}(), {closure#5}(), {closure#6}(), {closure#7}(), {closure#8}(), {closure#9}(), AdvertisingExperiment
-
-### Community 75 - ".report"
-Cohesion: 0.14
-Nodes (3): PriceGuideController, PriceGuideRequest, PriceGuideTest
+Cohesion: 0.08
+Nodes (9): {closure#10}(), {closure#5}(), {closure#6}(), {closure#7}(), {closure#8}(), {closure#9}(), AdvertisingExperiment, {closure#1}() (+1 more)
 
 ### Community 76 - "Profile"
-Cohesion: 0.11
-Nodes (8): Panel, {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), Profile, {closure#2}(), User
+Cohesion: 0.12
+Nodes (7): Panel, {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), Profile, User
 
 ### Community 77 - ".defaultCurrency"
 Cohesion: 0.17
 Nodes (5): {closure#11}(), ListingPanelHelper, {closure#2}(), {closure#1}(), RialMoneyTest
 
 ### Community 78 - "ProcessVideo"
-Cohesion: 0.23
+Cohesion: 0.19
 Nodes (3): ProcessVideo, Video, VideoTranscoder
 
-### Community 81 - "RELEASE_GUIDE_FA.md"
-Cohesion: 0.20
-Nodes (7): محیط توسعهٔ فاز ۱, نصب و اجرا, نگهداری و عیب‌یابی, بررسی اجرای staging, مانع مشاهده‌شده, وضعیت باقی‌مانده, کارهای انجام‌شده
+### Community 81 - "فاز ۷: کیفیت و آمادگی انتشار"
+Cohesion: 0.13
+Nodes (12): محیط توسعهٔ فاز ۱, نصب و اجرا, نگهداری و عیب‌یابی, اصلاحات, شواهد, فاز ۷: کیفیت و آمادگی انتشار, موارد باز پیش از انتشار واقعی, پیگیری staging (+4 more)
 
 ### Community 82 - "require-dev"
 Cohesion: 0.22
@@ -801,28 +795,32 @@ Cohesion: 0.25
 Nodes (8): pestphp/pest-plugin, php-http/discovery, wikimedia/composer-merge-plugin, config, allow-plugins, optimize-autoloader, preferred-install, sort-packages
 
 ### Community 88 - "OptionalVideoAdvertisingTest"
-Cohesion: 0.17
+Cohesion: 0.16
 Nodes (4): {closure#29}(), {closure#30}(), {closure#31}(), OptionalVideoAdvertisingTest
 
-### Community 90 - "AdvertisingOrderTest"
-Cohesion: 0.24
-Nodes (3): AdvertisingOrderTest, {closure#1}(), {closure#4}()
+### Community 89 - "{closure#1}"
+Cohesion: 0.20
+Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
+
+### Community 90 - ".request"
+Cohesion: 0.07
+Nodes (3): FavoriteController, RareWatchController, RareWatchRequest
 
 ### Community 92 - "pathlib"
-Cohesion: 0.10
-Nodes (8): fixture(), runner(), running_runner(), status_runner(), fixture(), fixture(), counts(), fixture()
+Cohesion: 0.11
+Nodes (6): fixture(), runner(), running_runner(), status_runner(), fixture(), fixture()
 
 ### Community 93 - "SellerPackageTest.php"
 Cohesion: 0.17
 Nodes (6): {closure#10}(), {closure#11}(), {closure#12}(), {closure#13}(), {closure#8}(), {closure#9}()
 
 ### Community 94 - "AdvertisingReportTest"
-Cohesion: 0.08
-Nodes (7): AdvertisingReportController, {closure#1}(), AdvertisingReportRequest, {closure#1}(), AdvertisingConversionTest, AdvertisingMetricsTest, AdvertisingReportTest
+Cohesion: 0.12
+Nodes (5): {closure#1}(), {closure#1}(), AdvertisingConversionTest, AdvertisingMetricsTest, AdvertisingReportTest
 
 ### Community 96 - "AdvertisingOrderTest.php"
-Cohesion: 0.08
-Nodes (3): AdvertisingOrderResource, ListAdvertisingOrders, {closure#5}()
+Cohesion: 0.07
+Nodes (6): AdvertisingOrderResource, ListAdvertisingOrders, AdvertisingOrderTest, {closure#1}(), {closure#4}(), {closure#5}()
 
 ### Community 100 - "queryAll"
 Cohesion: 0.19
@@ -841,7 +839,7 @@ Cohesion: 0.17
 Nodes (17): buildBody(), csrfToken(), get(), HttpError, HttpMethod, HttpRequest, post(), request() (+9 more)
 
 ### Community 105 - "ThemeManager"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (4): CategoryController, {closure#1}(), ThemeServiceProvider, ThemeManager
 
 ### Community 106 - "ComparisonDossier"
@@ -850,15 +848,23 @@ Nodes (5): {closure#1}(), {closure#2}(), {closure#4}(), {closure#6}(), Compariso
 
 ### Community 107 - "Illuminate\Http\RedirectResponse"
 Cohesion: 0.05
-Nodes (10): StaffLoginResponse, RareWatchRequest, ListingChecklistController, PanelController, ConfirmPasswordController, EmailVerificationController, ForgotPasswordController, PasswordController (+2 more)
+Nodes (16): Controller, DemoController, ListingChecklistController, LanguageController, ConfirmPasswordController, EmailVerificationController, ForgotPasswordController, LoginController (+8 more)
 
 ### Community 108 - "psr-4"
 Cohesion: 0.33
 Nodes (6): autoload, psr-4, App\\, Database\\Factories\\, Database\\Seeders\\, Modules\\
 
+### Community 109 - "ManageAppearanceSettings"
+Cohesion: 0.05
+Nodes (19): DeploymentTriggerService, AppearanceTheme, up(), آزمون, تنظیم کرون اصلی, درخواست دستی در صورت خطای ۵۰۰, دیپلوی با فایل سیگنال و Cron در cPanel, پیش‌نیاز نصب فعلی (+11 more)
+
+### Community 114 - "AdvertisingServiceCardTest"
+Cohesion: 0.14
+Nodes (4): {closure#11}(), {closure#12}(), {closure#13}(), AdvertisingServiceCardTest
+
 ### Community 116 - "WantedRequestTest.php"
-Cohesion: 0.06
-Nodes (18): WantedRequestResource, LocalServiceRequestTest, {closure#11}(), {closure#13}(), {closure#16}(), {closure#17}(), {closure#18}(), {closure#19}() (+10 more)
+Cohesion: 0.09
+Nodes (15): {closure#11}(), {closure#13}(), {closure#16}(), {closure#17}(), {closure#18}(), {closure#19}(), {closure#2}(), {closure#20}() (+7 more)
 
 ### Community 117 - "گزارش فاز ۶ — بومی‌سازی ایران"
 Cohesion: 0.29
@@ -869,32 +875,28 @@ Cohesion: 0.19
 Nodes (5): {closure#1}(), {closure#2}(), {closure#4}(), {closure#5}(), {closure#6}()
 
 ### Community 119 - "Illuminate\Support\Facades\Schema"
-Cohesion: 0.06
-Nodes (8): {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}()
+Cohesion: 0.05
+Nodes (11): {closure#1}(), {closure#1}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#1}() (+3 more)
 
 ### Community 121 - "Illuminate\Database\Eloquent\Model"
-Cohesion: 0.02
-Nodes (30): Money, PersianSearch, ProductEvent, {closure#2}(), AdvertisingPayment, AdvertisingWarning, BannerAssignment, {closure#1}() (+22 more)
+Cohesion: 0.03
+Nodes (25): Money, PersianSearch, ProductEvent, AdvertisingPayment, BannerAssignment, {closure#1}(), {closure#1}(), FrequencyCount (+17 more)
 
-### Community 122 - "ConversationMessage"
-Cohesion: 0.14
-Nodes (4): ConversationController, {closure#9}(), ConversationMessage, QuickMessageCatalog
-
-### Community 129 - ".redirect"
-Cohesion: 0.14
-Nodes (3): HistoryController, ListingHistory, ListingController
+### Community 130 - "WantedRequest"
+Cohesion: 0.09
+Nodes (6): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#6}(), WantedRequest
 
 ### Community 131 - "location-picker.ts"
 Cohesion: 0.29
 Nodes (11): isStoredLocation(), readJson(), StoredLocation, writeJson(), isLocationOptionList(), buildCitiesUrl(), label(), locationPicker (+3 more)
 
 ### Community 132 - "Page"
-Cohesion: 0.09
-Nodes (9): {closure#25}(), {closure#26}(), {closure#27}(), {closure#4}(), {closure#1}(), {closure#1}(), {closure#2}(), Page (+1 more)
+Cohesion: 0.20
+Nodes (4): {closure#4}(), {closure#1}(), {closure#1}(), Page
 
-### Community 133 - "Filament\Schemas\Schema"
-Cohesion: 0.06
-Nodes (8): CurrencySelect, MoneyInput, ListingResource, AdminListingResourceSchema, {closure#1}(), {closure#5}(), OfferResource, ReviewResource
+### Community 133 - "OfferResource.php"
+Cohesion: 0.08
+Nodes (10): {closure#1}(), CurrencySelect, {closure#2}(), {closure#3}(), {closure#4}(), MoneyInput, {closure#1}(), {closure#1}() (+2 more)
 
 ### Community 134 - "برنامهٔ فارسی‌سازی و راست‌چین OpenClassify"
 Cohesion: 0.29
@@ -905,8 +907,8 @@ Cohesion: 0.33
 Nodes (5): ادامه, تغییرات, شواهد, فاز ۲ — فارسی، RTL و وزیرمتن محلی, منبع فونت و ترجمه
 
 ### Community 137 - "Illuminate\Console\Command"
-Cohesion: 0.15
-Nodes (5): CleanupDemoCommand, PrepareDemoCommand, DemoServiceProvider, PublishDueListings, ListingServiceProvider
+Cohesion: 0.18
+Nodes (4): CleanupDemoCommand, PrepareDemoCommand, DemoServiceProvider, PublishDueListings
 
 ### Community 138 - "AdminServiceProvider.php"
 Cohesion: 0.15
@@ -916,13 +918,21 @@ Nodes (5): AccessibleTableLinks, FileManagerNotificationMailbox, AdminServicePro
 Cohesion: 0.33
 Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), up()
 
-### Community 148 - "GitHubReleaseTest.php"
-Cohesion: 0.28
-Nodes (10): {closure#1}(), {closure#10}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}(), {closure#7}() (+2 more)
+### Community 145 - "Filament\Panel"
+Cohesion: 0.08
+Nodes (8): AdvertisingPlugin, ListingPlugin, LocationPlugin, PagePlugin, PromotionPlugin, ReportPlugin, ReviewPlugin, UserPlugin
+
+### Community 148 - "Filament\Schemas\Schema"
+Cohesion: 0.07
+Nodes (4): OperationsSettings, AdvertisingBundleResource, UserNotificationResource, SellerPackageResource
 
 ### Community 149 - ".defaults"
 Cohesion: 0.28
 Nodes (3): up(), HomeSlideDefaults, HomePresentationTest
+
+### Community 150 - "GitHubReleaseTest.php"
+Cohesion: 0.11
+Nodes (12): GitHubRelease, {closure#1}(), {closure#10}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}() (+4 more)
 
 ### Community 152 - "file-manager-sidebar.blade.php"
 Cohesion: 0.33
@@ -980,9 +990,9 @@ Nodes (3): فایل‌های مشترک رابط, فهرست اولیهٔ فار
 Cohesion: 0.50
 Nodes (3): اجرای نمونه, اسکیل طراحی UI/UX Pro Max, قانون پروژه
 
-### Community 273 - "ReportResource.php"
-Cohesion: 0.10
-Nodes (6): {closure#1}(), {closure#11}(), {closure#2}(), {closure#3}(), {closure#6}(), ReportResource
+### Community 273 - "Report"
+Cohesion: 0.07
+Nodes (10): {closure#1}(), {closure#11}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#6}(), ReportResource, {closure#1}() (+2 more)
 
 ### Community 275 - "بستهٔ نصب هاست اشتراکی"
 Cohesion: 0.40
@@ -1017,16 +1027,20 @@ Cohesion: 0.20
 Nodes (4): {closure#35}(), {closure#37}(), ListingImageViewData, ScopedMediaPathGenerator
 
 ### Community 358 - "RuntimeException"
-Cohesion: 0.13
-Nodes (4): ReleaseArchive, DeploymentUploadTest, InstallerDiagnosticsTest, ReleaseSafetyTest
+Cohesion: 0.16
+Nodes (3): ReleaseArchive, InstallerDiagnosticsTest, ReleaseSafetyTest
+
+### Community 359 - "Illuminate\View\View"
+Cohesion: 0.12
+Nodes (3): PanelController, StoreVideoRequest, UpdateVideoRequest
 
 ### Community 360 - ".panelPriceLabel"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (5): {closure#2}(), {closure#16}(), {closure#33}(), {closure#7}(), {closure#14}()
 
 ### Community 361 - "Illuminate\Foundation\Http\FormRequest"
 Cohesion: 0.05
-Nodes (12): IranianMobile, MonetaryAmount, AdvertisingEventController, AdvertisingEventRequest, BannerPreviewRequest, WantedCloseRequest, WantedFilterRequest, WantedSuggestionRequest (+4 more)
+Nodes (11): IranianMobile, MonetaryAmount, AdvertisingEventController, BannerPreviewController, AdvertisingEventRequest, BannerPreviewRequest, WantedCloseRequest, WantedFilterRequest (+3 more)
 
 ### Community 386 - "گزارش و مسدودسازی در گفتگو"
 Cohesion: 0.33
@@ -1038,7 +1052,7 @@ Nodes (7): TLS و Reverb, آماده‌سازی نصب تازه, ارتقای ن
 
 ### Community 400 - "Product delivery plan"
 Cohesion: 0.04
-Nodes (49): Create similar listing delivery — feature 35, Delivery constraints, Durable listing draft delivery — feature 32, Feature 54 — guidance content advertising cards, Feature 55 — advertising invoices and confirmed manual receipts, Feature 56 — customer advertising orders, Feature 57 — placement reservation coordination calendar, Feature 58 — prepaid professional seller promotion packages (+41 more)
+Nodes (50): Create similar listing delivery — feature 35, Delivery constraints, Durable listing draft delivery — feature 32, Feature 54 — guidance content advertising cards, Feature 55 — advertising invoices and confirmed manual receipts, Feature 56 — customer advertising orders, Feature 57 — placement reservation coordination calendar, Feature 58 — prepaid professional seller promotion packages (+42 more)
 
 ### Community 402 - ".decimal"
 Cohesion: 0.17
@@ -1056,33 +1070,37 @@ Nodes (3): انتشار, بررسی توسعه, صفحهٔ فروشگاه
 Cohesion: 0.20
 Nodes (5): LocalLibraryPolicy, NormalizeLocalizedNumbers, ValidateRouteIdentifiers, {closure#1}(), PublishScheduledListings
 
+### Community 413 - ".wantedOptions"
+Cohesion: 0.12
+Nodes (11): {closure#3}(), NeighborhoodShopController, NeighborhoodShopRequest, {closure#1}(), {closure#2}(), {closure#3}(), {closure#2}(), {closure#4}() (+3 more)
+
 ### Community 414 - "Filament\Actions\CreateAction"
 Cohesion: 0.20
 Nodes (3): ListBundles, ListListingCustomFields, ListDistricts
 
 ### Community 418 - "Illuminate\Contracts\View\View"
-Cohesion: 0.04
-Nodes (7): UserDirectory, NotificationController, PageController, PromotionController, ReportController, ReviewController, SellerController
+Cohesion: 0.06
+Nodes (9): ListingDirectory, UserDirectory, NotificationController, ConversationOfferController, PageController, PromotionController, ReportController, ReviewController (+1 more)
 
-### Community 419 - "VideoFormSchema.php"
-Cohesion: 0.18
-Nodes (7): {closure#34}(), {closure#1}(), {closure#10}(), {closure#5}(), {closure#6}(), {closure#8}(), {closure#9}()
+### Community 419 - "CategoryResource.php"
+Cohesion: 0.06
+Nodes (12): BannerResource, {closure#2}(), {closure#3}(), {closure#5}(), {closure#9}(), HomeSlideFormSchema, {closure#1}(), {closure#10}() (+4 more)
 
 ### Community 421 - "PersianAdminLocalizationTest"
-Cohesion: 0.12
-Nodes (4): LocalAvatarProvider, {closure#1}(), {closure#4}(), PersianAdminLocalizationTest
+Cohesion: 0.11
+Nodes (5): LocalAvatarProvider, {closure#1}(), {closure#4}(), {closure#1}(), PersianAdminLocalizationTest
 
 ### Community 422 - "Banner"
-Cohesion: 0.09
-Nodes (3): {closure#4}(), Banner, {closure#1}()
+Cohesion: 0.12
+Nodes (4): {closure#46}(), {closure#4}(), Banner, {closure#1}()
 
 ### Community 424 - "Illuminate\Support\Collection"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (4): {closure#2}(), {closure#6}(), {closure#7}(), {closure#8}()
 
 ### Community 426 - "InstallationData.php"
-Cohesion: 0.29
-Nodes (3): {closure#1}(), InstallationData, CategorySeeder
+Cohesion: 0.18
+Nodes (4): {closure#1}(), InstallationData, CategorySeeder, IranianLocationSeeder
 
 ### Community 430 - "زمان‌بندی انتشار آگهی"
 Cohesion: 0.50
@@ -1100,13 +1118,17 @@ Nodes (5): صدور و ثبت دریافت, محدوده این نسخه, مسی
 Cohesion: 0.15
 Nodes (3): TradeChecklistCatalog, {closure#1}(), TradeChecklistTest
 
-### Community 435 - "FileManagerText"
-Cohesion: 0.20
-Nodes (5): FileManagerText, آزمون, ساختار, فارسی‌سازی مدیریت فایل, نگهداری
+### Community 435 - "فارسی‌سازی مدیریت فایل"
+Cohesion: 0.50
+Nodes (4): آزمون, ساختار, فارسی‌سازی مدیریت فایل, نگهداری
 
 ### Community 448 - "AdvertisingExperimentTest.php"
-Cohesion: 0.22
-Nodes (8): {closure#1}(), {closure#10}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#8}(), {closure#9}()
+Cohesion: 0.11
+Nodes (9): AdvertisingExperimentTest, {closure#1}(), {closure#10}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#8}() (+1 more)
+
+### Community 460 - "Illuminate\Database\Eloquent\Relations\HasMany"
+Cohesion: 0.11
+Nodes (4): {closure#2}(), {closure#1}(), {closure#3}(), {closure#4}()
 
 ### Community 473 - "Graphify در پروژه"
 Cohesion: 0.25
@@ -1148,17 +1170,17 @@ Nodes (4): {closure#6}(), {closure#7}(), {closure#8}(), ListCategories
 Cohesion: 0.40
 Nodes (4): تقویم رزرو جایگاه, لغو و سابقه, محدوده عملکرد, نمایش ماهانه
 
-### Community 509 - "ListingDraftTest"
-Cohesion: 0.19
-Nodes (5): {closure#1}(), {closure#3}(), {closure#4}(), DraftConflict, ListingDraftTest
-
-### Community 515 - "Favorite/routes/web.php"
-Cohesion: 0.10
-Nodes (4): ComparisonController, ComparisonDossierController, ComparisonDossierRequest, ListingComparison
+### Community 515 - ".redirect"
+Cohesion: 0.11
+Nodes (5): ComparisonController, ComparisonDossierController, ComparisonDossierRequest, ListingComparison, ListingController
 
 ### Community 516 - "OpenClassify"
 Cohesion: 0.15
 Nodes (13): Architecture, Contributors, Core Stack, Demo Mode, Docker, Frontend, Local, OpenClassify (+5 more)
+
+### Community 521 - "PERSIAN_LOCALIZATION_PLAN.md"
+Cohesion: 0.27
+Nodes (3): اگر نصب خطا داد, نصب روی سی‌پنل، بدون ترمینال, پیش‌نیاز و محدودیت
 
 ### Community 525 - "پیگیری کالای کمیاب"
 Cohesion: 0.40
@@ -1168,17 +1190,29 @@ Nodes (4): توقف، تمدید و محدودیت‌ها, حریم خصوصی �
 Cohesion: 0.29
 Nodes (6): انتشار, بررسی, درخواست خدمات محلی, قواعد و محدودیت‌ها, مسیرها, گردش کار
 
+### Community 527 - ".terms"
+Cohesion: 0.22
+Nodes (3): {closure#1}(), {closure#1}(), PersianSearchTest
+
 ### Community 529 - "نظر معتبرتر"
 Cohesion: 0.33
 Nodes (5): انتشار و تست, برچسب گفتگو, جلوگیری از ثبت نامعتبر, مدیریت, نظر معتبرتر
 
+### Community 530 - "ConversationVisit"
+Cohesion: 0.16
+Nodes (4): ConversationVisitController, {closure#4}(), {closure#6}(), ConversationVisit
+
+### Community 543 - "NeighborhoodShopResource.php"
+Cohesion: 0.16
+Nodes (7): {closure#6}(), NeighborhoodShop, {closure#10}(), {closure#11}(), {closure#13}(), {closure#14}(), {closure#9}()
+
 ### Community 544 - "Illuminate\Database\Migrations\Migration"
-Cohesion: 0.07
-Nodes (8): {closure#1}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}()
+Cohesion: 0.06
+Nodes (10): {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#1}() (+2 more)
 
 ### Community 548 - "Illuminate\Support\ServiceProvider"
-Cohesion: 0.05
-Nodes (12): CategoryServiceProvider, FavoriteServiceProvider, LocationServiceProvider, NotificationServiceProvider, OfferServiceProvider, PageServiceProvider, PanelServiceProvider, PromotionServiceProvider (+4 more)
+Cohesion: 0.09
+Nodes (7): ListingServiceProvider, LocationServiceProvider, NotificationServiceProvider, PanelServiceProvider, PromotionServiceProvider, SiteServiceProvider, UserServiceProvider
 
 ### Community 551 - "سازگاری تأییدشده با MySQL"
 Cohesion: 0.40
@@ -1193,8 +1227,8 @@ Cohesion: 0.50
 Nodes (3): انتشار, تداخل، تاریخچه و دسترسی, هماهنگی بازدید
 
 ### Community 567 - "AccessControlledResource"
-Cohesion: 0.08
-Nodes (5): AccessControlledResource, StaffAccess, AdvertisingBundleResource, AdvertisingResource, SellerPackageResource
+Cohesion: 0.06
+Nodes (6): AccessControlledResource, StaffAccess, AdvertisingResource, BannerPlacementResource, ListingCustomFieldResource, SellerPackagePurchaseResource
 
 ### Community 574 - "بررسی آگهی‌های مشکوک و تکراری"
 Cohesion: 0.50
@@ -1204,13 +1238,13 @@ Nodes (3): بررسی آگهی‌های مشکوک و تکراری, روند ب�
 Cohesion: 0.50
 Nodes (3): آمار و محدودیت‌ها, انتشار و بازبینی, کارت تبلیغاتی فروشگاه محلی
 
-### Community 615 - ".localizedName"
-Cohesion: 0.17
-Nodes (3): {closure#1}(), {closure#4}(), {closure#4}()
+### Community 597 - "NeighborhoodShopResource"
+Cohesion: 0.15
+Nodes (3): NeighborhoodShopResource, {closure#1}(), ListNeighborhoodShops
 
-### Community 620 - "2026_09_19_000000_add_soft_deletes_to_favorite_pivots.php"
-Cohesion: 0.29
-Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
+### Community 615 - ".localizedName"
+Cohesion: 0.22
+Nodes (3): {closure#1}(), {closure#4}(), {closure#4}()
 
 ### Community 621 - "Favorite"
 Cohesion: 0.29
@@ -1231,10 +1265,6 @@ Nodes (9): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#
 ### Community 633 - "Phase 3 — map search and owner location workflow"
 Cohesion: 0.67
 Nodes (3): Optional map location during listing creation, Phase 3 — map search and owner location workflow, Release-relative map assets repair
-
-### Community 637 - "UserNotification"
-Cohesion: 0.05
-Nodes (7): BuyerAlert, {closure#2}(), {closure#4}(), {closure#1}(), FavoriteCollection, {closure#2}(), UserNotification
 
 ### Community 648 - "AdvertisingOrder.php"
 Cohesion: 0.21
@@ -1264,21 +1294,21 @@ Nodes (3): انتشار و بررسی, پیشنهاد قیمت داخل گفتگ
 Cohesion: 0.33
 Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 
+### Community 693 - "فروشگاه‌های منتخب محله"
+Cohesion: 0.33
+Nodes (5): اعتبار و حدود, ثبت توسط مدیر, فروشگاه‌های منتخب محله, مسیرها, نمایش عمومی
+
 ### Community 696 - "orders/show.blade.php"
 Cohesion: 0.50
 Nodes (3): advertising::bundles.order-items, advertising::orders.reservations, panel::layouts.panel
 
 ### Community 701 - "Illuminate\Http\Response"
-Cohesion: 0.09
-Nodes (7): AdvertisingInvoiceController, {closure#1}(), WantedRequestController, WantedFormRequest, {closure#1}(), {closure#3}(), WantedRequest
+Cohesion: 0.18
+Nodes (4): AdvertisingInvoiceController, VideoCaptionController, WantedRequestController, WantedFormRequest
 
-### Community 716 - "ConversationBlock"
-Cohesion: 0.07
-Nodes (7): {closure#2}(), {closure#7}(), ConversationBlock, {closure#1}(), {closure#3}(), {closure#4}(), WantedResponse
-
-### Community 717 - "دیپلوی با دکمهٔ Git Version Control"
-Cohesion: 0.40
-Nodes (3): استفاده, حفاظت از سایت موجود, دیپلوی با دکمهٔ Git Version Control
+### Community 716 - "WantedRequest.php"
+Cohesion: 0.06
+Nodes (7): {closure#2}(), {closure#7}(), ConversationBlock, {closure#6}(), {closure#7}(), {closure#8}(), {closure#9}()
 
 ### Community 718 - "دنبال این می‌گردم"
 Cohesion: 0.40
@@ -1288,9 +1318,9 @@ Nodes (4): دنبال این می‌گردم, مدیریت و حریم خصوص�
 Cohesion: 0.50
 Nodes (4): تغییرات, شواهد, فاز ۵ — منابع مدیریت و محتوای پیش‌فرض فارسی, محدودهٔ باقی‌مانده
 
-### Community 737 - "Report"
-Cohesion: 0.14
-Nodes (4): {closure#4}(), {closure#1}(), {closure#2}(), Report
+### Community 741 - ".show"
+Cohesion: 0.10
+Nodes (6): {closure#39}(), {closure#1}(), {closure#3}(), {closure#4}(), DraftConflict, {closure#13}()
 
 ### Community 743 - "wanted/index.blade.php"
 Cohesion: 0.50
@@ -1304,57 +1334,37 @@ Nodes (3): listing::wanted.errors, listing::wanted.summary, panel::layouts.panel
 Cohesion: 0.50
 Nodes (3): listing::wanted.errors, listing::wanted.summary, site::layouts.app
 
-### Community 763 - ".disk"
-Cohesion: 0.22
-Nodes (3): {closure#12}(), {closure#1}(), {closure#7}()
-
-### Community 768 - "دیپلوی با فایل سیگنال و Cron در cPanel"
-Cohesion: 0.29
-Nodes (5): آزمون, تنظیم کرون اصلی, درخواست دستی در صورت خطای ۵۰۰, دیپلوی با فایل سیگنال و Cron در cPanel, پیش‌نیاز نصب فعلی
-
-### Community 769 - "به‌روزرسانی از پنل و دارایی‌های محلی"
-Cohesion: 0.29
-Nodes (7): آماده‌سازی در گیت‌هاب, ادامهٔ بستهٔ آماده و تعمیر نسخه‌های قدیمی, بدون CDN, به‌روزرسانی از پنل و دارایی‌های محلی, نصب بدون اتصال خروجی هاست, پشتیبان و شکست نصب, چیدمان امن نسخه‌ها
-
 ### Community 778 - ".requestPackage"
 Cohesion: 0.33
 Nodes (4): {closure#1}(), {closure#3}(), {closure#2}(), {closure#3}()
 
-### Community 782 - "فاز ۷: کیفیت و آمادگی انتشار"
-Cohesion: 0.40
-Nodes (5): اصلاحات, شواهد, فاز ۷: کیفیت و آمادگی انتشار, موارد باز پیش از انتشار واقعی, پیگیری staging
-
 ### Community 783 - "راهنمای قیمت"
 Cohesion: 0.40
 Nodes (4): راهنمای قیمت, مسیر و استفاده, چه چیزی محاسبه می‌شود؟, یکپارچگی و انتشار
-
-### Community 787 - "نصب روی سی‌پنل، بدون ترمینال"
-Cohesion: 0.50
-Nodes (3): اگر نصب خطا داد, نصب روی سی‌پنل، بدون ترمینال, پیش‌نیاز و محدودیت
 
 ### Community 788 - "فاز ۴ — پنل کاربر و تعاملات فارسی"
 Cohesion: 0.50
 Nodes (3): خروجی, شواهد, فاز ۴ — پنل کاربر و تعاملات فارسی
 
 ## Knowledge Gaps
-- **184 isolated node(s):** `php`, `refreshSignals`, `listing::wanted.summary`, `review(`, `panel::layouts.panel` (+179 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2376 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **593 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **185 isolated node(s):** `php`, `refreshSignals`, `listing::wanted.summary`, `review(`, `panel::layouts.panel` (+180 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2403 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **591 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `User` connect `User` to `DemoSchemaManager`, `.shopFor`, `AdvertisingBundleTest.php`, `RequestAppData.php`, `.detailsForUser`, `Illuminate\Http\Request`, `Illuminate\Database\Eloquent\Builder`, `Video`, `LocalMedia`, `RareItemWatch`, `Filament\Forms\Components\TextInput`, `ListingPanelDemoSeeder`, `AdvertisingBillingTest.php`, `ConversationController.php`, `Category`, `ConversationVisitTest`, `PlacementReservationTest.php`, `AdvertisingWarningTest`, `.createFor`, `DemoUserCatalog`, `Listing.php`, `AuthRedirector`, `ConversationSafetyTest`, `ListingCustomField`, `Conversation`, `Listing`, `UserResource.php`, `Throwable`, `Profile`, `.defaultCurrency`, `OptionalVideoAdvertisingTest`, `AdvertisingOrderTest`, `SellerPackageTest.php`, `AdvertisingReportTest`, `AdvertisingOrderTest.php`, `DeadlineOfferAdvertisingTest`, `ListingTextSuggestionsTest`, `ComparisonDossier`, `Illuminate\Http\RedirectResponse`, `OperationsFoundationTest`, `Favorite`, `AdvertisingServiceCardTest`, `WantedRequestTest.php`, `ListingPerformanceTest`, `Illuminate\Database\Eloquent\Model`, `ListingBulkTest`, `UserNotification`, `ListingScheduleTest`, `MobileNavigationTest`, `AdvertisingListingCollectionTest`, `PersianPanelFlowTest`, `ListingHistoryTest.php`, `ListingImprovementTest`, `ListingDraft`, `ReleaseReadinessTest`, `ListingRiskReviewTest`, `Carbon\CarbonImmutable`, `ConversationDemoSeeder`, `Illuminate\Http\Response`, `ReportSeeder.php`, `ConversationBlock`, `ReviewQualityTest.php`, `ListingAvailabilityTest`, `ListingSeeder`, `SavedReplyTest`, `FavoriteSearch`, `RuntimeException`, `ListingMapTest.php`, `Illuminate\Foundation\Http\FormRequest`, `.currentFor`, `ConversationOfferTest`, `MarketplaceFlowTest`, `.show`, `SellerVerificationTest`, `CategorySponsorshipTest`, `SellerPackageTest`, `ReviewSeeder.php`, `ComparisonDossierTest`, `Illuminate\Contracts\View\View`, `PersianAdminLocalizationTest`, `Illuminate\Support\Collection`, `InstallationData.php`, `TradeChecklistTest`, `AdvertisingExperimentTest.php`, `TestCase`, `self`, `ReviewQualityTest`, `.refreshFor`, `OfferSeeder.php`, `.saveFor`, `Filament\Panel`, `ListingDraftTest`?**
-  _High betweenness centrality (0.127) - this node is a cross-community bridge._
+- **Why does `User` connect `User` to `DemoSchemaManager`, `.shopVersion`, `AdvertisingBundleTest.php`, `AdminListingResourceSchema.php`, `RequestAppData.php`, `.detailsForUser`, `Illuminate\Http\Request`, `Illuminate\Database\Eloquent\Builder`, `Video`, `NeighborhoodShopResource.php`, `.disk`, `RareItemWatch`, `Filament\Forms\Components\TextInput`, `ListingPanelDemoSeeder`, `AdvertisingBillingTest.php`, `LocalServiceRequestTest`, `ConversationReadUpdated`, `Category`, `ConversationVisitTest`, `PlacementReservationTest.php`, `AdvertisingWarningTest`, `.createFor`, `DemoUserCatalog`, `Listing.php`, `ConversationSafetyTest`, `City`, `Conversation`, `Listing`, `NeighborhoodShopTest`, `Profile`, `.defaultCurrency`, `OptionalVideoAdvertisingTest`, `.request`, `SellerPackageTest.php`, `AdvertisingReportTest`, `AdvertisingOrderTest.php`, `DeadlineOfferAdvertisingTest`, `ListingTextSuggestionsTest`, `ComparisonDossier`, `Illuminate\Http\RedirectResponse`, `OperationsFoundationTest`, `Favorite`, `AdvertisingServiceCardTest`, `WantedRequestTest.php`, `ListingPerformanceTest`, `Illuminate\Database\Eloquent\Model`, `ListingBulkTest`, `ListingScheduleTest`, `PersianPanelFlowTest`, `MobileNavigationTest`, `AdvertisingListingCollectionTest`, `WantedRequest`, `ListingHistoryTest.php`, `ListingImprovementTest`, `ListingDraft`, `ReleaseReadinessTest`, `Filament\Panel`, `ListingRiskReviewTest`, `ListingPerformanceTest.php`, `ListingComparisonTest.php`, `ConversationDemoSeeder`, `Illuminate\Http\Response`, `ReportSeeder.php`, `WantedRequest.php`, `FavoriteDemoSeeder`, `ReviewQualityTest.php`, `ListingAvailabilityTest`, `ListingSeeder`, `SavedReplyTest`, `FavoriteSearch`, `Illuminate\View\View`, `Illuminate\Foundation\Http\FormRequest`, `.currentFor`, `ConversationOfferTest`, `MarketplaceFlowTest`, `SellerResponseTest`, `SellerVerificationTest`, `CategorySponsorshipTest`, `SellerPackageTest`, `ReviewSeeder.php`, `ComparisonDossierTest`, `Illuminate\Contracts\View\View`, `PersianAdminLocalizationTest`, `Illuminate\Support\Collection`, `InstallationData.php`, `TradeChecklistTest`, `AdvertisingExperimentTest.php`, `WantedRequestTest`, `Illuminate\Database\Eloquent\Relations\HasMany`, `TestCase`, `self`, `ReviewQualityTest`, `.refreshFor`, `OfferSeeder.php`, `.saveFor`, `ListingDraftTest`?**
+  _High betweenness centrality (0.133) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `User` (e.g. with `Conversation` and `Favorite`) actually correct?**
   _`User` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `php`, `refreshSignals`, `listing::wanted.summary` to the rest of the system?**
-  _184 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Filament\Tables\Table` be split into smaller, more focused modules?**
-  _Cohesion score 0.06935908691834942 - nodes in this community are weakly interconnected._
-- **Why does `TestCase` connect `TestCase` to `.shopFor`, `AdvertisingBundleTest.php`, `BannerRenderer`, `PanelSmokeTest`, `User`, `.terms`, `.detailsForUser`, `AdvertisingBillingTest.php`, `Category`, `ConversationVisitTest`, `PlacementReservationTest.php`, `.createFromUploadedFile`, `AdvertisingWarningTest`, `.createFor`, `ListingComparisonTest`, `ReleaseLayout`, `ManageDeployment`, `ListingMapTest`, `ConversationSafetyTest`, `ListingCustomField`, `Listing`, `Throwable`, `.report`, `Profile`, `.defaultCurrency`, `AdvertisingFrequencyTest`, `PersianLocaleTest`, `ListingCreationLocationTest`, `OptionalVideoAdvertisingTest`, `AdvertisingOrderTest`, `SellerPackageTest.php`, `AdvertisingReportTest`, `AdvertisingOrderTest.php`, `DeadlineOfferAdvertisingTest`, `ListingTextSuggestionsTest`, `CampaignAllocationTest`, `OperationsFoundationTest`, `AdvertisingPreparedFilterTest`, `AdvertisingServiceCardTest`, `ListingPerformanceTest`, `WantedRequestTest.php`, `Illuminate\Database\Eloquent\Model`, `ListingBulkTest`, `ListingScheduleTest`, `UserNotification`, `PersianPanelFlowTest`, `AdvertisingListingCollectionTest`, `MobileNavigationTest`, `Page`, `ListingHistoryTest.php`, `ListingImprovementTest`, `ReleaseReadinessTest`, `ListingRiskReviewTest`, `CampaignDeliveryLimitTest`, `GitHubReleaseTest.php`, `.defaults`, `GitHubRelease`, `Carbon\CarbonImmutable`, `ListingRecommendationsTest`, `AdvertisingExperimentTest`, `ConversationBlock`, `ProductionDeployTest`, `ReviewQualityTest.php`, `AppearanceSettingsTest`, `ListingAvailabilityTest`, `SavedReplyTest`, `RuntimeException`, `ListingMapTest.php`, `.currentFor`, `ConversationOfferTest`, `MarketplaceFlowTest`, `.show`, `SellerVerificationTest`, `CategorySponsorshipTest`, `SellerPackageTest`, `InnoDbSchemaTest.php`, `DeploymentTriggerService`, `PersianFileManagerTest`, `ComparisonDossierTest`, `PersianAdminLocalizationTest`, `PublicPersianMarketplaceTest`, `StateManagementTest`, `TradeChecklistTest`, `AdvertisingExperimentTest.php`, `IranianLocalizationTest`, `AdvertisingPreviewTest`, `ReviewQualityTest`, `.refreshFor`, `.saveFor`, `ListingDraftTest`?**
-  _High betweenness centrality (0.113) - this node is a cross-community bridge._
+  _185 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `DemoSchemaManager` be split into smaller, more focused modules?**
+  _Cohesion score 0.1361344537815126 - nodes in this community are weakly interconnected._
+- **Why does `TestCase` connect `TestCase` to `.shopVersion`, `AdvertisingBundleTest.php`, `BannerRenderer`, `PanelSmokeTest`, `AdminListingResourceSchema.php`, `User`, `.terms`, `.detailsForUser`, `AdvertisingBillingTest.php`, `LocalServiceRequestTest`, `Category`, `ConversationVisitTest`, `PlacementReservationTest.php`, `.createFromUploadedFile`, `AdvertisingWarningTest`, `.createFor`, `ListingComparisonTest`, `ReleaseLayout`, `ManageDeployment`, `ListingMapTest`, `ConversationSafetyTest`, `City`, `Listing`, `NeighborhoodShopTest`, `Throwable`, `.report`, `Profile`, `.defaultCurrency`, `AdvertisingFrequencyTest`, `PersianLocaleTest`, `ListingCreationLocationTest`, `OptionalVideoAdvertisingTest`, `SellerPackageTest.php`, `AdvertisingReportTest`, `AdvertisingOrderTest.php`, `DeadlineOfferAdvertisingTest`, `ListingTextSuggestionsTest`, `CampaignAllocationTest`, `OperationsFoundationTest`, `GuidanceContentAdvertisingTest`, `ManageAppearanceSettings`, `AdvertisingPreparedFilterTest`, `AdvertisingServiceCardTest`, `ListingPerformanceTest`, `WantedRequestTest.php`, `Illuminate\Database\Eloquent\Model`, `ListingBulkTest`, `ListingScheduleTest`, `PersianPanelFlowTest`, `MobileNavigationTest`, `AdvertisingListingCollectionTest`, `ListingHistoryTest.php`, `ListingImprovementTest`, `ReleaseReadinessTest`, `ListingRiskReviewTest`, `.issue`, `.defaults`, `GitHubReleaseTest.php`, `AdvertisingCampaignTest`, `ListingPerformanceTest.php`, `ListingRecommendationsTest`, `ListingComparisonTest.php`, `WantedRequest.php`, `ReviewQualityTest.php`, `ListingAvailabilityTest`, `SavedReplyTest`, `.currentFor`, `ConversationOfferTest`, `MarketplaceFlowTest`, `SellerResponseTest`, `SellerVerificationTest`, `CategorySponsorshipTest`, `SellerPackageTest`, `InnoDbSchemaTest.php`, `PersianFileManagerTest`, `ComparisonDossierTest`, `PersianAdminLocalizationTest`, `PublicPersianMarketplaceTest`, `StateManagementTest`, `TradeChecklistTest`, `AdvertisingExperimentTest.php`, `WantedRequestTest`, `AdvertisingPreviewTest`, `ReviewQualityTest`, `.refreshFor`, `.saveFor`, `ListingDraftTest`?**
+  _High betweenness centrality (0.112) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `Listing` (e.g. with `Conversation` and `Listing`) actually correct?**
   _`Listing` has 5 INFERRED edges - model-reasoned connections that need verification._
-- **Should `AdvertisingBundleTest.php` be split into smaller, more focused modules?**
-  _Cohesion score 0.08140610545790934 - nodes in this community are weakly interconnected._
+- **Should `Filament\Tables\Table` be split into smaller, more focused modules?**
+  _Cohesion score 0.08792270531400966 - nodes in this community are weakly interconnected._

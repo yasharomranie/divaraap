@@ -9,6 +9,7 @@
         ['key' => 'rare-watches', 'label' => __('favorite::rare.title'), 'icon' => 'bell', 'url' => route('rare-watches.index'), 'count' => null],
         ['key' => 'dossiers', 'label' => __('favorite::dossier.title'), 'icon' => 'tag', 'url' => route('dossiers.index'), 'count' => null],
         ['key' => 'price-guide', 'label' => __('listing::prices.title'), 'icon' => 'tag', 'url' => route('price-guide.index'), 'count' => null],
+        ['key' => 'neighborhood-shops', 'label' => __('user::neighborhoods.title'), 'icon' => 'tag', 'url' => route('neighborhood-shops.index'), 'count' => null],
         ['key' => 'wanted', 'label' => __('listing::wanted.mine'), 'icon' => 'search', 'url' => route('wanted.mine'), 'count' => null],
         ['key' => 'service-requests', 'label' => __('listing::services.mine'), 'icon' => 'tag', 'url' => route('service-requests.mine'), 'count' => null],
         ['key' => 'offers', 'label' => __('offer::messages.offers'), 'icon' => 'sort', 'url' => route('panel.offers.index'), 'count' => \Modules\Offer\Models\Offer::pendingCountForSeller($panelUserId)],

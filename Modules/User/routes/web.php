@@ -11,6 +11,7 @@ use Modules\User\App\Http\Controllers\Auth\PasswordController;
 use Modules\User\App\Http\Controllers\Auth\RegisterController;
 use Modules\User\App\Http\Controllers\Auth\ResetPasswordController;
 use Modules\User\App\Http\Controllers\Auth\SocialAuthController;
+use Modules\User\App\Http\Controllers\NeighborhoodShopController;
 use Modules\User\App\Http\Controllers\ProfileController;
 use Modules\User\App\Http\Controllers\SellerController;
 use Modules\User\App\Http\Controllers\ShopController;
@@ -60,3 +61,5 @@ Route::middleware('web')->group(function () {
         Route::delete('/panel/my-profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 });
+
+Route::middleware(['web', 'throttle:30,1,local-shops:'])->get('/neighborhood-shops', [NeighborhoodShopController::class, 'index'])->name('neighborhood-shops.index');
