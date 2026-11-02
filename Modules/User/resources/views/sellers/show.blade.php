@@ -11,6 +11,7 @@
 @section('content')
 <div class="shell shell--wide page">
     <div class="stack stack--section">
+        @include('user::availability.notice')
         <header class="card">
             <div class="card__body">
                 <div class="row row--wrap row--between">

@@ -13,6 +13,7 @@ use Modules\User\App\Http\Controllers\Auth\ResetPasswordController;
 use Modules\User\App\Http\Controllers\Auth\SocialAuthController;
 use Modules\User\App\Http\Controllers\NeighborhoodShopController;
 use Modules\User\App\Http\Controllers\ProfileController;
+use Modules\User\App\Http\Controllers\SellerAvailabilityController;
 use Modules\User\App\Http\Controllers\SellerController;
 use Modules\User\App\Http\Controllers\ShopController;
 
@@ -41,6 +42,8 @@ Route::middleware('web')->group(function () {
     });
 
     Route::middleware('auth')->group(function () {
+        Route::get('/panel/availability', [SellerAvailabilityController::class, 'edit'])->name('seller-availability.edit');
+        Route::put('/panel/availability', [SellerAvailabilityController::class, 'update'])->middleware('throttle:20,1,seller-availability:')->name('seller-availability.update');
         Route::get('/panel/shop', [ShopController::class, 'edit'])->name('shop.edit');
         Route::put('/panel/shop', [ShopController::class, 'update'])->middleware('throttle:20,1,shop:')->name('shop.update');
         Route::get('/verify-email', [EmailVerificationController::class, 'notice'])->name('verification.notice');

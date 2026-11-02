@@ -1,0 +1,10 @@
+.availability-settings { max-width: 640px; min-width: 0; margin-inline: auto; }
+.availability-settings .card { padding: 20px; }
+.availability-consent { display: flex; align-items: start; gap: 12px; min-height: 44px; cursor: pointer; line-height: 1.8; }
+.availability-consent input { width: 20px; height: 20px; flex: 0 0 20px; margin-block-start: 4px; accent-color: var(--accent); }
+.availability-settings :is(a,button,input,select):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.seller-availability { padding: 12px; border: 1px solid var(--line-hairline); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--ink-900); font-size: var(--text-sm); line-height: 1.8; overflow-wrap: anywhere; }
+.seller-availability strong { font-weight: 700; }
+.seller-availability--compact { padding: 4px 8px; margin-block-start: 4px; }
+.seller-availability--compact .seller-availability__hint { display: none; }
+@media(max-width:767px) { .availability-settings .card { padding: 16px; } }

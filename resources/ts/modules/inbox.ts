@@ -185,6 +185,7 @@ export const inboxPane = defineBehavior<HTMLElement>({
 
         back?.addEventListener('click', () => {
             toggleClass(pane, 'is-thread-open', false);
+            query<HTMLAnchorElement>('.thread-preview.is-active', HTMLAnchorElement, pane)?.focus();
         });
     },
 });

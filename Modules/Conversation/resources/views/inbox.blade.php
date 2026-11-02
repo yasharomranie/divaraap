@@ -57,7 +57,7 @@
 
                 <div
                     class="thread-layout__detail"
-                    style="display:flex;flex:1 1 auto;min-height:0"
+                    style="flex:1 1 auto;min-height:0"
                     data-inbox-thread="{{ $selectedConversation->getKey() }}"
                     data-thread-error="{{ __('conversation::messages.send_failed') }}"
                     data-thread-read="{{ route('conversations.read', $selectedConversation) }}"
@@ -70,6 +70,7 @@
                         <span class="avatar avatar--small">{{ \App\Support\UserDirectory::initials((string) $partner?->getAttribute('name')) }}</span>
                         <div class="stack" style="gap:0;min-width:0">
                             <span class="thread-preview__name">{{ $partner?->getAttribute('name') ?? '—' }}</span>
+                            @include('user::availability.notice', ['compactAvailability' => true])
                             @if($listing)
                                 <a href="{{ route('listings.show', $listing) }}" class="text-meta text-clamp-1">{{ $listing->getAttribute('title') }}</a>
                             @endif

@@ -223,6 +223,7 @@ class ListingController extends Controller
 
         $sellerId = $listing->getAttribute('user_id') === null ? null : (int) $listing->getAttribute('user_id');
         $verification = $sellerId === null ? ['email' => false, 'reviewed' => false, 'reviewed_at' => null] : Profile::publicVerification($sellerId);
+        $sellerAvailability = $sellerId === null ? null : Profile::publicAvailability($sellerId);
         $responseSummary = $sellerId === null ? null : Conversation::sellerResponseSummary($sellerId);
         $sellerReviewSummary = $sellerId === null
             ? ['total' => 0, 'average' => 0.0]
@@ -240,6 +241,7 @@ class ListingController extends Controller
             'listing',
             'sellerId',
             'sellerReviewSummary',
+            'sellerAvailability',
             'responseSummary',
             'verification',
             'bestOffer',
@@ -255,7 +257,11 @@ class ListingController extends Controller
             'breadcrumbCategories',
         ));
 
-        return in_array($listing->statusValue(), ['paused', 'scheduled'], true) ? response($view->render())->header('Cache-Control', 'private, no-store')->header('X-Robots-Tag', 'noindex, nofollow') : $view;
+        if (in_array($listing->statusValue(), ['paused', 'scheduled'], true)) {
+            return response($view->render())->header('Cache-Control', 'private, no-store')->header('X-Robots-Tag', 'noindex, nofollow');
+        }
+
+        return $sellerAvailability ? response($view)->header('Cache-Control', 'private, no-store') : $view;
     }
 
     public function contact(Listing $listing): JsonResponse

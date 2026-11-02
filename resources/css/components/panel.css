@@ -535,3 +535,11 @@
     cursor: pointer;
     font-weight: var(--weight-semibold);
 }
+
+@media (max-width: 767px) {
+    .app-shell:has([data-inbox-pane].is-thread-open) :is(.site-header, .mobile-tabs, .panel-nav, .panel-head, .site-footer) { display: none; }
+    .app-shell .thread-layout.is-thread-open { position: fixed; inset: 0; z-index: var(--z-header); width: auto; height: 100dvh; min-height: 0; border-radius: 0; }
+    .app-shell .thread-layout.is-thread-open .thread__messages { min-height: 0; overscroll-behavior: contain; }
+    .app-shell .thread-layout.is-thread-open :is(.thread__head, .thread__composer) { flex-shrink: 0; }
+    .app-shell .thread-layout.is-thread-open .thread__composer { padding-bottom: max(var(--space-3), env(safe-area-inset-bottom)); }
+}

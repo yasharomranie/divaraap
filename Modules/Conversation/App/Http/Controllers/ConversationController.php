@@ -20,6 +20,7 @@ use Modules\Conversation\App\Models\SavedReply;
 use Modules\Conversation\App\Support\QuickMessageCatalog;
 use Modules\Listing\Models\Listing;
 use Modules\Offer\Models\Offer;
+use Modules\User\App\Models\Profile;
 
 class ConversationController extends Controller
 {
@@ -68,6 +69,7 @@ class ConversationController extends Controller
         }
 
         return response()->view('conversation::inbox', [
+            'sellerAvailability' => $selectedConversation && (int) $selectedConversation->seller_id !== (int) $userId ? Profile::publicAvailability((int) $selectedConversation->seller_id) : null,
             'conversations' => $conversations,
             'selectedConversation' => $selectedConversation,
             'messageFilter' => $messageFilter,

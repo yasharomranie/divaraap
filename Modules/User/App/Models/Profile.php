@@ -14,11 +14,11 @@ use Spatie\Activitylog\Support\LogOptions;
 
 class Profile extends Model
 {
-    use LogsActivity, SoftDeletes;
+    use Concerns\ManagesAvailability, LogsActivity, SoftDeletes;
 
     protected $fillable = ['user_id', 'avatar', 'bio', 'phone', 'city', 'country', 'website'];
 
-    protected $casts = ['is_verified' => 'boolean', 'shop_enabled' => 'boolean', 'verified_at' => 'datetime'];
+    protected $casts = ['away_enabled' => 'boolean', 'away_until' => 'datetime', 'away_revision' => 'integer', 'is_verified' => 'boolean', 'shop_enabled' => 'boolean', 'verified_at' => 'datetime'];
 
     public static function verificationIdentity(User $user, ?self $profile): string
     {

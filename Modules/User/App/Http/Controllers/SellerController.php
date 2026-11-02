@@ -33,6 +33,7 @@ class SellerController extends Controller
         $response = response()->view('user::sellers.show', [
             'seller' => $profile,
             'shop' => $shop,
+            'sellerAvailability' => Profile::publicAvailability($sellerId),
             'search' => $search,
             'verification' => Profile::publicVerification($sellerId),
             'responseSummary' => Conversation::sellerResponseSummary($sellerId),

@@ -187,6 +187,7 @@
                             </div>
                         @endif
 
+                        @include('user::availability.notice')
                         @include('conversation::partials.seller-response', ['responseOwner' => $isOwner])
                         @auth
                             @if($canContact)
