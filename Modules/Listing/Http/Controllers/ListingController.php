@@ -16,6 +16,7 @@ use Modules\Favorite\App\Models\FavoriteSearch;
 use Modules\Favorite\App\Support\ListingHistory;
 use Modules\Listing\Models\Listing;
 use Modules\Listing\Models\ListingPerformanceEvent;
+use Modules\Listing\Models\ListingQuestion;
 use Modules\Listing\Support\ListingCustomFieldSchemaBuilder;
 use Modules\Listing\Support\ListingMapBounds;
 use Modules\Location\Models\Country;
@@ -231,7 +232,9 @@ class ListingController extends Controller
 
         $serviceRequestItem = request()->query('request-service') === '1' ? (Listing::advertisingServiceItems([(int) $listing->id])[(int) $listing->id] ?? null) : null;
         $tradeChecklist = Category::tradeChecklistDefinition($listing->category_id ? (int) $listing->category_id : null);
+        $questionsAvailable = ListingQuestion::publicListing($listing);
         $view = view($this->themes->view('listing', 'show'), compact(
+            'questionsAvailable',
             'tradeChecklist',
             'serviceRequestItem',
             'listing',

@@ -144,6 +144,10 @@
                     </div>
                 </section>
 
+                @if($questionsAvailable ?? false)
+                    <section class="card"><div class="card__body stack stack--tight"><h2 class="card__title">{{ __('listing::questions.title') }}</h2><p class="field__hint">{{ __('listing::questions.link_hint') }}</p><a class="button button--ghost" href="{{ route('listing-questions.index', $listing) }}">{{ __('listing::questions.read') }}</a></div></section>
+                @endif
+
                 @if($serviceRequestItem ?? null)
                     @include('listing::partials.service-request')
                 @endif

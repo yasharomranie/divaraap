@@ -7,6 +7,7 @@ namespace Modules\Admin\Support;
 use Modules\Advertising\Models\Banner;
 use Modules\Advertising\Models\BannerPlacement;
 use Modules\Advertising\Models\Campaign;
+use Modules\Listing\Models\ListingQuestion;
 use Modules\Listing\Models\WantedRequest;
 
 final class StaffAccess
@@ -20,6 +21,7 @@ final class StaffAccess
     public static function permissionFor(string $model): ?string
     {
         return match ($model) {
+            ListingQuestion::class,
             WantedRequest::class => 'moderation.listings',
             Banner::class,
             Campaign::class,

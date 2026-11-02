@@ -1,0 +1,9 @@
+.listing-questions { max-width: 760px; min-width: 0; margin-inline: auto; padding-block: 24px; }
+.listing-questions .card { padding: 20px; min-width: 0; }
+.listing-questions__text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.9; }
+.listing-questions__tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.listing-questions__tabs [aria-current='page'] { font-weight: 700; text-decoration: underline; text-underline-offset: 5px; }
+.listing-questions__consent { display: flex; align-items: start; gap: 12px; min-height: 44px; line-height: 1.8; cursor: pointer; }
+.listing-questions__consent input { width: 20px; height: 20px; flex: 0 0 20px; margin-block-start: 4px; accent-color: var(--accent); }
+.listing-questions :is(a,button,input,textarea):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media(max-width:767px) { .listing-questions { padding-block: 16px; } .listing-questions .card { padding: 16px; } }

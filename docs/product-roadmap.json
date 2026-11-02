@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "features": [
     {
       "id": 1,
@@ -401,6 +401,12 @@
       "id": 67,
       "phase": 8,
       "title": "اشتراک فهرست انتخاب‌ها",
+      "status": "verified"
+    },
+    {
+      "id": 68,
+      "phase": 10,
+      "title": "پرسش‌وپاسخ عمومی آگهی با بررسی مدیریت",
       "status": "verified"
     }
   ]

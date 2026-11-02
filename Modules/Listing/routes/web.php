@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Listing\Http\Controllers\ListingChecklistController;
 use Modules\Listing\Http\Controllers\ListingController;
 use Modules\Listing\Http\Controllers\ListingLocationController;
+use Modules\Listing\Http\Controllers\ListingQuestionController;
 use Modules\Listing\Http\Controllers\PriceGuideController;
 use Modules\Listing\Http\Controllers\WantedRequestController;
 
@@ -55,3 +56,13 @@ Route::middleware(['web', 'throttle:60,1'])->name('service-requests.')->group(fu
 });
 
 Route::middleware(['web', 'throttle:30,1,price-guide:'])->get('/price-guide', [PriceGuideController::class, 'index'])->name('price-guide.index');
+
+Route::middleware(['web', 'throttle:60,1'])->name('listing-questions.')->group(function (): void {
+    Route::get('/listings/{listing}/questions', [ListingQuestionController::class, 'index'])->where('listing', '[1-9][0-9]{0,17}')->name('index');
+    Route::post('/listings/{listing}/questions', [ListingQuestionController::class, 'store'])->where('listing', '[1-9][0-9]{0,17}')->middleware(['auth', 'throttle:5,60,listing-questions:'])->name('store');
+    Route::middleware('auth')->prefix('panel/listing-questions')->group(function (): void {
+        Route::get('/', [ListingQuestionController::class, 'mine'])->name('mine');
+        Route::post('/{question}/answer', [ListingQuestionController::class, 'answer'])->where('question', '[1-9][0-9]{0,17}')->middleware('throttle:20,60,listing-answers:')->name('answer');
+        Route::delete('/{question}', [ListingQuestionController::class, 'withdraw'])->where('question', '[1-9][0-9]{0,17}')->name('withdraw');
+    });
+});
