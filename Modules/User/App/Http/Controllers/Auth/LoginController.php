@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Modules\User\App\Http\Requests\LoginRequest;
+use Modules\User\App\Support\AuthenticationMethods;
 use Modules\User\App\Support\AuthProviderCatalog;
 use Modules\User\App\Support\AuthRedirector;
 
@@ -26,6 +27,8 @@ class LoginController extends Controller
 
         return view('user::auth.login', [
             'redirectTo' => $redirectTo,
+            'emailEnabled' => app(AuthenticationMethods::class)->allows('email', 'login'),
+            'smsEnabled' => app(AuthenticationMethods::class)->allows('sms', 'login'),
             'socialProviders' => $this->providers->enabled('login', $redirectTo),
         ]);
     }

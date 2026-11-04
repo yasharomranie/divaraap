@@ -29,7 +29,7 @@ class AuthProviderCatalog
     public function enabled(string $context, ?string $redirectTo = null): Collection
     {
         return collect(self::DEFINITIONS)
-            ->filter(fn (array $provider, string $slug): bool => $this->isEnabled($slug))
+            ->filter(fn (array $provider, string $slug): bool => $this->isEnabled($slug) && app(AuthenticationMethods::class)->allows($slug, $context))
             ->map(function (array $provider, string $slug) use ($context, $redirectTo): array {
                 return [
                     'id' => $slug,
@@ -54,6 +54,7 @@ class AuthProviderCatalog
     public function isEnabled(string $provider): bool
     {
         return $this->isAllowed($provider)
+            && (app(AuthenticationMethods::class)->allows($provider, 'login') || app(AuthenticationMethods::class)->allows($provider, 'register'))
             && (bool) config("services.{$provider}.enabled", false)
             && filled(config("services.{$provider}.client_id"))
             && filled(config("services.{$provider}.client_secret"));

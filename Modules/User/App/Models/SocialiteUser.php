@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Modules\User\App\Support\AuthenticationMethods;
 
 class SocialiteUser extends Model
 {
@@ -37,6 +38,9 @@ class SocialiteUser extends Model
                 ? strtolower(trim((string) $oauthUser->getEmail()))
                 : sprintf('%s_%s@social.local', $provider, $oauthUser->getId());
 
+            $existing = User::query()->where('email', $email)->first();
+            abort_unless(app(AuthenticationMethods::class)->allows($provider, $existing ? 'login' : 'register'), 403);
+
             $user = User::query()->firstOrCreate(
                 ['email' => $email],
                 [
@@ -46,6 +50,11 @@ class SocialiteUser extends Model
                     'email_verified_at' => now(),
                 ],
             );
+        }
+
+        abort_unless((string) $user->status === 'active', 403);
+        if ($socialiteUser?->user) {
+            abort_unless(app(AuthenticationMethods::class)->allows($provider, 'login'), 403);
         }
 
         static::query()->updateOrCreate(

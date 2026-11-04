@@ -38,7 +38,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToPriorityList(BootstrapAppData::class, SetLocale::class);
         $middleware->prependToPriorityList(AuthenticatesRequests::class, ResolveDemoRequest::class);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {})->create();
+    ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->dontFlash(['code']);
+    })->create();
 
 if (is_file($hostingPath = __DIR__.'/hosting-public.php')) {
     $app->usePublicPath(require $hostingPath);

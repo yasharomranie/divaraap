@@ -9,12 +9,13 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Modules\User\App\Models\User;
+use Modules\User\App\Support\AuthenticationMethods;
 
 class RegisterRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return app(AuthenticationMethods::class)->allows('email', 'register');
     }
 
     public function rules(): array

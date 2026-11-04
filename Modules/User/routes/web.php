@@ -8,6 +8,7 @@ use Modules\User\App\Http\Controllers\Auth\EmailVerificationController;
 use Modules\User\App\Http\Controllers\Auth\ForgotPasswordController;
 use Modules\User\App\Http\Controllers\Auth\LoginController;
 use Modules\User\App\Http\Controllers\Auth\PasswordController;
+use Modules\User\App\Http\Controllers\Auth\PhoneOtpController;
 use Modules\User\App\Http\Controllers\Auth\RegisterController;
 use Modules\User\App\Http\Controllers\Auth\ResetPasswordController;
 use Modules\User\App\Http\Controllers\Auth\SocialAuthController;
@@ -21,6 +22,19 @@ Route::middleware('web')->group(function () {
     Route::get('/sellers/{seller}', [SellerController::class, 'show'])
         ->whereNumber('seller')
         ->name('sellers.show');
+
+    Route::middleware(['guest', 'throttle:30,1,phone-otp:'])->prefix('/auth/phone/{purpose}')->where(['purpose' => 'login|register'])->group(function () {
+        Route::get('/', [PhoneOtpController::class, 'create'])->name('phone.create');
+        Route::post('/', [PhoneOtpController::class, 'send'])->name('phone.send');
+        Route::post('/verify', [PhoneOtpController::class, 'verify'])->name('phone.verify');
+        Route::post('/resend', [PhoneOtpController::class, 'resend'])->name('phone.resend');
+        Route::post('/reset', [PhoneOtpController::class, 'reset'])->name('phone.reset');
+    });
+    Route::middleware(['auth', 'throttle:30,1,phone-bind:'])->prefix('/panel/phone')->group(function () {
+        foreach (['create' => ['', 'get', 'phone.bind'], 'send' => ['', 'post', 'phone.bind.send'], 'verify' => ['/verify', 'post', 'phone.bind.verify'], 'resend' => ['/resend', 'post', 'phone.bind.resend'], 'reset' => ['/reset', 'post', 'phone.bind.reset']] as $action => [$path, $verb, $name]) {
+            Route::$verb($path, [PhoneOtpController::class, $action])->defaults('purpose', 'bind')->name($name);
+        }
+    });
 
     Route::middleware('guest')->group(function () {
         Route::get('/register', [RegisterController::class, 'create'])->name('register');

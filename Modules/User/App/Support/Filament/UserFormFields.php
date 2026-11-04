@@ -19,7 +19,7 @@ class UserFormFields
 
     public static function email(): TextInput
     {
-        return TextInput::make('email')->label(__('user::admin.email'))->extraInputAttributes(['dir' => 'ltr'])->email()->required()->maxLength(255)->unique(ignoreRecord: true);
+        return TextInput::make('email')->label(__('user::admin.email'))->extraInputAttributes(['dir' => 'ltr'])->email()->required(fn (?User $record): bool => ! $record || filled($record->email))->maxLength(255)->unique(ignoreRecord: true);
     }
 
     public static function password(callable $requiredCallback): TextInput

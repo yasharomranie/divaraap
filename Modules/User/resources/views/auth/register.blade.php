@@ -5,6 +5,10 @@
 @section('auth_lead', __('user::messages.register_lead'))
 
 @section('auth_body')
+@if($smsEnabled)
+    <a href="{{ route('phone.create', ['purpose' => 'register', 'redirect' => $redirectTo]) }}" class="button button--primary button--block">{{ __('user::otp.register_title') }}</a>
+@endif
+@if($emailEnabled)
 <form method="POST" action="{{ route('register') }}" class="stack">
     @csrf
 
@@ -57,8 +61,12 @@
 
     <button type="submit" class="button button--primary button--block button--large">{{ __('site::messages.register') }}</button>
 
-    @include('user::auth.partials.social-buttons')
 </form>
+@endif
+@include('user::auth.partials.social-buttons')
+@if(! $emailEnabled && ! $smsEnabled && $socialProviders->isEmpty())
+    <p role="status" class="text-muted">{{ __('user::otp.unavailable') }}</p>
+@endif
 @endsection
 
 @section('auth_footer')

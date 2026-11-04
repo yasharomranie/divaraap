@@ -1,0 +1,22 @@
+{
+  "checked_at": "2026-11-04T12:18:20.206986+00:00",
+  "transport": "local fake sender; no real SMS",
+  "checks": [
+    "admin native settings save; key never refilled",
+    "OTP verify fa 375x812: no overflow, font, keyboard, numeric autofill",
+    "OTP verify fa 390x844: no overflow, font, keyboard, numeric autofill",
+    "OTP verify fa 768x1024: no overflow, font, keyboard, numeric autofill",
+    "OTP verify fa 1440x900: no overflow, font, keyboard, numeric autofill",
+    "OTP verify fa 812x375: no overflow, font, keyboard, numeric autofill",
+    "OTP verify en 375x812: no overflow, font, keyboard, numeric autofill",
+    "OTP verify en 390x844: no overflow, font, keyboard, numeric autofill",
+    "OTP verify en 768x1024: no overflow, font, keyboard, numeric autofill",
+    "OTP verify en 1440x900: no overflow, font, keyboard, numeric autofill",
+    "OTP verify en 812x375: no overflow, font, keyboard, numeric autofill",
+    "browser registration succeeds; phone-only profile allows missing email",
+    "native resend/phone cooldown blocks immediate second SMS",
+    "registration and verification work with JavaScript disabled",
+    "admin can re-enable email alongside OTP"
+  ],
+  "passed": true
+}

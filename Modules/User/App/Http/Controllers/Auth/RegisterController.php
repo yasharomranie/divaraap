@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Modules\User\App\Http\Requests\RegisterRequest;
 use Modules\User\App\Models\User;
+use Modules\User\App\Support\AuthenticationMethods;
 use Modules\User\App\Support\AuthProviderCatalog;
 use Modules\User\App\Support\AuthRedirector;
 
@@ -28,6 +29,8 @@ class RegisterController extends Controller
 
         return view('user::auth.register', [
             'redirectTo' => $redirectTo,
+            'emailEnabled' => app(AuthenticationMethods::class)->allows('email', 'register'),
+            'smsEnabled' => app(AuthenticationMethods::class)->allows('sms', 'register'),
             'socialProviders' => $this->providers->enabled('register', $redirectTo),
         ]);
     }

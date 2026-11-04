@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Modules\Admin\App\Settings\OperationsSettings;
 use Modules\Site\App\Settings\AppearanceSettings;
+use Modules\Site\App\Settings\AuthenticationSettings;
 use Modules\Site\App\Settings\DeploymentSettings;
 use Modules\Site\App\Settings\GeneralSettings;
 use Spatie\LaravelData\Data;
@@ -17,6 +18,7 @@ return [
     'settings' => [
         OperationsSettings::class,
         GeneralSettings::class,
+        AuthenticationSettings::class,
         AppearanceSettings::class,
         DeploymentSettings::class,
     ],

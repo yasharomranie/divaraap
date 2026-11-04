@@ -16,6 +16,9 @@
     <a href="{{ route('sellers.show', $user) }}" class="button button--secondary">{{ __('site::messages.view_profile') }}</a>
 </header>
 
+@if(app(\Modules\User\App\Support\AuthenticationMethods::class)->allows('sms') && app(\Modules\User\App\Support\AuthenticationMethods::class)->canUseSms($user))
+    <a href="{{ route('phone.bind') }}" class="button button--secondary">{{ __('user::otp.manage_phone') }}</a>
+@endif
 <div class="grid grid--split">
     <div class="stack stack--loose">
         <section class="card">
@@ -32,7 +35,7 @@
 
                 <div class="field">
                     <label class="field__label" for="profile-email">{{ __('user::messages.email') }}</label>
-                    <input id="profile-email" type="email" name="email" value="{{ old('email', $user->getAttribute('email')) }}" class="input" required>
+                    <input id="profile-email" type="email" name="email" value="{{ old('email', $user->getAttribute('email')) }}" class="input" @required(filled($user->email))>
                     @error('email')<p class="field__error">{{ $message }}</p>@enderror
                 </div>
 

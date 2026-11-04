@@ -10,12 +10,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Modules\User\App\Support\AuthenticationMethods;
 
 class LoginRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return app(AuthenticationMethods::class)->allows('email', 'login');
     }
 
     public function rules(): array

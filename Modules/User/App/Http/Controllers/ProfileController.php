@@ -25,7 +25,7 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:60', new IranianMobile],
             'email' => [
-                'required',
+                filled($request->user()->email) ? 'required' : 'nullable',
                 'string',
                 'lowercase',
                 'email',

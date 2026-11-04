@@ -1,0 +1,10 @@
+{
+  "quota": [
+    "OTP_RACE_BLOCKED",
+    "OTP_RACE_ALLOWED"
+  ],
+  "verify": [
+    "OTP_RACE_ALLOWED",
+    "OTP_RACE_BLOCKED"
+  ]
+}

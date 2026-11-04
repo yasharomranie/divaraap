@@ -15,6 +15,7 @@ class EmailVerificationController extends Controller
 {
     public function notice(Request $request): RedirectResponse|View
     {
+        abort_unless(filled($request->user()->email), 422);
         if ($request->user()->hasVerifiedEmail()) {
             return redirect()->intended(route('dashboard', absolute: false));
         }
@@ -24,6 +25,7 @@ class EmailVerificationController extends Controller
 
     public function send(Request $request): RedirectResponse
     {
+        abort_unless(filled($request->user()->email), 422);
         if ($request->user()->hasVerifiedEmail()) {
             return redirect()->intended(route('dashboard', absolute: false));
         }
@@ -35,6 +37,7 @@ class EmailVerificationController extends Controller
 
     public function verify(EmailVerificationRequest $request): RedirectResponse
     {
+        abort_unless(filled($request->user()->email), 422);
         if ($request->user()->hasVerifiedEmail()) {
             return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
         }
