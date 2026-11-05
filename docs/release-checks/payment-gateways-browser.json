@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-11-05T18:09:36.403264+00:00",
+  "transport": "fake gateway APIs and intercepted bank pages; no real payments",
+  "checks": [
+    "actual admin save: both enabled live; credentials masked after save/reload",
+    "gateway chooser fa 375x812: no overflow; keyboard; Persian font; touch target",
+    "gateway chooser fa 390x844: no overflow; keyboard; Persian font; touch target",
+    "gateway chooser fa 768x1024: no overflow; keyboard; Persian font; touch target",
+    "gateway chooser fa 1440x900: no overflow; keyboard; Persian font; touch target",
+    "gateway chooser fa 812x375: no overflow; keyboard; Persian font; touch target",
+    "gateway chooser en 375x812: no overflow; keyboard; Persian font; touch target",
+    "gateway chooser en 390x844: no overflow; keyboard; Persian font; touch target",
+    "gateway chooser en 768x1024: no overflow; keyboard; Persian font; touch target",
+    "gateway chooser en 1440x900: no overflow; keyboard; Persian font; touch target",
+    "gateway chooser en 812x375: no overflow; keyboard; Persian font; touch target",
+    "zarinpal real form -> intercepted bank -> server verified -> paid invoice",
+    "Zibal receives origin Referer without invoice path",
+    "zibal real form -> intercepted bank -> server verified -> paid invoice",
+    "callbacks work without login; repeated callbacks remain private and idempotent",
+    "native checkout and callback succeed with JavaScript disabled",
+    "Zibal receives origin Referer without invoice path",
+    "sandbox is explicit and leaves invoice unpaid",
+    "disabled gateway disappears from customer choices",
+    "admin transaction tracking shows states without credentials"
+  ],
+  "passed": true
+}

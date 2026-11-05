@@ -7,6 +7,7 @@ use Modules\Site\App\Settings\AppearanceSettings;
 use Modules\Site\App\Settings\AuthenticationSettings;
 use Modules\Site\App\Settings\DeploymentSettings;
 use Modules\Site\App\Settings\GeneralSettings;
+use Modules\Site\App\Settings\PaymentGatewaySettings;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelSettings\SettingsCasts\DataCast;
 use Spatie\LaravelSettings\SettingsCasts\DateTimeInterfaceCast;
@@ -19,6 +20,7 @@ return [
         OperationsSettings::class,
         GeneralSettings::class,
         AuthenticationSettings::class,
+        PaymentGatewaySettings::class,
         AppearanceSettings::class,
         DeploymentSettings::class,
     ],

@@ -1,0 +1,20 @@
+{
+  "start": [
+    "GATEWAY_RACE_HELD",
+    "GATEWAY_RACE_OK"
+  ],
+  "check": [
+    "GATEWAY_RACE_OK",
+    "GATEWAY_RACE_OK"
+  ],
+  "database": {
+    "attempts": 1,
+    "receipts": 1,
+    "paid": 1000000
+  },
+  "gateway_requests": [
+    "request",
+    "verify"
+  ],
+  "passed": true
+}

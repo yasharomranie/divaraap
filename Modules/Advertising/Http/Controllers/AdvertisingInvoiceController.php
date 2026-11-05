@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\Advertising\Models\AdvertisingInvoice;
+use Modules\Advertising\Models\OnlinePaymentAttempt;
+use Modules\Advertising\Services\PaymentGatewayCatalog;
 
 final class AdvertisingInvoiceController extends Controller
 {
@@ -24,7 +26,7 @@ final class AdvertisingInvoiceController extends Controller
         abort_unless((string) $request->user()->status === 'active', 403);
         $record = AdvertisingInvoice::accessibleInvoice($invoice, (int) $request->user()->id);
 
-        return $this->privateView('advertising::invoices.show', ['invoice' => $record]);
+        return $this->privateView('advertising::invoices.show', ['invoice' => $record, 'gateways' => app(PaymentGatewayCatalog::class)->options(), 'paymentAttempt' => OnlinePaymentAttempt::unresolved($record->id)->first() ?? OnlinePaymentAttempt::latestForInvoice($record->id)]);
     }
 
     private function privateView(string $view, array $data): Response

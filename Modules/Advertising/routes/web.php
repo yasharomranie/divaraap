@@ -9,6 +9,7 @@ use Modules\Advertising\Http\Controllers\AdvertisingInvoiceController;
 use Modules\Advertising\Http\Controllers\AdvertisingOrderController;
 use Modules\Advertising\Http\Controllers\AdvertisingReportController;
 use Modules\Advertising\Http\Controllers\BannerPreviewController;
+use Modules\Advertising\Http\Controllers\OnlinePaymentController;
 use Modules\Advertising\Http\Controllers\VideoCaptionController;
 
 Route::middleware(['web', 'throttle:120,1'])->post('/advertising/events', AdvertisingEventController::class)->name('advertising.events');
@@ -36,4 +37,11 @@ Route::middleware(['web', 'auth', 'throttle:60,1'])->prefix('panel/advertising-o
 Route::middleware(['web', 'auth', 'throttle:30,1'])->prefix('panel/advertising-bundles')->name('advertising.bundles.')->group(function (): void {
     Route::get('/', [AdvertisingBundleController::class, 'index'])->name('index');
     Route::post('/{bundle}', [AdvertisingBundleController::class, 'store'])->where('bundle', '[1-9][0-9]{0,17}')->middleware('throttle:10,60')->name('store');
+});
+
+Route::middleware(['web', 'throttle:30,1,payment-callback:'])->get('/payments/return/{attempt}/{token}', [OnlinePaymentController::class, 'callback'])->whereUuid('attempt')->where('token', '[a-f0-9]{64}')->name('payments.callback');
+Route::middleware(['web', 'auth', 'throttle:10,1,payment-start:'])->group(function (): void {
+    Route::post('/panel/advertising-invoices/{invoice}/pay', [OnlinePaymentController::class, 'start'])->where('invoice', '[1-9][0-9]{0,17}')->name('payments.start');
+    Route::post('/panel/payments/{attempt}/resume', [OnlinePaymentController::class, 'resume'])->whereUuid('attempt')->name('payments.resume');
+    Route::post('/panel/payments/{attempt}/check', [OnlinePaymentController::class, 'check'])->whereUuid('attempt')->name('payments.check');
 });

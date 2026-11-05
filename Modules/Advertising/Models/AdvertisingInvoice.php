@@ -111,6 +111,11 @@ final class AdvertisingInvoice extends Model
         return $this->voided_at ? 0 : max(0, $this->amount - $this->paidAmount());
     }
 
+    public function unallocatedAmount(): int
+    {
+        return $this->voided_at ? $this->paidAmount() : max(0, $this->paidAmount() - $this->amount);
+    }
+
     public function billingState(): string
     {
         return $this->voided_at ? 'void' : ($this->paidAmount() >= $this->amount ? 'paid' : ($this->paidAmount() > 0 ? 'partial' : 'unpaid'));
@@ -124,7 +129,7 @@ final class AdvertisingInvoice extends Model
         }
         DB::transaction(function () use ($reason): void {
             $invoice = self::query()->lockForUpdate()->findOrFail($this->id);
-            if ($invoice->voided_at || $invoice->paidAmount() > 0) {
+            if ($invoice->voided_at || $invoice->paidAmount() > 0 || OnlinePaymentAttempt::unresolved($invoice->id)->exists()) {
                 throw ValidationException::withMessages(['reason' => __('advertising::billing.cannot_void')]);
             }
             $invoice->voiding = true;

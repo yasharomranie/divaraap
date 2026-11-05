@@ -19,6 +19,7 @@
         <dt>{{ __('advertising::billing.received') }}</dt><dd>{{ number_format($invoice->paidAmount()) }} {{ __('advertising::billing.rial') }}</dd>
         <dt>{{ __('advertising::billing.balance') }}</dt><dd>{{ number_format($invoice->balance()) }} {{ __('advertising::billing.rial') }}</dd>
     </dl>
+    @include('advertising::invoices.payment-form')
     @if($invoice->voided_at)
         <p>{{ __('advertising::billing.reason') }}: <span dir="auto">{{ $invoice->void_reason }}</span></p>
     @endif
@@ -26,6 +27,7 @@
         <h2 class="text-title">{{ __('advertising::billing.payments') }}</h2>
         @forelse($invoice->payments as $payment)
             <dl class="advertising-invoice__payment">
+                <dt>{{ __('advertising::gateway.source') }}</dt><dd>{{ __('advertising::gateway.'.($payment->gateway ?: 'manual')) }}</dd>
                 <dt>{{ __('advertising::billing.reference') }}</dt><dd dir="ltr">{{ $payment->reference }}</dd>
                 <dt>{{ __('advertising::billing.amount') }}</dt><dd>{{ number_format($payment->amount) }} {{ __('advertising::billing.rial') }}</dd>
                 <dt>{{ __('advertising::billing.recorded_at') }}</dt><dd><time datetime="{{ $payment->created_at->toIso8601String() }}">{{ $payment->created_at->timezone('Asia/Tehran')->format('Y/m/d H:i') }} {{ __('advertising::billing.tehran') }}</time></dd>

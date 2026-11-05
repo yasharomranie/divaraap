@@ -42,6 +42,9 @@ final class AdvertisingPayment extends Model
     {
         abort_unless(AdvertisingInvoice::billingAdmin(), 403);
         $reference = strtoupper(trim($reference));
+        if (str_starts_with($reference, 'ZARINPAL-') || str_starts_with($reference, 'ZIBAL-')) {
+            throw ValidationException::withMessages(['reference' => __('advertising::gateway.reserved_reference')]);
+        }
         if (! preg_match('/^[1-9][0-9]{0,12}$/D', $amount) || (int) $amount > 1000000000000) {
             throw ValidationException::withMessages(['amount' => __('advertising::billing.invalid_amount')]);
         }
@@ -57,6 +60,9 @@ final class AdvertisingPayment extends Model
                 $existing = self::withTrashed()->where('reference', $reference)->first();
                 if ($existing) {
                     return self::matchingReceipt($existing, $locked, (int) $amount);
+                }
+                if (OnlinePaymentAttempt::unresolved($locked->id)->exists()) {
+                    throw ValidationException::withMessages(['amount' => __('advertising::gateway.in_progress')]);
                 }
                 if ($locked->voided_at || (int) $amount > $locked->balance()) {
                     throw ValidationException::withMessages(['amount' => __('advertising::billing.exceeds_balance')]);
@@ -77,6 +83,24 @@ final class AdvertisingPayment extends Model
         }
     }
 
+    public static function recordGatewayPayment(OnlinePaymentAttempt $attempt): self
+    {
+        return DB::transaction(function () use ($attempt): self {
+            $invoice = AdvertisingInvoice::withTrashed()->whereKey($attempt->invoice_id)->lockForUpdate()->firstOrFail();
+            $verified = OnlinePaymentAttempt::query()->whereKey($attempt->id)->lockForUpdate()->firstOrFail();
+            abort_unless($verified->status === 'verified' && $verified->verified_at && ! $verified->sandbox, 403);
+            $existing = self::withTrashed()->where('online_attempt_id', $verified->id)->first();
+            if ($existing) {
+                return self::matchingReceipt($existing, $invoice, $verified->amount);
+            }
+            $payment = new self(['invoice_id' => $invoice->id, 'recorded_by' => $verified->initiated_by, 'amount' => $verified->amount, 'reference' => $verified->receiptReference(), 'online_attempt_id' => $verified->id, 'gateway' => $verified->gateway]);
+            $payment->recording = true;
+            $payment->save();
+
+            return $payment;
+        }, 3);
+    }
+
     private static function matchingReceipt(self $payment, AdvertisingInvoice $invoice, int $amount): self
     {
         if ($payment->trashed() || (int) $payment->invoice_id !== (int) $invoice->id || $payment->amount !== $amount) {
@@ -88,6 +112,6 @@ final class AdvertisingPayment extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->logOnly(['invoice_id', 'recorded_by', 'amount', 'reference', 'note'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->logOnly(['invoice_id', 'recorded_by', 'amount', 'reference', 'note', 'gateway', 'online_attempt_id'])->logOnlyDirty()->dontLogEmptyChanges();
     }
 }
