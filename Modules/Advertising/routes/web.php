@@ -10,6 +10,7 @@ use Modules\Advertising\Http\Controllers\AdvertisingOrderController;
 use Modules\Advertising\Http\Controllers\AdvertisingReportController;
 use Modules\Advertising\Http\Controllers\BannerPreviewController;
 use Modules\Advertising\Http\Controllers\OnlinePaymentController;
+use Modules\Advertising\Http\Controllers\RefundController;
 use Modules\Advertising\Http\Controllers\VideoCaptionController;
 
 Route::middleware(['web', 'throttle:120,1'])->post('/advertising/events', AdvertisingEventController::class)->name('advertising.events');
@@ -44,4 +45,11 @@ Route::middleware(['web', 'auth', 'throttle:10,1,payment-start:'])->group(functi
     Route::post('/panel/advertising-invoices/{invoice}/pay', [OnlinePaymentController::class, 'start'])->where('invoice', '[1-9][0-9]{0,17}')->name('payments.start');
     Route::post('/panel/payments/{attempt}/resume', [OnlinePaymentController::class, 'resume'])->whereUuid('attempt')->name('payments.resume');
     Route::post('/panel/payments/{attempt}/check', [OnlinePaymentController::class, 'check'])->whereUuid('attempt')->name('payments.check');
+});
+
+Route::middleware(['web', 'auth', 'throttle:20,1,refunds:'])->group(function (): void {
+    Route::get('/panel/advertising-invoices/{invoice}/payments/{payment}/refund', [RefundController::class, 'create'])->where('invoice', '[1-9][0-9]{0,17}')->where('payment', '[1-9][0-9]{0,17}')->name('refunds.create');
+    Route::post('/panel/advertising-invoices/{invoice}/payments/{payment}/refund', [RefundController::class, 'store'])->where('invoice', '[1-9][0-9]{0,17}')->where('payment', '[1-9][0-9]{0,17}')->middleware('throttle:10,60,refund-create:')->name('refunds.store');
+    Route::post('/panel/advertising-invoices/{invoice}/payments/{payment}/correct', [RefundController::class, 'correct'])->where('invoice', '[1-9][0-9]{0,17}')->where('payment', '[1-9][0-9]{0,17}')->name('refunds.correct');
+    Route::post('/panel/refund-requests/{refund}/withdraw', [RefundController::class, 'withdraw'])->where('refund', '[1-9][0-9]{0,17}')->name('refunds.withdraw');
 });

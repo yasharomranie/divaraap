@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'financial_hold' => 'Credit spending held by invoice finances',
     'title' => 'Professional seller packages',
     'package' => 'Seller package',
     'purchase' => 'Package purchase',
@@ -38,7 +39,7 @@ return [
     'history' => 'Credit usage history',
     'no_redemptions' => 'No credits used.',
     'back' => 'Back to seller packages',
-    'scope' => 'Prepaid listing promotion credits, not identity verification or guaranteed sales. An administrator issues the invoice and activates credits after confirmed receipt. No online card charge, recurring renewal, cash balance or refund is added. Each redemption uses the existing promotion system.',
+    'scope' => 'This package prepays listing-promotion credits; it is not an identity badge or a sales guarantee. The administrator issues an invoice and activates credits after payment. No automatic debit, renewal or cash wallet is added. Refund requests are tracked through the invoice and administrator without automatic transfers. Corrections or refunds that impair settlement pause new credit use; redemption history is preserved.',
     'catalog_hint' => 'Future purchases use current terms; existing purchases keep their captured terms. The base promotion plan must be active with 1–90 days duration.',
     'redeem_hint' => 'Choose from your latest 100 active listings. Existing active promotions are not replaced. A promotion started before credit expiry keeps its own stated duration. A later separate promotion can replace it under the existing promotion rules, without restoring this credit.',
     'invalid_plan' => 'Choose an active promotion plan with a valid name and 1–90 day duration.',

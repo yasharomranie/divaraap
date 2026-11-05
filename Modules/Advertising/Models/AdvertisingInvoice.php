@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Advertising\Models;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -87,13 +88,13 @@ final class AdvertisingInvoice extends Model
 
     public static function invoicesForCustomer(int $userId): LengthAwarePaginator
     {
-        return self::query()->where('user_id', $userId)->withSum('payments', 'amount')->latest('id')->paginate(15);
+        return self::financialQuery()->where('user_id', $userId)->latest('id')->paginate(15);
     }
 
     public static function accessibleInvoice(string $id, int $userId): self
     {
-        return self::query()->when(! self::billingAdmin(), fn ($query) => $query->where('user_id', $userId))
-            ->with(['payments' => fn ($query) => $query->oldest('id')])->findOrFail($id);
+        return self::financialQuery()->when(! self::billingAdmin(), fn ($query) => $query->where('user_id', $userId))
+            ->with(['payments' => fn ($query) => $query->oldest('id'), 'adjustments' => fn ($query) => $query->oldest('id'), 'refundRequests' => fn ($query) => $query->latest('id')])->findOrFail($id);
     }
 
     public function payments(): HasMany
@@ -101,24 +102,114 @@ final class AdvertisingInvoice extends Model
         return $this->hasMany(AdvertisingPayment::class, 'invoice_id');
     }
 
+    public function adjustments(): HasMany
+    {
+        return $this->hasMany(AdvertisingPaymentAdjustment::class, 'invoice_id');
+    }
+
+    public function refundRequests(): HasMany
+    {
+        return $this->hasMany(AdvertisingRefundRequest::class, 'invoice_id');
+    }
+
+    public static function financialQuery(): Builder
+    {
+        return self::query()->withSum('payments', 'amount')
+            ->withSum(['adjustments as corrected_total' => fn ($query) => $query->where('kind', 'correction')], 'amount')
+            ->withSum(['adjustments as supplemented_total' => fn ($query) => $query->where('kind', 'supplement')], 'amount')
+            ->withSum(['adjustments as refunded_total' => fn ($query) => $query->where('kind', 'refund')], 'amount')
+            ->withSum(['refundRequests as reserved_refund_total' => fn ($query) => $query->whereIn('state', ['requested', 'approved'])], 'amount');
+    }
+
+    public function lockFinancials(): self
+    {
+        if (DB::transactionLevel() < 1) {
+            throw new \LogicException('Financial snapshots require an active transaction.');
+        }
+        $locked = self::query()->whereKey($this->id)->lockForUpdate()->firstOrFail();
+        $locked->setRelation('payments', $locked->payments()->lockForUpdate()->get());
+        $locked->setRelation('adjustments', $locked->adjustments()->lockForUpdate()->get());
+        $locked->setRelation('refundRequests', $locked->refundRequests()->lockForUpdate()->get());
+
+        return $locked;
+    }
+
+    public function grossReceivedAmount(): int
+    {
+        return array_key_exists('payments_sum_amount', $this->getAttributes()) ? (int) $this->getAttribute('payments_sum_amount')
+            : (int) ($this->relationLoaded('payments') ? $this->payments->sum('amount') : $this->payments()->sum('amount'));
+    }
+
+    public function correctedAmount(): int
+    {
+        return $this->adjustmentTotal('correction', 'corrected_total');
+    }
+
+    public function supplementedAmount(): int
+    {
+        return $this->adjustmentTotal('supplement', 'supplemented_total');
+    }
+
+    public function refundedAmount(): int
+    {
+        return $this->adjustmentTotal('refund', 'refunded_total');
+    }
+
+    public function reservedRefundAmount(): int
+    {
+        return array_key_exists('reserved_refund_total', $this->getAttributes()) ? (int) $this->getAttribute('reserved_refund_total')
+            : ($this->relationLoaded('refundRequests') ? (int) $this->refundRequests->whereIn('state', ['requested', 'approved'])->sum('amount') : (int) $this->refundRequests()->whereIn('state', ['requested', 'approved'])->sum('amount'));
+    }
+
     public function paidAmount(): int
     {
-        return (int) ($this->payments_sum_amount ?? ($this->relationLoaded('payments') ? $this->payments->sum('amount') : $this->payments()->sum('amount')));
+        return max(0, $this->grossReceivedAmount() - $this->correctedAmount() + $this->supplementedAmount());
+    }
+
+    public function netReceivedAmount(): int
+    {
+        return max(0, $this->paidAmount() - $this->refundedAmount());
+    }
+
+    public function collectionOpen(): bool
+    {
+        return ! $this->voided_at && $this->refundedAmount() === 0 && $this->reservedRefundAmount() === 0;
     }
 
     public function balance(): int
     {
-        return $this->voided_at ? 0 : max(0, $this->amount - $this->paidAmount());
+        return $this->voided_at || $this->refundedAmount() > 0 ? 0 : max(0, $this->amount - $this->paidAmount());
     }
 
     public function unallocatedAmount(): int
     {
-        return $this->voided_at ? $this->paidAmount() : max(0, $this->paidAmount() - $this->amount);
+        return $this->voided_at ? $this->netReceivedAmount() : max(0, $this->netReceivedAmount() - $this->amount);
     }
 
     public function billingState(): string
     {
-        return $this->voided_at ? 'void' : ($this->paidAmount() >= $this->amount ? 'paid' : ($this->paidAmount() > 0 ? 'partial' : 'unpaid'));
+        if ($this->voided_at) {
+            return 'void';
+        }
+        $net = $this->netReceivedAmount();
+        $reserved = $this->reservedRefundAmount();
+        if ($reserved > 0 && $net - $reserved < $this->amount) {
+            return 'refund_pending';
+        }
+        if ($net >= $this->amount) {
+            return 'paid';
+        }
+        if ($this->refundedAmount() > 0) {
+            return $net > 0 ? 'partially_refunded' : 'refunded';
+        }
+
+        return $this->paidAmount() > 0 ? 'partial' : 'unpaid';
+    }
+
+    private function adjustmentTotal(string $kind, string $alias): int
+    {
+        return array_key_exists($alias, $this->getAttributes()) ? (int) $this->getAttribute($alias)
+            : ($this->relationLoaded('adjustments') ? (int) $this->adjustments->where('kind', $kind)->sum('amount') : (int) $this->adjustments()->where('kind', $kind)->sum('amount'));
     }
 
     public function voidInvoice(string $reason): void
@@ -128,8 +219,8 @@ final class AdvertisingInvoice extends Model
             throw ValidationException::withMessages(['reason' => __('advertising::billing.reason_required')]);
         }
         DB::transaction(function () use ($reason): void {
-            $invoice = self::query()->lockForUpdate()->findOrFail($this->id);
-            if ($invoice->voided_at || $invoice->paidAmount() > 0 || OnlinePaymentAttempt::unresolved($invoice->id)->exists()) {
+            $invoice = self::query()->lockForUpdate()->findOrFail($this->id)->lockFinancials();
+            if ($invoice->voided_at || $invoice->paidAmount() > 0 || $invoice->reservedRefundAmount() > 0 || OnlinePaymentAttempt::unresolved($invoice->id)->exists()) {
                 throw ValidationException::withMessages(['reason' => __('advertising::billing.cannot_void')]);
             }
             $invoice->voiding = true;

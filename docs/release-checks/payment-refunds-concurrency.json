@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-11-05T19:18:25.514505+00:00",
+  "database": "isolated MariaDB 11.4",
+  "workers": "independent PHP processes",
+  "checks": [
+    "two concurrent receipt refund requests: one accepted, one rejected",
+    "two concurrent completions with identical request and bank reference: one immutable ledger entry",
+    "Repeatable Read transaction with an older snapshot rejects a 500000 debit after another process commits 600000 against a 1000000 receipt"
+  ],
+  "passed": true,
+  "external_transfers": false
+}

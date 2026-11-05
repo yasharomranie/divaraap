@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'refund_pending' => 'Refund pending',
+    'partially_refunded' => 'Partially refunded',
+    'refunded' => 'Refunded',
+
     'format' => 'Billing',
     'invoice' => 'Advertising invoice',
     'invoices' => 'Advertising invoices',

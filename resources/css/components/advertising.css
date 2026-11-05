@@ -104,3 +104,7 @@
 .advertising-bundles .card { padding: 20px; overflow-wrap: anywhere; }
 .advertising-bundles__catalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
 .advertising-bundles .input { max-width: 100%; }
+
+.advertising-refund { padding: 20px; overflow-wrap: anywhere; }
+.advertising-refund > .text-title { font-size: 1.25rem; line-height: 1.7; }
+.advertising-invoice [aria-label] > .card { padding: 16px; }

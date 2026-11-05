@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 return [
+    'refund_pending' => 'در انتظار تعیین تکلیف بازپرداخت',
+    'partially_refunded' => 'بخشی از وجه برگشت داده شده',
+    'refunded' => 'وجه برگشت داده شده',
+
     'format' => 'امور مالی',
     'invoice' => 'صورتحساب تبلیغات',
     'invoices' => 'صورتحساب‌های تبلیغات',

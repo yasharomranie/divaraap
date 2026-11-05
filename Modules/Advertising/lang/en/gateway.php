@@ -36,7 +36,7 @@ return [
     'test_passed' => 'Test succeeded; invoice not settled',
     'status_help' => 'The browser callback alone is not a receipt. Check an uncertain payment again and avoid paying again until its outcome is clear.',
     'overpayment' => 'Excess payment or receipt after voiding',
-    'overpayment_help' => 'This amount is recorded and requires administrator attention. No automatic refund is performed.',
+    'overpayment_help' => 'This amount requires attention. Request a refund against the relevant receipt; no automatic transfer occurs.',
     'source' => 'Payment source',
     'manual' => 'Manually recorded receipt',
     'attempt' => 'Payment attempt',

@@ -64,7 +64,7 @@ final class OnlinePaymentAttempt extends Model
         self::callbackBase();
         $created = false;
         $attempt = DB::transaction(function () use ($invoice, $user, $snapshot, &$created): self {
-            $locked = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($invoice->id);
+            $locked = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($invoice->id)->lockFinancials();
             abort_unless((int) $locked->user_id === (int) $user->id, 403);
             $pending = self::unresolved($locked->id)->lockForUpdate()->first();
             if ($pending && $pending->status === 'creating' && $pending->created_at->lt(now()->subMinutes(2))) {
@@ -74,7 +74,7 @@ final class OnlinePaymentAttempt extends Model
                 $pending = null;
             }
             if ($pending) {
-                if ($locked->voided_at || $locked->balance() !== $pending->amount) {
+                if (! $locked->collectionOpen() || $locked->balance() !== $pending->amount) {
                     throw ValidationException::withMessages(['gateway' => __('advertising::gateway.in_progress')]);
                 }
                 if ($pending->gateway === $snapshot['gateway'] && $pending->status === 'pending') {
@@ -82,7 +82,7 @@ final class OnlinePaymentAttempt extends Model
                 }
                 throw ValidationException::withMessages(['gateway' => __('advertising::gateway.in_progress')]);
             }
-            if ($locked->voided_at || $locked->currency !== 'IRR' || ! self::validAmount($locked->balance())) {
+            if (! $locked->collectionOpen() || $locked->currency !== 'IRR' || ! self::validAmount($locked->balance())) {
                 throw ValidationException::withMessages(['gateway' => __('advertising::gateway.invalid_amount')]);
             }
             $token = bin2hex(random_bytes(32));

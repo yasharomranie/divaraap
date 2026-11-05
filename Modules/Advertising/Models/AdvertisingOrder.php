@@ -165,7 +165,7 @@ final class AdvertisingOrder extends Model
         DB::transaction(function () use ($itemId, $campaignId): void {
             $order = self::query()->lockForUpdate()->findOrFail($this->id);
             $order->requireState(['accepted']);
-            $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id);
+            $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id)->lockFinancials();
             if (! isset($order->bundle_snapshot['items'][$itemId - 1]) || $invoice->voided_at || $invoice->billingState() !== 'paid' || ! Campaign::query()->whereKey($campaignId)->exists() || ($itemId === 1 && $order->campaign_id && (int) $order->campaign_id !== $campaignId)) {
                 throw ValidationException::withMessages(['item_id' => __('advertising::bundles.fulfill_invalid')]);
             }
@@ -244,7 +244,7 @@ final class AdvertisingOrder extends Model
                     return;
                 }
                 $order->requireState(['quoted']);
-                $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id);
+                $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id)->lockFinancials();
                 if ($invoice->voided_at || (int) $invoice->user_id !== (int) $order->user_id) {
                     throw ValidationException::withMessages(['order' => __('advertising::orders.invalid_invoice')]);
                 }
@@ -272,7 +272,7 @@ final class AdvertisingOrder extends Model
             $order = self::query()->lockForUpdate()->findOrFail($this->id);
             $order->requireState(['submitted', 'quoted', 'accepted']);
             if ($order->invoice_id) {
-                $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id);
+                $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id)->lockFinancials();
                 if (! $invoice->voided_at) {
                     $invoice->voidInvoice($reason);
                 }
@@ -291,7 +291,7 @@ final class AdvertisingOrder extends Model
             if ($order->bundle_id && (count($order->bundle_fulfillment ?? []) !== count($order->bundle_snapshot['items']) || (int) ($order->bundle_fulfillment[1]['campaign_id'] ?? 0) !== $campaignId)) {
                 throw ValidationException::withMessages(['campaign_id' => __('advertising::bundles.incomplete')]);
             }
-            $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id);
+            $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($order->invoice_id)->lockFinancials();
             if ($invoice->voided_at || $invoice->billingState() !== 'paid' || ! Campaign::query()->whereKey($campaignId)->exists() || ($order->campaign_id && (int) $order->campaign_id !== $campaignId)) {
                 throw ValidationException::withMessages(['campaign_id' => __('advertising::orders.complete_invalid')]);
             }

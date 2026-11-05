@@ -70,6 +70,10 @@ final class SellerPackagePurchase extends Model
                 $query->whereIn('state', ['requested', 'invoiced'])->orWhere(fn ($active) => $active->where('state', 'active')->where('ends_at', '>', now()));
             })->lockForUpdate()->get();
             foreach ($existing as $purchase) {
+                $funding = $purchase->state === 'active' ? AdvertisingInvoice::financialQuery()->whereKey($purchase->invoice_id)->first() : null;
+                if ($funding && $funding->refundedAmount() > 0 && $funding->billingState() !== 'paid') {
+                    continue;
+                }
                 if ($purchase->state === 'requested' && (int) $purchase->package_id === $packageId && $purchase->snapshot == $offer) {
                     return $purchase;
                 }
@@ -113,6 +117,10 @@ final class SellerPackagePurchase extends Model
 
     public function displayState(): string
     {
+        if ($this->state === 'active' && $this->ends_at->greaterThan(now()) && $this->remaining() > 0 && AdvertisingInvoice::financialQuery()->whereKey($this->invoice_id)->first()?->billingState() !== 'paid') {
+            return 'financial_hold';
+        }
+
         return $this->state !== 'active' ? $this->state : ($this->ends_at->lessThanOrEqualTo(now()) ? 'expired' : ($this->remaining() === 0 ? 'spent' : 'active'));
     }
 
@@ -125,7 +133,7 @@ final class SellerPackagePurchase extends Model
                 $invoice = AdvertisingInvoice::create(['user_id' => $purchase->user_id, 'description' => $purchase->snapshot['name'].' #'.$purchase->id, 'amount' => $purchase->snapshot['price']]);
                 $purchase->forceFill(['state' => 'invoiced', 'invoice_id' => $invoice->id]);
             } elseif ($action === 'activate' && $purchase->state === 'invoiced') {
-                $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($purchase->invoice_id);
+                $invoice = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($purchase->invoice_id)->lockFinancials();
                 if ($invoice->voided_at || $invoice->billingState() !== 'paid') {
                     throw ValidationException::withMessages(['package' => __('promotion::packages.unpaid')]);
                 }
@@ -153,7 +161,8 @@ final class SellerPackagePurchase extends Model
             throw ValidationException::withMessages(['package' => __('promotion::packages.invalid_state')]);
         }
         $locked = self::query()->where('user_id', auth()->id())->lockForUpdate()->findOrFail($this->id);
-        if ($locked->displayState() !== 'active') {
+        $invoice = AdvertisingInvoice::query()->whereKey($locked->invoice_id)->lockForUpdate()->firstOrFail()->lockFinancials();
+        if ($locked->displayState() !== 'active' || $invoice->billingState() !== 'paid') {
             throw ValidationException::withMessages(['package' => __('promotion::packages.invalid_state')]);
         }
         $locked->used_credits++;

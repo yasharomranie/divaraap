@@ -56,12 +56,12 @@ final class AdvertisingPayment extends Model
         }
         try {
             return DB::transaction(function () use ($invoice, $amount, $reference, $note): self {
-                $locked = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($invoice->id);
+                $locked = AdvertisingInvoice::query()->lockForUpdate()->findOrFail($invoice->id)->lockFinancials();
                 $existing = self::withTrashed()->where('reference', $reference)->first();
                 if ($existing) {
                     return self::matchingReceipt($existing, $locked, (int) $amount);
                 }
-                if (OnlinePaymentAttempt::unresolved($locked->id)->exists()) {
+                if (! $locked->collectionOpen() || OnlinePaymentAttempt::unresolved($locked->id)->exists()) {
                     throw ValidationException::withMessages(['amount' => __('advertising::gateway.in_progress')]);
                 }
                 if ($locked->voided_at || (int) $amount > $locked->balance()) {

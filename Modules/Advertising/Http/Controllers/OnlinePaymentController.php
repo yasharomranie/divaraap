@@ -31,7 +31,7 @@ final class OnlinePaymentController extends Controller
         $record = OnlinePaymentAttempt::query()->findOrFail($attempt);
         $record->assertOwned($request->user());
         $invoice = AdvertisingInvoice::query()->findOrFail($record->invoice_id);
-        abort_unless($record->status === 'pending' && ! $invoice->voided_at && $invoice->balance() === $record->amount, 422);
+        abort_unless($record->status === 'pending' && $invoice->collectionOpen() && $invoice->balance() === $record->amount, 422);
 
         return $this->redirectToGateway($record);
     }

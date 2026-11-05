@@ -16,7 +16,7 @@
                     @csrf
                     <button class="button button--secondary" type="submit">{{ __('advertising::gateway.check') }}</button>
                 </form>
-                @if($paymentAttempt->status === 'pending' && ! $invoice->voided_at && $invoice->balance() === $paymentAttempt->amount)
+                @if($paymentAttempt->status === 'pending' && $invoice->collectionOpen() && $invoice->balance() === $paymentAttempt->amount)
                     <form method="POST" action="{{ route('payments.resume', $paymentAttempt) }}">
                         @csrf
                         <button class="button button--primary" type="submit">{{ __('advertising::gateway.resume') }}</button>
@@ -25,7 +25,7 @@
             @endif
         @endif
         @error('gateway')<p class="field__error" role="alert">{{ $message }}</p>@enderror
-        @if(! $invoice->voided_at && $invoice->balance() > 0 && (! $paymentAttempt || in_array($paymentAttempt->status, ['failed', 'test_passed', 'verified'], true)))
+        @if($invoice->collectionOpen() && $invoice->balance() > 0 && (! $paymentAttempt || in_array($paymentAttempt->status, ['failed', 'test_passed', 'verified'], true)))
             @if($gateways && \Modules\Advertising\Models\OnlinePaymentAttempt::validAmount($invoice->balance()))
                 <form method="POST" action="{{ route('payments.start', $invoice) }}" class="stack">
                     @csrf

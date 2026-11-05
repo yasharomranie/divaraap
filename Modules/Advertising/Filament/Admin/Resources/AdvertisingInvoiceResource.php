@@ -53,7 +53,7 @@ final class AdvertisingInvoiceResource extends AdvertisingResource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->withSum('payments', 'amount');
+        return AdvertisingInvoice::financialQuery();
     }
 
     public static function form(Schema $schema): Schema
@@ -81,7 +81,7 @@ final class AdvertisingInvoiceResource extends AdvertisingResource
             TextColumn::make('created_at')->label(__('advertising::billing.issued_at'))->dateTime()->timezone('Asia/Tehran'),
         ])->actions([
             Action::make('receipt')->label(__('advertising::billing.view'))->url(fn (AdvertisingInvoice $record): string => route('advertising.invoices.show', $record)),
-            Action::make('receive')->label(__('advertising::billing.record_payment'))->visible(fn (AdvertisingInvoice $record): bool => $record->balance() > 0 && ! $record->voided_at)
+            Action::make('receive')->label(__('advertising::billing.record_payment'))->visible(fn (AdvertisingInvoice $record): bool => $record->balance() > 0 && $record->collectionOpen())
                 ->requiresConfirmation()->modalDescription(__('advertising::billing.payment_warning'))
                 ->schema([
                     TextInput::make('amount')->label(__('advertising::billing.amount'))->integer()->minValue(1)->maxValue(fn (AdvertisingInvoice $record): int => $record->balance())->required(),

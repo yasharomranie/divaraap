@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-11-05T19:18:55.854143+00:00",
+  "transport": "local receipts; no bank transfer or provider calls",
+  "checks": [
+    "fa 375x812: labels, focus, font, no overflow, private response",
+    "fa 390x844: labels, focus, font, no overflow, private response",
+    "fa 768x1024: labels, focus, font, no overflow, private response",
+    "fa 1440x900: labels, focus, font, no overflow, private response",
+    "fa 812x375: labels, focus, font, no overflow, private response",
+    "en 375x812: labels, focus, font, no overflow, private response",
+    "en 390x844: labels, focus, font, no overflow, private response",
+    "en 768x1024: labels, focus, font, no overflow, private response",
+    "en 1440x900: labels, focus, font, no overflow, private response",
+    "en 812x375: labels, focus, font, no overflow, private response",
+    "native Persian amount request reserves funds and appears on invoice",
+    "real mobile Filament approval and confirmed external refund; owner history updated",
+    "JavaScript disabled native request and withdrawal work",
+    "admin native correction appends history without replacing receipt"
+  ],
+  "passed": true
+}
