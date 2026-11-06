@@ -10,8 +10,10 @@ use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Events\ServingFilament;
 use Filament\Notifications\NotificationMailbox;
 use Filament\Tables\Table;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Modules\Admin\Console\RecoverStaffSecurity;
 use Modules\Admin\Http\Responses\StaffLoginResponse;
 use Modules\Admin\Support\AdvertisingCapacity;
 
@@ -19,6 +21,15 @@ class AdminServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        $this->loadRoutesFrom(module_path('Admin', 'routes/staff-security.php'));
+        if ($this->app->runningInConsole()) {
+            $this->commands([RecoverStaffSecurity::class]);
+        }
+        Event::listen(Login::class, function (): void {
+            if (request()->hasSession()) {
+                session()->forget(['staff_security.proof', 'staff_security.enrollment', 'breezy_session_id']);
+            }
+        });
         $this->loadTranslationsFrom(module_path('Admin', 'lang'), 'admin');
         $this->loadViewsFrom(module_path('Admin', 'resources/views'), 'admin');
         Table::configureUsing(fn (Table $table) => $table->extraRecordLinkAttributes(

@@ -28,9 +28,12 @@ use Modules\Admin\Filament\Pages\AdminDashboard;
 use Modules\Admin\Filament\Pages\ListingRiskReview;
 use Modules\Admin\Filament\Pages\LocalizedFileManager;
 use Modules\Admin\Filament\Pages\ManageDeployment;
+use Modules\Admin\Filament\Pages\ManageStaffSecurity;
 use Modules\Admin\Filament\Pages\Operations;
 use Modules\Admin\Filament\Pages\OperationsSettings;
 use Modules\Admin\Filament\Pages\ProductionDeploy;
+use Modules\Admin\Filament\Pages\StaffSecurityEvents;
+use Modules\Admin\Http\Middleware\EnforceStaffSecurity;
 use Modules\Advertising\AdvertisingPlugin;
 use Modules\Category\CategoryPlugin;
 use Modules\Demo\App\Http\Middleware\ResolveDemoRequest;
@@ -62,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
             ->homeUrl(fn (): string => auth()->user()?->hasRole('admin') ? url('/admin') : url('/admin/operations'))
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin-accessibility'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.admin-mobile-navigation'))
-            ->pages([LocalizedFileManager::class, ManageDeployment::class, ProductionDeploy::class, Operations::class, OperationsSettings::class, ListingRiskReview::class])
+            ->pages([LocalizedFileManager::class, ManageDeployment::class, ProductionDeploy::class, Operations::class, OperationsSettings::class, ListingRiskReview::class, ManageStaffSecurity::class, StaffSecurityEvents::class])
             ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->login()
             ->font('Vazirmatn', url: fn (): string => asset('assets/fonts/vazirmatn/font.css'), provider: LocalFontProvider::class)
@@ -119,6 +122,6 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->authMiddleware([Authenticate::class]);
+            ->authMiddleware([Authenticate::class, EnforceStaffSecurity::class], isPersistent: true);
     }
 }

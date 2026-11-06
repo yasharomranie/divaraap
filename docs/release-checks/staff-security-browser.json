@@ -1,0 +1,22 @@
+{
+  "checked_at": "2026-11-06T08:43:01.173271+00:00",
+  "scope": "isolated local accounts; no real staff configuration changed",
+  "checks": [
+    "real admin password + native QR/TOTP enrollment and one-time recovery display; actual policy activation",
+    "covered support login forced to enroll; successful staff enrollment returns to operations",
+    "real stale Livewire mutation blocked; password+fresh recovery confirmation; interrupted save never auto-replayed",
+    "fa 375x812: private form, no overflow, font, labeled inputs and focus",
+    "fa 390x844: private form, no overflow, font, labeled inputs and focus",
+    "fa 768x1024: private form, no overflow, font, labeled inputs and focus",
+    "fa 1440x900: private form, no overflow, font, labeled inputs and focus",
+    "fa 812x375: private form, no overflow, font, labeled inputs and focus",
+    "en 375x812: private form, no overflow, font, labeled inputs and focus",
+    "en 390x844: private form, no overflow, font, labeled inputs and focus",
+    "en 768x1024: private form, no overflow, font, labeled inputs and focus",
+    "en 1440x900: private form, no overflow, font, labeled inputs and focus",
+    "en 812x375: private form, no overflow, font, labeled inputs and focus",
+    "fresh browser requires MFA; JavaScript-disabled recovery verification works and records new-context alert",
+    "admin events show privacy-safe metadata without passwords or recovery codes"
+  ],
+  "passed": true
+}

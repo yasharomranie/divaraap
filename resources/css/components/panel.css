@@ -558,3 +558,9 @@
 .support-ticket input[type="checkbox"] { flex-shrink: 0; width: 20px; height: 20px; }
 .support-ticket summary { cursor: pointer; min-height: 44px; padding-block: 10px; }
 .support-ticket summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.staff-security { min-width: 0; overflow-wrap: anywhere; }
+.staff-security .text-title { font-size: 1.25rem; line-height: 1.7; }
+.staff-security__qr { padding: 12px; background: white; border-radius: 12px; width: fit-content; }
+.staff-security__qr svg { display: block; max-width: 100%; }
+.staff-security__codes { display: grid; gap: 12px; list-style: none; padding: 0; text-align: start; }

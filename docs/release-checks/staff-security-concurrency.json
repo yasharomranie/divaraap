@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-11-06T08:37:37.238501+00:00",
+  "database": "isolated MariaDB 11.4",
+  "workers": "independent PHP processes",
+  "checks": [
+    "one recovery code consumed by only one simultaneous session",
+    "one TOTP step accepted by only one simultaneous session",
+    "six concurrent invalid attempts produce five counted failures and one cooldown block"
+  ],
+  "passed": true,
+  "external_messages": false
+}

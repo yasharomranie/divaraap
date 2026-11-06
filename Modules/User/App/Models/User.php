@@ -19,9 +19,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Admin\Models\StaffSecurity;
+use Modules\Admin\Models\StaffSecurityPolicy;
 use Modules\Conversation\App\Models\Conversation;
 use Modules\Conversation\App\Models\ConversationMessage;
 use Modules\Favorite\App\Models\BuyerAlert;
@@ -46,7 +49,17 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     use LogsActivity;
     use Notifiable;
     use SoftDeletes;
-    use TwoFactorAuthenticatable;
+    use TwoFactorAuthenticatable {
+        disableTwoFactorAuthentication as private disableBreezyTwoFactorAuthentication;
+    }
+
+    public function disableTwoFactorAuthentication(): void
+    {
+        if (StaffSecurityPolicy::current()->requires($this) && app(StaffSecurity::class)->record($this)?->is_confirmed) {
+            throw ValidationException::withMessages(['current_password' => __('admin::security.cannot_disable')]);
+        }
+        $this->disableBreezyTwoFactorAuthentication();
+    }
 
     protected $fillable = ['name', 'email', 'password', 'avatar_url', 'status'];
 
