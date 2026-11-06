@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Modules\Admin\Console\MonitorOperations;
 use Modules\Admin\Console\RecoverStaffSecurity;
 use Modules\Admin\Http\Responses\StaffLoginResponse;
 use Modules\Admin\Support\AdvertisingCapacity;
@@ -22,8 +23,9 @@ class AdminServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(module_path('Admin', 'routes/staff-security.php'));
+        $this->loadRoutesFrom(module_path('Admin', 'routes/operational-monitor.php'));
         if ($this->app->runningInConsole()) {
-            $this->commands([RecoverStaffSecurity::class]);
+            $this->commands([RecoverStaffSecurity::class, MonitorOperations::class]);
         }
         Event::listen(Login::class, function (): void {
             if (request()->hasSession()) {

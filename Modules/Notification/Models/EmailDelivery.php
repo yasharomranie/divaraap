@@ -25,6 +25,17 @@ final class EmailDelivery extends Model
         return ['preference_version' => 'integer', 'started_at' => 'datetime', 'accepted_at' => 'datetime'];
     }
 
+    public static function monitoringSummary(int $ageMinutes, int $windowMinutes): array
+    {
+        return [
+            'backlog' => self::query()->where(function ($query) use ($ageMinutes): void {
+                $query->where(fn ($pending) => $pending->where('state', 'pending')->where('created_at', '<', now()->subMinutes($ageMinutes)))
+                    ->orWhere(fn ($processing) => $processing->where('state', 'processing')->where('started_at', '<', now()->subMinutes(10)));
+            })->count(),
+            'failures' => self::query()->whereIn('state', ['failed', 'uncertain'])->where('updated_at', '>=', now()->subMinutes($windowMinutes))->count(),
+        ];
+    }
+
     public static function enqueue(UserNotification $notification): void
     {
         $settings = app(EmailNotificationSettings::class);

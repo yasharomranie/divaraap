@@ -210,6 +210,30 @@ final class DeploymentManager
         return [$metadata, $path];
     }
 
+    public function monitoringSnapshot(int $staleMinutes): array
+    {
+        try {
+            $layout = $this->layout();
+        } catch (RuntimeException $error) {
+            if ($error->getMessage() === 'Deployment is available only in the shared-hosting installation package.') {
+                return ['status' => 'not_applicable', 'code' => 'not_hosted', 'value' => null];
+            }
+            throw $error;
+        }
+        $job = $layout->read('deployment-job.json');
+        $state = $job['state'] ?? '';
+        $path = $layout->root.'/deployment-maintenance.json';
+        $maintenance = is_file($path);
+        if (! $maintenance) {
+            $path = $layout->root.'/deployment-job.json';
+        }
+        $age = is_file($path) ? max(0, time() - (int) filemtime($path)) : 0;
+        $bad = $state === 'failed' || (($state === 'running' || $maintenance) && $age > $staleMinutes * 60);
+        $known = in_array($state, ['', 'prepared', 'running', 'completed', 'failed', 'recovered'], true);
+
+        return ['status' => $bad ? 'critical' : ($maintenance ? 'warning' : ($known ? 'healthy' : 'unknown')), 'code' => $bad ? 'deploy_interrupted' : ($maintenance ? 'deploy_maintenance' : 'local_deployment'), 'value' => $age];
+    }
+
     public function status(): array
     {
         $job = $this->layout()->read('deployment-job.json');

@@ -1,0 +1,55 @@
+{
+  "database": "MariaDB 11.4",
+  "workers": 8,
+  "sample_round_one": [
+    "busy",
+    "busy",
+    "busy",
+    "busy",
+    "busy",
+    "sampled",
+    "busy",
+    "busy"
+  ],
+  "sample_round_two": [
+    "busy",
+    "busy",
+    "busy",
+    "busy",
+    "busy",
+    "busy",
+    "sampled",
+    "busy"
+  ],
+  "acknowledgements": [
+    "stale",
+    "stale",
+    "stale",
+    "accepted",
+    "stale",
+    "stale",
+    "stale",
+    "stale"
+  ],
+  "configuration_updates": [
+    "stale",
+    "stale",
+    "stale",
+    "stale",
+    "stale",
+    "stale",
+    "stale",
+    "accepted"
+  ],
+  "state": {
+    "checks": 10,
+    "incidents": 1,
+    "active": 1,
+    "notifications": 1,
+    "acks": 1,
+    "errors": 80,
+    "version": 2
+  },
+  "passed": true,
+  "scope": "isolated temporary database; no production alerts"
+}

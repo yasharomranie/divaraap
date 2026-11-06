@@ -13,6 +13,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Modules\Admin\Http\Middleware\EnforceStaffSecurity;
+use Modules\Admin\Models\OperationalSignals;
 use Modules\Demo\App\Http\Middleware\ResolveDemoRequest;
 use Modules\Site\App\Http\Middleware\BootstrapAppData;
 use Modules\Site\App\Http\Middleware\SetLocale;
@@ -44,6 +45,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->dontFlash(['code']);
+        $exceptions->report(function (Throwable $error): void {
+            OperationalSignals::recordServerError($error);
+        });
     })->create();
 
 if (is_file($hostingPath = __DIR__.'/hosting-public.php')) {

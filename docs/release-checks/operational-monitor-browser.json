@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-11-06T10:07:58.085950+00:00",
+  "scope": "isolated database and local admin only; no production monitoring activated",
+  "checks": [
+    "Real admin selects recipient and enables monitor through Filament form",
+    "Actual manual sample, incident history, review modal and saved encrypted note; acknowledgement leaves fault open",
+    "fa /admin/operational-health 375x812: no overflow, font, visible labels and keyboard focus",
+    "fa /admin/operational-health 390x844: no overflow, font, visible labels and keyboard focus",
+    "fa /admin/operational-health 768x1024: no overflow, font, visible labels and keyboard focus",
+    "fa /admin/operational-health 1440x900: no overflow, font, visible labels and keyboard focus",
+    "fa /admin/operational-health 812x375: no overflow, font, visible labels and keyboard focus",
+    "fa /admin/manage-operational-monitor 375x812: no overflow, font, visible labels and keyboard focus",
+    "fa /admin/manage-operational-monitor 390x844: no overflow, font, visible labels and keyboard focus",
+    "fa /admin/manage-operational-monitor 768x1024: no overflow, font, visible labels and keyboard focus",
+    "fa /admin/manage-operational-monitor 1440x900: no overflow, font, visible labels and keyboard focus",
+    "fa /admin/manage-operational-monitor 812x375: no overflow, font, visible labels and keyboard focus",
+    "en /admin/operational-health 375x812: no overflow, font, visible labels and keyboard focus",
+    "en /admin/operational-health 390x844: no overflow, font, visible labels and keyboard focus",
+    "en /admin/operational-health 768x1024: no overflow, font, visible labels and keyboard focus",
+    "en /admin/operational-health 1440x900: no overflow, font, visible labels and keyboard focus",
+    "en /admin/operational-health 812x375: no overflow, font, visible labels and keyboard focus",
+    "en /admin/manage-operational-monitor 375x812: no overflow, font, visible labels and keyboard focus",
+    "en /admin/manage-operational-monitor 390x844: no overflow, font, visible labels and keyboard focus",
+    "en /admin/manage-operational-monitor 768x1024: no overflow, font, visible labels and keyboard focus",
+    "en /admin/manage-operational-monitor 1440x900: no overflow, font, visible labels and keyboard focus",
+    "en /admin/manage-operational-monitor 812x375: no overflow, font, visible labels and keyboard focus"
+  ],
+  "passed": true
+}
