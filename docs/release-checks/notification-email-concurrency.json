@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-11-06T07:07:26.364827+00:00",
+  "database": "isolated MariaDB 11.4",
+  "transport": "local SMTP sink only",
+  "checks": [
+    "two independent workers claim the same delivery once",
+    "concurrent distinct deliveries respect a one-attempt user budget",
+    "concurrent users respect the site-wide daily limit",
+    "concurrent preference edits reject one stale revision",
+    "exactly three additional MIME messages accepted locally"
+  ],
+  "passed": true
+}

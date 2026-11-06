@@ -3,6 +3,7 @@
 @section('title', __('notification::messages.notifications'))
 
 @section('panel_content')
+<a class="button button--secondary" href="{{ route('notification-email.edit') }}">{{ __('notification::email.preferences') }}</a>
 <header class="panel-head">
     <div class="panel-head__text">
         <h1 class="title-page">{{ __('notification::messages.notifications') }}</h1>

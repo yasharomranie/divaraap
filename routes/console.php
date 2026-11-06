@@ -16,3 +16,5 @@ if (config('demo.enabled')) {
 }
 
 Schedule::call(fn () => Listing::publishDue(200))->everyMinute()->name('publish-scheduled-listings')->withoutOverlapping();
+
+Schedule::command('notifications:deliver-email --limit=50')->everyMinute()->withoutOverlapping();

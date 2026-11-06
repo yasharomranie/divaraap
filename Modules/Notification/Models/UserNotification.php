@@ -43,6 +43,11 @@ class UserNotification extends Model
         'read_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        self::created(fn (self $notification) => EmailDelivery::enqueue($notification));
+    }
+
     public function scopeForUser(Builder $query, int $userId): Builder
     {
         return $query->where('user_id', $userId);
@@ -63,7 +68,7 @@ class UserNotification extends Model
             'action_url' => $actionUrl,
         ]);
 
-        $notification->save();
+        $notification->saveOrFail();
 
         return $notification;
     }

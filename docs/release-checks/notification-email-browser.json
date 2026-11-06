@@ -1,0 +1,23 @@
+{
+  "checked_at": "2026-11-06T07:05:47.675758+00:00",
+  "scope": "isolated PostgreSQL app and local SMTP sink; no external recipient delivery",
+  "checks": [
+    "real admin saves enabled SMTP delivery and daily budgets",
+    "fa 375x812: no overflow, labeled controls, visible focus, touch targets and font",
+    "fa 390x844: no overflow, labeled controls, visible focus, touch targets and font",
+    "fa 768x1024: no overflow, labeled controls, visible focus, touch targets and font",
+    "fa 1440x900: no overflow, labeled controls, visible focus, touch targets and font",
+    "fa 812x375: no overflow, labeled controls, visible focus, touch targets and font",
+    "en 375x812: no overflow, labeled controls, visible focus, touch targets and font",
+    "en 390x844: no overflow, labeled controls, visible focus, touch targets and font",
+    "en 768x1024: no overflow, labeled controls, visible focus, touch targets and font",
+    "en 1440x900: no overflow, labeled controls, visible focus, touch targets and font",
+    "en 812x375: no overflow, labeled controls, visible focus, touch targets and font",
+    "JavaScript-disabled native consent and category selection saved",
+    "actual local SMTP transport accepts one generic MIME email with trusted links and unsubscribe; unselected type omitted",
+    "admin read-only tracking shows SMTP acceptance without private message payload",
+    "anonymous no-JavaScript unsubscribe needs explicit POST confirmation; GET is inert; preferences disabled",
+    "repeated worker run does not duplicate accepted delivery"
+  ],
+  "passed": true
+}

@@ -6,6 +6,7 @@ use Modules\Admin\App\Settings\OperationsSettings;
 use Modules\Site\App\Settings\AppearanceSettings;
 use Modules\Site\App\Settings\AuthenticationSettings;
 use Modules\Site\App\Settings\DeploymentSettings;
+use Modules\Site\App\Settings\EmailNotificationSettings;
 use Modules\Site\App\Settings\GeneralSettings;
 use Modules\Site\App\Settings\PaymentGatewaySettings;
 use Spatie\LaravelData\Data;
@@ -21,6 +22,7 @@ return [
         GeneralSettings::class,
         AuthenticationSettings::class,
         PaymentGatewaySettings::class,
+        EmailNotificationSettings::class,
         AppearanceSettings::class,
         DeploymentSettings::class,
     ],

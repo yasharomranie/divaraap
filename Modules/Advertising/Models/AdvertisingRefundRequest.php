@@ -10,6 +10,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Modules\Notification\Models\UserNotification;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -102,6 +103,7 @@ final class AdvertisingRefundRequest extends Model
             $request->decision_reason = $decision;
             $request->version++;
             $request->persist();
+            UserNotification::publish($request->user_id, 'advertising', __('advertising::refunds.updated'), null, route('advertising.invoices.show', $request->invoice_id));
 
             return $request;
         }, 3);
@@ -156,6 +158,7 @@ final class AdvertisingRefundRequest extends Model
                 $request->version++;
                 $request->persist();
                 AdvertisingPaymentAdjustment::completeRefund($request, $reference);
+                UserNotification::publish($request->user_id, 'advertising', __('advertising::refunds.updated'), null, route('advertising.invoices.show', $request->invoice_id));
 
                 return $request;
             }, 3);
