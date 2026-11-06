@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-11-06T07:50:22.283837+00:00",
+  "scope": "isolated local support app; no external mail or messages",
+  "checks": [
+    "fa 375x812: labeled native controls, focus, font, input size and no overflow",
+    "fa 390x844: labeled native controls, focus, font, input size and no overflow",
+    "fa 768x1024: labeled native controls, focus, font, input size and no overflow",
+    "fa 1440x900: labeled native controls, focus, font, input size and no overflow",
+    "fa 812x375: labeled native controls, focus, font, input size and no overflow",
+    "en 375x812: labeled native controls, focus, font, input size and no overflow",
+    "en 390x844: labeled native controls, focus, font, input size and no overflow",
+    "en 768x1024: labeled native controls, focus, font, input size and no overflow",
+    "en 1440x900: labeled native controls, focus, font, input size and no overflow",
+    "en 812x375: labeled native controls, focus, font, input size and no overflow",
+    "JavaScript-disabled customer creates ticket and receives reference",
+    "actual mobile Filament claim, public reply and private note",
+    "assigned ticket denied to unrelated staff; customer never receives internal note",
+    "resolve, native customer reopen, final staff closure and immutable history"
+  ],
+  "passed": true
+}

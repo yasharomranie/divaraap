@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'support' => 'Support',
     'advertising' => 'Advertising',
     'action_url' => 'Action url',
     'body' => 'Body',

@@ -44,6 +44,7 @@ use Modules\Report\ReportPlugin;
 use Modules\Review\ReviewPlugin;
 use Modules\Site\App\Http\Middleware\BootstrapAppData;
 use Modules\Site\SitePlugin;
+use Modules\Support\SupportPlugin;
 use Modules\User\UserPlugin;
 use Modules\Video\VideoPlugin;
 use MWGuerra\FileManager\FileManagerPlugin;
@@ -98,6 +99,7 @@ class AdminPanelProvider extends PanelProvider
                 ReviewPlugin::make(),
                 ReportPlugin::make(),
                 NotificationPlugin::make(),
+                SupportPlugin::make(),
                 PromotionPlugin::make(),
                 OfferPlugin::make(),
                 PagePlugin::make(),

@@ -17,6 +17,6 @@ final class EmailPreferenceRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['enabled' => ['required', 'boolean'], 'version' => ['required', 'integer', 'min:0'], 'consent' => ['nullable', 'boolean'], 'types' => ['nullable', 'array', 'max:7'], 'types.*' => ['string', 'distinct', Rule::in(EmailPreference::TYPES)]];
+        return ['enabled' => ['required', 'boolean'], 'version' => ['required', 'integer', 'min:0'], 'consent' => ['nullable', 'boolean'], 'types' => ['nullable', 'array', 'max:8'], 'types.*' => ['string', 'distinct', Rule::in(EmailPreference::TYPES)]];
     }
 }

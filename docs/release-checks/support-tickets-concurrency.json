@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-11-06T07:50:37.846143+00:00",
+  "database": "isolated MariaDB 11.4",
+  "workers": "independent PHP processes",
+  "checks": [
+    "two support staff claim one unassigned case: one winner",
+    "same operation key concurrently submits one public reply",
+    "different concurrent replies reject a stale revision",
+    "concurrent ticket creation cannot exceed five open cases"
+  ],
+  "passed": true
+}

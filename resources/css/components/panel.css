@@ -551,3 +551,10 @@
 .notification-email .checkbox { display: flex; align-items: center; gap: 12px; min-height: 44px; }
 .notification-email input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; }
 .notification-email input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.support-ticket { min-width: 0; overflow-wrap: anywhere; }
+.support-ticket .text-title { font-size: 1.25rem; line-height: 1.7; }
+.support-ticket .checkbox { display: flex; gap: 12px; align-items: center; min-height: 44px; }
+.support-ticket input[type="checkbox"] { flex-shrink: 0; width: 20px; height: 20px; }
+.support-ticket summary { cursor: pointer; min-height: 44px; padding-block: 10px; }
+.support-ticket summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }

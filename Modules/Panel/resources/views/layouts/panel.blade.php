@@ -15,6 +15,7 @@
         ['key' => 'service-requests', 'label' => __('listing::services.mine'), 'icon' => 'tag', 'url' => route('service-requests.mine'), 'count' => null],
         ['key' => 'offers', 'label' => __('offer::messages.offers'), 'icon' => 'sort', 'url' => route('panel.offers.index'), 'count' => \Modules\Offer\Models\Offer::pendingCountForSeller($panelUserId)],
         ['key' => 'inbox', 'label' => __('panel::messages.inbox'), 'icon' => 'mail', 'url' => route('panel.inbox.index'), 'count' => auth()->user()->unreadInboxCount()],
+        ['key' => 'support', 'label' => __('support::messages.title'), 'icon' => 'mail', 'url' => route('support.index'), 'count' => null],
         ['key' => 'notifications', 'label' => __('notification::messages.notifications'), 'icon' => 'bell', 'url' => route('panel.notifications.index'), 'count' => \Modules\Notification\Models\UserNotification::unreadCountForUser($panelUserId)],
         ['key' => 'promotions', 'label' => __('promotion::messages.promotions'), 'icon' => 'sparkle', 'url' => route('panel.promotions.index'), 'count' => \Modules\Promotion\Models\PromotionOrder::activeCountForUser($panelUserId)],
         ['key' => 'seller-packages', 'label' => __('promotion::packages.title'), 'icon' => 'sparkle', 'url' => route('seller-packages.index'), 'count' => null],

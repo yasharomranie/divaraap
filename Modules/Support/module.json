@@ -1,0 +1,9 @@
+{
+    "name": "Support",
+    "alias": "support",
+    "description": "Private support ticket workflows",
+    "keywords": [],
+    "priority": 0,
+    "providers": ["Modules\\Support\\Providers\\SupportServiceProvider"],
+    "files": []
+}

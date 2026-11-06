@@ -15,7 +15,7 @@ final class EmailPreference extends Model
 {
     use SoftDeletes;
 
-    public const TYPES = ['offer', 'message', 'review', 'advertising', 'listing', 'promotion', 'saved_search'];
+    public const TYPES = ['offer', 'message', 'review', 'advertising', 'listing', 'promotion', 'saved_search', 'support'];
 
     protected $table = 'notification_email_preferences';
 

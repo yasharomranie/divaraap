@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'support' => 'پشتیبانی',
     'advertising' => 'تبلیغات',
     'action_url' => 'نشانی اقدام',
     'body' => 'متن',
